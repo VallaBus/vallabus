@@ -1,4 +1,4 @@
-import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents } from './utils.js';
+import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration } from './utils.js';
 import { updateBusList } from './api.js';
 import { isIOS } from './browser.js';
 
@@ -9,6 +9,9 @@ if (document.readyState === "loading") {  // Cargando aún no ha terminado
 }
 function main() {
     console.log('🚍 ¡Te damos la bienvenida a VallaBus (AUVASA Tracker)! Recuerda que puedes colaborar con el código en https://github.com/VallaBus/vallabus');
+
+    // Verificamos si necesita migración desde auvasatracker
+    checkStatusForMigration();
 
     // Actualizar y pintar lista de paradas
     updateBusList();
