@@ -1,6 +1,6 @@
 {
-    "name": "AUVASA Tracker - VallaBus",
-    "short_name": "AUVASA Tracker - VallaBus",
+    "name": "VallaBus (Auvasa Tracker)",
+    "short_name": "VallaBus (AUVASA Tracker)",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#FFFFFF",

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VallaBus</title>
+</head>
+<body>
+    <script>
+        // Función para decodificar Base64 y parsear JSON
+        function decodeAndParse(encodedData) {
+            const decodedData = atob(encodedData);
+            return JSON.parse(decodedData);
+        }
+
+        // Función para obtener parámetros de la URL
+        function getQueryParam(paramName) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(paramName);
+        }
+
+        // Obtener los parámetros de la URL
+        const busLinesEncoded = getQueryParam('busLines');
+        const fixedStopsEncoded = getQueryParam('fixedStops');
+        let referrerURL = document.referrer;
+
+        if (referrerURL === '') {
+            referrerURL = 'vallabus.com';
+        }
+
+
+        // Verificar si los parámetros existen y el referral es correcto
+        if (busLinesEncoded && fixedStopsEncoded && referrerURL === 'https://auvasatracker.com/') {
+            try {
+                // Decodificar y parsear los parámetros
+                const busLines = decodeAndParse(busLinesEncoded);
+                const fixedStops = decodeAndParse(fixedStopsEncoded);
+
+                // Función para verificar y actualizar los datos en localStorage
+                function updateLocalStorage(key, newValue) {
+                    const currentValue = localStorage.getItem(key);
+                    if (currentValue === null) {
+                        // Si no existe en localStorage, añadimos los nuevos valores
+                        localStorage.setItem(key, JSON.stringify(newValue));
+                    } else {
+                        // Si existe, combinamos los valores existentes con los nuevos
+                        const currentArray = JSON.parse(currentValue);
+                        const newArray = newValue;
+
+                        // Creamos un objeto para almacenar los elementos únicos
+                        const uniqueElements = {};
+
+                        // Añadimos los elementos existentes al objeto
+                        currentArray.forEach(item => {
+                            const key = `${item.stopNumber}-${item.lineNumber}`;
+                            uniqueElements[key] = item;
+                        });
+
+                        // Añadimos los nuevos elementos al objeto, sobrescribiendo si ya existen
+                        newArray.forEach(item => {
+                            const key = `${item.stopNumber}-${item.lineNumber}`;
+                            uniqueElements[key] = item;
+                        });
+
+                        // Convertimos el objeto de elementos únicos de nuevo a un array
+                        const updatedArray = Object.values(uniqueElements);
+
+                        // Actualizamos los valores en localStorage
+                        localStorage.setItem(key, JSON.stringify(updatedArray));
+                    }
+                }
+
+                // Almacenar los datos en localStorage solo si no existen o si han cambiado
+                updateLocalStorage('busLines', busLines);
+                updateLocalStorage('fixedStops', fixedStops);
+
+                console.log('Datos importados con éxito');
+
+                // Redireccionar a una URL específica
+                window.location.href = "/";
+            } catch (e) {
+                console.error('Error al decodificar y parsear los datos:', e);
+            }
+        } else {
+            document.body.innerHTML = `
+                <p>Acceso denegado</p>
+                <p>Está accediendo desde ${referrerURL}, para poder importar sus paradas en VallaBus desde AUVASA Tracker, por favor <a href="https://auvasatracker.com/export/">haga clic aquí</a>.</p>`;
+        }
+    </script>
+</body>
+</html>
