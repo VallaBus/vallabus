@@ -1885,7 +1885,7 @@ body.dark-mode {
 }
 
 .dark-mode input#stopNumber {
-    border-bottom: 1px solid #EEE;
+    border-bottom: 1px solid #444;
     background: url('/img/location-white.png') no-repeat;
     background-size: 15px;
     background-position: 5px 9px;
