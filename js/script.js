@@ -52,9 +52,13 @@ function main() {
     // Al cerrar un overlay, guarda una preferencia en localStorage
     const overlays = document.getElementsByClassName('overlay');
     Array.from(overlays).forEach(overlay => {
-        overlay.addEventListener('click', function() {
-            closeOverlay(overlay.id);
-        });
+        const closeButton = overlay.querySelector('.close-overlay');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(event) {
+                event.stopPropagation(); // Evita que el evento se propague al overlay padre
+                closeOverlay(overlay.id);
+            });
+        }
     });
 
     // Mostramos los overlays definidos si no se cerraron antes
