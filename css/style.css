@@ -15,7 +15,7 @@
 }
 
 body {
-    font-family: 'Roboto', Helvetica, sans-serif;
+    font-family: Helvetica, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
@@ -1786,7 +1786,6 @@ footer a:hover {
     font-size: 0.9em;
     padding: 10px 15px;
     color: #EEE;
-    font-family: 'Muli';
 }
 
 .overlay-content h2 {
@@ -1825,14 +1824,15 @@ footer a:hover {
 
 #overlay-newnaming0424 .overlay-content {
     top: 60px;
-    width: 80%;
-    right: 6%;
+    width: 308px;
     background-color: #054a3dfa;
     font-size: 0.85em;
     background-image: url('/img/renaming-overlay.jpg');
     padding-top: 350px;
     background-size: contain;
     background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
 }
 
 #overlay-newnaming0424 .overlay-content .close-overlay {
