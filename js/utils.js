@@ -1134,12 +1134,12 @@ export function checkStatusForMigration() {
     // Comprueba si 'busLines' no existe, es null o una cadena vacía
     // Y también comprueba si 'migrationStatus' no existe, es null o una cadena vacía
     if ((!busLines || busLines === 'null' || busLines === '') && (!migrationStatus || migrationStatus === 'null' || migrationStatus === '')) {
-        // Establece 'migrationStatus' a "pending" en el localStorage
-        localStorage.setItem('migrationStatus', 'pending');
+        // Establece 'migrationStatus' a "initiated" en el localStorage
+        localStorage.setItem('migrationStatus', 'initiated');
         // Mandamos a exportar a auvasatracker
         window.location.href = 'https://auvasatracker.com/export/';
-    // Si venía pendiente de migrar pero ya tiene paradas marcamos como completado
-    } else if (migrationStatus && migrationStatus === 'pending' && busLines && JSON.parse(busLines).length > 0) {
+    // Si venía pendiente de migrar marcamos como completado
+    } else if (migrationStatus && migrationStatus === 'initiated') {
         localStorage.setItem('migrationStatus', 'completed');
     }
 }
