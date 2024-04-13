@@ -1058,21 +1058,18 @@ button.remove-stop {
 
 #mapContainer {
     position: fixed;
-    width: 100%;
-    height: 79%;
+    width: 98%;
+    height: 77%;
     margin: 0 auto;
     top: 442px;
     left: 50%;
-    transform: translate(-50%, -290px);
+    transform: translate(-50%, 100%); /* Posición inicial: fuera de la vista hacia abajo */
     z-index: 2;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s linear, visibility 0.3s linear;
+    transition: transform 0.5s ease-in-out;
 }
 
 #mapContainer.show {
-    opacity: 1;
-    visibility: visible;
+    transform: translate(-50%, -290px); /* Posición final: dentro de la vista hacia arriba */
 }
 
 #mapContainer #busMap {
@@ -1171,7 +1168,12 @@ button.remove-stop {
 }
 
 .dark-mode #mapContainer #mapFooter #busMapLastUpdate {
-    background-color: #484b4d;
+    background-color: #333333;
+    border: 1px solid #444;
+}
+
+.dark-mode #mapContainer .leaflet-control-attribution {
+    background-color: #060606;
 }
 
 /* Modo oscuro para popups */
@@ -1531,7 +1533,7 @@ button.remove-stop {
 .dark-mode .global-alerts-box {
     background-color: #333;
     color: #CCC;
-    border-top: 3px solid #ffb33c;
+    border-top: 3px solid #ac7928;
     border-bottom: none;
     border-left: none;
     border-right: none;
