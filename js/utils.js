@@ -1085,6 +1085,8 @@ export function closeAllDialogs(ids) {
             element.style.display = 'none';
         }
     });
+    const mapBox = document.getElementById('mapContainer');
+    mapBox.classList.remove('show');
 }
 
 // Manejo de estado de URLs y acciones en cada ruta

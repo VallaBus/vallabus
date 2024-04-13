@@ -1115,6 +1115,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         mapBox.classList.add('show');
                         updateBusMap(tripId, lineNumber, paradaData, true);
 
+                        // URL para mapa
+                        const dialogState = {
+                            dialogType: 'showTripMap'
+                        };
+                        history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+
                         // Si intervalMap ya está definido, limpiar el intervalo existente
                         if (intervalMap) {
                             clearInterval(intervalMap);
@@ -1129,6 +1135,11 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                                 // Paramos las actualizaciones
                                 clearInterval(intervalMap);
                             }
+                            // Regresamos al home
+                            const dialogState = {
+                                dialogType: 'home'
+                            };
+                            history.replaceState(dialogState, document.title, '#/');
                         });
                 
                         event.stopPropagation();
