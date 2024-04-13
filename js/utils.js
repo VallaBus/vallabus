@@ -1087,6 +1087,11 @@ export function closeAllDialogs(ids) {
     });
     const mapBox = document.getElementById('mapContainer');
     mapBox.classList.remove('show');
+    // Si intervalMap ya está definido, limpiar el intervalo existente
+    if (window.globalState.intervalMap) {
+        clearInterval(window.globalState.intervalMap);
+        window.globalState.intervalMap = null;
+    }
 }
 
 // Manejo de estado de URLs y acciones en cada ruta

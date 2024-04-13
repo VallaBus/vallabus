@@ -1097,7 +1097,6 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
             // Agrega un controlador de eventos de clic mostrar el mapa si hay datos
             // TODO: Mover a utils con delegación de eventos
-            let intervalMap;
             let showMapIcon = lineItem.querySelector('.showMapIcon');
             if (showMapIcon) {
                 showMapIcon.addEventListener('click', function(event) {
@@ -1122,18 +1121,20 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
 
                         // Si intervalMap ya está definido, limpiar el intervalo existente
-                        if (intervalMap) {
-                            clearInterval(intervalMap);
+                        if (window.globalState.intervalMap) {
+                            clearInterval(window.globalState.intervalMap);
+                            window.globalState.intervalMap = null;
                         }
 
-                        intervalMap = setInterval(() => updateBusMap(tripId, lineNumber, paradaData, false), 5000);
+                        window.globalState.intervalMap = setInterval(() => updateBusMap(tripId, lineNumber, paradaData, false), 5000);
                 
                         // Agrega un controlador de eventos de clic a alerts-close
                         mapBox.querySelector('.map-close').addEventListener('click', function() {
                             mapBox.classList.remove('show');
-                            if (intervalMap) {
+                            if (window.globalState.intervalMap) {
                                 // Paramos las actualizaciones
-                                clearInterval(intervalMap);
+                                clearInterval(window.globalState.intervalMap);
+                                window.globalState.intervalMap = null;
                             }
                             // Regresamos al home
                             const dialogState = {
