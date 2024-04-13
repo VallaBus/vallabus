@@ -315,7 +315,7 @@ async function addStopsToMap(tripId, lineNumber) {
     }
 }
 
-let userLocationMarker;
+let userLocationCircle;
 
 function actualizarUbicacionUsuario(mapCenter) {
     if (navigator.geolocation) {
@@ -334,26 +334,17 @@ function mostrarUbicacionUsuario(position, mapCenter) {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
 
-    // Si ya existe un marcador de ubicación del usuario, actualiza su posición
-    if (userLocationMarker) {
-        userLocationMarker.setLatLng([lat, lon]);
-    } else {
-        // Si no, crea un nuevo marcador
-        userLocationMarker = L.marker([lat, lon], {
-            icon: L.divIcon({
-                className: 'user-location-icon',
-                html: '<div class="location-icon"></div>',
-                iconSize: [15, 15]
-            })
-        }).addTo(myMap);
+    // Si ya existe un círculo de ubicación del usuario, elimínalo
+    if (userLocationCircle) {
+        myMap.removeLayer(userLocationCircle);
     }
 
     // Dibuja un círculo alrededor de la ubicación del usuario
-    L.circle([lat, lon], {
+    userLocationCircle = L.circle([lat, lon], {
         color: '#FFF',
         fillColor: '#1da1f2',
         fillOpacity: 0.7,
-        radius: 50
+        radius: 30
     }).addTo(myMap);
 
     if (mapCenter) {
@@ -514,25 +505,16 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
     const lat = ubicacionUsuarioY;
     const lon = ubicacionUsuarioX;
 
-    // Si ya existe un marcador de ubicación del usuario, actualiza su posición
-    if (userLocationMarker) {
-        userLocationMarker.setLatLng([lat, lon]);
-    } else {
-        // Si no, crea un nuevo marcador
-        userLocationMarker = L.marker([lat, lon], {
-            icon: L.divIcon({
-                className: 'user-location-icon',
-                html: '<div class="location-icon"></div>',
-                iconSize: [15, 15]
-            })
-        }).addTo(window.myMapParadasCercanas);
+    // Si ya existe un círculo de ubicación del usuario, elimínalo
+    if (userLocationCircle) {
+        window.myMapParadasCercanas.removeLayer(userLocationCircle);
     }
 
     // Dibuja un círculo alrededor de la ubicación del usuario
-    L.circle([lat, lon], {
+    userLocationCircle = L.circle([lat, lon], {
         color: '#FFF',
         fillColor: '#1da1f2',
         fillOpacity: 0.7,
-        radius: 50
+        radius: 30
     }).addTo(window.myMapParadasCercanas);
 }
