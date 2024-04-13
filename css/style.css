@@ -207,6 +207,10 @@ button#installButton {
     align-items: center;
 } 
 
+.dark-mode .autocomplete-result {
+    border-bottom: 1px solid #444;
+}
+
 .autocomplete-result .numParada {
     background-color: #054a32;
     color: #EEE;
@@ -374,9 +378,10 @@ button#installButton {
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
     width: 90%;
     margin: 1em auto 0 auto;
-    padding: 136px 0 5px 0;
+    padding: 150px 0 5px 0;
     background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
     background-size: 140px;
+    border: 1px solid #CCCCCCBA;
 }
 
 #welcome-box h2 {
@@ -1909,6 +1914,7 @@ body.dark-mode {
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
     background: url("/img/welcome-logo-white.png") no-repeat #2d2d2d center 8px;
     background-size: 140px;
+    border: 1px solid #404040BA !important;
 }
 
 .dark-mode .alert-box, .dark-mode #horarios-box, .dark-mode #nearestStopsResults {
