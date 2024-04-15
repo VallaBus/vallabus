@@ -292,7 +292,7 @@ async function addStopsToMap(tripId, lineNumber) {
                     iconUrl = 'img/bus-stop-dark.png';
                 }
 
-                let popupContent = `<strong>${feature.properties.stop_name}</strong><br>Número: ${feature.properties.stop_code} ${lineasHTML}`;
+                let popupContent = `<strong>${feature.properties.stop_name}</strong> (${feature.properties.stop_code}) ${lineasHTML}`;
 
                 // Verificar si la parada está suprimida
                 let stopSuppressed = suppressedStops.some(stop => stop.numero === feature.properties.stop_code);
