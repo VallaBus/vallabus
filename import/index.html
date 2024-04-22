@@ -84,7 +84,10 @@
         } else {
             document.body.innerHTML = `
                 <h2>Error al importar paradas</h2>
-                <p>Se está intentando importar sus paradas desde ${referrerURL}, para poder importar sus paradas en VallaBus desde AUVASA Tracker, por favor <a href="https://auvasatracker.com/export/">haga clic aquí</a>.</p>`;
+                <p>Se están intentando importar sus paradas desde ${referrerURL}, para poder importar sus paradas desde AUVASA Tracker, por favor <a href="https://auvasatracker.com/export/">haga clic aquí</a>.</p>
+                <p>Si su navegador le sigue llevando a esta página, verifique que no tenga algún complemento o extensión bloqueando contenido o el referrer de las webs.</p>
+                <p>Alternativamente puede volver a añadir sus paradas a mano en <a href="https://vallabus.com">VallaBus</a>, sentimos las molestias.</p>
+            `;
         }
     </script>
 </body>
