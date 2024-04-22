@@ -185,6 +185,68 @@ function actualizarUltimaActualizacion(timestamp) {
     document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
 }
 
+// Función para calcular el ángulo entre dos puntos
+function calculateBearing(lat1, lon1, lat2, lon2) {
+    var dLon = (lon2 - lon1);
+    var y = Math.sin(dLon) * Math.cos(lat2);
+    var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    var brng = Math.atan2(y, x);
+    brng = (brng * (180 / Math.PI));
+    brng = (brng + 360) % 360;
+    brng = 360 - brng; // count degrees counter-clockwise
+
+    // Ajusta el ángulo para que 0 grados apunte hacia arriba en el mapa
+    brng = (brng + 90) % 360;
+
+    // Invierte la dirección de la flecha
+    brng = (brng + 180) % 360;
+
+    return brng;
+}
+
+let directionIcons = [];
+// Función para dibujar indicadores de dirección para cada segmento de línea en la ruta
+function drawDirectionIndicators(mapName, routeCoordinates, className) {
+    if (routeCoordinates.length < 2) return; // Asegúrate de que haya al menos dos puntos
+
+    // Elimina los iconos de dirección existentes
+    directionIcons.forEach(icon => {
+        mapName.removeLayer(icon);
+    });
+    // Limpia el array de iconos de dirección
+    directionIcons = [];
+
+    // Itera sobre cada segmento de línea en la ruta, excluyendo el primer y el último
+    for (let i = 1; i < routeCoordinates.length - 2; i++) {
+        // Solo procesa cada 60 segmentos
+        if (i % 60 !== 0) continue;
+
+        // Extrae las coordenadas de inicio y fin del segmento de línea actual
+        const startCoord = [routeCoordinates[i][1], routeCoordinates[i][0]];
+        const endCoord = [routeCoordinates[i + 1][1], routeCoordinates[i + 1][0]];
+
+        // Calcula el punto medio del segmento
+        const midLat = (startCoord[0] + endCoord[0]) / 2;
+        const midLon = (startCoord[1] + endCoord[1]) / 2;
+        const midCoord = [midLat, midLon];
+
+        // Calcula el ángulo para el segmento de línea actual
+        const bearing = calculateBearing(startCoord[0], startCoord[1], endCoord[0], endCoord[1]);
+
+        // Crea un marcador en el punto medio del segmento de línea actual, apuntando en la dirección del ángulo calculado
+        const directionIcon = L.divIcon({
+            className: `direction-icon ${className}`,
+            html: `<div style="transform: rotate(${bearing}deg);">></div>`, // Usa mayor que (>) como icono
+            iconSize: [10, 10]
+        });
+
+        // Añade el marcador al mapa en la posición del punto medio del segmento de línea actual
+        const marker = L.marker(midCoord, { icon: directionIcon }).addTo(mapName);
+        // Añade el marcador al array de iconos de dirección
+        directionIcons.push(marker);
+    }
+}
+
 let currentShapesLayer = null;
 let currentShapesTripId = null;
 // Route shapes de un trip_id al mapa
@@ -221,6 +283,12 @@ async function addRouteShapesToMap(tripId, lineNumber) {
                 }
             }
         }).addTo(myMap);
+
+        // Extraer coordenadas de shapesData GeoJSON
+        const routeCoordinates = shapesData.features[0].geometry.coordinates;
+        const className = `linea-${lineNumber}`;
+        // Pintamos los indicadores de dirección
+        drawDirectionIndicators(myMap, routeCoordinates, className);
     } catch (error) {
         console.error('Error adding route shapes to the map:', error.message);
     }

@@ -1121,6 +1121,20 @@ button.remove-stop {
     border-radius: 50%;
 }
 
+#mapContainer .direction-icon {
+    font-size: 9px;
+    border-radius: 50%;
+    width: 10px; 
+    height: 10px; /* Asegúrate de que la altura sea igual al tamaño del icono */
+    line-height: 10px; /* Ajusta la altura de la línea para que coincida con el tamaño del icono */
+    text-align: center; /* Centra el texto horizontalmente */
+    display: flex; /* Usa flexbox para centrar el contenido */
+    align-items: center; /* Centra el contenido verticalmente */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    font-weight: bold;
+    font-family: sans-serif;
+    cursor: none;
+}
 
 #mapContainer #mapFooter {
     background: #fff;
@@ -2149,5 +2163,17 @@ body.dark-mode {
 .bus-icon.linea-F1, .linea-F1 h3, #busMap .linea-F1, span.linea-F1, .bus-icon.linea-F2, .linea-F2 h3, #busMap .linea-F2, span.linea-F2, .bus-icon.linea-F3, .linea-F3 h3, #busMap .linea-F3, span.linea-F3, .bus-icon.linea-F4, .linea-F4 h3, #busMap .linea-F4, span.linea-F4, .bus-icon.linea-F5, .linea-F5 h3, #busMap .linea-F5, span.linea-F5, .bus-icon.linea-F6, .linea-F6 h3, #busMap .linea-F6, span.linea-F6 {
     background-color: #006d38;
     stroke: #006d38;
+    color: #FFF;
+}
+
+.bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
+    background-color: #e71515;
+    stroke: #e71515;
+    color: #FFF;
+}
+
+.bus-icon.linea-Buho , .linea-Buho h3, #busMap .linea-Buho, span.linea-Buho {
+    background-color: #000;
+    stroke: #000;
     color: #FFF;
 }
