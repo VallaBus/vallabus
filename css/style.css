@@ -409,8 +409,8 @@ html.ios .ios-only {
     display: block;
 }
 
-#welcome-box .ios-only img {
-    max-width: 60%;
+#welcome-box .ios-only video {
+    max-width: 75%;
     margin: auto;
     display: block;
 }
@@ -1125,15 +1125,15 @@ button.remove-stop {
     font-size: 9px;
     border-radius: 50%;
     width: 10px; 
-    height: 10px; /* Asegúrate de que la altura sea igual al tamaño del icono */
-    line-height: 10px; /* Ajusta la altura de la línea para que coincida con el tamaño del icono */
-    text-align: center; /* Centra el texto horizontalmente */
-    display: flex; /* Usa flexbox para centrar el contenido */
-    align-items: center; /* Centra el contenido verticalmente */
-    justify-content: center; /* Centra el contenido horizontalmente */
+    height: 10px;
+    line-height: 10px;
+    text-align: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
     font-family: sans-serif;
-    cursor: none;
+    cursor: grab;
 }
 
 #mapContainer #mapFooter {
