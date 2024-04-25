@@ -1539,12 +1539,10 @@ button.remove-stop {
     background-color: #f8f5d7;
     color: #72711c;
     border: 1px solid #f5f4c6;
-    border-radius: 4px;
-    padding: 10px;
+    padding: 5px;
     margin-bottom: 10px;
     display: none; /* Inicialmente oculto */
     font-size: 0.8em;
-    text-align: center;
 }
 
 .dark-mode .global-alerts-box {
@@ -1564,16 +1562,24 @@ button.remove-stop {
 
 .global-alerts-box ul li {
     list-style: none;
+    margin: 0;
 }
 
 .global-alerts-box .global-alert-title {
     font-weight: bold;
 }
 
+.global-alerts-box .viewall-header {
+    cursor: pointer;
+    text-align: center;
+}
+
 .global-alerts-box .alert-text-container {
-    padding: 2px 0;
+    padding: 7px 2px;
     height: 18px;
     overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-in;
 }
 
 /* Si tiene mucho contenido lo limitamos */
@@ -1582,6 +1588,7 @@ button.remove-stop {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-align: center;
 }
 
 .global-alerts-box .alert-text-container.expanded {
@@ -1593,12 +1600,12 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    bottom: -1px;
+    top: 2px;
     right: -10px;
     background-color: #f8f5d7;
     padding: 5px 10px;
     cursor: pointer;
-    display: none;
+    display: block;
     color: #72711c;
     font-weight: bold;
     font-size: 1em;

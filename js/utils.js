@@ -584,7 +584,6 @@ export function iniciarIntervalo(updateBusList) {
 
 export function displayGlobalAlertsBanner(alerts) {
     let alertsBox = document.getElementById('globalAlertsBox');
-    let tipsBanner = document.getElementById('tips-banner');
     if (!alertsBox) {
         alertsBox = document.createElement('div');
         alertsBox.id = 'globalAlertsBox';
@@ -595,8 +594,49 @@ export function displayGlobalAlertsBanner(alerts) {
 
     const alertsList = alertsBox.querySelector('ul');
     alertsList.innerHTML = '';
+    let showHeader = false;
 
-    // Si hay alertas globales, las mostramos en un bloque
+    // Si hay varias alertas globales, las ocultamos bajo un header
+    if (alerts && alerts.length > 1) {
+        showHeader = true;
+    }
+
+
+    if (showHeader) {
+        const listItem = document.createElement('li');
+        const textContainer = document.createElement('div');
+        textContainer.className = 'viewall-header';
+        textContainer.innerHTML = `<span class="global-alert-title">Mostrar avisos generales (${alerts.length})</span>`;
+
+        textContainer.addEventListener('click', function() {
+            // Verifica si los alerts están expandidos
+            const areAlertsExpanded = alertsList.querySelectorAll('.visible').length > 0;
+            // Oculta o muestra los alerts según su estado actual
+            alertsList.querySelectorAll('div').forEach((alert, index) => {
+                if (index > 0) {
+                    if (areAlertsExpanded) {
+                        // Si los alerts están visibles, los oculta
+                        alert.style.maxHeight = 0;
+                        alert.style.padding = 0;
+                        alert.classList.remove('visible');
+                        textContainer.innerHTML = `<span class="global-alert-title">Mostrar avisos generales (${alerts.length})</span>`;
+                    } else {
+                        // Si los alerts están ocultos, los muestra
+                        alert.style.maxHeight = '500px';
+                        alert.style.padding = '7px 2px';
+                        alert.classList.add('visible');
+                        alert.classList.add('expanded');
+                        alert.classList.remove('has-more');
+                        textContainer.innerHTML = `<span class="global-alert-title">Ocultar avisos generales (${alerts.length})</span>`;
+                    }
+                }
+            });
+        });
+        listItem.appendChild(textContainer);
+        alertsList.appendChild(listItem);
+    }
+
+    // If there are global alerts, show them in the alerts list
     if (alerts && alerts.length > 0) {
         alerts.forEach(alert => {
             if (alert.ruta.parada === null && alert.ruta.linea === null) {
@@ -617,6 +657,12 @@ export function displayGlobalAlertsBanner(alerts) {
                 listItem.appendChild(textContainer);
                 alertsList.appendChild(listItem);
 
+                // Hide the individual alerts when there are multiple global alerts
+                if (showHeader) {
+                    textContainer.style.maxHeight = 0;
+                    textContainer.style.padding = 0;
+                }
+
                 // Esperar a que el navegador haya renderizado el contenido
                 setTimeout(function() {
                     // Calcular la altura del contenido
@@ -630,16 +676,8 @@ export function displayGlobalAlertsBanner(alerts) {
             }
         });
         alertsBox.style.display = 'block';
-        // Ocultamos el banner de tips para no saturar la pantalla con avisos
-        /*if (tipsBanner) {
-            tipsBanner.style.display = 'none';
-        }*/
     } else {
         alertsBox.style.display = 'none';
-        // Volvemos a mostrar el banner de tips
-        /*if (tipsBanner) {
-            tipsBanner.style.display = 'block';
-        }*/
     }
 }
 
