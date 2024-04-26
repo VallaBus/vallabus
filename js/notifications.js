@@ -1,6 +1,6 @@
 import { showNotice, uuidv4 } from './utils.js';
 
-export const pushApi = 'https://push.auvasatracker.com';
+export const pushApi = 'https://push.vallabus.com';
 
 let clientId = localStorage.getItem('clientId');
 if (!clientId) {

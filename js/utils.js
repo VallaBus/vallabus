@@ -236,7 +236,7 @@ export function updateStopName(stopElement, newName, stopGeo) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     displayLoadingSpinner();
-                    plannerURL = `https://rutas.auvasatracker.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${stopName}::${stopGeo.y},${stopGeo.x}&arriveBy=false&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
+                    plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${stopName}::${stopGeo.y},${stopGeo.x}&arriveBy=false&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
                     showIframe(plannerURL);
                     // URL para rutas
                     const dialogState = {
@@ -1018,7 +1018,7 @@ export function clickEvents() {
     routesButton.addEventListener('click', function() {
         displayLoadingSpinner();
         closeAllDialogs(dialogIds);
-        showIframe('https://rutas.auvasatracker.com');
+        showIframe('https://rutas.vallabus.com');
         // URL para rutas
         const dialogState = {
             dialogType: 'planRoute'
@@ -1031,7 +1031,7 @@ export function clickEvents() {
     viewLinesButton.addEventListener('click', function() {
         displayLoadingSpinner();
         closeAllDialogs(dialogIds);
-        showIframe('https://rutas.auvasatracker.com/#/route');
+        showIframe('https://rutas.vallabus.com/#/route');
         // URL para visor de líneas
         const dialogState = {
             dialogType: 'showLines'
