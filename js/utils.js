@@ -1165,6 +1165,15 @@ export function routersEvents() {
             history.replaceState(dialogState, document.title, '#/');
             closeAllDialogs(dialogIds);
         }
+
+        // Envía la nueva URL a Matomo
+        if (typeof _paq !== 'undefined') {
+            const currentUrl = window.location.href;
+            _paq.push(['setCustomUrl', currentUrl]);
+            _paq.push(['setDocumentTitle', document.title]);
+            _paq.push(['trackPageView']);
+        }
+
     });
 }
 
