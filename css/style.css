@@ -2173,6 +2173,17 @@ body.dark-mode {
     color: #FFF;
 }
 
+.bus-icon.linea-SL, .linea-SL h3, #busMap .linea-SL, span.linea-SL {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-SL {
+    stroke: #505050;
+}
+
 .bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
     background-color: #e71515;
     stroke: #e71515;
