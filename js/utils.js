@@ -1177,12 +1177,15 @@ export function routersEvents() {
 export function trackCurrentUrl() {
     // Envía la URL actual a Matomo
     if (typeof _paq !== 'undefined') {
-        const currentUrl = window.location.hash.substring(1);
+        const currentUrl = window.location.hash;
+
+        if (currentUrl === '#/') {
+            currentUrl = '/';
+        }
+        
         _paq.push(['setCustomUrl', currentUrl]);
         _paq.push(['setDocumentTitle', document.title]);
         _paq.push(['trackPageView']);
-    } else {
-        console.log('undefined');
     }
 }
 

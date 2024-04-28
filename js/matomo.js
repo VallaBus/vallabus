@@ -3,9 +3,19 @@ var _paq = window._paq = window._paq || [];
 _paq.push(['trackPageView']);
 _paq.push(['enableLinkTracking']);
 (function() {
-var u="https://stats.vallabus.com/";
-_paq.push(['setTrackerUrl', u+'matomo.php']);
-_paq.push(['setSiteId', '6']);
-var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    var u="https://stats.vallabus.com/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '6']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
 })();
+
+// Check if the current URL is index.html and set the custom URL to /
+if (window.location.pathname === '/index.html') {
+    _paq.push(['setCustomUrl', '/']);
+}
+
+// Check if the current URL hash is '#/' and set the custom URL to /
+if (window.location.hash === '#/') {
+    _paq.push(['setCustomUrl', '/']);
+}
