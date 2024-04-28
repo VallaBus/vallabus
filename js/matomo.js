@@ -14,8 +14,3 @@ _paq.push(['enableLinkTracking']);
 if (window.location.pathname === '/index.html') {
     _paq.push(['setCustomUrl', '/']);
 }
-
-// Check if the current URL hash is '#/' and set the custom URL to /
-if (window.location.hash === '#/') {
-    _paq.push(['setCustomUrl', '/']);
-}
