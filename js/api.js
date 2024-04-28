@@ -1685,7 +1685,7 @@ export async function displayNearestStopsResults(stops, userLocation) {
                     const dialogState = {
                         dialogType: 'planRoute'
                     };
-                    history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
+                    history.pushState(dialogState, `Planificar ruta`, `#/rutas/parada/${stop.parada.numero}`);
                     trackCurrentUrl();
                 }, showError,
                     { maximumAge: 6000, timeout: 15000 });

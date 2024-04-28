@@ -212,6 +212,8 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 export function updateStopName(stopElement, newName, stopGeo) {
     // Actualiza el nombre de la parada en el DOM
     const nameElement = stopElement.querySelector('h2');
+    const stopNumber = stopElement.id;
+
     if (nameElement) {
         nameElement.innerHTML = `${newName}`;
 
@@ -242,7 +244,7 @@ export function updateStopName(stopElement, newName, stopGeo) {
                     const dialogState = {
                         dialogType: 'planRoute'
                     };
-                    history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
+                    history.pushState(dialogState, `Planificar ruta`, `#/rutas/parada/${stopNumber}`);
                     trackCurrentUrl();
                 }, showError,
                     { maximumAge: 6000, timeout: 15000 });
