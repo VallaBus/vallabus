@@ -1,4 +1,4 @@
-import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe } from './utils.js';
+import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl } from './utils.js';
 import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
 import { updateBusMap, mapaParadasCercanas } from './mapa.js';
 
@@ -1119,6 +1119,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                             dialogType: 'showTripMap'
                         };
                         history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+                        trackCurrentUrl();
 
                         // Si intervalMap ya está definido, limpiar el intervalo existente
                         if (window.globalState.intervalMap) {
@@ -1593,6 +1594,7 @@ export async function displayNearestStopsResults(stops, userLocation) {
         dialogType: 'nearbyStops'
     };
     history.pushState(dialogState, `Paradas cercanas`, `#/cercanas/`);
+    trackCurrentUrl();
 
     resultsDiv.innerHTML = '<button id="close-nearest-stops">X</button>';
 
@@ -1684,6 +1686,7 @@ export async function displayNearestStopsResults(stops, userLocation) {
                         dialogType: 'planRoute'
                     };
                     history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
+                    trackCurrentUrl();
                 }, showError,
                     { maximumAge: 6000, timeout: 15000 });
             } else {

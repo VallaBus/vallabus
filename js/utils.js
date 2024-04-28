@@ -243,6 +243,7 @@ export function updateStopName(stopElement, newName, stopGeo) {
                         dialogType: 'planRoute'
                     };
                     history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
+                    trackCurrentUrl();
                 }, showError,
                     { maximumAge: 6000, timeout: 15000 });
             } else {
@@ -383,7 +384,7 @@ export function createMostrarHorarios(stopId, stopElement, horariosBox) {
             stopNumber: stopId
         };
         history.pushState(dialogState, `Horarios para la parada ${dialogState.stopNumber}`, `#/horarios/${dialogState.stopNumber}`);
-
+        trackCurrentUrl();
         hideLoadingSpinner();
         clearInterval(intervalId);
     });
@@ -1024,6 +1025,7 @@ export function clickEvents() {
             dialogType: 'planRoute'
         };
         history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
+        trackCurrentUrl();
         toogleSidebar();
     });
     
@@ -1037,6 +1039,7 @@ export function clickEvents() {
             dialogType: 'showLines'
         };
         history.pushState(dialogState, `Planificar ruta`, `#/lineas/`);
+        trackCurrentUrl();
         toogleSidebar();
     });
 
@@ -1166,15 +1169,19 @@ export function routersEvents() {
             closeAllDialogs(dialogIds);
         }
 
-        // Envía la nueva URL a Matomo
-        if (typeof _paq !== 'undefined') {
-            const currentUrl = window.location.href;
-            _paq.push(['setCustomUrl', currentUrl]);
-            _paq.push(['setDocumentTitle', document.title]);
-            _paq.push(['trackPageView']);
-        }
-
+        trackCurrentUrl();
     });
+}
+
+// Función para enviar la URL actual a Matomo
+export function trackCurrentUrl() {
+    // Envía la URL actual a Matomo
+    if (typeof _paq !== 'undefined') {
+        const currentUrl = window.location.href;
+        _paq.push(['setCustomUrl', currentUrl]);
+        _paq.push(['setDocumentTitle', document.title]);
+        _paq.push(['trackPageView']);
+    }
 }
 
 // Comprobamos si el usuario no tiene paradas y lo mandamos a exportar de auvasatracker
