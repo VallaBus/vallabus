@@ -2184,6 +2184,15 @@ body.dark-mode {
     stroke: #505050;
 }
 
+/* Líneas de ECSA */
+.bus-icon.linea-L01 , .linea-L01 h3, #busMap .linea-L01, span.linea-L01 {
+    background-color: #23b4ca;
+    stroke: #23b4ca;
+    color: #FFF;
+}
+
+/* Lineas de La Regional */
+
 .bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
     background-color: #e71515;
     stroke: #e71515;

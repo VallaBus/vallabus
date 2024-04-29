@@ -108,9 +108,9 @@ document.getElementById('lineNumber').addEventListener('focus', async function()
     const lineNumber = this.value;
     const stopNumber = document.getElementById('stopNumber').value;
 
-    // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico
-    if (!(/^[a-zA-Z0-9]+$/.test(stopNumber))) {
-        return; // No muestra sugerencias si stopNumber no es alfanumérico
+    // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico o contiene dos puntos
+    if (!(/^[a-zA-Z0-9:]+$/.test(stopNumber))) {
+        return; // No muestra sugerencias si stopNumber no es alfanumérico o contiene dos puntos
     }
 
     // Encuentra la parada en busStops usando stopNumber
