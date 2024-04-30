@@ -2191,6 +2191,12 @@ body.dark-mode {
     color: #FFF;
 }
 
+.bus-icon.linea-L02 , .linea-L02 h3, #busMap .linea-L02, span.linea-L02 {
+    background-color: #40af64;
+    stroke: #40af64;
+    color: #FFF;
+}
+
 /* Lineas de La Regional */
 
 .bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
