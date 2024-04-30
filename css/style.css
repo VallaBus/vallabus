@@ -221,8 +221,14 @@ button#installButton {
     border-radius: 5px;
     font-size: 0.9em;
     margin-right: 10px;
-    min-width: 40px;
+    min-width: 60px;
     text-align: center;
+}
+
+/* Color de parada para otras empresas */
+
+.autocomplete-result .numParada.ecsa { 
+    background-color: #052d4a;
 }
 
 .autocomplete-result.nearbyStopsSuggestion {
