@@ -3,7 +3,7 @@ import { checkAndSendBusArrivalNotification, updateNotifications } from './notif
 import { updateBusMap, mapaParadasCercanas } from './mapa.js';
 
 // Definir la URL base del API, no incluir la / al final
-export const apiEndPoint = 'https://gtfs.vallabus.com';
+export const apiEndPoint = 'https://gtfs-beta.vallabus.com';
 
 // Recuperamos todas las alertas vigentes
 const allAlerts = await fetchAllBusAlerts();
