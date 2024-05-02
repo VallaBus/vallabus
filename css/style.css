@@ -221,8 +221,14 @@ button#installButton {
     border-radius: 5px;
     font-size: 0.9em;
     margin-right: 10px;
-    min-width: 40px;
+    min-width: 60px;
     text-align: center;
+}
+
+/* Color de parada para otras empresas */
+
+.autocomplete-result .numParada.ecsa { 
+    background-color: #052d4a;
 }
 
 .autocomplete-result.nearbyStopsSuggestion {
@@ -2183,6 +2189,21 @@ body.dark-mode {
 .dark-mode #busMap .linea-SL {
     stroke: #505050;
 }
+
+/* Líneas de ECSA */
+.bus-icon.linea-L01 , .linea-L01 h3, #busMap .linea-L01, span.linea-L01 {
+    background-color: #23b4ca;
+    stroke: #23b4ca;
+    color: #FFF;
+}
+
+.bus-icon.linea-L02 , .linea-L02 h3, #busMap .linea-L02, span.linea-L02 {
+    background-color: #40af64;
+    stroke: #40af64;
+    color: #FFF;
+}
+
+/* Lineas de La Regional */
 
 .bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
     background-color: #e71515;

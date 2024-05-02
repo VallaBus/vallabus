@@ -18,16 +18,29 @@ document.getElementById('stopNumber').addEventListener('input', async function()
     resultsContainer.style.display = 'block';
 
     // Crea y muestra los resultados
-    matchingStops.forEach(function(stop) {
-        let resultElement = document.createElement('div');
-        resultElement.innerHTML = `<span class="numParada">${stop.parada.numero}</span> ${stop.parada.nombre}`;
-        resultElement.classList.add('autocomplete-result');
-        resultElement.addEventListener('click', function() {
-            document.getElementById('stopNumber').value = stop.parada.numero;
-            resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
-        });
-        resultsContainer.appendChild(resultElement);
-    });
+   matchingStops.forEach(function(stop) {
+       let resultElement = document.createElement('div');
+       let numParadaSpan = document.createElement('span');
+       numParadaSpan.classList.add('numParada');
+   
+       // Verifica si el código de la parada comienza con un formato específico con nombre de empresa como "ECSA:"
+       const match = stop.parada.numero.match(/^([^:]+):/);
+       if (match) {
+           // Utiliza la parte del nombre antes de los dos puntos como nombre de clase en minúsculas
+           const className = match[1].toLowerCase();
+           numParadaSpan.classList.add(className);
+       }
+   
+       numParadaSpan.textContent = stop.parada.numero;
+   
+       resultElement.innerHTML = `${numParadaSpan.outerHTML} ${stop.parada.nombre}`;
+       resultElement.classList.add('autocomplete-result');
+       resultElement.addEventListener('click', function() {
+           document.getElementById('stopNumber').value = stop.parada.numero;
+           resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
+       });
+       resultsContainer.appendChild(resultElement);
+   });
 });
 
 // Mostrar tip sobre paradas cercanas al hacer clic en input de parada
@@ -108,9 +121,9 @@ document.getElementById('lineNumber').addEventListener('focus', async function()
     const lineNumber = this.value;
     const stopNumber = document.getElementById('stopNumber').value;
 
-    // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico
-    if (!(/^[a-zA-Z0-9]+$/.test(stopNumber))) {
-        return; // No muestra sugerencias si stopNumber no es alfanumérico
+    // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico o contiene dos puntos
+    if (!(/^[a-zA-Z0-9:]+$/.test(stopNumber))) {
+        return; // No muestra sugerencias si stopNumber no es alfanumérico o contiene dos puntos
     }
 
     // Encuentra la parada en busStops usando stopNumber
