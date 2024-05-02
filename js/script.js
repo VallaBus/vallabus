@@ -14,8 +14,7 @@ function main() {
     window.globalState = window.globalState || {};
 
     // Verificamos si necesita migración desde auvasatracker
-    // Desactivado en pruebas
-    // checkStatusForMigration();
+    checkStatusForMigration();
 
     // Actualizar y pintar lista de paradas
     updateBusList();
