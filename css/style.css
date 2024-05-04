@@ -619,6 +619,14 @@ html.ios .ios-only {
     justify-content: center;
 }
 
+.additional-info-panel .proximos-buses span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 102px;
+    display: inline-block;
+    white-space: nowrap;
+}
+
 .additional-info-panel .proximos-buses span.programado {
     background: url('/img/clock.png') no-repeat;
     background-size: 15px;
@@ -1321,7 +1329,7 @@ button.remove-stop {
 
 .additional-info-panel .ocupacion {
     line-height: 17px;
-    margin-left: 5px;
+    margin-left: 0px;
 }
 
 .line-info .hora-tiempo .horaLlegada {

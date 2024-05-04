@@ -97,6 +97,7 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
         for (const bus of busesProximos) {
             let horaLlegada;
             let llegadaClass;
+            let destino = '';
 
             if (bus.realTime && bus.realTime.fechaHoraLlegada) {
                 horaLlegada = new Date(bus.realTime.fechaHoraLlegada).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -108,11 +109,15 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
                 tripId = bus.scheduled.tripId;
             }
 
+            if (bus.scheduled && bus.scheduled.destino) {
+                destino = bus.scheduled.destino;
+            }
+
             // Verificamos que horaLlegada no sea null o vacío
             if (horaLlegada) {
                 innerHTML += `
                     <li data-trip-id="${tripId}">
-                        <span class="${llegadaClass}">${horaLlegada}</span>
+                        <span class="${llegadaClass}"><strong>${horaLlegada}</strong> ${destino}</span>
                         <span class="ocupacion" data-trip-id="${tripId}"></span>
                     </li>
                 `;
