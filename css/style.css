@@ -565,12 +565,12 @@ html.ios .ios-only {
 }
 
 .additional-info-panel {
-    width: 45%;
+    width: 52%;
     height: 100%;
     position: absolute;
     top: 0;
     bottom: 0;
-    right: -43%; /* Inicialmente oculto a la derecha */
+    right: -49%; /* Inicialmente oculto a la derecha */
     background-color: #FFF; 
     overflow-x: hidden; /*Que el contenido no se desborde */
     transition: right 0.5s ease-in-out; /* Transición suave para la propiedad right */
@@ -622,7 +622,7 @@ html.ios .ios-only {
 .additional-info-panel .proximos-buses span {
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 100px;
+    max-width: 93px;
     display: inline-block;
     white-space: nowrap;
 }
