@@ -231,6 +231,11 @@ button#installButton {
     background-color: #052d4a;
 }
 
+.autocomplete-result .numParada.regi { 
+    background-color: #ff83006e;
+    color: #333;
+}
+
 .autocomplete-result.nearbyStopsSuggestion {
     background-color: transparent;
     background-image: url('/img/find-nearby.png');
@@ -835,14 +840,15 @@ button.remove-stop {
 #horarios-box h3 {
     border-radius: 10px;
     text-align: center;
-    max-width: 76px;
-    min-width: 48px;
+    max-width: 85px;
+    min-width: 35px;
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
     font-weight: bold;
     font-size: 1.8em;
     margin: 0.4em 0.2em 0 0;
     display: inline-block;
     cursor: pointer;
+    padding: 0 5px;
 }
 
 .line-info .alert-box .notice, #horarios-box .notice {
@@ -2206,13 +2212,36 @@ body.dark-mode {
 /* Lineas de La Regional */
 
 .bus-icon.linea-Roja , .linea-Roja h3, #busMap .linea-Roja, span.linea-Roja {
-    background-color: #e71515;
-    stroke: #e71515;
+    background-color: #eb4f4f;
+    stroke: #eb4f4f;
+    color: #FFF;
+}
+
+.bus-icon.linea-Azul , .linea-Azul h3, #busMap .linea-Azul, span.linea-Azul {
+    background-color: #156de7;
+    stroke: #156de7;
+    color: #FFF;
+}
+
+.bus-icon.linea-Verde , .linea-Verde h3, #busMap .linea-Verde, span.linea-Verde {
+    background-color: #40bd48;
+    stroke: #40bd48;
     color: #FFF;
 }
 
 .bus-icon.linea-Buho , .linea-Buho h3, #busMap .linea-Buho, span.linea-Buho {
     background-color: #000;
     stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-Buho {
+    stroke: #505050;
+}
+
+.bus-icon.linea-RioSh , .linea-RioSh h3, #busMap .linea-RioSh, span.linea-RioSh {
+    background-color: #e20613;
+    stroke: #e20613;
     color: #FFF;
 }
