@@ -1855,14 +1855,25 @@ footer a:hover {
     margin: 4px 0;
 }
 
+.overlay-content a:link,
+.overlay-content a:visited,
+.overlay-content a:hover,
+.overlay-content a:active {
+    color: #41b7a1;
+}
+
 .overlay-content .close-overlay {
     float: right;
     font-weight: bold;
-    background-color: #375c97;
+    background-color: #2b7b6c;
     color: #FFF;
     font-size: 0.9em;
     padding: 6px 15px;
     margin-top: 5px;
+}
+
+.overlay-content .close-overlay:hover {
+    background-color: #41b7a1;
 }
 
 .arrow {
@@ -1872,6 +1883,19 @@ footer a:hover {
 }
 
 /* Posiciones específicas para diferentes overlays */
+
+#overlay-arroyolaguna0524 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/lineas-laguna-arroyo.jpg');
+    padding-top: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
 
 #overlay-newnaming0424 .overlay-content {
     top: 60px;
@@ -1884,10 +1908,6 @@ footer a:hover {
     background-repeat: no-repeat;
     left: 50%; /* Mueve el elemento hacia la derecha */
     transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
-}
-
-#overlay-newnaming0424 .overlay-content .close-overlay {
-    background-color: #2b7b6c
 }
 
 #overlay-newmenu20240311 .arrow {
