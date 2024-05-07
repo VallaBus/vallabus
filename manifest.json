@@ -1,10 +1,10 @@
 {
-    "name": "VallaBus (Auvasa Tracker)",
-    "short_name": "VallaBus (AUVASA Tracker)",
+    "name": "VallaBus",
+    "short_name": "VallaBus",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "description": "La forma más rápida de saber cuánto le queda a tu bus en Valladolid",
+    "description": "La forma más rápida de saber los horarios de tu bus en Valladolid y alrededores",
     "icons": [
         {
             "src": "favicon.png",
