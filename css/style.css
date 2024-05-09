@@ -236,6 +236,10 @@ button#installButton {
     color: #333;
 }
 
+.autocomplete-result .numParada.line { 
+    background-color: #006680;
+}
+
 .autocomplete-result.nearbyStopsSuggestion {
     background-color: transparent;
     background-image: url('/img/find-nearby.png');
@@ -2271,5 +2275,13 @@ body.dark-mode {
 .bus-icon.linea-RioSh , .linea-RioSh h3, #busMap .linea-RioSh, span.linea-RioSh {
     background-color: #e20613;
     stroke: #e20613;
+    color: #FFF;
+}
+
+/* Lineas de Linecar */
+
+.bus-icon.linea-Aerop , .linea-Aerop h3, #busMap .linea-Aerop, span.linea-Aerop {
+    background-color: #006680;
+    stroke: #006680;
     color: #FFF;
 }
