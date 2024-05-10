@@ -238,7 +238,7 @@ export function showRouteToDestination(destName, destY, destX, arriveByDate = nu
             const dialogState = {
                 dialogType: 'planRoute'
             };
-            history.pushState(dialogState, `Planificar ruta`, `#/rutas/parada/${stopNumber}`);
+            history.pushState(dialogState, `Planificar ruta`, `#/rutas/destino/${encodeURIComponent(destName)}`);
             trackCurrentUrl();
         }, showError,
             { maximumAge: 6000, timeout: 15000 });
