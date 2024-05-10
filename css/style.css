@@ -1534,6 +1534,32 @@ button.remove-stop {
     color: #bfbfbf;
 }
 
+#ruta-pucela {
+    margin: 0; 
+    color: #fcf5ff; 
+    background-color: #8f6b9f;
+    background-image: url('/img/overlays/pucela.png');
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+}
+
+.dark-mode #ruta-pucela {
+    background-color: #543d5e;
+}
+
+#ruta-pucela a {
+    color: #fcf5ff; 
+    text-decoration: none; 
+    display: inline-block; 
+    padding: 5px 5px 5px 26px;
+    border-radius: 10px; /* Bordes redondeados para el enlace */
+}
+
+.dark-mode #ruta-pucela a {
+    color: #bfbfbf;
+}
+
 #newname-banner {
     margin: 0; 
     color: #0e4f0b; 
