@@ -214,6 +214,39 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
     return infoPanel;
 }
 
+// Muestra dialogo de rutas con ruta al destino desde ubicación del usuario
+// Opcionalmente acepta una fecha en formato YYYY-MM-DD y una hora HH:MM
+export function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null) {
+    // Abrimos el planeador de rutas
+    let plannerURL;
+    let arriveBy = 'false';
+    let arriveByParams = '';
+
+    // Si se definió una hora de llegada
+    if (arriveByDate && arriveByHour) {
+        arriveBy = 'true'
+        arriveByParams = `&date=${arriveByDate}&time=${encodeURIComponent(arriveByHour)}`;
+    }
+    
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            displayLoadingSpinner();
+            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
+            showIframe(plannerURL);
+            // URL para rutas
+            const dialogState = {
+                dialogType: 'planRoute'
+            };
+            history.pushState(dialogState, `Planificar ruta`, `#/rutas/parada/${stopNumber}`);
+            trackCurrentUrl();
+        }, showError,
+            { maximumAge: 6000, timeout: 15000 });
+    } else {
+       console.log("Geolocalización no soportada por este navegador.");
+    }
+}
+
 export function updateStopName(stopElement, newName, stopGeo) {
     // Actualiza el nombre de la parada en el DOM
     const nameElement = stopElement.querySelector('h2');
@@ -237,25 +270,7 @@ export function updateStopName(stopElement, newName, stopGeo) {
             // Prevenir la acción por defecto del enlace
             event.preventDefault();
 
-            // Abrimos el planeador de rutas
-            let plannerURL;
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    displayLoadingSpinner();
-                    plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${stopName}::${stopGeo.y},${stopGeo.x}&arriveBy=false&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
-                    showIframe(plannerURL);
-                    // URL para rutas
-                    const dialogState = {
-                        dialogType: 'planRoute'
-                    };
-                    history.pushState(dialogState, `Planificar ruta`, `#/rutas/parada/${stopNumber}`);
-                    trackCurrentUrl();
-                }, showError,
-                    { maximumAge: 6000, timeout: 15000 });
-            } else {
-               console.log("Geolocalización no soportada por este navegador.");
-            }
+            showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
         });
     }
 }
@@ -1060,6 +1075,31 @@ export function clickEvents() {
         }
     });
 
+    // Cualquier elemento con clase routeTo
+    document.addEventListener('click', function(event) {
+        // Verifica si el evento se originó en un elemento con clase routeTo
+        if (event.target.matches('.routeTo')) {
+            // Obtiene el evento para evitar la propagación
+            event.preventDefault();
+
+            // Extrae los datos del elemento
+            const destName = event.target.getAttribute('data-dest-name');
+            const destX = event.target.getAttribute('data-dest-x');
+            const destY = event.target.getAttribute('data-dest-y');
+            // Datos opcionales
+            const arriveByDate = event.target.getAttribute('data-arrive-date');
+            const arriveByHour = event.target.getAttribute('data-arrive-time');
+
+            // Llama a la función showRouteToDestination con los datos extraídos
+
+            // Verifica si los atributos necesarios están definidos
+            if (destName && destX && destY && arriveByDate && arriveByHour) {
+                showRouteToDestination(destName, destY, destX, arriveByDate, arriveByHour);
+            } else if (destName && destX && destY) {
+                showRouteToDestination(destName, destY, destX);
+            }
+        }
+    });
 }
 
 export function socialBrowserWarning() {
