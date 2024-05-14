@@ -848,6 +848,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 let ocupacion;
                 let ocupacionClass = null;
                 let ocupacionDescription = 'Sin datos de ocupación';
+                let estado;
                 
                 // Datos de ocupación
                 if (tripId) {
@@ -902,6 +903,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                     lineItem.classList.remove('programado');
                     lineItem.classList.add('realtime');
+                    estado = busMasCercano.realTime.estado;
                 } else {
                     // Si no hay datos en tiempo real calculamos el tiempo restante a partir de la hora de llegada programada
 
@@ -1023,6 +1025,24 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     </div>
                     ${alertHTML}
                 `;
+
+                // Si el estado en tiempo real es SKIPPED mostramos aviso
+                if (estado && estado == 'SKIPPED') {
+                    lineItem.innerHTML = `
+                    <div class="linea" data-trip-id="${tripId}">
+                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
+                        <p class="destino">${destino}</p>
+                        <p class="hora-programada">
+                        </p>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">-</div>
+                        ${mapElement}
+                        <div class="horaLlegada">Desviado</div>
+                    </div>
+                    ${alertHTML}
+                `;
+                }
 
                 // Guarda si el elemento tenía la clase 'highlight'
                 let hadHighlight = lineItem.classList.contains('highlight');
@@ -1203,8 +1223,8 @@ export function combineBusData(scheduledData) {
                 tripId: realtime.trip_id ? realtime.trip_id.toString() : undefined,
                 latitud: realtime.latitud ? realtime.latitud.toString() : undefined,
                 longitud: realtime.longitud ? realtime.longitud.toString() : undefined,
-                velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined
-                //tiempoRestante: realtime.tiempoRestante
+                velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined,
+                estado: realtime.estado ? realtime.estado.toString() : undefined
             };
         });
 

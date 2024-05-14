@@ -98,11 +98,15 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
             let horaLlegada;
             let llegadaClass;
             let destino = '';
+            let estado;
 
             if (bus.realTime && bus.realTime.fechaHoraLlegada) {
                 horaLlegada = new Date(bus.realTime.fechaHoraLlegada).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
                 llegadaClass = 'realtime';
                 tripId = bus.realTime.tripId;
+                if (bus.realTime.estado) {
+                    estado = bus.realTime.estado;
+                }
             } else if (bus.scheduled && bus.scheduled.fechaHoraLlegada) {
                 horaLlegada = new Date(bus.scheduled.fechaHoraLlegada).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
                 llegadaClass = 'programado';
@@ -115,9 +119,15 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
             // Verificamos que horaLlegada no sea null o vacío
             if (horaLlegada) {
+                let contentHTML = `<strong>${horaLlegada}</strong> ${destino}`;
+
+                if (estado && estado == 'SKIPPED') {
+                    contentHTML = 'Desviado';
+                }
+
                 innerHTML += `
                     <li data-trip-id="${tripId}">
-                        <span class="${llegadaClass}"><strong>${horaLlegada}</strong> ${destino}</span>
+                        <span class="${llegadaClass}">${contentHTML}</span>
                         <span class="ocupacion" data-trip-id="${tripId}"></span>
                     </li>
                 `;
