@@ -49,9 +49,9 @@ header h1 {
     background-image: url('/img/logo-dark.png');
     background-repeat: no-repeat;
     background-size: 33px;
-    background-position: 13px 20px;
+    background-position: 13px 12px;
     padding: 0;
-    margin: -12px 0 0 0;
+    margin: -4px 0 0 0;
     font-family: 'Fira Sans';
     font-weight: 700;
     font-size: 1.3em;
@@ -1519,7 +1519,7 @@ button.remove-stop {
 
 .dark-mode #share-whatsapp {
     background-image: url('/img/share-gray.png');
-    background-color: #054a32;
+    background-color: #26443a;
 }
 
 #share-whatsapp a {
@@ -2054,7 +2054,7 @@ body.dark-mode {
 
 .dark-mode button#removeAllButton {
     background: url('/img/trash-white.png') no-repeat #323232;
-    background-size: 20px;
+    background-size: 15px;
     background-position: 15px center;
     color: #b1b1b1;
 }
