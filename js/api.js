@@ -841,6 +841,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 let diferencia;
                 let ubicacionLat;
                 let ubicacionLon;
+                let vehicleId;
+                let matricula;
                 let velocidad;
                 let futureDate;
                 
@@ -881,6 +883,9 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     ubicacionLat = busMasCercano.realTime.latitud;
                     ubicacionLon = busMasCercano.realTime.longitud;
                     velocidad = busMasCercano.realTime.velocidad;
+                    vehicleId = busMasCercano.realTime.vehicleId;
+                    matricula = busMasCercano.realTime.matricula;
+
                     // tiempoRestante = busMasCercano.realTime.tiempoRestante;
                     // Calculamos el tiempo en el cliente porque el api puede tener cacheado este cálculo
                     // Si horaLlegada es menor de 60 segundos, mostramos 0 minutos
@@ -1011,7 +1016,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 // TODO: Solo actualizar los datos que hayan cambiado desde la anterior actualización cambiado el texto de dentro de los elementos placeholder creados por createBusElement()
                 // Actualizar el HTML con los datos del bus más cercano
                 lineItem.innerHTML = `
-                    <div class="linea" data-trip-id="${tripId}">
+                    <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
                         <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
                         <p class="destino">${destino}</p>
                         <p class="hora-programada">
@@ -1029,7 +1034,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 // Si el estado en tiempo real es SKIPPED mostramos aviso
                 if (estado && estado == 'SKIPPED') {
                     lineItem.innerHTML = `
-                    <div class="linea" data-trip-id="${tripId}">
+                    <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
                         <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
                         <p class="destino">${destino}</p>
                         <p class="hora-programada">
@@ -1124,6 +1129,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     // Obtenemos el tripId del elemento hermano llamado .linea
                     const brotherElement = this.parentElement.previousElementSibling;
                     const tripId = brotherElement.getAttribute('data-trip-id');
+                    const vehicleId = brotherElement.getAttribute('data-vehicle-id');
+                    const matricula = brotherElement.getAttribute('data-matricula');
 
                     if (mapBox) {
                         let paradaData = {
@@ -1131,8 +1138,16 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                             longitud: scheduledData.parada[0].longitud,
                             nombre: scheduledData.parada[0].parada,
                         };
+
+                        let busData = {
+                            tripId: tripId,
+                            matricula: matricula,
+                            vehicleId: vehicleId,
+                            lineNumber: lineNumber,
+                        };
+
                         mapBox.classList.add('show');
-                        updateBusMap(tripId, lineNumber, paradaData, true);
+                        updateBusMap(busData, paradaData, true);
 
                         // URL para mapa
                         const dialogState = {
@@ -1147,7 +1162,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                             window.globalState.intervalMap = null;
                         }
 
-                        window.globalState.intervalMap = setInterval(() => updateBusMap(tripId, lineNumber, paradaData, false), 5000);
+                        window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
                 
                         // Agrega un controlador de eventos de clic a alerts-close
                         mapBox.querySelector('.map-close').addEventListener('click', function() {
@@ -1221,6 +1236,8 @@ export function combineBusData(scheduledData) {
                 llegada: realtime.llegada,
                 fechaHoraLlegada: realtime.fechaHoraLlegada,
                 tripId: realtime.trip_id ? realtime.trip_id.toString() : undefined,
+                vehicleId: realtime.vehicleId ? realtime.vehicleId.toString() : undefined,
+                matricula: realtime.matricula ? realtime.matricula.toString() : undefined,
                 latitud: realtime.latitud ? realtime.latitud.toString() : undefined,
                 longitud: realtime.longitud ? realtime.longitud.toString() : undefined,
                 velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined,
