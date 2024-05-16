@@ -20,7 +20,7 @@ function crearIconoBus(numeroBus) {
 let lat = null;
 let lon = null;
 
-export async function updateBusMap(tripId, lineNumber, paradaData, centerMap) {
+export async function updateBusMap(busData, paradaData, centerMap) {
     // Detectamos el theme para ofrecer una capa u otra de mapa
     const savedTheme = localStorage.getItem('theme');
 
@@ -45,8 +45,13 @@ export async function updateBusMap(tripId, lineNumber, paradaData, centerMap) {
         return;
     }
 
+    if (!busData || !busData.tripId || !busData.lineNumber) {
+        console.error('Datos del bus no disponibles o inválidos');
+        return;
+    }
+
     try {
-        const response = await fetch(apiEndPoint + `/v2/busPosition/${tripId}`);
+        const response = await fetch(apiEndPoint + `/v2/busPosition/${busData.tripId}`);
         // Si no hay datos de ubicación, los dejamos como null
         if (!response.ok) {
             console.log('Error al consultar el API de ubicación');
@@ -69,7 +74,7 @@ export async function updateBusMap(tripId, lineNumber, paradaData, centerMap) {
                 // Si tenemos datos de ubicación los guardamos y mostramos
                 lat = parseFloat(data[0].latitud);
                 lon = parseFloat(data[0].longitud);
-                actualizarBus(lat, lon, lineNumber);
+                actualizarBus(lat, lon, busData);
                 actualizarControlCentro(myMap, lat, lon);
                 actualizarUltimaActualizacion(data[0].timestamp);
                 if (centerMap) {
@@ -78,8 +83,8 @@ export async function updateBusMap(tripId, lineNumber, paradaData, centerMap) {
             }
 
             actualizarParada(paradaData);
-            addRouteShapesToMap(tripId, lineNumber);
-            addStopsToMap(tripId, lineNumber);
+            addRouteShapesToMap(busData.tripId, busData.lineNumber);
+            addStopsToMap(busData.tripId, busData.lineNumber);
         }
     } catch (error) {
         console.error('Error al actualizar el mapa de buses:', error.message);
@@ -156,20 +161,35 @@ function actualizarParada(paradaData) {
     }
 }
 
-function actualizarBus(lat, lon, lineNumber) {
+function actualizarBus(lat, lon, busData) {
     // Actualizar o crear el marcador del autobús
-    const nuevoIconoBus = crearIconoBus(lineNumber);
+    const nuevoIconoBus = crearIconoBus(busData.lineNumber);
+
+    // Guardamos info del bus si existe
+    let busInfo;
+    if (busData && busData.vehicleId !== 'undefined' && busData.matricula !== 'undefined'){
+        busInfo = `
+                    <strong>Info del vehículo</strong></br>
+                    <strong>Número:</strong> ${busData.vehicleId}</br>
+                    <strong>Matrícula:</strong> ${busData.matricula}
+        `;
+    } else {
+        busInfo = 'Sin info del vehiculo aún';
+    }
+
     if (marcadorAutobus) {
         // Si ya existe, actualizamos su posición y su icono
         // Pero solo si lat y lon ha cambiado
         if (marcadorAutobus.getLatLng().lat!== lat || marcadorAutobus.getLatLng().lng!== lon) {
             marcadorAutobus.setLatLng([lat, lon]).setIcon(nuevoIconoBus);
+            // Popup con info del bus
+            marcadorAutobus.bindPopup(`${busInfo}`);
             // Centramos la vista en la nueva ubicación
             myMap.panTo([lat, lon], {animate: true, duration: 1});
         }
     } else {
         // Si no existe, creamos uno nuevo
-        marcadorAutobus = L.marker([lat, lon], {icon: nuevoIconoBus}).addTo(myMap);
+        marcadorAutobus = L.marker([lat, lon], {icon: nuevoIconoBus}).addTo(myMap).bindPopup(`${busInfo}`);
     }
 }
 
