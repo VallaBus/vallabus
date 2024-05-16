@@ -1190,6 +1190,12 @@ button.remove-stop {
     position: absolute;
     bottom: -9px;
     left: 32%;
+    padding: 0px 3px 0px 12px;
+    background-image: url("/img/matricula-e.png");
+    background-size: 8px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    border-radius: 3px;
 }
 
 #mapContainer .direction-icon {
