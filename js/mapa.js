@@ -368,10 +368,11 @@ async function addStopsToMap(tripId, lineNumber) {
                 // HTML para el listado de líneas
                 let lineasHTML = '<div id="lineas-correspondencia">';
                 // Iteramos por las líneas de la parada y las añadimos
-                busLines[feature.properties.stop_code].forEach(lineNumber => {
-                    lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${feature.properties.stop_code}" data-line-number="${lineNumber}">${lineNumber}</span>`;
-                });
-                lineasHTML += '<p>Haga clic en una línea para añadirla a su lista</p></div>';
+                if (busLines[feature.properties.stop_code]) {
+                    busLines[feature.properties.stop_code].forEach(lineNumber => {
+                        lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${feature.properties.stop_code}" data-line-number="${lineNumber}">${lineNumber}</span>`;
+                    });
+                }
 
                 let iconUrl = 'img/bus-stop.png';
                 const savedTheme = localStorage.getItem('theme');
