@@ -168,10 +168,10 @@ function actualizarBus(lat, lon, busData) {
     // Guardamos info del bus si existe
     let busInfo;
     if (busData && busData.vehicleId !== 'undefined' && busData.matricula !== 'undefined'){
-        busInfo = `
-                    <strong>Info del vehículo</strong></br>
-                    <strong>Número:</strong> ${busData.vehicleId}</br>
-                    <strong>Matrícula:</strong> ${busData.matricula}
+        busInfo = `<ul class="busInfo">
+                        <li class="vehicle-id"><strong>${busData.vehicleId}</li>
+                        <li class="matricula"><strong>${busData.matricula}</li>
+                    </ul>
         `;
     } else {
         busInfo = 'Sin info del vehiculo aún';

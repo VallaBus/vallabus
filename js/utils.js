@@ -1,5 +1,5 @@
 import { addLineNotification } from './notifications.js';
-import { removeBusLine, displayScheduledBuses, updateBusList, removeStop, removeAllBusLines, addBusLine, showNearestStops, fetchBusOccupancy, displayNearestStopsResults } from './api.js';
+import { removeBusLine, displayScheduledBuses, updateBusList, removeStop, removeAllBusLines, addBusLine, showNearestStops, fetchBusInfo, displayNearestStopsResults } from './api.js';
 
 // Declaración global de intervalId
 let intervalId;
@@ -163,7 +163,8 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
                 const tripId = busElement.getAttribute('data-trip-id');
                 let ocupacionClass = null;
                 let ocupacionDescription = 'Sin datos de ocupación';
-                const ocupacion = await fetchBusOccupancy(tripId);
+                let busInfo = await fetchBusInfo(tripId);
+                const ocupacion = busInfo.ocupacion ? busInfo.ocupacion : null;
 
                 // Si no es null asignamos la clase
                 if (ocupacion) {

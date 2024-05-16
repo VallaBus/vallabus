@@ -111,7 +111,7 @@ export async function getStopLines(stopId) {
     }
 }
 // Obtener ocupación de un vehículo
-export async function fetchBusOccupancy(tripId) {
+export async function fetchBusInfo(tripId) {
     try {
         const response = await fetch(apiEndPoint + `/v2/busPosition/${tripId}`);
         // Si no hay datos los dejamos como null
@@ -123,16 +123,22 @@ export async function fetchBusOccupancy(tripId) {
             // Devolvemos una versión simplificada del estado
             // primera palabra en minúscula
             const data = await response.json();
+            let busInfo = data[0];
+
             if (data && data.length && data[0].ocupacion) {
                 const occupancyStatus = data[0].ocupacion;
-                return occupancyStatus.split('_')[0].replace('"', '').toLowerCase();
+                busInfo.ocupacion = occupancyStatus.split('_')[0].replace('"', '').toLowerCase();
+            }
+
+            if (busInfo) {
+                return busInfo;
             }
             else {
                 return null;
             }
         }
     } catch (error) {
-        console.error('Error al recuperar ocupación:', error);
+        console.error('Error al recuperar info del bus:', error);
         return null; // Devuelve null en caso de error
     }
 }
@@ -841,6 +847,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 let diferencia;
                 let ubicacionLat;
                 let ubicacionLon;
+                let busInfo;
                 let vehicleId;
                 let matricula;
                 let velocidad;
@@ -854,20 +861,31 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 
                 // Datos de ocupación
                 if (tripId) {
-                    ocupacion = await fetchBusOccupancy(tripId);
-                    // Si no es null asignamos la clase
-                    if (ocupacion) {
-                        const occupancyStatusMapping = {
-                            'empty': 'Todos los asientos están libres',
-                            'many': 'Hay bastantes asientos libres',
-                            'few': 'Hay pocos asientos libres',
-                            'standing': 'No hay asientos, solo de pie',
-                            'crushed': 'No hay casi hueco libre',
-                            'full': 'Bus lleno, no hay sitios',
-                            'not': 'Bus lleno, no admite más personas',
-                          };
-                        ocupacionDescription = occupancyStatusMapping[ocupacion];
-                        ocupacionClass = ocupacion;
+                    // Recuperamos datos del bus en este trip
+                    busInfo = await fetchBusInfo(tripId);
+
+                    if(busInfo) {
+                        ocupacion = busInfo.ocupacion ? busInfo.ocupacion : null;
+                        // Si no es null asignamos la clase
+                        if (ocupacion) {
+                            const occupancyStatusMapping = {
+                                'empty': 'Todos los asientos están libres',
+                                'many': 'Hay bastantes asientos libres',
+                                'few': 'Hay pocos asientos libres',
+                                'standing': 'No hay asientos, solo de pie',
+                                'crushed': 'No hay casi hueco libre',
+                                'full': 'Bus lleno, no hay sitios',
+                                'not': 'Bus lleno, no admite más personas',
+                            };
+                            ocupacionDescription = occupancyStatusMapping[ocupacion];
+                            ocupacionClass = ocupacion;
+                        }
+
+                        ubicacionLat = busInfo.latitud ? busInfo.latitud : null;
+                        ubicacionLon = busInfo.longitud ? busInfo.longitud : null;
+                        velocidad = busInfo.velocidad ? busInfo.velocidad : null;
+                        vehicleId = busInfo.vehicleId ? busInfo.vehicleId : null;
+                        matricula = busInfo.matricula ? busInfo.matricula : null;
                     }
                 }
 
@@ -876,15 +894,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                 // Si hay datos en tiempo real, usarlos, de lo contrario, usar los programados
                 if (busMasCercano.realTime) {
-
                     // Crear un objeto Date con la fecha y hora de llegada
                     horaLlegada = new Date(busMasCercano.realTime.fechaHoraLlegada);
-
-                    ubicacionLat = busMasCercano.realTime.latitud;
-                    ubicacionLon = busMasCercano.realTime.longitud;
-                    velocidad = busMasCercano.realTime.velocidad;
-                    vehicleId = busMasCercano.realTime.vehicleId;
-                    matricula = busMasCercano.realTime.matricula;
 
                     // tiempoRestante = busMasCercano.realTime.tiempoRestante;
                     // Calculamos el tiempo en el cliente porque el api puede tener cacheado este cálculo
