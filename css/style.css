@@ -1145,6 +1145,53 @@ button.remove-stop {
     border-radius: 50%;
 }
 
+#mapContainer #busMap .busInfo {
+    background-image: url("/img/bus-cover.png");
+    background-size: 120px;
+    padding: 20px 10px;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    position: relative;
+    margin: 0;
+    height: 37px;
+    width: 128px;
+    border: 1px solid #CCC;
+    border-radius: 13px;
+    background-color: #ebf4f6;
+}
+
+.dark-mode #mapContainer #busMap .busInfo {
+    background-color: #333333;
+    border: 1px solid #444;
+    background-image: url("/img/bus-cover-gray.png");
+    background-size: 120px;
+}
+
+#mapContainer #busMap .busInfo li {
+    list-style-type: none;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: #FFF;
+}
+
+.dark-mode #mapContainer #busMap .busInfo li {
+    color:#FFF;
+    background-color: #333333;
+}
+
+#mapContainer #busMap .busInfo li.vehicle-id {
+    position: absolute;
+    top: -9px;
+    left: 45%;
+}
+
+#mapContainer #busMap .busInfo li.matricula {
+    position: absolute;
+    bottom: -9px;
+    left: 32%;
+}
+
 #mapContainer .direction-icon {
     font-size: 9px;
     border-radius: 50%;
