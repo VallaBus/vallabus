@@ -1183,13 +1183,13 @@ button.remove-stop {
 #mapContainer #busMap .busInfo li.vehicle-id {
     position: absolute;
     top: -9px;
-    left: 45%;
+    left: 64px;
 }
 
 #mapContainer #busMap .busInfo li.matricula {
     position: absolute;
     bottom: -9px;
-    left: 32%;
+    left: 40px;
     padding: 0px 3px 0px 12px;
     background-image: url("/img/matricula-e.png");
     background-size: 8px;

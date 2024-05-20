@@ -1275,3 +1275,12 @@ export function checkStatusForMigration() {
         localStorage.setItem('migrationStatus', 'completed');
     }
 }
+
+// Añade un espacio entre los carácteres de una matrícula
+export function cleanMatricula(str) {
+    // Slice the string to separate the part before and after the 4th character
+    const beforeFourthChar = str.slice(0, 4);
+    const afterFourthChar = str.slice(4);
+    // Return the concatenated string with a space between the sliced parts
+    return beforeFourthChar + ' ' + afterFourthChar;
+}
