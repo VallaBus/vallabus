@@ -1,4 +1,4 @@
-import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl } from './utils.js';
+import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula } from './utils.js';
 import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
 import { updateBusMap, mapaParadasCercanas } from './mapa.js';
 
@@ -885,7 +885,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         ubicacionLon = busInfo.longitud ? busInfo.longitud : null;
                         velocidad = busInfo.velocidad ? busInfo.velocidad : null;
                         vehicleId = busInfo.vehicleId ? busInfo.vehicleId : null;
-                        matricula = busInfo.matricula ? busInfo.matricula : null;
+                        matricula = busInfo.matricula ? cleanMatricula(busInfo.matricula) : null;
                     }
                 }
 
