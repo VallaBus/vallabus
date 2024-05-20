@@ -152,6 +152,7 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
     function togglePanel() {
         const panel = this.parentElement;
+        let ocupacion;
 
         // Alternar la visibilidad del panel
         panel.classList.toggle('open');
@@ -164,8 +165,9 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
                 let ocupacionClass = null;
                 let ocupacionDescription = 'Sin datos de ocupación';
                 let busInfo = await fetchBusInfo(tripId);
-                const ocupacion = busInfo.ocupacion ? busInfo.ocupacion : null;
-
+                if (busInfo) {
+                    ocupacion = busInfo.ocupacion ? busInfo.ocupacion : null;
+                }
                 // Si no es null asignamos la clase
                 if (ocupacion) {
                     const occupancyStatusMapping = {
