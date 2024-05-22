@@ -1,4 +1,4 @@
-import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration } from './utils.js';
+import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents } from './utils.js';
 import { updateBusList } from './api.js';
 import { isIOS } from './browser.js';
 
@@ -15,6 +15,9 @@ function main() {
 
     // Verificamos si necesita migración desde auvasatracker
     checkStatusForMigration();
+
+    // Eventos al banner con tips
+    tipsBannerEvents();
 
     // Actualizar y pintar lista de paradas
     updateBusList();
@@ -52,6 +55,7 @@ function main() {
     // Eventos para dialogo horarios programados
     scheduledBusesEvents();
     
+    // Overlays
     // Al cerrar un overlay, guarda una preferencia en localStorage
     const overlays = document.getElementsByClassName('overlay');
     Array.from(overlays).forEach(overlay => {
@@ -63,7 +67,6 @@ function main() {
             });
         }
     });
-
     // Mostramos los overlays definidos si no se cerraron antes
     Array.from(overlays).forEach(overlay => {
         showOverlayIfNotClosed(overlay.id);
