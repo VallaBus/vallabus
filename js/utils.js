@@ -1123,6 +1123,24 @@ export function clickEvents() {
     });
 }
 
+// Eventos para el banner de tips
+export function tipsBannerEvents() {
+    // Mostrar solo uno de los tips de forma aleatoria
+    const tipsBanner = document.getElementById('tips-banner');
+    // Obtener todos los tips hijos
+    const children = tipsBanner.children;
+
+    // Generamos un índice aleatorio
+    const randomIndex = Math.floor(Math.random() * children.length);
+
+    // Ocultamos todos los tips por defecto
+    for (let i = 0; i < children.length; i++) {
+        children[i].style.display = 'none';
+    }
+    // Mostramos uno aleatorio
+    children[randomIndex].style.display = 'block';
+}
+
 export function socialBrowserWarning() {
     // Aviso si se accede desde el navegador de instagram
     // Check if the referrer is from Instagram

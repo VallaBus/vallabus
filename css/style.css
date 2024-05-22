@@ -1554,6 +1554,10 @@ button.remove-stop {
     color: #CCC;
 }
 
+#tips-banner p {
+    display: none;
+}
+
 #share-whatsapp {
     margin: 0; 
     color: #0e4f0b; 
@@ -1562,12 +1566,6 @@ button.remove-stop {
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 15px center;
-}
-
-#instagram-warning {
-    color: #ffe9e9;
-    background-color: #c65151;
-    padding: 1em 5px;
 }
 
 .dark-mode #share-whatsapp {
@@ -1585,6 +1583,37 @@ button.remove-stop {
 
 .dark-mode #share-whatsapp a {
     color: #bfbfbf;
+}
+
+#follow-banner {
+    margin: 0; 
+    padding: 5px;
+    color: #0b194f;
+    background-color: #2569d336;
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+}
+
+.dark-mode #follow-banner {
+    background-color: #2569d336;
+    color: #bfbfbf;
+}
+
+#follow-banner a {
+    color: #0b194f; 
+    text-decoration: none; 
+    font-weight: bold;
+}
+
+.dark-mode #follow-banner a {
+    color: #bfbfbf;
+}
+
+#instagram-warning {
+    color: #ffe9e9;
+    background-color: #c65151;
+    padding: 1em 5px;
 }
 
 #ruta-pucela {
