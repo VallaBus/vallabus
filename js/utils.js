@@ -1096,7 +1096,9 @@ export function clickEvents() {
         }
     });
 
-    // Cualquier elemento con clase routeTo
+    // Cualquier elemento con clase routeTo enlaza a rutas
+    // data-arrive-date y data-arrive-time son opcionales
+    // Ejemplo: <a href="#" class="routeTo" data-dest-name="Estadio José Zorilla" data-dest-y="41.6440028" data-dest-x="-4.7605973" data-arrive-date="2024-05-11" data-arrive-time="18:00">Planifica tu viaje al Estadio</a>
     document.addEventListener('click', function(event) {
         // Verifica si el evento se originó en un elemento con clase routeTo
         if (event.target.matches('.routeTo')) {
@@ -1129,6 +1131,8 @@ export function tipsBannerEvents() {
     const tipsBanner = document.getElementById('tips-banner');
     // Obtener todos los tips hijos
     const children = tipsBanner.children;
+    // Flag para controlar si tenemos elementos sticky
+    let hasSticky = false;
 
     // Generamos un índice aleatorio
     const randomIndex = Math.floor(Math.random() * children.length);
@@ -1136,9 +1140,17 @@ export function tipsBannerEvents() {
     // Ocultamos todos los tips por defecto
     for (let i = 0; i < children.length; i++) {
         children[i].style.display = 'none';
+
+        // Los elementos sticky se muestran siempre
+        if (children[i].classList.contains('sticky')) {
+            children[i].style.display = 'block';
+            hasSticky = true;
+        }
     }
-    // Mostramos uno aleatorio
-    children[randomIndex].style.display = 'block';
+    // Mostramos uno aleatorio si no hay sticky
+    if(!hasSticky) {
+        children[randomIndex].style.display = 'block';
+    }
 }
 
 export function socialBrowserWarning() {
