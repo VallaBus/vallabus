@@ -83,16 +83,30 @@ self.addEventListener('install', event => {
     );
 });
 
-// Estrategia "Network First"
 self.addEventListener('fetch', event => {
     event.respondWith(
-        fetch(event.request).then(networkResponse => {
-            return caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
+      fetch(event.request)
+        .then(networkResponse => {
+          // Abrir la caché
+          return caches.open(CACHE_NAME)
+            .then(cache => {
+              // Almacenar la respuesta de red en la caché
+              cache.put(event.request, networkResponse.clone());
+              // Verificar si el recurso ya estaba en la caché
+              return caches.match(event.request)
+                .then(cachedResponse => {
+                  // Si el recurso ya estaba en la caché, devolver la respuesta de caché
+                  if (cachedResponse) {
+                    return cachedResponse;
+                  }
+                  // Si no, devolver la respuesta de red
+                  return networkResponse;
+                });
             });
-        }).catch(() => {
-            return caches.match(event.request);
+        })
+        .catch(() => {
+          // Si la solicitud de red falla, buscar el recurso en la caché
+          return caches.match(event.request);
         })
     );
 });
@@ -100,17 +114,18 @@ self.addEventListener('fetch', event => {
 // Elimina los recursos antiguos del cache
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all([
-                self.clients.claim(), // Toma control de las páginas abiertas inmediatamente
-                ...cacheNames.filter(cacheName => cacheName !== CACHE_NAME)
-                            .map(cacheName => caches.delete(cacheName)),
-                // Elimina todos los cachés excepto el actual
-                ...caches.keys().then(cacheNames => {
-                    return Promise.all(cacheNames.filter(cacheName => cacheName !== CACHE_NAME).map(cacheName => caches.delete(cacheName)));
-                }),
-            ]);
-        })
+      caches.keys().then(cacheNames => {
+        // Filtrar los nombres de caché para excluir la caché actual (CACHE_NAME)
+        return Promise.all(
+          cacheNames
+            .filter(cacheName => cacheName !== CACHE_NAME)
+            .map(cacheName => caches.delete(cacheName)) // Crear una promesa para eliminar cada caché antigua
+        )
+        .then(() => {
+          // Una vez que se han eliminado todas las cachés antiguas
+          self.clients.claim(); // Permitir que el service worker tome el control de las páginas abiertas
+        });
+      })
     );
 });
 
