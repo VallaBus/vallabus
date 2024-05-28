@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vallabus-v6.2.4';
+const CACHE_NAME = 'vallabus-v6.3.1';
 const urlsToCache = [
     // Lista de URLs a cachear
     '/favicon.png',
@@ -46,7 +46,6 @@ const urlsToCache = [
     "/img/pin-solid.png",
     "/img/pin-transparent-light.png",
     "/img/pin-transparent.png",
-    "/img/rename-overlay.jpg",
     "/img/routes.png",
     "/img/screenshot.jpg",
     "/img/seats-empty-many-light.png",
@@ -83,49 +82,54 @@ self.addEventListener('install', event => {
     );
 });
 
+// Fetch event: Network first, fall back to cache
 self.addEventListener('fetch', event => {
     event.respondWith(
-      fetch(event.request)
-        .then(networkResponse => {
-          // Abrir la caché
-          return caches.open(CACHE_NAME)
-            .then(cache => {
-              // Almacenar la respuesta de red en la caché
-              cache.put(event.request, networkResponse.clone());
-              // Verificar si el recurso ya estaba en la caché
-              return caches.match(event.request)
-                .then(cachedResponse => {
-                  // Si el recurso ya estaba en la caché, devolver la respuesta de caché
-                  if (cachedResponse) {
-                    return cachedResponse;
-                  }
-                  // Si no, devolver la respuesta de red
-                  return networkResponse;
+        fetch(event.request)
+            .then(networkResponse => {
+                // Check if the response is valid
+                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+                    return networkResponse;
+                }
+
+                // Check if the response is already in the cache
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.match(event.request).then(cachedResponse => {
+                        if (cachedResponse) {
+                            return cachedResponse;
+                        }
+
+                        // Clone the response to cache it
+                        const responseToCache = networkResponse.clone();
+
+                        // Open the cache and put the network response into it
+                        cache.put(event.request, responseToCache);
+
+                        return networkResponse;
+                    });
                 });
-            });
-        })
-        .catch(() => {
-          // Si la solicitud de red falla, buscar el recurso en la caché
-          return caches.match(event.request);
-        })
+            })
+            .catch(() => {
+                // If network request fails, try to serve from the cache
+                return caches.match(event.request);
+            })
     );
 });
 
-// Elimina los recursos antiguos del cache
+// Activate event: Clear old caches
 self.addEventListener('activate', event => {
+    console.log('Service Worker: Activate event');
     event.waitUntil(
-      caches.keys().then(cacheNames => {
-        // Filtrar los nombres de caché para excluir la caché actual (CACHE_NAME)
-        return Promise.all(
-          cacheNames
-            .filter(cacheName => cacheName !== CACHE_NAME)
-            .map(cacheName => caches.delete(cacheName)) // Crear una promesa para eliminar cada caché antigua
-        )
-        .then(() => {
-          // Una vez que se han eliminado todas las cachés antiguas
-          self.clients.claim(); // Permitir que el service worker tome el control de las páginas abiertas
-        });
-      })
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames
+                    .filter(cacheName => cacheName !== CACHE_NAME)
+                    .map(cacheName => caches.delete(cacheName))
+            );
+        }).then(() => {
+            console.log('Old caches cleared');
+            return self.clients.claim();
+        })
     );
 });
 
