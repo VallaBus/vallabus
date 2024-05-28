@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vallabus-v6.0.5';
+const CACHE_NAME = 'vallabus-v6.0.6';
 const urlsToCache = [
     // Lista de URLs a cachear
     '/favicon.png',
@@ -55,16 +55,21 @@ self.addEventListener('fetch', event => {
 // Elimina los recursos antiguos del cache
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all([
-                self.clients.claim(), // Toma control de las páginas abiertas inmediatamente
-                ...cacheNames.filter(cacheName => cacheName !== CACHE_NAME)
-                            .map(cacheName => caches.delete(cacheName)),
-                // Elimina todos los cachés excepto el actual
-                ...caches.keys().then(cacheNames => {
-                    return Promise.all(cacheNames.filter(cacheName => cacheName !== CACHE_NAME).map(cacheName => caches.delete(cacheName)));
-                }),
-            ]);
+      caches.keys()
+        .then(cacheNames => {
+          console.log('Nombres de cachés:', cacheNames);
+          const cachesToDelete = cacheNames.filter(cacheName => cacheName !== CACHE_NAME);
+          return Promise.all(cachesToDelete.map(cacheName => {
+            console.log('Eliminando caché:', cacheName);
+            return caches.delete(cacheName);
+          }));
+        })
+        .then(() => {
+          console.log('Caches obsoletos eliminados.');
+          return self.clients.claim();
+        })
+        .catch(error => {
+          console.error('Error al activar el service worker:', error);
         })
     );
 });
