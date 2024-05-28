@@ -482,9 +482,10 @@ export function getCachedData(cacheKey) {
     const { data, timestamp } = JSON.parse(cached);
     // Tiempo de expiración en milisegundos
     const expTime = 1 * 60 * 60 * 1000; // 1 hora
+    const timestampExp = new Date() - new Date(timestamp);
 
     // Verifica si los datos del caché tienen menos del tiempo de expiración
-    if (new Date() - new Date(timestamp) < expTime) {
+    if ( timestampExp < expTime) {
         return data;
     }
 
@@ -499,6 +500,35 @@ export function setCacheData(cacheKey, data) {
         timestamp: new Date().toISOString()
     });
     localStorage.setItem(cacheKey, cacheEntry);
+}
+
+// Borra las claves obsoletas del caché
+export function cleanObsoleteCache() {
+    let counter = 0;
+    // Iteramos de forma inversa porque al borrar un elemento el índice cambia
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key.startsWith('busSchedule_')) {
+            const cached = localStorage.getItem(key);
+            if (!cached) {
+                continue;
+            }
+
+            const { data, timestamp } = JSON.parse(cached);
+            // Tiempo de expiración en milisegundos
+            const expTime = 3600000; // 1 hora
+            const timestampExp = new Date().getTime() - new Date(timestamp).getTime();
+
+            // Verifica si los datos del caché tienen menos del tiempo de expiración
+            if (timestampExp > expTime) {
+                // Si los datos del caché son antiguos, limpia el caché
+                localStorage.removeItem(key);
+                //console.log(`Limpiando el caché obsoleto de ${key}`);
+                counter += 1;
+            }
+        }
+    }
+    //console.log(`${counter} elementos obsoletos del caché borrados`);
 }
 
 export function updateLastUpdatedTime() {
