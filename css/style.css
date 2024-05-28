@@ -1743,7 +1743,7 @@ button.remove-stop {
 }
 
 .global-alerts-box .alert-text-container {
-    padding: 7px 2px;
+    padding: 0px 2px;
     height: 18px;
     overflow: hidden;
     position: relative;
@@ -1768,7 +1768,7 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    top: 2px;
+    top: -4px;
     right: -10px;
     background-color: #f8f5d7;
     padding: 5px 10px;
