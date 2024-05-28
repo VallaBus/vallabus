@@ -1555,10 +1555,32 @@ button.remove-stop {
 }
 
 #tips-banner p {
-    display: none;
+    display: none; /* Ocultos por defecto */
+    margin: 0;
+    padding: 5px;
+    color: #72711c;
+    background-color: #f8f5d7;
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
 }
 
-#share-whatsapp {
+.dark-mode #tips-banner p {
+    background-color: #333;
+    color: #CCC;
+}
+
+#tips-banner p a {
+    color: #72711c; 
+    text-decoration: none; 
+    font-weight: bold;
+}
+
+#tips-banner p img {
+    height: 12px;
+} 
+
+#tips-banner #share-whatsapp {
     margin: 0; 
     color: #0e4f0b; 
     background-color: #25d36636;
@@ -1568,24 +1590,23 @@ button.remove-stop {
     background-position: 15px center;
 }
 
-.dark-mode #share-whatsapp {
+.dark-mode #tips-banner #share-whatsapp {
     background-image: url('/img/share-gray.png');
     background-color: #26443a;
 }
 
-#share-whatsapp a {
+#tips-banner #share-whatsapp a {
     color: #0e4f0b; 
     text-decoration: none; 
     display: inline-block; 
-    padding: 5px 5px 5px 26px;
-    border-radius: 10px; /* Bordes redondeados para el enlace */
+    font-weight: normal;
 }
 
-.dark-mode #share-whatsapp a {
+.dark-mode #tips-banner #share-whatsapp a {
     color: #bfbfbf;
 }
 
-#follow-banner {
+#tips-banner #follow-banner {
     margin: 0; 
     padding: 5px;
     color: #0b194f;
@@ -1595,19 +1616,34 @@ button.remove-stop {
     background-position: 15px center;
 }
 
-.dark-mode #follow-banner {
+.dark-mode #tips-banner #follow-banner {
     background-color: #2569d336;
     color: #bfbfbf;
 }
 
-#follow-banner a {
+#tips-banner #follow-banner a {
     color: #0b194f; 
     text-decoration: none; 
     font-weight: bold;
 }
 
-.dark-mode #follow-banner a {
+.dark-mode #tips-banner #follow-banner a {
     color: #bfbfbf;
+}
+
+#tips-banner #map-tip {
+    background-image: url('/img/bus-location.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    padding: 5px 5px 5px 22px;
+}
+
+.dark-mode #tips-banner #map-tip {
+    background-image: url('/img/bus-location-white.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: 8px center;
 }
 
 #instagram-warning {
@@ -1616,7 +1652,7 @@ button.remove-stop {
     padding: 1em 5px;
 }
 
-#ruta-pucela {
+#tips-banner #ruta-pucela {
     margin: 0; 
     color: #fcf5ff; 
     background-color: #8f6b9f;
@@ -1626,11 +1662,11 @@ button.remove-stop {
     background-position: 10px center;
 }
 
-.dark-mode #ruta-pucela {
+.dark-mode #tips-banner #ruta-pucela {
     background-color: #543d5e;
 }
 
-#ruta-pucela a {
+#tips-banner #ruta-pucela a {
     color: #fcf5ff; 
     text-decoration: none; 
     display: inline-block; 
@@ -1638,7 +1674,7 @@ button.remove-stop {
     border-radius: 10px; /* Bordes redondeados para el enlace */
 }
 
-.dark-mode #ruta-pucela a {
+.dark-mode #tips-banner #ruta-pucela a {
     color: #bfbfbf;
 }
 
