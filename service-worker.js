@@ -85,34 +85,13 @@ self.addEventListener('install', event => {
 // Fetch event: Network first, fall back to cache
 self.addEventListener('fetch', event => {
     event.respondWith(
-        fetch(event.request)
-            .then(networkResponse => {
-                // Check if the response is valid
-                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                    return networkResponse;
-                }
+        fetch(event.request).then(networkResponse => {
+            if (networkResponse) {
+                return networkResponse;
+            }
 
-                // Check if the response is already in the cache
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.match(event.request).then(cachedResponse => {
-                        if (cachedResponse) {
-                            return cachedResponse;
-                        }
-
-                        // Clone the response to cache it
-                        const responseToCache = networkResponse.clone();
-
-                        // Open the cache and put the network response into it
-                        cache.put(event.request, responseToCache);
-
-                        return networkResponse;
-                    });
-                });
-            })
-            .catch(() => {
-                // If network request fails, try to serve from the cache
-                return caches.match(event.request);
-            })
+            return caches.match(event.request);
+        })
     );
 });
 
