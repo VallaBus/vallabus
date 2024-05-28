@@ -537,7 +537,7 @@ export function showCache() {
     dialog.style.position = 'absolute';
     dialog.style.top = '50%';
     dialog.style.left = '50%';
-    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.transform = 'translate(-50%, -32%)';
     dialog.style.background = 'white';
     dialog.style.padding = '20px';
     dialog.style.border = '1px solid black';
@@ -565,17 +565,28 @@ export function showCache() {
     // Crear un elemento tbody para los datos de la tabla
     const tbody = document.createElement('tbody');
 
+    let totalSize = 0;
+
     // Iterar sobre las claves del almacenamiento local
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         const value = localStorage.getItem(key);
+
+        // Calcular el tamaño del valor en bytes
+        const valueSize = JSON.stringify(value).length;
+
+        // Convertir el tamaño de bytes a KB
+        const valueSizeKB = (valueSize / 1024).toFixed(2);
+
+        // Agregar el tamaño total
+        totalSize += valueSize;
 
         // Crear un elemento tr para cada clave
         const tr = document.createElement('tr');
         const td1 = document.createElement('td');
         td1.textContent = key;
         const td2 = document.createElement('td');
-        td2.textContent = value.length;
+        td2.textContent = `${valueSizeKB} KB`;
         tr.appendChild(td1);
         tr.appendChild(td2);
         tbody.appendChild(tr);
@@ -585,6 +596,12 @@ export function showCache() {
 
     // Agregar la tabla al diálogo
     dialog.appendChild(table);
+
+    // Mostrar el tamaño total
+    const totalSizeKB = (totalSize / 1024).toFixed(2);
+    const totalSizeElement = document.createElement('p');
+    totalSizeElement.textContent = `Tamaño total: ${totalSizeKB} KB`;
+    dialog.appendChild(totalSizeElement);
 
     // Crear un botón para cerrar el diálogo
     const closeButton = document.createElement('button');
