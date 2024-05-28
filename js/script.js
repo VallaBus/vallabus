@@ -1,4 +1,4 @@
-import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents } from './utils.js';
+import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents, cleanObsoleteCache } from './utils.js';
 import { updateBusList } from './api.js';
 import { isIOS } from './browser.js';
 
@@ -15,6 +15,9 @@ function main() {
 
     // Verificamos si necesita migración desde auvasatracker
     checkStatusForMigration();
+
+    // Limpieza de caché en localstorage obsoleto
+    cleanObsoleteCache();
 
     // Eventos al banner con tips
     tipsBannerEvents();
