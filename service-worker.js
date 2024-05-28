@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vallabus-v6.0.0';
+const CACHE_NAME = 'vallabus-v6.0.5';
 const urlsToCache = [
     // Lista de URLs a cachear
     '/favicon.png',
@@ -60,6 +60,10 @@ self.addEventListener('activate', event => {
                 self.clients.claim(), // Toma control de las páginas abiertas inmediatamente
                 ...cacheNames.filter(cacheName => cacheName !== CACHE_NAME)
                             .map(cacheName => caches.delete(cacheName)),
+                // Elimina todos los cachés excepto el actual
+                ...caches.keys().then(cacheNames => {
+                    return Promise.all(cacheNames.filter(cacheName => cacheName !== CACHE_NAME).map(cacheName => caches.delete(cacheName)));
+                }),
             ]);
         })
     );
