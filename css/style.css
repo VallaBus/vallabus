@@ -458,16 +458,16 @@ html.ios .ios-only {
 }
 
 .stop-block.suprimida .suppressedStopAlert {
-    background-color: #f8d7d7;
+    background-color: #ffe6e6;
     color: #721c1c;
-    border: 1px solid #f5c6c6;
+    border: 1px solid #ffe6e6;
     padding: 10px;
     font-size: 0.8em;
     text-align: center;
 }
 
 .dark-mode .stop-block.suprimida .suppressedStopAlert {
-    border-top: 3px solid #db3a3a;
+    border-top: 3px solid #9c2828;
     color: rgb(238, 238, 238);
     background-color: #333333;
     border-left: none;
@@ -1303,6 +1303,10 @@ button.remove-stop {
     color: #868686;
 }
 
+.dark-mode .line-info .hora-programada .hora {
+    color: #bebebe;
+}
+
 .hora-tiempo {
     display: flex;
     flex-direction: column;
@@ -1318,6 +1322,11 @@ button.remove-stop {
     color: #868686;
 }
 
+.dark-mode .line-info .diferencia {
+    color: #bebebe;
+}
+
+
 .line-info.retrasado .hora-programada .hora, .line-info.adelantado .hora-programada .hora {
     text-decoration: line-through;
 }
@@ -1326,8 +1335,16 @@ button.remove-stop {
     color: rgb(167, 60, 60);
 }
 
+.dark-mode .line-info.retrasado .diferencia {
+    color: rgb(255, 168, 168);
+}
+
 .line-info.adelantado .diferencia {
     color: rgb(60, 167, 60);
+}
+
+.dark-mode .line-info.adelantado .diferencia {
+    color: rgb(127, 222, 127);
 }
 
 .line-info .ocupacion {
@@ -1420,7 +1437,7 @@ button.remove-stop {
 }
 
 .dark-mode .line-info .destino {
-    color: #868686;
+    color: #bebebe;
 }
 
 .line-info .tiempo {
