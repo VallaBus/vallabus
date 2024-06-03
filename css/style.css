@@ -385,7 +385,7 @@ button#installButton {
 .bus-list {
     list-style: none;
     padding: 0;
-    margin-top: 0;
+    margin-top: 10px;
 }
 
 #welcome-box {
