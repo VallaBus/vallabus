@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406031220">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406041330">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -46,15 +46,14 @@
 </head>
 
 <body>
-    <div id="overlay-arroyolaguna0524" class="overlay">
+    <div id="overlay-estimaciones0624" class="overlay">
         <div class="overlay-content">
             <div class="arrow"></div>
-            <h2>Novedad: Líneas de Laguna, Arroyo y Aeropuerto</h2>
+            <h2>Nuevo sistema de horarios inteligentes</h2>
             <ul>
-                <li>Integradas todas sus líneas y paradas</li>
-                <li>Horarios programados</li>
-                <li>Planifica tu ruta desde y hacia estos municipios</li>
-                <li>Datos creados por <a href="https://t.me/vallabusapp">nuestra comunidad de voluntarios</a></li>
+                <li class="programado"><strong>Programado:</strong> Horario teórico de llegada </li>
+                <li class="estimado"><strong>Estimado:</strong> En base al tráfico actual</li>
+                <li class="actualizado"><strong>Actualizado:</strong> Precisión alta en tiempo real</li>
             </ul>
             <button class="close-overlay">Entendido</button>
         </div>
@@ -126,8 +125,12 @@
     </div>
 
     <div class="foot-note">
+        <p id="legend">
+            <img src="img/clock.png" /> Programado
+            <img src="img/feed.png" /> Estimado
+            <img src="img/feed-green.png" /> Actualizado
+        </p>
         <button id="removeAllButton">Quitar todas las paradas</button>
-        <p id="legend"><img src="img/clock.png"> Horario programado <img src="img/feed.png" /> Horario actualizado</p>
         <p id="last-update">Última actualización: --</p>
         <p>Actualización cada 30s o al recargar la página.</p>
         <h3 id="social-share">Comparte con otros</h3>

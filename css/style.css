@@ -395,7 +395,7 @@ button#installButton {
     background: #fff;
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
     width: 90%;
-    margin: 1em auto 0 auto;
+    margin: 1em auto 1em auto;
     padding: 150px 0 5px 0;
     background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
     background-size: 140px;
@@ -1412,6 +1412,13 @@ button.remove-stop {
 }
 
 .line-info.realtime .hora-tiempo .horaLlegada {
+    background: url('/img/feed-green.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    padding: 0 0 0 20px;
+}
+
+.line-info.realtime.propagated .hora-tiempo .horaLlegada {
     background: url('/img/feed.png') no-repeat;
     background-size: 15px;
     background-position: 0px;
@@ -1855,7 +1862,7 @@ button.remove-stop {
 }
 
 .foot-note {
-    padding: 1em;
+    padding: 0 0 0 1em;
     margin-top: 0 1em;
     font-size: 0.9em;
 }
@@ -1892,6 +1899,7 @@ button.remove-stop {
 .foot-note #legend {
     color: #333;
     text-align: center;
+    margin-top: 0;
 }
 
 .dark-mode .foot-note #legend {
@@ -1899,9 +1907,8 @@ button.remove-stop {
 }
 
 .foot-note #legend img {
-    width: 15px;
-    height: 15px;
-    margin-left: 1em;
+    height: 12px;
+    margin-left: 4px;
 }
 
 .foot-note a#facebook-share-button {
@@ -2053,6 +2060,39 @@ footer a:hover {
 }
 
 /* Posiciones específicas para diferentes overlays */
+
+#overlay-estimaciones0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/estimados.jpg');
+    padding-top: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-estimaciones0624 .overlay-content li {
+    list-style: none;
+    padding-left: 19px;
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: 0px 3px;
+}
+
+#overlay-estimaciones0624 .overlay-content li.programado {
+    background-image: url('/img/clock.png');
+}
+
+#overlay-estimaciones0624 .overlay-content li.estimado {
+    background-image: url('/img/feed.png');
+}
+
+#overlay-estimaciones0624 .overlay-content li.actualizado {
+    background-image: url('/img/feed-green.png');
+}
 
 #overlay-arroyolaguna0524 .overlay-content {
     top: 60px;
