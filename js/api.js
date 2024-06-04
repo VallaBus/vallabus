@@ -1419,10 +1419,6 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
             fechaHoraLlegadaBusMasCercano = new Date(bus.scheduled.fechaHoraLlegada);
         }
         
-        if (!fechaHoraLlegadaBusMasCercano) {
-            
-        }
-
         return llegada && llegada > fechaHoraLlegadaBusMasCercano;
     });
 
