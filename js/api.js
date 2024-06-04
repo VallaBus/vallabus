@@ -1403,18 +1403,24 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
 
     // Filtrar los buses para excluir aquellos con fechaHoraLlegada anterior al busMasCercano
     busesArray = busesArray.filter(bus => {
-        // Primero, intentamos usar bus.realTime si existe
-        let llegada = bus.realTime && busMasCercano.realTime.fechaHoraLlegada ? new Date(bus.realTime.fechaHoraLlegada) : null;
-        // Si bus.realTime no existe, usamos bus.scheduled
-        if (!llegada) {
-            llegada = new Date(bus.scheduled.fechaHoraLlegada);
-        }
+        let llegada;
+        let fechaHoraLlegadaBusMasCercano;
 
-        // Determinar la fechaHoraLlegada del busMasCercano
-        let fechaHoraLlegadaBusMasCercano = busMasCercano.realTime && busMasCercano.realTime.fechaHoraLlegada ? new Date(busMasCercano.realTime.fechaHoraLlegada) : null;
-        // Si busMasCercano.realTime no existe, usamos busMasCercano.scheduled
+        if (bus.realTime && bus.realTime.fechaHoraLlegada)
+        {
+            // Primero, intentamos usar bus.realTime si existe
+            llegada =  new Date(bus.realTime.fechaHoraLlegada);
+            // Determinar la fechaHoraLlegada del busMasCercano
+            fechaHoraLlegadaBusMasCercano = new Date(bus.realTime.fechaHoraLlegada);
+        } else {
+            // Si bus.realTime no existe, usamos bus.scheduled
+            llegada = new Date(bus.scheduled.fechaHoraLlegada);
+            // Si busMasCercano.realTime no existe, usamos busMasCercano.scheduled
+            fechaHoraLlegadaBusMasCercano = new Date(bus.scheduled.fechaHoraLlegada);
+        }
+        
         if (!fechaHoraLlegadaBusMasCercano) {
-            fechaHoraLlegadaBusMasCercano = new Date(busMasCercano.scheduled.fechaHoraLlegada);
+            
         }
 
         return llegada && llegada > fechaHoraLlegadaBusMasCercano;
