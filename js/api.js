@@ -1403,22 +1403,20 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
 
     // Filtrar los buses para excluir aquellos con fechaHoraLlegada anterior al busMasCercano
     busesArray = busesArray.filter(bus => {
-        let llegada;
-        let fechaHoraLlegadaBusMasCercano;
-
-        if (bus.realTime && bus.realTime.fechaHoraLlegada)
-        {
-            // Primero, intentamos usar bus.realTime si existe
-            llegada =  new Date(bus.realTime.fechaHoraLlegada);
-            // Determinar la fechaHoraLlegada del busMasCercano
-            fechaHoraLlegadaBusMasCercano = new Date(bus.realTime.fechaHoraLlegada);
-        } else {
-            // Si bus.realTime no existe, usamos bus.scheduled
+        // Primero, intentamos usar bus.realTime si existe
+        let llegada = bus.realTime && bus.realTime.fechaHoraLlegada ? new Date(bus.realTime.fechaHoraLlegada) : null;
+        // Si bus.realTime.fechaHoraLlegada no existe, usamos bus.scheduled
+        if (!llegada) {
             llegada = new Date(bus.scheduled.fechaHoraLlegada);
-            // Si busMasCercano.realTime no existe, usamos busMasCercano.scheduled
-            fechaHoraLlegadaBusMasCercano = new Date(bus.scheduled.fechaHoraLlegada);
         }
-        
+
+        // Determinar la fechaHoraLlegada del busMasCercano
+        let fechaHoraLlegadaBusMasCercano = busMasCercano.realTime && busMasCercano.realTime.fechaHoraLlegada ? new Date(busMasCercano.realTime.fechaHoraLlegada) : null;
+        // Si busMasCercano.realTime.fechaHoraLlegada no existe, usamos busMasCercano.scheduled
+        if (!fechaHoraLlegadaBusMasCercano) {
+            fechaHoraLlegadaBusMasCercano = new Date(busMasCercano.scheduled.fechaHoraLlegada);
+        }
+
         return llegada && llegada > fechaHoraLlegadaBusMasCercano;
     });
 
@@ -1430,17 +1428,17 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
         const busMasCercanoHour = busMasCercanoDate.getHours();
         const hoy = new Date();
         const currentHour = hoy.getHours();
-        let dateToFecth;
+        let dateToFetch;
 
         // Si es madrugada y el busmascercano llega de madrugada
         // Buscamos en los datos de ayer
         if (currentHour >= 0 && currentHour < 5 && busMasCercanoHour >= 0 && busMasCercanoHour < 5) {
-            dateToFecth = getYesterdayDate();
+            dateToFetch = getYesterdayDate();
         } else {
-            dateToFecth = getFormattedDate(busMasCercanoDate);
+            dateToFetch = getFormattedDate(busMasCercanoDate);
         }
 
-        const scheduledBusesFuture = await fetchScheduledBuses(stopNumber, lineNumber, dateToFecth);
+        const scheduledBusesFuture = await fetchScheduledBuses(stopNumber, lineNumber, dateToFetch);
         // Agrupar los datos por trip_id para una mejor búsqueda
         const combinedData = combineBusData(scheduledBusesFuture);
         let busesLineaFuture = combinedData[lineNumber];
