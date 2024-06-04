@@ -893,11 +893,9 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 busesProximos = await getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, 3);
 
                 // Si hay datos en tiempo real, usarlos, de lo contrario, usar los programados
-                if (busMasCercano.realTime) {
+                if (busMasCercano.realTime && busMasCercano.realTime.fechaHoraLlegada) {
                     // Crear un objeto Date con la fecha y hora de llegada
                     horaLlegada = new Date(busMasCercano.realTime.fechaHoraLlegada);
-
-                    // tiempoRestante = busMasCercano.realTime.tiempoRestante;
                     // Calculamos el tiempo en el cliente porque el api puede tener cacheado este cálculo
                     // Si horaLlegada es menor de 60 segundos, mostramos 0 minutos
                     if (Math.floor((horaLlegada - new Date()) / 60000) < 1) {
@@ -915,6 +913,18 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         diferencia = Math.ceil((realTimeArrival - scheduledArrival) / 60000);
                     } else {
                         diferencia = 0;
+                    }
+
+                    let propagated_delay = 'false';
+                    // Marcamos si la hora RT es propagada de una anterior
+                    if (busMasCercano.realTime.propagated_delay) {
+                        propagated_delay = busMasCercano.realTime.propagated_delay;
+
+                        if (propagated_delay === 'true') {
+                            lineItem.classList.add('propagated');
+                        } else {
+                            lineItem.classList.remove('propagated');
+                        }
                     }
 
                     lineItem.classList.remove('programado');
@@ -1252,7 +1262,8 @@ export function combineBusData(scheduledData) {
                 latitud: realtime.latitud ? realtime.latitud.toString() : undefined,
                 longitud: realtime.longitud ? realtime.longitud.toString() : undefined,
                 velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined,
-                estado: realtime.estado ? realtime.estado.toString() : undefined
+                estado: realtime.estado ? realtime.estado.toString() : undefined,
+                propagated_delay: realtime.propagated_delay ? realtime.propagated_delay : null,
             };
         });
 
