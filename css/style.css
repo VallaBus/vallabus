@@ -1624,6 +1624,7 @@ button.remove-stop {
     text-decoration: none; 
     display: inline-block; 
     font-weight: normal;
+    padding-left: 30px;
 }
 
 .dark-mode #tips-banner #share-whatsapp a {
