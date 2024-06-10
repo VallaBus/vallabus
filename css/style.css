@@ -154,7 +154,7 @@ button#removeAllButton {
     display: none; /* Oculto por defecto */
 }
 
-button#installButton {
+button#installButton, button#installIosButton {
     background-color: #a7cafb;
     border-radius: 2em;
     height: 39px;
@@ -2061,6 +2061,22 @@ footer a:hover {
 }
 
 /* Posiciones específicas para diferentes overlays */
+
+#overlay-installIos .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-installIos .overlay-content video {
+    max-height: 400px;
+    width: 100%; 
+    margin: 0 auto 15px auto;
+    display: block;
+}
 
 #overlay-estimaciones0624 .overlay-content {
     top: 60px;

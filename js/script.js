@@ -1,4 +1,4 @@
-import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents, cleanObsoleteCache } from './utils.js';
+import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents, cleanObsoleteCache, showIosInstallButton } from './utils.js';
 import { updateBusList } from './api.js';
 import { isIOS } from './browser.js';
 
@@ -29,6 +29,7 @@ function main() {
 
     // HOTFIX iOS: Ejecuta updateBusList 1 segundo después de abrir la página en iOS porque los recursos localstorage no está disponibles inmediatamente en iOS 17.4 :-( 
     if (isIOS()) {
+        showIosInstallButton();
         setTimeout(updateBusList, 1000);
     }
 
