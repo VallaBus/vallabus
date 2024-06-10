@@ -1453,7 +1453,6 @@ export function showIosInstallButton() {
         installButton.style.display = 'block';
 
         installButton.addEventListener('click', (e) => {
-            _paq.push(['trackEvent', 'installIosbutton', 'click']);
 
             let overlay = document.createElement("div");
             overlay.id = "overlay-installIos";
@@ -1476,7 +1475,8 @@ export function showIosInstallButton() {
                 closeButton.addEventListener('click', function(event) {
                     overlay.remove();
                 });
-        }
+            }
+            _paq.push(['trackEvent', 'installIosbutton', 'click']);
         });
     }
 }
