@@ -154,7 +154,7 @@ button#removeAllButton {
     display: none; /* Oculto por defecto */
 }
 
-button#installButton, button#installIosButton {
+button#installButton {
     background-color: #a7cafb;
     border-radius: 2em;
     height: 39px;
@@ -165,6 +165,20 @@ button#installButton, button#installIosButton {
     font-weight: bold;
     font-size: 14px;
     color: #304868;
+}
+
+button#installIosButton {
+    background-color: #007aff;
+    border-radius: 2em;
+    height: 34px;
+    position: absolute;
+    left: 10px;
+    top: 7px;
+    padding: 7px 17px;
+    font-size: 14px;
+    color: #FFF;
+    font-weight: bold;
+    font-family: SF Pro Text,SF Pro Icons,Helvetica Neue,Helvetica,Arial,sans-serif;
 }
 
 #formulario {
