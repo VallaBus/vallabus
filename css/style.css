@@ -442,7 +442,6 @@ html.ios .ios-only {
     max-width: 75%;
     margin: auto;
     display: block;
-    background-color: #2b282b;
 }
 
 #welcome-box span.button-sample {
@@ -2091,6 +2090,7 @@ footer a:hover {
     width: 100%; 
     margin: 0 auto 15px auto;
     display: block;
+    background-color: #2b282b;
 }
 
 #overlay-estimaciones0624 .overlay-content {
