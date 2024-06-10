@@ -598,7 +598,7 @@ html.ios .ios-only {
 }
 
 .dark-mode .highlight .additional-info-panel {
-    background-color: #484b4d;
+    background-color: #3b3d3d;
 }
 
 .additional-info-panel.open {
@@ -2214,7 +2214,7 @@ body.dark-mode {
 }
 
 .dark-mode .highlight {
-    background-color: #565b5e9c;
+    background-color: #3b3d3d;
 }
 
 .dark-mode .line-info {
