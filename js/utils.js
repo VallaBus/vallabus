@@ -1442,3 +1442,41 @@ export function cleanMatricula(str) {
     // Return the concatenated string with a space between the sliced parts
     return beforeFourthChar + ' ' + afterFourthChar;
 }
+
+// Si entra desde iOS y no tiene paradas añadidas mostramos botón instalar
+export function showIosInstallButton() {
+    // Obtiene el valor de 'busLines' del localStorage
+    const busLines = localStorage.getItem('busLines');
+    if (!busLines || busLines === 'null' || busLines === '') {
+        // Muestra el botón de instalación y maneja el evento de clic para mostrar el diálogo de instalación.
+        const installButton = document.getElementById('installIosButton');
+        installButton.style.display = 'block';
+
+        installButton.addEventListener('click', (e) => {
+            _paq.push(['trackEvent', 'installIosbutton', 'click']);
+
+            let overlay = document.createElement("div");
+            overlay.id = "overlay-installIos";
+            overlay.className = "overlay";
+            overlay.innerHTML = `
+                <div class="overlay-content">
+                    <video id="ios-install-video" poster="/img/ios-install.jpg" controls preload="none" loop>
+                        <source src="/img/ios-install.mp4" type="video/mp4">
+                    </video>
+                    <h2>Añade VallaBus a tu pantalla de inicio</h2>
+                    <p>Haz clic en el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> de Safari y "Añadir a la pantalla de inicio"</p>
+                    <button class="close-overlay">Entendido</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.style.display = 'block';
+
+            const closeButton = overlay.querySelector('.close-overlay');
+            if (closeButton) {
+                closeButton.addEventListener('click', function(event) {
+                    overlay.remove();
+                });
+        }
+        });
+    }
+}
