@@ -1286,8 +1286,8 @@ export function socialBrowserWarning() {
         const tipsBannerElement = document.getElementById('tips-banner');
         const instagramWarning = document.createElement('p');
         instagramWarning.id = 'instagram-warning';
-        instagramWarning.innerHTML = '<strong>Si accedes desde Instagram</strong><br />Pulsa el menú superior derecho de Instagram y selecciona "Abrir en (Chrome/Safari/Firefox)" para poder usar esta web correctamente';
-        tipsBannerElement.insertBefore(instagramWarning, tipsBannerElement.firstChild);
+        instagramWarning.innerHTML = '<strong>Si accedes desde Instagram</strong><br />Pulsa el menú superior derecho de Instagram y selecciona "Abrir en (Chrome/Safari/Firefox)" para poder usar e instalar esta web app correctamente';
+        tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
     }
 }
 
