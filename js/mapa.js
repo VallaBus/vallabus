@@ -1,4 +1,4 @@
-import { apiEndPoint, fetchSuppressedStops, getStopLines, getBusDestinationsForStop } from './api.js';
+import { fetchApi, fetchSuppressedStops, getStopLines, getBusDestinationsForStop } from './api.js';
 import { mapEvents } from './utils.js';
 
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
@@ -51,7 +51,7 @@ export async function updateBusMap(busData, paradaData, centerMap) {
     }
 
     try {
-        const response = await fetch(apiEndPoint + `/v2/busPosition/${busData.tripId}`);
+        const response = await fetchApi(`/v2/busPosition/${busData.tripId}`);
         // Si no hay datos de ubicación, los dejamos como null
         if (!response.ok) {
             console.log('Error al consultar el API de ubicación');
@@ -277,7 +277,7 @@ async function addRouteShapesToMap(tripId, lineNumber) {
             return;
         }
 
-        const shapesResponse = await fetch(apiEndPoint + `/v2/geojson/${tripId}`);
+        const shapesResponse = await fetchApi(`/v2/geojson/${tripId}`);
         if (!shapesResponse.ok) {
             throw new Error('Failed to fetch route shapes');
         }
@@ -341,7 +341,7 @@ async function addStopsToMap(tripId, lineNumber) {
         if (tripId === currentTripId) {
             return;
         }
-        const stopsResponse = await fetch(apiEndPoint + `/v2/geojson/paradas/${tripId}`);
+        const stopsResponse = await fetchApi(`/v2/geojson/paradas/${tripId}`);
         if (!stopsResponse.ok) {
             throw new Error('Failed to fetch stops');
         }

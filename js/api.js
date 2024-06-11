@@ -3,7 +3,54 @@ import { checkAndSendBusArrivalNotification, updateNotifications } from './notif
 import { updateBusMap, mapaParadasCercanas } from './mapa.js';
 
 // Definir la URL base del API, no incluir la / al final
-export const apiEndPoint = 'https://gtfs.vallabus.com';
+// API Endpoint principal del API
+const apiEndPoint = 'https://gtfs.vallabus.com';
+
+// Fallback API endpoint
+const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
+
+// Function to handle API calls with fallback logic
+export async function fetchApi(url) {
+    try {
+        const response = await fetch(apiEndPoint + url);
+        // If the primary API fails, switch to fallback API
+        if (!response.ok) {
+            if (fallbackApiEndPoint) {
+                return fetchApiFromFallback(fallbackApiEndPoint + url);
+            } else {
+                throw new Error('Both primary and fallback APIs are down');
+            }
+        }
+
+        return response;
+    } catch (error) {
+        // If primary API fails, switch to fallback API
+        if (fallbackApiEndPoint) {
+            return fetchApiFromFallback(fallbackApiEndPoint + url);
+        } else {
+            throw new Error('Both primary and fallback APIs are down');
+        }
+    }
+}
+
+// Function to handle API calls from fallback API
+export async function fetchApiFromFallback(url) {
+    try {
+        const response = await fetch(url);
+        // Verificar si la respuesta del fallback API es correcta
+        if (!response.ok) {
+            console.error('Error fetching data from fallback API:', response.statusText);
+            // Additional steps to notify both endpoints are down
+            throw new Error('Both primary and fallback APIs are down');
+        }
+
+        return response;
+    } catch (error) {
+        console.error('Error fetching data from fallback API:', error);
+        // Additional steps to notify both endpoints are down
+        throw error;
+    }
+}
 
 // Recuperamos todas las alertas vigentes
 const allAlerts = await fetchAllBusAlerts();
@@ -113,7 +160,7 @@ export async function getStopLines(stopId) {
 // Obtener ocupación de un vehículo
 export async function fetchBusInfo(tripId) {
     try {
-        const response = await fetch(apiEndPoint + `/v2/busPosition/${tripId}`);
+        const response = await fetchApi(`/v2/busPosition/${tripId}`);
         // Si no hay datos los dejamos como null
         if (!response.ok) {
             console.log('Error al consultar el API');
@@ -146,7 +193,7 @@ export async function fetchBusInfo(tripId) {
 // Obtener todas los avisos y alertas
 export async function fetchAllBusAlerts() {
     try {
-        const response = await fetch(apiEndPoint + '/alertas/');
+        const response = await fetchApi('/alertas/');
 
         if (!response.ok) {
             // Si la respuesta no es exitosa, devuelve un array vacío
@@ -210,7 +257,7 @@ export function filterAlertsByStop(alerts, stopNumber) {
 // Obtener el listado de paradas suprimidas
 export async function fetchSuppressedStops() {
     try {
-        const response = await fetch(apiEndPoint + '/paradas/suprimidas/');
+        const response = await fetchApi('/paradas/suprimidas/');
 
         if (!response.ok) {
             // Si la respuesta no es exitosa, devuelve un array vacío
@@ -251,14 +298,14 @@ export async function fetchScheduledBuses(stopNumber, lineNumber, date) {
 
     // Si no hay datos en caché o están desactualizados, realiza una llamada a la API
     try {
-        let url = apiEndPoint + `/v2/parada/${stopNumber}`;
+        let url = `/v2/parada/${stopNumber}`;
         if (lineNumber) {
             url += `/${lineNumber}`;
         }
         if (date) {
             url += `/${date}`;
         }
-        const response = await fetch(url);
+        const response = await fetchApi(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -281,10 +328,10 @@ export async function getBusDestinationsForStop(stopNumber) {
         return stopsDestinationsCache.data[stopNumber];
     }
 
-    const apiUrl = apiEndPoint + `/v2/parada/${stopNumber}`;
+    const apiUrl = `/v2/parada/${stopNumber}`;
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetchApi(apiUrl);
         const data = await response.json();
 
         let destinations = {};
@@ -811,7 +858,7 @@ export async function updateBusList() {
 // Función principal que actualiza los datos de una línea
 export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
     // URL del API con estáticos y tiempo real
-    const apiUrl = apiEndPoint + '/v2/parada/' + stopNumber + '/' + lineNumber;
+    const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
 
     // Recuperamos si hay alertas para esa linea
     const busLineAlerts = filterBusAlerts(allAlerts, lineNumber);
@@ -829,7 +876,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
     let busesProximos;
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetchApi(apiUrl);
         const scheduledData = await response.json();
 
         // Agrupar los datos por trip_id para una mejor búsqueda
@@ -1462,6 +1509,9 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
 
     let nextBuses;
     if (futureData){
+        // FIXME: Si el busMasCercano es realtime de hoy
+        // saca como siguiente el segundo programado del día
+        // siguiente
         nextBuses = busesArray.slice(1, numBuses + 1);
     } else {
     // Encontrar el índice de busMasCercano en el array
@@ -1606,8 +1656,8 @@ export async function loadBusStops() {
 
     // Si no hay datos en caché o están desactualizados, realiza una llamada al API
     try {
-        const url = apiEndPoint + '/v2/paradas/';
-        const response = await fetch(url);
+        const url = '/v2/paradas/';
+        const response = await fetchApi(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
