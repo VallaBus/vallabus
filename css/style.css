@@ -46,7 +46,7 @@ header h1 {
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-image: url('/img/logo-dark.png');
+    background-image: url('/img/logo.png');
     background-repeat: no-repeat;
     background-size: 33px;
     background-position: 13px 12px;
@@ -2188,7 +2188,7 @@ body.dark-mode {
 }
 
 .dark-mode h1 {
-    background-image: url('/img/logo-dark.png');
+    background-image: url('/img/logo.png');
 }
 
 .dark-mode #formulario form {
