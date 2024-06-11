@@ -3,8 +3,10 @@
     "short_name": "VallaBus",
     "start_url": "index.html",
     "display": "standalone",
+    "theme_color": "#054a32",
     "background_color": "#FFFFFF",
     "description": "La forma más rápida de saber los horarios de tu bus en Valladolid y alrededores",
+    "lang": "es",
     "icons": [
         {
             "src": "favicon.png",
