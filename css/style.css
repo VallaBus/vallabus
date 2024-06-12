@@ -1645,7 +1645,7 @@ button.remove-stop {
     color: #efefef;
 }
 
-#tips-banner #follow-banner {
+#tips-banner #follow-banner, #tips-banner #blog-banner {
     margin: 0; 
     padding: 5px;
     color: #FFF;
@@ -1655,18 +1655,18 @@ button.remove-stop {
     background-position: 15px center;
 }
 
-.dark-mode #tips-banner #follow-banner {
+.dark-mode #tips-banner #follow-banner, .dark-mode #tips-banner #blog-banner {
     background-color: #205047;
     color: #efefef;
 }
 
-#tips-banner #follow-banner a {
+#tips-banner #follow-banner a, #tips-banner #blog-banner a {
     color: #FFF; 
     text-decoration: underline; 
     font-weight: bold;
 }
 
-.dark-mode #tips-banner #follow-banner a {
+.dark-mode #tips-banner #follow-banner a, .dark-mode #tips-banner #blog-banner a {
     color: #efefef;
 }
 
