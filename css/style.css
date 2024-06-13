@@ -1690,9 +1690,10 @@ button.remove-stop {
 }
 
 #instagram-warning {
-    color: #ffe9e9;
-    background-color: #c65151;
+    color: #FFF;
+    background-color: #2b7b6c;
     padding: 1em 5px;
+    font-size: 0.9em;
 }
 
 #tips-banner #ruta-pucela {
