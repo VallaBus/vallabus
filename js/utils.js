@@ -1282,11 +1282,11 @@ export function tipsBannerEvents() {
 export function socialBrowserWarning() {
     // Aviso si se accede desde el navegador de instagram
     // Check if the referrer is from Instagram
-    if (document.referrer.includes('instagram.com')) {
+    if (document.referrer.includes('instagram.com') || document.referrer.includes('facebook.com')) {
         const tipsBannerElement = document.getElementById('tips-banner');
         const instagramWarning = document.createElement('p');
         instagramWarning.id = 'instagram-warning';
-        instagramWarning.innerHTML = '<strong>Si accedes desde Instagram</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente';
+        instagramWarning.innerHTML = '<strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente';
         tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
     }
 }
