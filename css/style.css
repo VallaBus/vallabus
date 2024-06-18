@@ -1672,9 +1672,9 @@ button.remove-stop {
 
 #tips-banner #map-tip {
     background-image: url('/img/bus-location-white.png');
-    background-size: 15px;
+    background-size: 22px;
     background-repeat: no-repeat;
-    background-position: 13px center;
+    background-position: 15px center;
     padding: 5px 5px 5px 22px;
     background-color: #2B7B6C;
     color: #FFF;
