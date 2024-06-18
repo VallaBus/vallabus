@@ -31,9 +31,9 @@
 
     <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' https://unpkg.com https://stats.vallabus.com https://beta.vallabus.com;
-    style-src 'self' 'unsafe-inline' https://unpkg.com;
-    img-src 'self' data: https://vallabus.com https://beta.vallabus.com https://*.tile.openstreetmap.org https://*.tile.thunderforest.com https://*.basemaps.cartocdn.com https://unpkg.com;
+    script-src 'self' https://stats.vallabus.com https://beta.vallabus.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https://vallabus.com https://beta.vallabus.com https://*.tile.openstreetmap.org https://*.tile.thunderforest.com https://*.basemaps.cartocdn.com;
     connect-src 'self' https://stats.vallabus.com https://beta.vallabus.com https://gtfs.vallabus.com https://gtfs2.vallabus.com https://push.vallabus.com;
     font-src 'self';
     frame-src 'self' https://rutas.vallabus.com;
@@ -172,7 +172,7 @@
         <div class="spinner"></div>
     </div>
     
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="js/leaflet/leaflet.js"></script>
     <script type="module" src="js/buscador.js"></script>
     <script type="module" src="js/mapa.js"></script>
     <script type="module" src="js/script.js"></script>
