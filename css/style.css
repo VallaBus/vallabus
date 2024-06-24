@@ -1075,7 +1075,7 @@ button.remove-stop {
     margin: 0 0 0 5px;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
-    padding: 3px 18px 3px 32px;
+    padding: 3px 18px 3px 35px;
     background-repeat: no-repeat;
     background-position: 7px center;
 }
