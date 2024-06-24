@@ -1062,10 +1062,10 @@ button.remove-stop {
     color: #143325;
     font-weight: bold;
     background-color: #f26522;
-    max-width: 23px;
+    width: 30px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    margin: 0 0 0 3px;
+    margin: 0 0 0 5px;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
     padding: 3px 18px 3px 32px;
