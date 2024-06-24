@@ -2184,8 +2184,6 @@ footer a:hover {
     position: absolute;
 }
 
-/* Posiciones específicas para diferentes overlays */
-
 #overlay-installIos .overlay-content {
     top: 60px;
     width: 308px;
@@ -2201,6 +2199,21 @@ footer a:hover {
     margin: 0 auto 15px auto;
     display: block;
     background-color: #2b282b;
+}
+
+/* Posiciones específicas para diferentes overlays */
+
+#overlay-cercanas-biki0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/cercanas-biki.jpg');
+    padding-top: 380px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
 }
 
 #overlay-estimaciones0624 .overlay-content {
