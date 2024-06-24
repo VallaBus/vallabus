@@ -960,6 +960,7 @@ button.remove-stop {
     width: 33px;
     text-align: center;
     cursor: pointer;
+    touch-action: manipulation;
     margin: 5px 0;
     max-width: 130px;
     overflow: hidden;
@@ -1033,6 +1034,7 @@ button.remove-stop {
     height: 9px;
     text-indent: -9999px;
     cursor: pointer;
+    touch-action: manipulation;
     padding: 11px;
     background-repeat: no-repeat;
     color: rgb(5, 5, 6);
@@ -1051,6 +1053,7 @@ button.remove-stop {
     height: 22px;
     text-indent: -9999px;
     cursor: pointer;
+    touch-action: manipulation;
     position: absolute;
     bottom: 20px;
     right: 20px;
