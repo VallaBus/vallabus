@@ -1068,9 +1068,9 @@ button.remove-stop {
     margin: 0 0 0 3px;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
-    padding: 1px 18px 3px 32px;
+    padding: 3px 18px 3px 32px;
     background-repeat: no-repeat;
-    background-position: 4px center;
+    background-position: 7px center;
 }
 
 #nearestStopsResults #show-bikes.enabled {
