@@ -1060,7 +1060,9 @@ button.remove-stop {
 }
 
 #nearestStopsResults #show-bikes {
+    display: inline-block;
     cursor: pointer;
+    touch-action: manipulation;
     color: #143325;
     font-weight: bold;
     background-color: #f26522;
