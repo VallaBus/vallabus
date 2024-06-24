@@ -1065,10 +1065,10 @@ button.remove-stop {
     max-width: 23px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    margin: 0;
+    margin: 0 0 0 3px;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
-    padding-left: 30px;
+    padding: 1px 18px 3px 32px;
     background-repeat: no-repeat;
     background-position: 4px center;
 }
