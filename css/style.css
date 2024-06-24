@@ -861,6 +861,7 @@ button.remove-stop {
 
 #horarios-box h2 {
     font-size: 1.1em;
+    margin-top: 0;
 }
 
 #horarios-box h3 {
@@ -902,6 +903,7 @@ button.remove-stop {
 
 #nearestStopsResults h2 {
     font-size: 1.2em;
+    margin-top: 0;
 }
 
 #nearestStopsResults p {
