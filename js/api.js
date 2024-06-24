@@ -1786,6 +1786,7 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
             }
         } else if (event.target.matches('#show-bikes')) {
             if (bikeStops) {
+                // Si no está activado el toogle
                 if (!event.target.classList.contains('enabled')) {
                     try {
                         displayLoadingSpinner();
@@ -1804,9 +1805,9 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
                         event.target.classList.toggle('enabled');
                         localStorage.setItem('showBikes', 'false');
                     } catch (error) {
-                    console.error('Error al limpiar datos GBFS:', error.message);
-                    // Ocultamos el botón si hubo errores
-                    event.target.remove();
+                        console.error('Error al limpiar datos GBFS:', error.message);
+                        // Ocultamos el botón si hubo errores
+                        event.target.remove();
                 }
                 }
             }
@@ -1820,12 +1821,9 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
         const showBikesElement = document.getElementById('show-bikes');
         if (showBikes === 'true') {
             try {
-                displayLoadingSpinner();
                 await mapaParadasBiciCercanas(bikeStops);
                 showBikesElement.classList.add('enabled');
-                hideLoadingSpinner();
-            }
-            catch (error) {
+            } catch (error) {
                 // Ocultamos el botón si hubo errores
                 showBikesElement.remove();
                 console.error('Error al recuperar datos GBFS:', error.message);

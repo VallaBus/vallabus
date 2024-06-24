@@ -508,12 +508,20 @@ function prepararDatosParadas(paradas) {
     };
 }
 
+// Variable para almacenar la capa de GeoJSON de bicicletas
+let biciGeoJSONLayer = null;
+
 // Mapa para paradas cercanas
 export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
+    
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
         // Remove the existing map instance
         window.myMapParadasCercanas.remove();
+        if (biciGeoJSONLayer) {
+            window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+            biciGeoJSONLayer = null;
+        }
     }
 
     // Create a new map instance
@@ -644,9 +652,6 @@ function prepararDatosBiciParadas(paradas) {
         })
     };
 }
-// Array para almacenar los marcadores de las paradas de bicicletas
-let biciMarkers = [];
-
 // Mapa para paradas cercanas BIKI
 export async function mapaParadasBiciCercanas(paradas) {
     
@@ -660,12 +665,15 @@ export async function mapaParadasBiciCercanas(paradas) {
 
     const geoJSONData = prepararDatosBiciParadas(paradas);
 
-    // Limpiar los marcadores antiguos antes de añadir nuevos
-    biciMarkers.forEach(marker => marker.remove());
+    // Limpiar la capa de GeoJSON existente si hay una
+    if (biciGeoJSONLayer) {
+        window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+        biciGeoJSONLayer = null; // Asegurarse de que la capa sea nula
+    }
 
-    L.geoJSON(geoJSONData, {
+    // Crear una nueva capa de GeoJSON
+    biciGeoJSONLayer = L.geoJSON(geoJSONData, {
         pointToLayer: function (feature, latlng) {
-            // Crear el icono para la parada
             const iconoParada = L.icon({
                 iconUrl: iconUrl,
                 iconSize: [12, 12],
@@ -673,21 +681,17 @@ export async function mapaParadasBiciCercanas(paradas) {
                 popupAnchor: [0, -12]
             });
     
-            // Crear el marcador con el icono y el popup personalizado
-            const marker = L.marker(latlng, { icon: iconoParada })
-            .bindPopup(`<span class="bike-agency">BIKI</span> <strong class="bikestop-name">${feature.properties.nombre}</strong> ${feature.properties.stopHTML}`);
-            
-            // Añadir el marcador al array de marcadores
-            biciMarkers.push(marker);
-
-            return marker;
+            return L.marker(latlng, { icon: iconoParada })
+                .bindPopup(`<span class="bike-agency">BIKI</span> <strong class="bikestop-name">${feature.properties.nombre}</strong> ${feature.properties.stopHTML}`);
         }
     }).addTo(window.myMapParadasCercanas);
 }
 
 export function limpiarMapaParadasBiciCercanas() {
-    // Eliminar cada marcador del mapa
-    biciMarkers.forEach(marker => marker.remove());
-    // Vaciar el arreglo para futuros usos
-    biciMarkers = [];
+    if (window.myMapParadasCercanas && biciGeoJSONLayer) {
+        console.log(biciGeoJSONLayer);
+        window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+        biciGeoJSONLayer = null;
+        console.log("Limpiando capa de bicicletas");
+    }
 }
