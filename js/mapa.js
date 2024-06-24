@@ -607,3 +607,85 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
         radius: 30
     }).addTo(window.myMapParadasCercanas);
 }
+
+// Función auxiliar para preparar datos de paradas a GeoJSON
+function prepararDatosBiciParadas(paradas) {
+
+    return {
+        type: "FeatureCollection",
+        features: paradas.map(parada => {
+            // Generar el HTML
+            let stopHTML = `<div class="bikestop-info">
+                                <div class="bikes-available">
+                                    <p class="e-bikes"><span class="count">${parada.vehicle_types_available[1].count}</span> eléctricas</p>
+                                    <p class="m-bikes"><span class="count">${parada.vehicle_types_available[0].count}</span> mecánicas</p>
+                                </div>
+                                <p class="slots-bikes"><span class="count">${parada.num_docks_available}</span> huecos de ${parada.capacity}</p>
+                            </div>`;
+
+            return {
+                type: "Feature",
+                properties: {
+                    nombre: parada.name,
+                    numero: parada.station_id,
+                    huecos: parada.num_docks_available,
+                    disponibles: parada.vehicle_types_available,
+                    estado: parada.status,
+                    capacidad: parada.capacity,
+                    stopHTML: stopHTML,
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: [parada.lon, parada.lat]
+                }
+            };
+        })
+    };
+}
+// Array para almacenar los marcadores de las paradas de bicicletas
+let biciMarkers = [];
+
+// Mapa para paradas cercanas BIKI
+export async function mapaParadasBiciCercanas(paradas) {
+    
+    let iconUrl = 'img/bike-stop.png';
+
+    // Detectamos el theme para ofrecer una capa u otra de mapa
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === "dark"){
+        iconUrl = 'img/bike-stop-dark.png';
+    }
+
+    const geoJSONData = prepararDatosBiciParadas(paradas);
+
+    // Limpiar los marcadores antiguos antes de añadir nuevos
+    biciMarkers.forEach(marker => marker.remove());
+
+    L.geoJSON(geoJSONData, {
+        pointToLayer: function (feature, latlng) {
+            // Crear el icono para la parada
+            const iconoParada = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [12, 12],
+                iconAnchor: [0, 0],
+                popupAnchor: [0, -12]
+            });
+    
+            // Crear el marcador con el icono y el popup personalizado
+            const marker = L.marker(latlng, { icon: iconoParada })
+            .bindPopup(`<span class="bike-agency">BIKI</span> <strong class="bikestop-name">${feature.properties.nombre}</strong> ${feature.properties.stopHTML}`);
+            
+            // Añadir el marcador al array de marcadores
+            biciMarkers.push(marker);
+
+            return marker;
+        }
+    }).addTo(window.myMapParadasCercanas);
+}
+
+export function limpiarMapaParadasBiciCercanas() {
+    // Eliminar cada marcador del mapa
+    biciMarkers.forEach(marker => marker.remove());
+    // Vaciar el arreglo para futuros usos
+    biciMarkers = [];
+}
