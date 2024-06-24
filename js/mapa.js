@@ -568,6 +568,7 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
                     lineasHTML += `
                         <div>
                             <span class="addLineButton linea linea-${linea}" data-stop-number="${feature.properties.numero}" data-line-number="${linea}">${linea}</span><span class="addLineButton destino linea-${linea}" data-stop-number="${feature.properties.numero}" data-line-number="${linea}">${destino}</span>
+                            <a href="#" class="mapIcon routeTo" data-dest-name="${feature.properties.nombre}" data-dest-y="${feature.geometry.coordinates[1]}" data-dest-x="${feature.geometry.coordinates[0]}">Cómo llegar a la parada</a>
                         </div>
                     `;
                 });
@@ -621,6 +622,7 @@ function prepararDatosBiciParadas(paradas) {
                                     <p class="m-bikes"><span class="count">${parada.vehicle_types_available[0].count}</span> mecánicas</p>
                                 </div>
                                 <p class="slots-bikes"><span class="count">${parada.num_docks_available}</span> huecos de ${parada.capacity}</p>
+                                <a href="#" class="mapIcon routeTo" data-dest-name="${parada.name}" data-dest-y="${parada.lat}" data-dest-x="${parada.lon}">Cómo llegar a la parada</a>
                             </div>`;
 
             return {

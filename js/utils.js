@@ -245,7 +245,7 @@ export function showRouteToDestination(destName, destY, destX, arriveByDate = nu
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             displayLoadingSpinner();
-            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
+            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900&modeButtons=transit_bicycle`
             showIframe(plannerURL);
             // URL para rutas
             const dialogState = {

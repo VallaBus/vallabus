@@ -1040,6 +1040,19 @@ button.remove-stop {
     background-position: 7px 7px;
 }
 
+#mapaParadasCercanas .leaflet-popup-content .mapIcon {
+    background-image: url("/img/directions.png");
+    background-size: 22px;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    text-indent: -9999px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
 #nearestStopsResults #show-bikes {
     cursor: pointer;
     color: #143325;
