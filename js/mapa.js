@@ -620,7 +620,7 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
     // Definición del control personalizado
     var ShowBikesControl = L.Control.extend({
         options: {
-            position: 'topright'
+            position: 'bottomleft'
         },
     
         onAdd: function (map) {

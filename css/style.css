@@ -1063,7 +1063,7 @@ button.remove-stop {
 }
 
 #nearestStopsResults .bike-control {
-    margin-right: 0;
+    margin-left: 0;
 }
 
 #nearestStopsResults #show-bikes {
@@ -1073,9 +1073,9 @@ button.remove-stop {
     font-weight: bold;
     background-color: #f265229e;
     width: 30px;
-    border-bottom-left-radius: 5px;
-    border-top-left-radius: 5px;
-    margin: 10px 0 0 5px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    margin: 0;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
     padding: 3px 18px 3px 35px;
