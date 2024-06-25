@@ -615,6 +615,26 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
         fillOpacity: 0.7,
         radius: 30
     }).addTo(window.myMapParadasCercanas);
+
+    // Toogle de bicis
+    // Definición del control personalizado
+    var ShowBikesControl = L.Control.extend({
+        options: {
+            position: 'bottomright'
+        },
+    
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-control-custom bike-control');
+            container.style.width = 'auto';
+            container.style.height = 'auto';
+            container.innerHTML = '<p id="show-bikes">BIKI</p>';
+            return container;
+        }
+    });
+    
+    // Añadir el control al mapa
+    window.myMapParadasCercanas.addControl(new ShowBikesControl());
+    
 }
 
 // Función auxiliar para preparar datos de paradas a GeoJSON

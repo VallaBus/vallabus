@@ -1763,7 +1763,6 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
         <h2>Paradas cercanas</h2>
         <p>Estas son las paradas más cercanas a tu ubicación.</p>
         <div id="mapaParadasCercanas"></div>
-        <p id="show-bikes">BIKI</p>
         <p><strong>Pulsa sobre la linea para añadirla</strong> o sobre el botón <strong>+</strong> para añadir todas las líneas de la parada.</p>`;
     
     // Restablecer el scroll arriba

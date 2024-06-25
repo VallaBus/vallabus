@@ -1062,25 +1062,30 @@ button.remove-stop {
     margin: -20px;
 }
 
+#nearestStopsResults .bike-control {
+    margin-right: 0;
+}
+
 #nearestStopsResults #show-bikes {
-    display: inline-block;
     cursor: pointer;
     touch-action: manipulation;
     color: #143325;
     font-weight: bold;
-    background-color: #f26522;
+    background-color: #f265229e;
     width: 30px;
     border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    margin: 0 0 0 5px;
+    border-top-left-radius: 5px;
+    margin: 10px 0 0 5px;
     background-image: url("/img/toggle-off.png");
     background-size: 19px;
     padding: 3px 18px 3px 35px;
     background-repeat: no-repeat;
     background-position: 7px center;
+    font-size: 1em;
 }
 
 #nearestStopsResults #show-bikes.enabled {
+    background-color: #f26522d1;
     background-image: url("/img/toggle-on.png");
 }
 
