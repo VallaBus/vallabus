@@ -1064,6 +1064,7 @@ button.remove-stop {
 
 #nearestStopsResults .bike-control {
     margin-left: 0;
+    z-index: 1000;
 }
 
 #nearestStopsResults #show-bikes {
