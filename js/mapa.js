@@ -508,12 +508,20 @@ function prepararDatosParadas(paradas) {
     };
 }
 
+// Variable para almacenar la capa de GeoJSON de bicicletas
+let biciGeoJSONLayer = null;
+
 // Mapa para paradas cercanas
 export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
+    
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
         // Remove the existing map instance
         window.myMapParadasCercanas.remove();
+        if (biciGeoJSONLayer) {
+            window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+            biciGeoJSONLayer = null;
+        }
     }
 
     // Create a new map instance
@@ -568,6 +576,7 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
                     lineasHTML += `
                         <div>
                             <span class="addLineButton linea linea-${linea}" data-stop-number="${feature.properties.numero}" data-line-number="${linea}">${linea}</span><span class="addLineButton destino linea-${linea}" data-stop-number="${feature.properties.numero}" data-line-number="${linea}">${destino}</span>
+                            <a href="#" class="mapIcon routeTo" data-dest-name="${feature.properties.nombre}" data-dest-y="${feature.geometry.coordinates[1]}" data-dest-x="${feature.geometry.coordinates[0]}">Cómo llegar a la parada</a>
                         </div>
                     `;
                 });
@@ -606,4 +615,101 @@ export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionU
         fillOpacity: 0.7,
         radius: 30
     }).addTo(window.myMapParadasCercanas);
+
+    // Toogle de bicis
+    // Definición del control personalizado
+    var ShowBikesControl = L.Control.extend({
+        options: {
+            position: 'bottomleft'
+        },
+    
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-control-custom bike-control');
+            container.style.width = 'auto';
+            container.style.height = 'auto';
+            container.innerHTML = '<p id="show-bikes">BIKI</p>';
+            return container;
+        }
+    });
+    
+    // Añadir el control al mapa
+    window.myMapParadasCercanas.addControl(new ShowBikesControl());
+    
+}
+
+// Función auxiliar para preparar datos de paradas a GeoJSON
+function prepararDatosBiciParadas(paradas) {
+
+    return {
+        type: "FeatureCollection",
+        features: paradas.map(parada => {
+            // Generar el HTML
+            let stopHTML = `<div class="bikestop-info">
+                                <div class="bikes-available">
+                                    <p class="e-bikes"><span class="count">${parada.vehicle_types_available[1].count}</span> eléctricas</p>
+                                    <p class="m-bikes"><span class="count">${parada.vehicle_types_available[0].count}</span> mecánicas</p>
+                                </div>
+                                <p class="slots-bikes"><span class="count">${parada.num_docks_available}</span> huecos de ${parada.capacity}</p>
+                                <a href="#" class="mapIcon routeTo" data-dest-name="${parada.name}" data-dest-y="${parada.lat}" data-dest-x="${parada.lon}">Cómo llegar a la parada</a>
+                            </div>`;
+
+            return {
+                type: "Feature",
+                properties: {
+                    nombre: parada.name,
+                    numero: parada.station_id,
+                    huecos: parada.num_docks_available,
+                    disponibles: parada.vehicle_types_available,
+                    estado: parada.status,
+                    capacidad: parada.capacity,
+                    stopHTML: stopHTML,
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: [parada.lon, parada.lat]
+                }
+            };
+        })
+    };
+}
+// Mapa para paradas cercanas BIKI
+export async function mapaParadasBiciCercanas(paradas) {
+    
+    let iconUrl = 'img/bike-stop.png';
+
+    // Detectamos el theme para ofrecer una capa u otra de mapa
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === "dark"){
+        iconUrl = 'img/bike-stop-dark.png';
+    }
+
+    const geoJSONData = prepararDatosBiciParadas(paradas);
+
+    // Limpiar la capa de GeoJSON existente si hay una
+    if (biciGeoJSONLayer) {
+        window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+        biciGeoJSONLayer = null; // Asegurarse de que la capa sea nula
+    }
+
+    // Crear una nueva capa de GeoJSON
+    biciGeoJSONLayer = L.geoJSON(geoJSONData, {
+        pointToLayer: function (feature, latlng) {
+            const iconoParada = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [12, 12],
+                iconAnchor: [0, 0],
+                popupAnchor: [0, -12]
+            });
+    
+            return L.marker(latlng, { icon: iconoParada })
+                .bindPopup(`<span class="bike-agency">BIKI</span> <strong class="bikestop-name">${feature.properties.nombre}</strong> ${feature.properties.stopHTML}`);
+        }
+    }).addTo(window.myMapParadasCercanas);
+}
+
+export async function limpiarMapaParadasBiciCercanas() {
+    if (window.myMapParadasCercanas && biciGeoJSONLayer) {
+        window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
+        biciGeoJSONLayer = null;
+    }
 }

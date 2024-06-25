@@ -21,7 +21,7 @@ body {
     padding: 0;
     color: #333;
     margin: auto;
-    max-width: 900px;
+    max-width: 600px;
 }
 
 header {
@@ -861,6 +861,7 @@ button.remove-stop {
 
 #horarios-box h2 {
     font-size: 1.1em;
+    margin-top: 0;
 }
 
 #horarios-box h3 {
@@ -902,6 +903,7 @@ button.remove-stop {
 
 #nearestStopsResults h2 {
     font-size: 1.2em;
+    margin-top: 0;
 }
 
 #nearestStopsResults p {
@@ -958,6 +960,7 @@ button.remove-stop {
     width: 33px;
     text-align: center;
     cursor: pointer;
+    touch-action: manipulation;
     margin: 5px 0;
     max-width: 130px;
     overflow: hidden;
@@ -1031,6 +1034,7 @@ button.remove-stop {
     height: 9px;
     text-indent: -9999px;
     cursor: pointer;
+    touch-action: manipulation;
     padding: 11px;
     background-repeat: no-repeat;
     color: rgb(5, 5, 6);
@@ -1038,6 +1042,116 @@ button.remove-stop {
     border: 1px solid #cdcdcd;
     display: inline-block;
     background-position: 7px 7px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .mapIcon {
+    background-image: url("/img/directions.png");
+    background-size: 22px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    text-indent: -9999px;
+    cursor: pointer;
+    touch-action: manipulation;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    /* Aumenta el área de clic */
+    padding: 9px;
+    margin: -20px;
+}
+
+#nearestStopsResults .bike-control {
+    margin-left: 0;
+}
+
+#nearestStopsResults #show-bikes {
+    cursor: pointer;
+    touch-action: manipulation;
+    color: #143325;
+    font-weight: bold;
+    background-color: #f265229e;
+    width: 30px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    margin: 0;
+    background-image: url("/img/toggle-off.png");
+    background-size: 19px;
+    padding: 3px 18px 3px 35px;
+    background-repeat: no-repeat;
+    background-position: 7px center;
+    font-size: 1em;
+}
+
+#nearestStopsResults #show-bikes.enabled {
+    background-color: #f26522d1;
+    background-image: url("/img/toggle-on.png");
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bike-agency {
+    color: #143325;
+    font-weight: bold;
+    background-color: #f26522;
+    max-width: 23px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    position: absolute;
+    display: block;
+    padding: 2px 10px 2px 5px;
+    left: 0;
+    top: 12px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-name {
+    padding-left: 22px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p {
+    align-content: center;
+    text-align: center;
+    margin: 0 6px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.e-bikes {
+    border-right: 1px solid #CCC;
+    padding-right: 10px;
+    background-image: url('../img/electric.png');
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: left 8px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.m-bikes {
+    background-image: url('../img/bike.png');
+    background-size: 17px;
+    background-repeat: no-repeat;
+    background-position: 2px 7px;
+}
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.m-bikes .count {
+    padding-left: 11px;
+}
+
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .slots-bikes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-right: 10px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .count {
+    font-weight: bold;
+    font-size: 2em;
+    display: block;
 }
 
 #nearestStops #searchNearStops {
@@ -2082,8 +2196,6 @@ footer a:hover {
     position: absolute;
 }
 
-/* Posiciones específicas para diferentes overlays */
-
 #overlay-installIos .overlay-content {
     top: 60px;
     width: 308px;
@@ -2099,6 +2211,21 @@ footer a:hover {
     margin: 0 auto 15px auto;
     display: block;
     background-color: #2b282b;
+}
+
+/* Posiciones específicas para diferentes overlays */
+
+#overlay-cercanas-biki0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/cercanas-biki.jpg');
+    padding-top: 380px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
 }
 
 #overlay-estimaciones0624 .overlay-content {

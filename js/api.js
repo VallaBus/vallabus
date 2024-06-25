@@ -1,13 +1,14 @@
 import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula } from './utils.js';
 import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
-import { updateBusMap, mapaParadasCercanas } from './mapa.js';
+import { updateBusMap, mapaParadasCercanas, mapaParadasBiciCercanas, limpiarMapaParadasBiciCercanas } from './mapa.js';
 
 // Definir la URL base del API, no incluir la / al final
 // API Endpoint principal del API
 const apiEndPoint = 'https://gtfs.vallabus.com';
 
 // Fallback API endpoint
-const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
+// const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
+const fallbackApiEndPoint = null;
 
 // Function to handle API calls with fallback logic
 export async function fetchApi(url) {
@@ -55,6 +56,7 @@ export async function fetchApiFromFallback(url) {
 // Recuperamos todas las alertas vigentes
 const allAlerts = await fetchAllBusAlerts();
 let busStops = [];
+let bikeStops = [];
 
 export let intervalId;
 
@@ -1673,10 +1675,33 @@ export async function loadBusStops() {
     }
 }
 
+// Función para guardar un JSON con todas las paradas GBFS
+export async function loadBikeStops() {
+
+    // Realiza una llamada al API
+    try {
+        const url = '/v2/gbfs/paradas/';
+        const response = await fetchApi(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        bikeStops = data;
+
+        return bikeStops;
+    } catch (error) {
+        console.error('Error al recuperar y cachear los datos de paradas GBFS:', error);
+        return null;
+    }
+}
+
 // Función para mostrar las paradas más cercanas
 export async function showNearestStops(position) {
     const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
     const busStops = await loadBusStops();
+    const bikeStops = await loadBikeStops();
+
+    // Paradas de bus
     let sortedStops = busStops.map(stop => {
         let distance = calculateDistance(userLocation, stop.ubicacion);
         return { ...stop, distance: distance };
@@ -1690,11 +1715,37 @@ export async function showNearestStops(position) {
         nearbyStops = sortedStops.slice(0, 20);
     }
 
-    displayNearestStopsResults(nearbyStops, userLocation);
+    // Paradas de bicis
+    let nearbyBikeStops = null;
+    if (bikeStops) {
+        let sortedBikeStops = bikeStops.map(stop => {
+            let ubicacion = {
+                "x": stop.lon,
+                "y": stop.lat
+            };
+            let distance = calculateDistance(userLocation, ubicacion);
+            return { ...stop, distance: distance };
+        }).sort((a, b) => a.distance - b.distance);
+
+        // Filtrar las paradas a 1 km o menos
+        //nearbyBikeStops = sortedBikeStops.filter(stop => stop.distance <= 1000);
+
+        // Si no hay paradas a 1 km o menos, mostrar las 20 más cercanas
+        //if (nearbyBikeStops.length === 0) {
+        //    nearbyBikeStops = sortedBikeStops.slice(0, 20);
+        //}
+
+        // Mostramos todas las paradas
+        nearbyBikeStops = sortedBikeStops;
+    }
+
+    displayNearestStopsResults(nearbyStops, nearbyBikeStops, userLocation);
 }
 
+let currentResultsListener = null;
+
 // Función para mostrar los resultados de las paradas más cercanas
-export async function displayNearestStopsResults(stops, userLocation) {
+export async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     let resultsDiv = document.getElementById('nearestStopsResults');
     resultsDiv.style.display = 'block';
 
@@ -1717,12 +1768,18 @@ export async function displayNearestStopsResults(stops, userLocation) {
     // Restablecer el scroll arriba
     resultsDiv.scrollTo(0, 0);
 
-    // Manejar los eventos de clic usando delegación de eventos
-    // Lo hacemos antes del resto para que no espere a aplicarse el evento
-    // hasta que no carguen todas las paradas
-    resultsDiv.addEventListener('click', async function (event) {
+    // Eliminar el listener anterior si existe
+    if (currentResultsListener) {
+        resultsDiv.removeEventListener('click', currentResultsListener);
+    }
+
+    // Crear una nueva función para el event listener
+    currentResultsListener = async function (event) {
         if (event.target.matches('#close-nearest-stops')) {
             resultsDiv.style.display = 'none';
+            // Eliminar el event listener cuando se cierra el diálogo
+            resultsDiv.removeEventListener('click', currentResultsListener);
+            currentResultsListener = null;
             // Regresamos al home
             const dialogState = {
                 dialogType: 'home'
@@ -1734,11 +1791,58 @@ export async function displayNearestStopsResults(stops, userLocation) {
             if (addBusLineStatus != false) {
                 resultsDiv.style.display = 'none';
             }
+        } else if (event.target.matches('#show-bikes')) {
+            if (bikeStops) {
+                // Si está activado el toogle ocultamos paradas
+                if (event.target.classList.contains('enabled')){
+                    try {
+                        await limpiarMapaParadasBiciCercanas();
+                        event.target.classList.remove('enabled');
+                        localStorage.setItem('showBikes', 'false');
+                    } catch (error) {
+                        console.error('Error al limpiar datos GBFS:', error.message);
+                        // Ocultamos el botón si hubo errores
+                        event.target.remove();
+                    }
+                // Si no está activado el toogle mostramos paradas
+                } else {
+                    try {
+                        await mapaParadasBiciCercanas(bikeStops);
+                        event.target.classList.add('enabled');
+                        localStorage.setItem('showBikes', 'true');
+                    } catch (error) {
+                        console.error('Error al recuperar datos GBFS:', error.message);
+                        // Ocultamos el botón si hubo errores
+                        event.target.remove();
+                    }
+                }
+            }
         }
-    });
+    };
+
+    // Manejar los eventos de clic usando delegación de eventos
+    // Lo hacemos antes del resto para que no espere a aplicarse el evento
+    // hasta que no carguen todas las paradas
+    resultsDiv.addEventListener('click', currentResultsListener);
 
     // Generamos el mapa de paradas
     await mapaParadasCercanas(stops, userLocation.x, userLocation.y);
+    const showBikes = localStorage.getItem('showBikes');
+    if (showBikes) {
+        const showBikesElement = document.getElementById('show-bikes');
+        if (showBikes === 'true') {
+            try {
+                await mapaParadasBiciCercanas(bikeStops);
+                showBikesElement.classList.add('enabled');
+            } catch (error) {
+                // Ocultamos el botón si hubo errores
+                showBikesElement.remove();
+                console.error('Error al recuperar datos GBFS:', error.message);
+            }
+        } else {
+            showBikesElement.classList.remove('enabled');
+        }
+    }
     hideLoadingSpinner();
 
     for (let stop of stops) {
