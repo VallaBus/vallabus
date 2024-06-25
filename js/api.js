@@ -1742,6 +1742,8 @@ export async function showNearestStops(position) {
     displayNearestStopsResults(nearbyStops, nearbyBikeStops, userLocation);
 }
 
+let currentResultsListener = null;
+
 // Función para mostrar los resultados de las paradas más cercanas
 export async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     let resultsDiv = document.getElementById('nearestStopsResults');
@@ -1767,12 +1769,18 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
     // Restablecer el scroll arriba
     resultsDiv.scrollTo(0, 0);
 
-    // Manejar los eventos de clic usando delegación de eventos
-    // Lo hacemos antes del resto para que no espere a aplicarse el evento
-    // hasta que no carguen todas las paradas
-    resultsDiv.addEventListener('click', async function (event) {
+    // Eliminar el listener anterior si existe
+    if (currentResultsListener) {
+        resultsDiv.removeEventListener('click', currentResultsListener);
+    }
+
+    // Crear una nueva función para el event listener
+    currentResultsListener = async function (event) {
         if (event.target.matches('#close-nearest-stops')) {
             resultsDiv.style.display = 'none';
+            // Eliminar el event listener cuando se cierra el diálogo
+            resultsDiv.removeEventListener('click', currentResultsListener);
+            currentResultsListener = null;
             // Regresamos al home
             const dialogState = {
                 dialogType: 'home'
@@ -1786,33 +1794,37 @@ export async function displayNearestStopsResults(stops, bikeStops, userLocation)
             }
         } else if (event.target.matches('#show-bikes')) {
             if (bikeStops) {
-                // Si no está activado el toogle
-                if (!event.target.classList.contains('enabled')) {
+                // Si está activado el toogle ocultamos paradas
+                if (event.target.classList.contains('enabled')){
                     try {
-                        displayLoadingSpinner();
-                        await mapaParadasBiciCercanas(bikeStops);
-                        event.target.classList.toggle('enabled');
-                        localStorage.setItem('showBikes', 'true');
-                        hideLoadingSpinner();
-                    } catch (error) {
-                        console.error('Error al recuperar datos GBFS:', error.message);
-                        // Ocultamos el botón si hubo errores
-                        event.target.remove();
-                    }
-                } else {
-                    try {
-                        limpiarMapaParadasBiciCercanas();
-                        event.target.classList.toggle('enabled');
+                        await limpiarMapaParadasBiciCercanas();
+                        event.target.classList.remove('enabled');
                         localStorage.setItem('showBikes', 'false');
                     } catch (error) {
                         console.error('Error al limpiar datos GBFS:', error.message);
                         // Ocultamos el botón si hubo errores
                         event.target.remove();
-                }
+                    }
+                // Si no está activado el toogle mostramos paradas
+                } else {
+                    try {
+                        await mapaParadasBiciCercanas(bikeStops);
+                        event.target.classList.add('enabled');
+                        localStorage.setItem('showBikes', 'true');
+                    } catch (error) {
+                        console.error('Error al recuperar datos GBFS:', error.message);
+                        // Ocultamos el botón si hubo errores
+                        event.target.remove();
+                    }
                 }
             }
         }
-    });
+    };
+
+    // Manejar los eventos de clic usando delegación de eventos
+    // Lo hacemos antes del resto para que no espere a aplicarse el evento
+    // hasta que no carguen todas las paradas
+    resultsDiv.addEventListener('click', currentResultsListener);
 
     // Generamos el mapa de paradas
     await mapaParadasCercanas(stops, userLocation.x, userLocation.y);

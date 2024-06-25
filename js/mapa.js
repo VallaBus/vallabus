@@ -687,11 +687,9 @@ export async function mapaParadasBiciCercanas(paradas) {
     }).addTo(window.myMapParadasCercanas);
 }
 
-export function limpiarMapaParadasBiciCercanas() {
+export async function limpiarMapaParadasBiciCercanas() {
     if (window.myMapParadasCercanas && biciGeoJSONLayer) {
-        console.log(biciGeoJSONLayer);
         window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
         biciGeoJSONLayer = null;
-        console.log("Limpiando capa de bicicletas");
     }
 }
