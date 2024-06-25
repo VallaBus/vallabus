@@ -1,5 +1,5 @@
 import { addLineNotification } from './notifications.js';
-import { removeBusLine, displayScheduledBuses, updateBusList, removeStop, removeAllBusLines, addBusLine, showNearestStops, fetchBusInfo, displayNearestStopsResults } from './api.js';
+import { removeBusLine, displayScheduledBuses, updateBusList, removeStop, removeAllBusLines, addBusLine, showNearestStops, fetchBusInfo } from './api.js';
 
 // Declaración global de intervalId
 let intervalId;
