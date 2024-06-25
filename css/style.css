@@ -1064,7 +1064,6 @@ button.remove-stop {
 
 #nearestStopsResults .bike-control {
     margin-left: 0;
-    z-index: 1000;
 }
 
 #nearestStopsResults #show-bikes {
@@ -1083,6 +1082,9 @@ button.remove-stop {
     background-repeat: no-repeat;
     background-position: 7px center;
     font-size: 1em;
+    position: relative;
+    z-index: 1500;
+    -webkit-transform: translate3d(0, 0, 0); /* Fix para Safari iOS*/
 }
 
 #nearestStopsResults #show-bikes.enabled {
