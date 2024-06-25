@@ -1044,6 +1044,13 @@ button.remove-stop {
     background-position: 7px 7px;
 }
 
+/* Custom css para evitar que los controles se oculten */
+#mapaParadasCercanas .leaflet-control {
+    position: relative;
+    z-index: 1500;
+    -webkit-transform: translate3d(0, 0, 0); /* Fix para Safari iOS*/
+}
+
 #mapaParadasCercanas .leaflet-popup-content .mapIcon {
     background-image: url("/img/directions.png");
     background-size: 22px;
