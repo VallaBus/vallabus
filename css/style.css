@@ -656,14 +656,14 @@ html.ios .ios-only {
 
 .additional-info-panel .proximos-buses span.programado {
     background: url('/img/clock.png') no-repeat;
-    background-size: 15px;
+    background-size: 12px;
     background-position: 0px;
     padding: 0 0 0 20px;
 }
 
 .additional-info-panel .proximos-buses span.realtime {
     background: url('/img/feed.png') no-repeat;
-    background-size: 15px;
+    background-size: 12px;
     background-position: 0px;
     padding: 0 0 0 20px;
 }
