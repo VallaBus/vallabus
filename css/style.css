@@ -582,8 +582,12 @@ html.ios .ios-only {
     cursor: pointer;
 }
 
-.line-info:hover, .line-info:active {
-    background-color: #CCCCCC6B;
+.line-info:hover, .highlight:hover, .line-info.clicked, .highlight.clicked  {
+    background-color: #00c3ff17 !important;
+}
+
+.line-info.clicked, .highlight.clicked {
+    transform: scale(0.98);
 }
 
 .line-info .hora-programada {
@@ -686,10 +690,6 @@ html.ios .ios-only {
 
 .highlight {
     background-color: #f0f9ff9c;
-}
-
-.highlight:hover, .highlight:active {
-    background-color: #CCCCCC6B;
 }
 
 .highlight-update {

@@ -1199,6 +1199,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     const vehicleId = brotherElement.getAttribute('data-vehicle-id');
                     const matricula = brotherElement.getAttribute('data-matricula');
 
+                    /* Efecto click */
+                    this.classList.add('clicked');
+                    setTimeout(() => {
+                        this.classList.remove('clicked');
+                    }, 300);
+
                     if (mapBox) {
                         let paradaData = {
                             latitud: scheduledData.parada[0].latitud,
