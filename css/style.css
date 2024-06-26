@@ -546,16 +546,17 @@ html.ios .ios-only {
 
 .showMapIcon {
     background-image: url("/img/bus-location.png");
-    background-size: contain;
+    background-size: 18px;
     background-repeat: no-repeat;
-    background-position: 0px;
-    line-height: 16px;
+    background-position: 15px center;
     font-size: 0.7em;
     cursor: pointer;
-    padding: 0 0 0 23px;
-    margin: 0 0 6px 0;
-    text-transform: uppercase;
-    font-weight: bold;
+    margin: 0;
+    text-indent: -9999px;
+    display: inline-block;
+    padding: 0 10px;
+    width: 20px;
+    height: 20px;
 }
 
 .showMapIcon.noLocationData {
@@ -571,10 +572,13 @@ html.ios .ios-only {
 .line-info {
     border-top: 1px solid #eee;
     display: flex;
-    padding: 3px 35px 0 1em;
+    padding: 3px 25px 0 1em;
     position: relative;
     overflow: hidden;
     min-height: 60px;
+    max-height: 60px;
+    flex-direction: row;
+    align-items: center;
 }
 
 .line-info .hora-programada {
@@ -583,17 +587,17 @@ html.ios .ios-only {
 }
 
 .additional-info-panel {
-    width: 52%;
+    width: 77%;
     height: 100%;
     position: absolute;
     top: 0;
     bottom: 0;
-    right: -49%; /* Inicialmente oculto a la derecha */
+    right: -74%; /* Inicialmente oculto a la derecha */
     background-color: #FFF; 
     overflow-x: hidden; /*Que el contenido no se desborde */
     transition: right 0.5s ease-in-out; /* Transición suave para la propiedad right */
     z-index: 1; 
-    font-size: 0.85em;
+    font-size: 0.7em;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -696,7 +700,6 @@ html.ios .ios-only {
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
     font-weight: bold;
     font-size: 1.6em;
-    margin: 0.4em 0.2em 0 0;
     display: inline-block;
     padding: 0 6px;
 }
@@ -710,9 +713,9 @@ html.ios .ios-only {
     text-indent: -9999px;
     overflow: hidden;
     width: 15px;
-    position: absolute;
     margin-left: 0.6em;
     margin-top: -0.3em;
+    display: inline-block;
 }
 
 .dark-mode .line-info .alert-icon {
@@ -1224,9 +1227,9 @@ button.remove-stop {
 #mapContainer {
     position: fixed;
     width: 98%;
-    height: 77%;
+    height: 80%;
     margin: 0 auto;
-    top: 442px;
+    top: 420px;
     left: 50%;
     transform: translate(-50%, 100%); /* Posición inicial: fuera de la vista hacia abajo */
     z-index: 2;
@@ -1448,11 +1451,14 @@ button.remove-stop {
 .hora-tiempo {
     display: flex;
     flex-direction: column;
+    align-items: end;
 }
 
 .line-info .horaLlegada {
     display: flex;
     align-items: center;
+    margin: 0 0 0.9em 0;
+    font-size: 0.85em;
 }
 
 .line-info .diferencia {
@@ -1489,12 +1495,12 @@ button.remove-stop {
     display: inline-block;
     position: relative;
     width: 18px;
-    height: 18px;
     text-indent: -9999px;
     cursor: pointer;
-    background-size: cover;
-    line-height: 15px;
-    display: none; /* Por defecto oculto */
+    padding: 0px 6px;
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 2px center;
 }
 
 .line-info .ocupacion.empty, .line-info .ocupacion.many {
@@ -1534,7 +1540,7 @@ button.remove-stop {
 
 /* No mostramos nada si los datos son nulos, vacíos o no_data_available */
 .line-info .ocupacion.null, .line-info .ocupacion.undefined, .line-info .ocupacion.no {
-    display: none;  
+    cursor: none;
 }
 
 /* Estilo extra para los iconos en el panel de info de próximos buses */
@@ -1542,11 +1548,6 @@ button.remove-stop {
 .additional-info-panel .ocupacion {
     line-height: 17px;
     margin-left: 0px;
-}
-
-.line-info .hora-tiempo .horaLlegada {
-    margin: 0 0 0.9em 0;
-    font-size: 0.9em;
 }
 
 .line-info.realtime .hora-tiempo .horaLlegada {
@@ -1572,25 +1573,37 @@ button.remove-stop {
 
 .line-info .linea, .line-info .tiempo {
     flex: 1;
+    max-width: 50px;
 }
 
-.line-info .destino {
+.line-info .trip-info {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.line-info .trip-info .ruta {
+    display: flex;
+    flex-direction: column;
+}
+
+.line-info .trip-info .destino {
     display: inline-block;
     font-size: 0.8em; 
-    margin: 0 0 0 0.3em;
+    font-weight: bold;
+    margin: 0;
     color: #646464;
 }
 
-.dark-mode .line-info .destino {
+.dark-mode .line-info .trip-info .destino {
     color: #bebebe;
 }
 
 .line-info .tiempo {
-    font-size: 1.6em;
+    font-size: 1.45em;
     align-items: center;
     display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
 }
 
 .line-info .tiempo.sin-servicio {
@@ -1879,13 +1892,17 @@ button.remove-stop {
 }
 
 .global-alerts-box {
+    background-image: url('../img/bell-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
     background-color: #f8f5d7;
     color: #72711c;
     border: 1px solid #f5f4c6;
-    padding: 5px;
+    padding: 5px 5px 5px 22px;
     margin-bottom: 10px;
-    display: none; /* Inicialmente oculto */
+    display: none;
     font-size: 0.8em;
+    background-position: 6px center;
 }
 
 .dark-mode .global-alerts-box {
@@ -1944,7 +1961,7 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    top: -5px;
+    top: -4px;
     right: -7px;
     background-color: #f8f5d7;
     padding: 5px 10px;

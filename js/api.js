@@ -1032,12 +1032,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     lineItem.classList.remove('retrasado');
                 }
                 else if (diferencia == 0) {
-                    diferencia = " - en hora";
+                    diferencia = "en hora";
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
                 else {
-                    diferencia = "- programado";
+                    diferencia = "programado";
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
@@ -1087,16 +1087,22 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 // Actualizar el HTML con los datos del bus más cercano
                 lineItem.innerHTML = `
                     <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                        <p class="hora-programada">
-                            <span class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</span> <span class="hora">${horaLlegadaProgramada}</span> <span class="diferencia">${diferencia}</span>
-                        </p>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia">${diferencia}</span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
                     </div>
                     <div class="hora-tiempo">
                         <div class="tiempo">${tiempoRestanteHTML}</div>
-                        ${mapElement}
                         <div class="horaLlegada">${horaLlegada}</div>
+                    </div>
+                    <div class="context-actions">
+                        ${mapElement}
                     </div>
                     ${alertHTML}
                 `;
@@ -1197,7 +1203,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 showMapIcon.addEventListener('click', function(event) {
                     const mapBox = document.querySelector('#mapContainer');
                     // Obtenemos el tripId del elemento hermano llamado .linea
-                    const brotherElement = this.parentElement.previousElementSibling;
+                    const brotherElement = this.parentNode.parentNode.firstElementChild;
                     const tripId = brotherElement.getAttribute('data-trip-id');
                     const vehicleId = brotherElement.getAttribute('data-vehicle-id');
                     const matricula = brotherElement.getAttribute('data-matricula');

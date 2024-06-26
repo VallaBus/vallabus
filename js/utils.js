@@ -390,8 +390,10 @@ export function createBusElement(busId, line, index, stopElement) {
     // Elemento con placeholders HTML
     busElement.innerHTML = `
         <div class="linea" data-trip-id="">
-            <h3>${lineNumber}<a class="alert-icon"></a></h3>
+            <h3>${lineNumber}</h3>
         </div>
+        <div class="ocupacion"></div>
+        <div class="trip-info"><a class="alert-icon"></div>
         <div class="hora-tiempo"></div>
     `;
 
@@ -796,7 +798,7 @@ export function displayGlobalAlertsBanner(alerts) {
                 const listItem = document.createElement('li');
                 const textContainer = document.createElement('div');
                 textContainer.className = 'alert-text-container';
-                textContainer.innerHTML = `<span class="global-alert-title">${alert.resumen}</span>: ${alert.descripcion}`;
+                textContainer.innerHTML = `${alert.descripcion}`;
 
                 const readMoreButton = document.createElement('button');
                 readMoreButton.className = 'read-more-button';
