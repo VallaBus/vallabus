@@ -1064,13 +1064,16 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                 // Formato tiempo restante a mostrar
                 let tiempoRestanteHTML;
+                // Por defecto los tiempos son de hoy
+                let tiempoClass = 'hoy';
                 // Si el bus próximo es para un día diferente mostramos el día de la semana
                 if (futureDate) {
-                    tiempoRestanteHTML = tiempoRestante;
                     // Obtener el nombre del día de la semana
                     const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
                     var dayOfWeek = daysOfWeek[horaLlegada.getDay()];
-                    horaLlegada = dayOfWeek;
+                    horaLlegada = horaLlegadaProgramada;
+                    tiempoRestanteHTML = dayOfWeek;
+                    tiempoClass = 'futuro';
                 } else if (tiempoRestante > 59 ) {
                     // Si el tiempo restante es mayor de 59 minutos, lo mostramos en horas y minutos
                     let horas = Math.floor(tiempoRestante / 60);
@@ -1098,7 +1101,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo">${tiempoRestanteHTML}</div>
+                        <div class="tiempo ${tiempoClass}">${tiempoRestanteHTML}</div>
                         <div class="horaLlegada">${horaLlegada}</div>
                     </div>
                     <div class="context-actions">

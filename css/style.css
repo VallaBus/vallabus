@@ -1576,6 +1576,10 @@ button.remove-stop {
     max-width: 50px;
 }
 
+.line-info .linea, .line-info .tiempo.futuro {
+    font-size: 1em;
+}
+
 .line-info .trip-info {
     flex: 2;
     display: flex;
