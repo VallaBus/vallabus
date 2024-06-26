@@ -719,9 +719,8 @@ html.ios .ios-only {
     text-indent: -9999px;
     overflow: hidden;
     width: 15px;
-    margin-left: 0.6em;
-    margin-top: -0.3em;
     display: inline-block;
+    margin: 0 10px;
 }
 
 .dark-mode .line-info .alert-icon {
@@ -1597,6 +1596,7 @@ button.remove-stop {
 .line-info .trip-info .ruta {
     display: flex;
     flex-direction: column;
+    min-width: 100px;
 }
 
 .line-info .trip-info .destino {
