@@ -575,10 +575,15 @@ html.ios .ios-only {
     padding: 3px 25px 0 1em;
     position: relative;
     overflow: hidden;
-    min-height: 60px;
-    max-height: 60px;
+    min-height: 64px;
+    max-height: 64px;
     flex-direction: row;
     align-items: center;
+    cursor: pointer;
+}
+
+.line-info:hover, .line-info:active {
+    background-color: #CCCCCC6B;
 }
 
 .line-info .hora-programada {
@@ -681,6 +686,10 @@ html.ios .ios-only {
 
 .highlight {
     background-color: #f0f9ff9c;
+}
+
+.highlight:hover, .highlight:active {
+    background-color: #CCCCCC6B;
 }
 
 .highlight-update {
@@ -1452,12 +1461,13 @@ button.remove-stop {
     display: flex;
     flex-direction: column;
     align-items: end;
+    padding: 0 10px;
 }
 
 .line-info .horaLlegada {
     display: flex;
     align-items: center;
-    margin: 0 0 0.9em 0;
+    margin: 4px 0;
     font-size: 0.85em;
 }
 

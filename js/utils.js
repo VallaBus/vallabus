@@ -29,27 +29,6 @@ export function createButton(className, text, onClick) {
     return button;
 }
 
-export function createArrowButton() {
-    const button = document.createElement('button');
-    button.className = 'arrow-button';
-    button.textContent = '⮞';
-    button.addEventListener('click', function() {
-        const lineInfo = this.parentElement;
-        const panel = lineInfo.querySelector('.additional-info-panel');
-
-        // Alternar la visibilidad del panel
-        panel.classList.toggle('open');
-
-        // Cambia la imagen de fondo del botón
-        if (this.style.backgroundImage.endsWith('arrow-left-light.png")')) {
-            this.style.backgroundImage = "url('img/arrow-light.png')";
-        } else {
-            this.style.backgroundImage = "url('img/arrow-left-light.png')";
-        }
-    });
-    return button;
-}
-
 export function showNotice(lineNumber, message = null) {
     // Crear el elemento de notificación
     const notification = document.createElement('div');
@@ -142,15 +121,21 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
     // Añadimos infoPanel al DOM
     document.body.appendChild(infoPanel);
+    // Evitamos que se propagen otros click sobre infoPanel
+    infoPanel.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
 
     // Añadimos el manejador de eventos a arrowButton
     arrowButton.addEventListener('click', togglePanel);
     arrowButton.addEventListener('touchstart', function(event) {
+        event.stopPropagation(); /* Evitamos otros eventos clic */
         event.preventDefault(); // Esto evita el comportamiento predeterminado del navegador, que podría incluir el desplazamiento de la página
-        togglePanel.call(this); // Usamos call para asegurarnos de que 'this' se refiere al arrowButton dentro de togglePanel
+        togglePanel.call(this, event); // Usamos call para asegurarnos de que 'this' se refiere al arrowButton dentro de togglePanel
     });
 
-    function togglePanel() {
+    function togglePanel(event) {
+        event.stopPropagation(); /* Evitamos otros eventos clic */
         const panel = this.parentElement;
         let ocupacion;
 
@@ -219,7 +204,8 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
     }
 
     // Añadimos el botón de eliminar al div de actions-buttons
-    const removeButton = createButton('remove-button', '&#128465;', function() {
+    const removeButton = createButton('remove-button', '&#128465;', function(event) {
+        event.stopPropagation(); /* Evitamos otros eventos clic */
         removeBusLine(stopNumber, lineNumber);
     });
     infoPanel.querySelector('.actions-buttons').appendChild(removeButton);
@@ -1210,6 +1196,7 @@ export function clickEvents() {
         // Verifica si el evento se originó en un elemento .ocupacion
         const ocupacionElement = event.target.closest('.ocupacion');
         if (ocupacionElement) {
+            event.stopPropagation(); /* Evitamos que se abran otros clics */
             // Crea el tooltip
             showNotice('', ocupacionElement.textContent);
         }

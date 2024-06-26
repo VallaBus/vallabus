@@ -1042,14 +1042,6 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     lineItem.classList.remove('retrasado');
                 }
 
-                let mapElementClass = "showMapIcon";
-                // Si no tenemos datos de ubicación añadimos una clase
-                if (!ubicacionLat && !ubicacionLon) {
-                    mapElementClass += " noLocationData";
-                }
-                
-                let mapElement = `<a class="${mapElementClass}" title="Ver linea en el mapa">Mapa</a>`;
-
                 // Recuperamos el destino desde los datos del trip_id, buses con la misma línea pueden tener destinos diferentes.
                 let destino = "";
                 if (busMasCercano.scheduled && busMasCercano.scheduled.destino) {
@@ -1104,9 +1096,6 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         <div class="tiempo ${tiempoClass}">${tiempoRestanteHTML}</div>
                         <div class="horaLlegada">${horaLlegada}</div>
                     </div>
-                    <div class="context-actions">
-                        ${mapElement}
-                    </div>
                     ${alertHTML}
                 `;
 
@@ -1121,7 +1110,6 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     </div>
                     <div class="hora-tiempo">
                         <div class="tiempo sin-servicio">-</div>
-                        ${mapElement}
                         <div class="horaLlegada">Desviado</div>
                     </div>
                     ${alertHTML}
@@ -1182,7 +1170,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
             // Agrega un controlador de eventos de clic a alert-icon
             // TODO: Mover a utils con delegación de eventos
-            lineItem.querySelector('.alert-icon').addEventListener('click', function() {
+            lineItem.querySelector('.alert-icon').addEventListener('click', function(event) {
+                event.stopPropagation(); /* Evitamos otros eventos clic */
                 const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
                 if (alertBox) {
                         alertBox.style.display = 'flex';
@@ -1190,7 +1179,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         clearInterval(intervalId);
 
                         // Agrega un controlador de eventos de clic a alerts-close
-                        alertBox.querySelector('.alerts-close').addEventListener('click', function() {
+                        alertBox.querySelector('.alerts-close').addEventListener('click', function(event) {
+                            event.stopPropagation(); /* Evitamos otros eventos clic */
                             this.parentNode.style.display = 'none';
                             // Reanudamos y ejecutamos las actualizaciones
                             iniciarIntervalo(updateBusList);
@@ -1199,14 +1189,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 }
             });
 
-            // Agrega un controlador de eventos de clic mostrar el mapa si hay datos
+            // Agrega un controlador de eventos de clic para mostrar el mapa
             // TODO: Mover a utils con delegación de eventos
-            let showMapIcon = lineItem.querySelector('.showMapIcon');
-            if (showMapIcon) {
-                showMapIcon.addEventListener('click', function(event) {
+            lineItem.addEventListener('click', function(event) {
                     const mapBox = document.querySelector('#mapContainer');
                     // Obtenemos el tripId del elemento hermano llamado .linea
-                    const brotherElement = this.parentNode.parentNode.firstElementChild;
+                    const brotherElement = this.firstElementChild;
                     const tripId = brotherElement.getAttribute('data-trip-id');
                     const vehicleId = brotherElement.getAttribute('data-vehicle-id');
                     const matricula = brotherElement.getAttribute('data-matricula');
@@ -1261,9 +1249,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         event.stopPropagation();
                     }
 
-                    scrollToElement(this.parentElement.parentElement);
-                });
-            }
+                    scrollToElement(this);
+            });
             
             // Creamos el panel informativo desplegable
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
