@@ -582,11 +582,8 @@ html.ios .ios-only {
     cursor: pointer;
 }
 
-.line-info:hover, .highlight:hover, .line-info.clicked, .highlight.clicked  {
-    background-color: #00c3ff17 !important;
-}
-
 .line-info.clicked, .highlight.clicked {
+    background-color: #00c3ff17 !important;
     transform: scale(0.98);
 }
 
