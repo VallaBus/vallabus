@@ -1022,12 +1022,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                 // Calculos de retrasos/adelantos
                 if (diferencia > 0) {
-                    diferencia = `Retraso ${diferencia} min.`;
+                    diferencia = `retraso ${diferencia} min.`;
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.add('retrasado');
                 }
                 else if (diferencia < 0) {
-                    diferencia = `Adelanto ${Math.abs(diferencia)} min.`;
+                    diferencia = `adelanto ${Math.abs(diferencia)} min.`;
                     lineItem.classList.add('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
