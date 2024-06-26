@@ -726,7 +726,7 @@ html.ios .ios-only {
 .dark-mode .line-info .alert-icon {
     background: url('/img/warning-light.png') no-repeat;
     background-size: 15px;
-    background-position: 0px 2px;
+    background-position: 0px center;
 }
 
 button.mostrar-horarios {
