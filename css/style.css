@@ -709,7 +709,7 @@ html.ios .ios-only {
     cursor: pointer;
     background: url('/img/warning.png') no-repeat;
     background-size: 15px;
-    background-position: 0px 2px;
+    background-position: 0px center;
     text-indent: -9999px;
     overflow: hidden;
     width: 15px;
