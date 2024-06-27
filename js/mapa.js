@@ -20,75 +20,98 @@ function crearIconoBus(numeroBus) {
 let lat = null;
 let lon = null;
 
+let updateMapPromise = Promise.resolve();
+let latestUpdateId = 0;
+
 export async function updateBusMap(busData, paradaData, centerMap) {
-    // Detectamos el theme para ofrecer una capa u otra de mapa
-    const savedTheme = localStorage.getItem('theme');
+    const currentUpdateId = ++latestUpdateId;
 
-    // Añadimos la nueva capa de mapa basada en el tema
-    if (savedTheme === "dark") {
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20,
-            minZoom: 0
-        }).addTo(myMap);
-    } else {
-        L.tileLayer('https://{s}.tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=a1eb584c78ab43ddafe0831ad04566ae', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="http://thunderforest.com/">Thunderforest</a>',
-            subdomains: 'abc'
-        }).addTo(myMap);
-    }
+    // Cancel any previous update
+    updateMapPromise = updateMapPromise.then(() => {}, () => {});
 
-    if (!paradaData || !paradaData.latitud || !paradaData.longitud) {
-        console.error('Datos de la parada no disponibles o inválidos');
-        return;
-    }
-
-    if (!busData || !busData.tripId || !busData.lineNumber) {
-        console.error('Datos del bus no disponibles o inválidos');
-        return;
-    }
-
-    try {
-        const response = await fetchApi(`/v2/busPosition/${busData.tripId}`);
-        // Si no hay datos de ubicación, los dejamos como null
-        if (!response.ok) {
-            console.log('Error al consultar el API de ubicación');
+    updateMapPromise = updateMapPromise.then(async () => {
+        // Check if this is still the latest update
+        if (currentUpdateId !== latestUpdateId) {
+            //console.log('Skipping outdated update');
+            return;
         }
-        else {
-            const data = await response.json();
+    
+        try {
+            // Detectamos el theme para ofrecer una capa u otra de mapa
+            const savedTheme = localStorage.getItem('theme');
 
-            if (!data || !data.length || !data[0].latitud || !data[0].longitud) {
-                // Si no hay datos simplemente centramos el mapa en la parada
-                if (centerMap) {
-                    myMap.panTo([paradaData.latitud, paradaData.longitud]);
-                }
-                document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
-                if (marcadorAutobus)   {
-                    marcadorAutobus.remove();
-                    marcadorAutobus = null;
-                }
-            }
-            else {
-                // Si tenemos datos de ubicación los guardamos y mostramos
-                lat = parseFloat(data[0].latitud);
-                lon = parseFloat(data[0].longitud);
-                actualizarBus(lat, lon, busData);
-                actualizarControlCentro(myMap, lat, lon);
-                actualizarUltimaActualizacion(data[0].timestamp);
-                if (centerMap) {
-                    myMap.panTo([lat, lon]);
-                }
+            // Añadimos la nueva capa de mapa basada en el tema
+            if (savedTheme === "dark") {
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 20,
+                    minZoom: 0
+                }).addTo(myMap);
+            } else {
+                L.tileLayer('https://{s}.tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=a1eb584c78ab43ddafe0831ad04566ae', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="http://thunderforest.com/">Thunderforest</a>',
+                    subdomains: 'abc'
+                }).addTo(myMap);
             }
 
-            actualizarParada(paradaData);
-            addRouteShapesToMap(busData.tripId, busData.lineNumber);
-            addStopsToMap(busData.tripId, busData.lineNumber);
-        }
+            if (!paradaData || !paradaData.latitud || !paradaData.longitud) {
+                console.error('Datos de la parada no disponibles o inválidos');
+                return;
+            }
+
+            if (!busData || !busData.tripId || !busData.lineNumber) {
+                console.error('Datos del bus no disponibles o inválidos');
+                return;
+            }
+
+            try {
+                const response = await fetchApi(`/v2/busPosition/${busData.tripId}`);
+                // Si no hay datos de ubicación, los dejamos como null
+                if (!response.ok) {
+                    console.log('Error al consultar el API de ubicación');
+                }
+                else {
+                    const data = await response.json();
+
+                    if (!data || !data.length || !data[0].latitud || !data[0].longitud) {
+                        // Si no hay datos simplemente centramos el mapa en la parada
+                        if (centerMap) {
+                            myMap.panTo([paradaData.latitud, paradaData.longitud]);
+                        }
+                        document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
+                        if (marcadorAutobus)   {
+                            marcadorAutobus.remove();
+                            marcadorAutobus = null;
+                        }
+                    }
+                    else {
+                        // Si tenemos datos de ubicación los guardamos y mostramos
+                        lat = parseFloat(data[0].latitud);
+                        lon = parseFloat(data[0].longitud);
+                        actualizarBus(lat, lon, busData);
+                        actualizarControlCentro(myMap, lat, lon);
+                        actualizarUltimaActualizacion(data[0].timestamp);
+                        if (centerMap) {
+                            myMap.panTo([lat, lon]);
+                        }
+                    }
+
+                    actualizarParada(paradaData);
+                    addRouteShapesToMap(busData.tripId, busData.lineNumber);
+                    addStopsToMap(busData.tripId, busData.lineNumber);
+                }
+            } catch (error) {
+                console.error('Error al actualizar el mapa de buses:', error.message);
+            }
     } catch (error) {
         console.error('Error al actualizar el mapa de buses:', error.message);
     }
+    });
+
+    // Wait for the update to complete
+    await updateMapPromise;
 }
 
 function actualizarControlCentro(map, lat, lon) {
@@ -334,72 +357,76 @@ async function prepareBusLines(stopsData) {
 
 let currentStopsLayer = null;
 let currentTripId = null;
+
 // Función para añadir paradas de un trip_id al mapa
 async function addStopsToMap(tripId, lineNumber) {
     try {
-        // Si el tripId no ha cambiado, no hagas nada
-        if (tripId === currentTripId) {
-            return;
-        }
-        const stopsResponse = await fetchApi(`/v2/geojson/paradas/${tripId}`);
-        if (!stopsResponse.ok) {
-            throw new Error('Failed to fetch stops');
-        }
-        const stopsData = await stopsResponse.json();
-
-        // Remove the existing stops layer if it exists
-        if (currentStopsLayer) {
-            myMap.removeLayer(currentStopsLayer);
-            currentStopsLayer = null;
-        }
-
-        // Obtener la lista de paradas suprimidas
-        const suppressedStops = await fetchSuppressedStops();
-
-        // Actualizar el tripId actual
-        currentTripId = tripId;
-
-        // Obtener lineas activas para cada parada
-        let busLines = await prepareBusLines(stopsData);
-
-        // Add the new stops to the map
-        currentStopsLayer = L.geoJSON(stopsData, {
-            pointToLayer: (feature, latlng) => {
-
-                // HTML para el listado de líneas
-                let lineasHTML = '<div id="lineas-correspondencia">';
-                // Iteramos por las líneas de la parada y las añadimos
-                if (busLines[feature.properties.stop_code]) {
-                    busLines[feature.properties.stop_code].forEach(lineNumber => {
-                        lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${feature.properties.stop_code}" data-line-number="${lineNumber}">${lineNumber}</span>`;
-                    });
-                }
-
-                let iconUrl = 'img/bus-stop.png';
-                const savedTheme = localStorage.getItem('theme');
-
-                if (savedTheme === "dark"){
-                    iconUrl = 'img/bus-stop-dark.png';
-                }
-
-                let popupContent = `<strong>${feature.properties.stop_name}</strong> (${feature.properties.stop_code}) ${lineasHTML}`;
-
-                // Verificar si la parada está suprimida
-                let stopSuppressed = suppressedStops.some(stop => stop.numero === feature.properties.stop_code);
-                if (stopSuppressed) {
-                    iconUrl = 'img/circle-exclamation.png'; // Asumiendo que tienes un icono diferente para las paradas suprimidas
-                    popupContent += '<br>🚫 Aviso: Parada actualmente suprimida';
-                }
-
-                const busStopIcon = L.icon({
-                    iconUrl: iconUrl, 
-                    iconSize: [12, 12], 
-                    iconAnchor: [0, 0], 
-                    popupAnchor: [0, -12]
-                });
-                return L.marker(latlng, { icon: busStopIcon }).bindPopup(popupContent);
+        // Only update stops if the tripId has changed
+        if (tripId !== currentTripId) {
+            const stopsResponse = await fetchApi(`/v2/geojson/paradas/${tripId}`);
+            if (!stopsResponse.ok) {
+                throw new Error('Failed to fetch stops');
             }
-        }).addTo(myMap);
+            const stopsData = await stopsResponse.json();
+
+            // Obtain the list of suppressed stops
+            const suppressedStops = await fetchSuppressedStops();
+
+            // Update the current tripId
+            currentTripId = tripId;
+
+            // Obtain active lines for each stop
+            let busLines = await prepareBusLines(stopsData);
+
+            // Remove the existing stops layer if it exists
+            if (currentStopsLayer) {
+                myMap.removeLayer(currentStopsLayer);
+                //console.log('Limpiando paradas anteriores');
+                currentStopsLayer = null;
+            }
+
+            // Add the new stops to the map
+            currentStopsLayer = L.geoJSON(stopsData, {
+                pointToLayer: (feature, latlng) => {
+                    // HTML para el listado de líneas
+                    let lineasHTML = '<div id="lineas-correspondencia">';
+                    // Iteramos por las líneas de la parada y las añadimos
+                    if (busLines[feature.properties.stop_code]) {
+                        busLines[feature.properties.stop_code].forEach(lineNumber => {
+                            lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${feature.properties.stop_code}" data-line-number="${lineNumber}">${lineNumber}</span>`;
+                        });
+                    }
+                    lineasHTML += '</div>';
+
+                    let iconUrl = 'img/bus-stop.png';
+                    const savedTheme = localStorage.getItem('theme');
+
+                    if (savedTheme === "dark") {
+                        iconUrl = 'img/bus-stop-dark.png';
+                    }
+
+                    let popupContent = `<strong>${feature.properties.stop_name}</strong> (${feature.properties.stop_code}) ${lineasHTML}`;
+
+                    // Verify if the stop is suppressed
+                    let stopSuppressed = suppressedStops.some(stop => stop.numero === feature.properties.stop_code);
+                    if (stopSuppressed) {
+                        iconUrl = 'img/circle-exclamation.png';
+                        popupContent += '<br>🚫 Aviso: Parada actualmente suprimida';
+                    }
+
+                    const busStopIcon = L.icon({
+                        iconUrl: iconUrl, 
+                        iconSize: [12, 12], 
+                        iconAnchor: [0, 0], 
+                        popupAnchor: [0, -12]
+                    });
+                    return L.marker(latlng, { icon: busStopIcon }).bindPopup(popupContent);
+                }
+            }).addTo(myMap);
+            //console.log('Nuevas paradas añadidas al mapa');
+        } else {
+            //console.log('No se actualizan las paradas, mismo tripId');
+        }
     } catch (error) {
         console.error('Error adding stops to the map:', error.message);
     }
