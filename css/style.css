@@ -16,6 +16,7 @@
 
 body {
     font-family: Helvetica, sans-serif;
+    font-size: 100%;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
@@ -1622,8 +1623,8 @@ button.remove-stop {
 
 .line-info .tiempo p {
     font-size: 0.5em;
-    display: block;
-    margin: 0 0.4em;
+    display: inline-block;
+    margin: 0 0 0 4px;
 }
 
 .bell-button {

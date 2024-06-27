@@ -350,6 +350,7 @@ async function addStopsToMap(tripId, lineNumber) {
         // Remove the existing stops layer if it exists
         if (currentStopsLayer) {
             myMap.removeLayer(currentStopsLayer);
+            currentStopsLayer = null;
         }
 
         // Obtener la lista de paradas suprimidas
