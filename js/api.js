@@ -871,7 +871,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
         busLineAlerts.forEach(alert => {
             alertHTML += `<li>${alert.descripcion}</li>`;
         });
-        alertHTML += '</ul><p class="notice">Nota: Las actualizaciones de tiempos están pausadas hasta que cierre esta ventana</p><button class="alerts-close">Cerrar</button></div>';
+        alertHTML += '</ul><button class="alerts-close">Cerrar</button></div>';
         alertIcon = '⚠️';
     }
 
@@ -1175,16 +1175,11 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
                 if (alertBox) {
                         alertBox.style.display = 'flex';
-                        // Paramos las actualizaciones para que no se cierre el cuadro
-                        clearInterval(intervalId);
 
                         // Agrega un controlador de eventos de clic a alerts-close
                         alertBox.querySelector('.alerts-close').addEventListener('click', function(event) {
                             event.stopPropagation(); /* Evitamos otros eventos clic */
                             this.parentNode.style.display = 'none';
-                            // Reanudamos y ejecutamos las actualizaciones
-                            iniciarIntervalo(updateBusList);
-                            updateBusList();
                         });
                 }
             });
