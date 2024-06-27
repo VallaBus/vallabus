@@ -1,4 +1,4 @@
-import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula } from './utils.js';
+import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula, showNotice } from './utils.js';
 import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
 import { updateBusMap, mapaParadasCercanas, mapaParadasBiciCercanas, limpiarMapaParadasBiciCercanas } from './mapa.js';
 
@@ -1183,6 +1183,17 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                         });
                 }
             });
+
+            // Tooltips para iconos de ocupación
+            const ocupacionElement = lineItem.querySelector('.ocupacion');
+            if (ocupacionElement) {
+                ocupacionElement.addEventListener('click', function(event) {
+                    event.stopPropagation(); /* Evitamos que se abran otros clics */
+                    console.log('Click en ocupación');
+                    // Crea el tooltip
+                    showNotice('', ocupacionElement.textContent);
+                });
+            }
 
             // Agrega un controlador de eventos de clic para mostrar el mapa
             // TODO: Mover a utils con delegación de eventos

@@ -1191,17 +1191,6 @@ export function clickEvents() {
         toogleSidebar();
     });
 
-    // Tooltips para iconos de ocupación
-    document.querySelector('#busList').addEventListener('click', function(event) {
-        // Verifica si el evento se originó en un elemento .ocupacion
-        const ocupacionElement = event.target.closest('.ocupacion');
-        if (ocupacionElement) {
-            event.stopPropagation(); /* Evitamos que se abran otros clics */
-            // Crea el tooltip
-            showNotice('', ocupacionElement.textContent);
-        }
-    });
-
     // Cualquier elemento con clase routeTo enlaza a rutas
     // data-arrive-date y data-arrive-time son opcionales
     // Ejemplo: <a href="#" class="routeTo" data-dest-name="Estadio José Zorilla" data-dest-y="41.6440028" data-dest-x="-4.7605973" data-arrive-date="2024-05-11" data-arrive-time="18:00">Planifica tu viaje al Estadio</a>

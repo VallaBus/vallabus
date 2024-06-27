@@ -1463,8 +1463,8 @@ button.remove-stop {
 .line-info .horaLlegada {
     display: flex;
     align-items: center;
-    margin: 0px 0px 16px 0;
-    font-size: 0.85em;
+    margin: 2px 0px 16px 0;
+    font-size: 0.9em;
 }
 
 .line-info .diferencia {
