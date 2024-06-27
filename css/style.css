@@ -572,7 +572,7 @@ html.ios .ios-only {
 .line-info {
     border-top: 1px solid #eee;
     display: flex;
-    padding: 3px 25px 0 1em;
+    padding: 5px 25px 0 10px;
     position: relative;
     overflow: hidden;
     min-height: 64px;
@@ -705,7 +705,7 @@ html.ios .ios-only {
     min-width: 29px;
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
     font-weight: bold;
-    font-size: 1.6em;
+    font-size: 1.5em;
     display: inline-block;
     padding: 0 6px;
 }
@@ -720,7 +720,7 @@ html.ios .ios-only {
     overflow: hidden;
     width: 15px;
     display: inline-block;
-    margin: 0 10px;
+    margin: 0 0 0 6px;
 }
 
 .dark-mode .line-info .alert-icon {
@@ -1457,13 +1457,12 @@ button.remove-stop {
     display: flex;
     flex-direction: column;
     align-items: end;
-    padding: 0 10px;
 }
 
 .line-info .horaLlegada {
     display: flex;
     align-items: center;
-    margin: 4px 0;
+    margin: 0px 0px 16px 0;
     font-size: 0.85em;
 }
 
@@ -1500,13 +1499,13 @@ button.remove-stop {
 .line-info .ocupacion {
     display: inline-block;
     position: relative;
-    width: 18px;
+    width: 20px;
     text-indent: -9999px;
     cursor: pointer;
-    padding: 0px 6px;
+    margin: 0px 10px;
     background-size: 20px;
     background-repeat: no-repeat;
-    background-position: 2px center;
+    background-position: 0 center;
 }
 
 .line-info .ocupacion.empty, .line-info .ocupacion.many {
@@ -1546,7 +1545,7 @@ button.remove-stop {
 
 /* No mostramos nada si los datos son nulos, vacíos o no_data_available */
 .line-info .ocupacion.null, .line-info .ocupacion.undefined, .line-info .ocupacion.no {
-    cursor: none;
+    cursor: default;
 }
 
 /* Estilo extra para los iconos en el panel de info de próximos buses */
@@ -1577,9 +1576,8 @@ button.remove-stop {
     padding: 0 0 0 20px;
 }
 
-.line-info .linea, .line-info .tiempo {
-    flex: 1;
-    max-width: 50px;
+.line-info .linea {
+    text-align: left;
 }
 
 .line-info .linea, .line-info .tiempo.futuro {
@@ -1596,12 +1594,12 @@ button.remove-stop {
 .line-info .trip-info .ruta {
     display: flex;
     flex-direction: column;
-    min-width: 100px;
+    min-width: 110px;
 }
 
 .line-info .trip-info .destino {
     display: inline-block;
-    font-size: 0.8em; 
+    font-size: 0.85em; 
     font-weight: bold;
     margin: 0;
     color: #646464;

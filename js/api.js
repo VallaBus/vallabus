@@ -1022,12 +1022,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                 // Calculos de retrasos/adelantos
                 if (diferencia > 0) {
-                    diferencia = `retraso ${diferencia} min.`;
+                    diferencia = `retraso ${diferencia} min`;
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.add('retrasado');
                 }
                 else if (diferencia < 0) {
-                    diferencia = `adelanto ${Math.abs(diferencia)} min.`;
+                    diferencia = `adelanto ${Math.abs(diferencia)} min`;
                     lineItem.classList.add('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
@@ -1047,9 +1047,9 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 if (busMasCercano.scheduled && busMasCercano.scheduled.destino) {
                     destino = busMasCercano.scheduled.destino;
                 }
-                // Cortamos destino a máximo 22 caracteres
-                if (destino.length > 25) {
-                    destino = destino.substring(0, 22) + "...";
+                // Cortamos destino a máximo 25 caracteres
+                if (destino.length > 28) {
+                    destino = destino.substring(0, 25) + "...";
                 }
 
                 let horaLlegadaProgramada = new Date(busMasCercano.scheduled.fechaHoraLlegada).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
