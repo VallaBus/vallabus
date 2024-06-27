@@ -788,7 +788,7 @@ export function displayGlobalAlertsBanner(alerts) {
 
                 const readMoreButton = document.createElement('button');
                 readMoreButton.className = 'read-more-button';
-                readMoreButton.textContent = 'Leer más';
+                readMoreButton.textContent = '🞃';
                 readMoreButton.addEventListener('click', function() {
                     textContainer.classList.add('expanded');
                     textContainer.classList.remove('has-more');

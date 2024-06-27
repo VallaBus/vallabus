@@ -1908,11 +1908,11 @@ button.remove-stop {
     background-color: #f8f5d7;
     color: #72711c;
     border: 1px solid #f5f4c6;
-    padding: 5px 5px 5px 22px;
+    padding: 5px 5px 5px 34px;
     margin-bottom: 10px;
     display: none;
     font-size: 0.8em;
-    background-position: 6px center;
+    background-position: 15px center;
 }
 
 .dark-mode .global-alerts-box {
@@ -1945,7 +1945,7 @@ button.remove-stop {
 }
 
 .global-alerts-box .alert-text-container {
-    padding: 0px 60px 0px 2px;
+    padding: 0px 26px 0px 2px;
     height: 18px;
     overflow: hidden;
     position: relative;
@@ -1971,15 +1971,15 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    top: -4px;
-    right: -7px;
+    top: -7px;
+    right: 0px;
     background-color: #f8f5d7;
     padding: 5px 10px;
     cursor: pointer;
     display: block;
     color: #72711c;
     font-weight: bold;
-    font-size: 1em;
+    font-size: 1.2em;
 }
 
 .dark-mode .global-alerts-box .alert-text-container .read-more-button {

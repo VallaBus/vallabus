@@ -1196,6 +1196,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
             }
 
             // Agrega un controlador de eventos de clic para mostrar el mapa
+            // al hacer clic sobre una línea
             // TODO: Mover a utils con delegación de eventos
             lineItem.addEventListener('click', function(event) {
                     const mapBox = document.querySelector('#mapContainer');
