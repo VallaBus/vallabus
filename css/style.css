@@ -1458,6 +1458,7 @@ button.remove-stop {
     display: flex;
     flex-direction: column;
     align-items: end;
+    margin-right: 5px;
 }
 
 .line-info .horaLlegada {
