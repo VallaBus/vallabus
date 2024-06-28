@@ -1407,8 +1407,6 @@ export function combineBusData(scheduledData) {
 // programados están en el día anterior
 export function combineBusDataFromTwoDays(day1Data, day2Data) {
     let combined = { ...day1Data }; // Comenzamos con los datos del primer día
-    console.log(combined);
-
     // Iteramos sobre las claves del segundo día
     Object.keys(day2Data).forEach(tripId => {
         // Si el tripId ya existe en el primer día, comparamos las fechas
