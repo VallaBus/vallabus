@@ -651,7 +651,7 @@ html.ios .ios-only {
 .additional-info-panel .proximos-buses span {
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 93px;
+    max-width: 120px;
     display: inline-block;
     white-space: nowrap;
 }
@@ -668,6 +668,11 @@ html.ios .ios-only {
     background-size: 12px;
     background-position: 0px;
     padding: 0 0 0 20px;
+}
+
+.additional-info-panel .proximos-buses span.ocupacion {
+    background-size: 17px;
+    margin: 0 0 0 4px;
 }
 
 .additional-info-panel .actions-buttons {
@@ -1618,8 +1623,9 @@ button.remove-stop {
 }
 
 .line-info .tiempo.sin-servicio {
-    font-size: 1em;
+    font-size: 0.85em;
     color: #CCC;
+    margin: 0 0 0 10px;
 }
 
 .line-info .tiempo p {

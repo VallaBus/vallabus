@@ -1110,14 +1110,18 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 if (estado && estado == 'SKIPPED') {
                     lineItem.innerHTML = `
                     <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                        <p class="hora-programada">
-                        </p>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo sin-servicio">-</div>
-                        <div class="horaLlegada">Desviado</div>
+                        <div class="tiempo sin-servicio">Desviado</div>
                     </div>
                     ${alertHTML}
                 `;
@@ -1153,10 +1157,21 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 }
                 lineItem.innerHTML = `
                     <div class="linea">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                    </div> 
-                    <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion"></div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <div class="horaLlegada"></div>
+                    </div>
+                    ${alertHTML}
                 `;
             }
         } else {
@@ -1166,10 +1181,21 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 }
                 lineItem.innerHTML = `
                     <div class="linea">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                    </div> 
-                    <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion"></div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <div class="horaLlegada"></div>
+                    </div>
+                    ${alertHTML}
                 `;
         }
             // Cuadro de alertas
@@ -1189,11 +1215,12 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
             console.error('Error en fetchBusTime:', error);
             lineItem.innerHTML = `
                 <div class="linea">
-                    <h3>${lineNumber}</h3>
-                </div> 
-                <div class="tiempo sin-servicio">
-                    Sin datos en este momento
-                </div>`;
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin datos en este momento</div>
+                    </div>
+            `;
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
             lineItem.appendChild(infoPanel);
         };
