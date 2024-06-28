@@ -785,7 +785,7 @@ export async function updateBusList() {
         stopsListHTML += `<li><a class="sidebar-stop-link" data-stopid="${stopId}" href="#${stopId}">${stopName}</a></li>`;
         sidebarStops.innerHTML = `
             <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
-                <p class="sidebar-footer">fijará una parada arriba en la lista</p>
+            <p class="sidebar-footer">fijará una parada arriba en la lista</p>
         `;
         // Agregar event listener a los enlaces del sidebar
         const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
@@ -854,7 +854,7 @@ export async function updateBusList() {
     });
 
     removeObsoleteElements(stops);
-    updateLastUpdatedTime();
+    //updateLastUpdatedTime();
 }
 
 // Global object to store event listeners

@@ -143,16 +143,14 @@ button#addButton:active {
 
 button#removeAllButton {
     background: url('/img/trash-gray.png') no-repeat #EAEAEA;
-    background-size: 15px;
+    background-size: 12px;
     background-position: 15px center;
     color: #686868;
-    padding: 9px 1px 9px 23px;
-    width: 200px;
-    justify-content: center;
-    margin: auto;
-    font-size: 0.9em;
+    padding: 13px 1px 9px 34px;
+    width: 168px;
+    margin: 0;
+    font-size: 0.8em;
     text-align: center;
-    display: none; /* Oculto por defecto */
 }
 
 button#installButton {
@@ -2050,11 +2048,31 @@ button.remove-stop {
 .foot-note {
     padding: 0 0 0 1em;
     margin-top: 0 1em;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
 .foot-note a {
     color: #828282;
+}
+
+.foot-note #footer-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 2em 0;
+}
+
+.foot-note #social-share {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+  
+.foot-note #social-share a {
+    width: calc(40% - 10px);
+    text-align: center;
+    font-size: 0.85em;
 }
 
 .foot-note a#twitter-share-button, .foot-note a#telegram-button, .foot-note a#facebook-share-button, .foot-note a#whatsapp-share-button, .foot-note a#instagram-button {
@@ -2113,7 +2131,7 @@ button.remove-stop {
     background-color: #1f8bbc;
 }
 
-.foot-note button#theme-toggle {
+button#theme-toggle {
     background-color: #ffffff;
 }
 
@@ -2440,7 +2458,7 @@ body.dark-mode {
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
 }
 
-.dark-mode .foot-note button#theme-toggle {
+.dark-mode button#theme-toggle {
     background-color: #222;
 }
 
@@ -2450,7 +2468,7 @@ body.dark-mode {
 
 .dark-mode button#removeAllButton {
     background: url('/img/trash-white.png') no-repeat #323232;
-    background-size: 15px;
+    background-size: 12px;
     background-position: 15px center;
     color: #b1b1b1;
 }

@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406281317">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406281455">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -129,27 +129,32 @@
             <img src="img/feed.png" /> Estimado
             <img src="img/feed-green.png" /> Actualizado
         </p>
-        <button id="removeAllButton">Quitar todas las paradas</button>
-        <p id="last-update">Última actualización: --</p>
-        <p>Actualización cada 30s o al recargar la página.</p>
-        <h3 id="social-share">Comparte con otros</h3>
-        <p>Ayuda a que otros conozcan esta app compartiéndola en tus redes y grupos. ¡Qué nadie más pierda un bus!</p>
-        <a id="twitter-share-button" href="https://twitter.com/intent/tweet/?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F%0A%0Avia%20%40vallabusapp" target="_blank" rel="noopener" aria-label="Twitter">
-            Compartir en Twitter
-        </a>       
-        <a id="whatsapp-share-button" href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F" target="_blank" rel="noopener" aria-label="Whatsapp">
-            Compartir por Whatsapp
-        </a> 
-        <a id="facebook-share-button" href="https://www.facebook.com/sharer/sharer.php?u=https://vallabus.com/" target="_blank">
-            Compartir en Facebook
-        </a>          
-        <a id="telegram-button" href="https://t.me/vallabusapp" target="_blank">💬 Comunidad en Telegram</a>      
-        <a id="instagram-button" href="https://www.instagram.com/vallabusapp/" target="_blank">Síguenos en Instagram</a>      
-        <button id="theme-toggle">
-            <span id="theme-toggle-icon" title="Cambiar a tema claro/oscuro">🌞</span> <!-- Icono de sol por defecto -->
-        </button>  
-        <p>Servicio creado por voluntarios y usuarios del bus, independiente de AUVASA, ECSA, La Regional, Linecar o cualquier otro organismo.</p>     
-        <p id="data-notice">Origen de los datos: <a href="https://www.auvasa.es/empresa/datos-abiertos/">GTFS de AUVASA</a> y elaboración propia proporcionados de forma no oficial sin ninguna garantía.</p>
+        <div id="footer-actions">
+            <button id="removeAllButton">Borrar todas tus paradas</button>
+            <button id="theme-toggle">
+                <span id="theme-toggle-icon" title="Cambiar a tema claro/oscuro">🌞</span> <!-- Icono de sol por defecto -->
+            </button> 
+        </div>
+        
+        <!--<p id="last-update">Última actualización: --</p>-->
+
+        <p>❤️ Servicio creado por una comunidad de voluntarios y usuarios del bus como tú, independiente de cualquier organismo.</p>   
+
+        <div id="social-share">
+            <a id="twitter-share-button" href="https://twitter.com/intent/tweet/?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F%0A%0Avia%20%40vallabusapp" target="_blank" rel="noopener" aria-label="Twitter">
+                Compartir en Twitter
+            </a>       
+            <a id="whatsapp-share-button" href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F" target="_blank" rel="noopener" aria-label="Whatsapp">
+                Compartir por Whatsapp
+            </a> 
+            <a id="facebook-share-button" href="https://www.facebook.com/sharer/sharer.php?u=https://vallabus.com/" target="_blank">
+                Compartir en Facebook
+            </a>          
+            <a id="telegram-button" href="https://t.me/vallabusapp" target="_blank">Comunidad en Telegram</a>      
+            <a id="instagram-button" href="https://www.instagram.com/vallabusapp/" target="_blank">Síguenos en Instagram</a>
+        </div> 
+          
+        <p id="data-notice">Origen de los datos: <a href="https://www.auvasa.es/empresa/datos-abiertos/">GTFS de AUVASA</a> y elaboración propia, proporcionados de forma no oficial sin ninguna garantía.</p>
     </div>
 
     <footer>
