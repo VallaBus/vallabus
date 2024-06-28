@@ -16,6 +16,7 @@
 
 body {
     font-family: Helvetica, sans-serif;
+    font-size: 100%;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
@@ -142,16 +143,14 @@ button#addButton:active {
 
 button#removeAllButton {
     background: url('/img/trash-gray.png') no-repeat #EAEAEA;
-    background-size: 15px;
+    background-size: 10px;
     background-position: 15px center;
     color: #686868;
-    padding: 9px 1px 9px 23px;
-    width: 200px;
-    justify-content: center;
-    margin: auto;
+    padding: 12px 1px 9px 34px;
+    width: 148px;
+    margin: 0;
     font-size: 0.9em;
     text-align: center;
-    display: none; /* Oculto por defecto */
 }
 
 button#installButton {
@@ -546,16 +545,17 @@ html.ios .ios-only {
 
 .showMapIcon {
     background-image: url("/img/bus-location.png");
-    background-size: contain;
+    background-size: 18px;
     background-repeat: no-repeat;
-    background-position: 0px;
-    line-height: 16px;
+    background-position: 15px center;
     font-size: 0.7em;
     cursor: pointer;
-    padding: 0 0 0 23px;
-    margin: 0 0 6px 0;
-    text-transform: uppercase;
-    font-weight: bold;
+    margin: 0;
+    text-indent: -9999px;
+    display: inline-block;
+    padding: 0 10px;
+    width: 20px;
+    height: 20px;
 }
 
 .showMapIcon.noLocationData {
@@ -571,10 +571,19 @@ html.ios .ios-only {
 .line-info {
     border-top: 1px solid #eee;
     display: flex;
-    padding: 3px 35px 0 1em;
+    padding: 5px 25px 0 10px;
     position: relative;
     overflow: hidden;
-    min-height: 60px;
+    min-height: 64px;
+    max-height: 64px;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+}
+
+.line-info.clicked, .highlight.clicked {
+    background-color: #00c3ff17 !important;
+    transform: scale(0.98);
 }
 
 .line-info .hora-programada {
@@ -583,17 +592,17 @@ html.ios .ios-only {
 }
 
 .additional-info-panel {
-    width: 52%;
+    width: 77%;
     height: 100%;
     position: absolute;
     top: 0;
     bottom: 0;
-    right: -49%; /* Inicialmente oculto a la derecha */
+    right: -74%; /* Inicialmente oculto a la derecha */
     background-color: #FFF; 
     overflow-x: hidden; /*Que el contenido no se desborde */
     transition: right 0.5s ease-in-out; /* Transición suave para la propiedad right */
     z-index: 1; 
-    font-size: 0.85em;
+    font-size: 0.7em;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -626,9 +635,10 @@ html.ios .ios-only {
 }
 
 .additional-info-panel p, .additional-info-panel h2, .additional-info-panel ul, .additional-info-panel li {
-    margin: 0;
+    margin: 0 15px 0 0;
     padding: 0;
     list-style: none;
+    text-align: center;
 }
 
 .additional-info-panel .proximos-buses {
@@ -637,26 +647,40 @@ html.ios .ios-only {
     justify-content: center;
 }
 
+.additional-info-panel .proximos-buses ul {
+    display: flex;
+    flex-direction: row;
+}
+
 .additional-info-panel .proximos-buses span {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 93px;
-    display: inline-block;
-    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.additional-info-panel .proximos-buses span.programado {
+.additional-info-panel .proximos-buses span strong {
+    font-size: 1.3em;
+    margin-bottom: 3px;
+}
+
+.additional-info-panel .proximos-buses span.programado strong {
     background: url('/img/clock.png') no-repeat;
-    background-size: 15px;
-    background-position: 0px;
-    padding: 0 0 0 20px;
+    background-size: 12px;
+    background-position: 0px 5px;
+    padding-left: 17px;
 }
 
-.additional-info-panel .proximos-buses span.realtime {
+.additional-info-panel .proximos-buses span.realtime strong {
     background: url('/img/feed.png') no-repeat;
-    background-size: 15px;
-    background-position: 0px;
-    padding: 0 0 0 20px;
+    background-size: 12px;
+    background-position: 0px 5px;
+    padding-left: 17px;
+}
+
+.additional-info-panel .proximos-buses span.ocupacion {
+    background-size: 17px;
+    margin: 0;
+    background-position: 3px 0px;
 }
 
 .additional-info-panel .actions-buttons {
@@ -695,8 +719,7 @@ html.ios .ios-only {
     min-width: 29px;
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
     font-weight: bold;
-    font-size: 1.6em;
-    margin: 0.4em 0.2em 0 0;
+    font-size: 1.5em;
     display: inline-block;
     padding: 0 6px;
 }
@@ -706,19 +729,18 @@ html.ios .ios-only {
     cursor: pointer;
     background: url('/img/warning.png') no-repeat;
     background-size: 15px;
-    background-position: 0px 2px;
+    background-position: 0px center;
     text-indent: -9999px;
     overflow: hidden;
     width: 15px;
-    position: absolute;
-    margin-left: 0.6em;
-    margin-top: -0.3em;
+    display: inline-block;
+    margin: 0 0 0 6px;
 }
 
 .dark-mode .line-info .alert-icon {
     background: url('/img/warning-light.png') no-repeat;
     background-size: 15px;
-    background-position: 0px 2px;
+    background-position: 0px center;
 }
 
 button.mostrar-horarios {
@@ -1224,9 +1246,9 @@ button.remove-stop {
 #mapContainer {
     position: fixed;
     width: 98%;
-    height: 77%;
+    height: 80%;
     margin: 0 auto;
-    top: 442px;
+    top: 420px;
     left: 50%;
     transform: translate(-50%, 100%); /* Posición inicial: fuera de la vista hacia abajo */
     z-index: 2;
@@ -1448,11 +1470,15 @@ button.remove-stop {
 .hora-tiempo {
     display: flex;
     flex-direction: column;
+    align-items: end;
+    margin-right: 5px;
 }
 
 .line-info .horaLlegada {
     display: flex;
     align-items: center;
+    margin: 2px 0px 16px 0;
+    font-size: 0.9em;
 }
 
 .line-info .diferencia {
@@ -1488,13 +1514,13 @@ button.remove-stop {
 .line-info .ocupacion {
     display: inline-block;
     position: relative;
-    width: 18px;
-    height: 18px;
+    width: 20px;
     text-indent: -9999px;
     cursor: pointer;
-    background-size: cover;
-    line-height: 15px;
-    display: none; /* Por defecto oculto */
+    margin: 0px 10px;
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 0 center;
 }
 
 .line-info .ocupacion.empty, .line-info .ocupacion.many {
@@ -1534,7 +1560,7 @@ button.remove-stop {
 
 /* No mostramos nada si los datos son nulos, vacíos o no_data_available */
 .line-info .ocupacion.null, .line-info .ocupacion.undefined, .line-info .ocupacion.no {
-    display: none;  
+    cursor: default;
 }
 
 /* Estilo extra para los iconos en el panel de info de próximos buses */
@@ -1542,11 +1568,6 @@ button.remove-stop {
 .additional-info-panel .ocupacion {
     line-height: 17px;
     margin-left: 0px;
-}
-
-.line-info .hora-tiempo .horaLlegada {
-    margin: 0 0 0.9em 0;
-    font-size: 0.9em;
 }
 
 .line-info.realtime .hora-tiempo .horaLlegada {
@@ -1570,38 +1591,55 @@ button.remove-stop {
     padding: 0 0 0 20px;
 }
 
-.line-info .linea, .line-info .tiempo {
-    flex: 1;
+.line-info .linea {
+    text-align: left;
 }
 
-.line-info .destino {
+.line-info .linea, .line-info .tiempo.futuro {
+    font-size: 1em;
+}
+
+.line-info .trip-info {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.line-info .trip-info .ruta {
+    display: flex;
+    flex-direction: column;
+    min-width: 110px;
+}
+
+.line-info .trip-info .destino {
     display: inline-block;
-    font-size: 0.8em; 
-    margin: 0 0 0 0.3em;
+    font-size: 0.85em; 
+    font-weight: bold;
+    margin: 0;
     color: #646464;
 }
 
-.dark-mode .line-info .destino {
+.dark-mode .line-info .trip-info .destino {
     color: #bebebe;
 }
 
 .line-info .tiempo {
-    font-size: 1.6em;
+    font-size: 1.45em;
     align-items: center;
     display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
 }
 
 .line-info .tiempo.sin-servicio {
-    font-size: 1em;
+    font-size: 0.85em;
     color: #CCC;
+    margin: 0 0 0 10px;
 }
 
 .line-info .tiempo p {
     font-size: 0.5em;
-    display: block;
-    margin: 0 0.4em;
+    display: inline-block;
+    margin: 0 0 0 4px;
 }
 
 .bell-button {
@@ -1829,7 +1867,6 @@ button.remove-stop {
     color: #5f1616;
 }
 
-
 #instagram-warning {
     color: #FFF;
     background-color: #2b7b6c;
@@ -1889,13 +1926,17 @@ button.remove-stop {
 }
 
 .global-alerts-box {
+    background-image: url('../img/bell-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
     background-color: #f8f5d7;
     color: #72711c;
     border: 1px solid #f5f4c6;
-    padding: 5px;
+    padding: 5px 5px 5px 34px;
     margin-bottom: 10px;
-    display: none; /* Inicialmente oculto */
+    display: none;
     font-size: 0.8em;
+    background-position: 15px center;
 }
 
 .dark-mode .global-alerts-box {
@@ -1928,7 +1969,7 @@ button.remove-stop {
 }
 
 .global-alerts-box .alert-text-container {
-    padding: 0px 60px 0px 2px;
+    padding: 0px 26px 0px 2px;
     height: 18px;
     overflow: hidden;
     position: relative;
@@ -1954,15 +1995,20 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    top: -5px;
-    right: -7px;
+    top: -7px;
+    right: 0px;
     background-color: #f8f5d7;
-    padding: 5px 10px;
+    padding: 8px 10px;
     cursor: pointer;
-    display: block;
+    display: inline-block;
     color: #72711c;
     font-weight: bold;
-    font-size: 1em;
+    font-size: 1.2em;
+    text-indent: -9999px;
+    background-image: url('../img/arrow-down.png');
+    background-repeat: no-repeat;
+    background-size: 15px;
+    background-position: 0 center;
 }
 
 .dark-mode .global-alerts-box .alert-text-container .read-more-button {
@@ -2019,13 +2065,32 @@ button.remove-stop {
 }
 
 .foot-note {
-    padding: 0 0 0 1em;
-    margin-top: 0 1em;
-    font-size: 0.9em;
+    padding: 0 1em;
+    font-size: 0.85em;
 }
 
 .foot-note a {
     color: #828282;
+}
+
+.foot-note #footer-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 2em 0;
+}
+
+.foot-note #social-share {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+  
+.foot-note #social-share a {
+    width: calc(40% - 10px);
+    text-align: center;
+    font-size: 0.9em;
 }
 
 .foot-note a#twitter-share-button, .foot-note a#telegram-button, .foot-note a#facebook-share-button, .foot-note a#whatsapp-share-button, .foot-note a#instagram-button {
@@ -2039,6 +2104,10 @@ button.remove-stop {
 
 .foot-note a#twitter-share-button {
     background-color: #0d8bf2; /* Azul de Twitter */
+    background-image: url('/img/share-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note  a#twitter-share-button:hover {
@@ -2047,6 +2116,10 @@ button.remove-stop {
 
 .foot-note a#whatsapp-share-button {
     background-color: #25d366;
+    background-image: url('/img/share.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note a#instagram-button {
@@ -2070,6 +2143,10 @@ button.remove-stop {
 
 .foot-note a#facebook-share-button {
     background-color: #3B5998; /* Azul de Facebook */
+    background-image: url('/img/share-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note a#facebook-share-button:hover {
@@ -2084,7 +2161,7 @@ button.remove-stop {
     background-color: #1f8bbc;
 }
 
-.foot-note button#theme-toggle {
+button#theme-toggle {
     background-color: #ffffff;
 }
 
@@ -2234,6 +2311,23 @@ footer a:hover {
 }
 
 /* Posiciones específicas para diferentes overlays */
+
+#overlay-nueva-ui0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-nueva-ui0624 .overlay-content video {
+    max-height: 400px;
+    width: 100%; 
+    margin: 0 auto 15px auto;
+    display: block;
+    background-color: #064a3d;
+}
 
 #overlay-cercanas-biki0624 .overlay-content {
     top: 60px;
@@ -2411,7 +2505,7 @@ body.dark-mode {
     box-shadow: 1px 1px 10px 0 rgba(12,12,14,.2),0 4px 8px 0 rgba(6, 6, 7, 0.12);
 }
 
-.dark-mode .foot-note button#theme-toggle {
+.dark-mode button#theme-toggle {
     background-color: #222;
 }
 
@@ -2421,7 +2515,7 @@ body.dark-mode {
 
 .dark-mode button#removeAllButton {
     background: url('/img/trash-white.png') no-repeat #323232;
-    background-size: 15px;
+    background-size: 10px;
     background-position: 15px center;
     color: #b1b1b1;
 }
