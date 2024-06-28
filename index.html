@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406282100">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202406282200">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -46,11 +46,18 @@
 </head>
 
 <body>
-    <div id="overlay-cercanas-biki0624" class="overlay">
+    <div id="overlay-nueva-ui0624" class="overlay">
         <div class="overlay-content">
             <div class="arrow"></div>
-            <h2>Estaciones BIKI en paradas cercanas</h2>
-            <p>Ahora podrás activar la visualización de las estaciones de alquiler de bicis BIKI desde la opción del menú "Paradas cercanas"</p>
+            <video preload="true" autoplay loop controls>
+                <source src="/img/overlays/nueva-ui.mp4" type="video/mp4">
+            </video>
+            <h2>Nueva interfaz simplificada</h2>
+            <ul>
+                <li>Toca en la línea para ver el bus en el mapa</li>
+                <li>Ver el nivel de ocupación del bus</li>
+                <li>Despliega el lateral para ver próximos buses</li>
+            </ul>
             <button class="close-overlay">Entendido</button>
         </div>
     </div>
