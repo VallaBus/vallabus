@@ -653,9 +653,6 @@ html.ios .ios-only {
 }
 
 .additional-info-panel .proximos-buses span {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -683,7 +680,7 @@ html.ios .ios-only {
 .additional-info-panel .proximos-buses span.ocupacion {
     background-size: 17px;
     margin: 0;
-    background-position: 3px 4px;
+    background-position: 3px 0px;
 }
 
 .additional-info-panel .actions-buttons {
