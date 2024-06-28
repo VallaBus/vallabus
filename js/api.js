@@ -1,4 +1,4 @@
-import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula } from './utils.js';
+import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula, showNotice } from './utils.js';
 import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
 import { updateBusMap, mapaParadasCercanas, mapaParadasBiciCercanas, limpiarMapaParadasBiciCercanas } from './mapa.js';
 
@@ -785,7 +785,7 @@ export async function updateBusList() {
         stopsListHTML += `<li><a class="sidebar-stop-link" data-stopid="${stopId}" href="#${stopId}">${stopName}</a></li>`;
         sidebarStops.innerHTML = `
             <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
-                <p class="sidebar-footer">fijará una parada arriba en la lista</p>
+            <p class="sidebar-footer">fijará una parada arriba en la lista</p>
         `;
         // Agregar event listener a los enlaces del sidebar
         const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
@@ -854,8 +854,15 @@ export async function updateBusList() {
     });
 
     removeObsoleteElements(stops);
-    updateLastUpdatedTime();
+    //updateLastUpdatedTime();
 }
+
+// Global object to store event listeners
+const globalEventListeners = {
+    alertIcon: new Set(),
+    occupancy: new Set(),
+    lineItem: new Set()
+  };
 
 // Función principal que actualiza los datos de una línea
 export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
@@ -871,7 +878,7 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
         busLineAlerts.forEach(alert => {
             alertHTML += `<li>${alert.descripcion}</li>`;
         });
-        alertHTML += '</ul><p class="notice">Nota: Las actualizaciones de tiempos están pausadas hasta que cierre esta ventana</p><button class="alerts-close">Cerrar</button></div>';
+        alertHTML += '</ul><button class="alerts-close">Cerrar</button></div>';
         alertIcon = '⚠️';
     }
 
@@ -938,8 +945,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     }
                 }
 
-                // Obtener los próximos 3 buses
-                busesProximos = await getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, 3);
+                // Obtener los próximos 2 buses
+                busesProximos = await getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, 2);
 
                 // Si hay datos en tiempo real, usarlos, de lo contrario, usar los programados
                 if (busMasCercano.realTime && busMasCercano.realTime.fechaHoraLlegada) {
@@ -1022,55 +1029,50 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
 
                 // Calculos de retrasos/adelantos
                 if (diferencia > 0) {
-                    diferencia = `Retraso ${diferencia} min.`;
+                    diferencia = `retraso ${diferencia} min`;
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.add('retrasado');
                 }
                 else if (diferencia < 0) {
-                    diferencia = `Adelanto ${Math.abs(diferencia)} min.`;
+                    diferencia = `adelanto ${Math.abs(diferencia)} min`;
                     lineItem.classList.add('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
                 else if (diferencia == 0) {
-                    diferencia = " - en hora";
+                    diferencia = "en hora";
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
                 else {
-                    diferencia = "- programado";
+                    diferencia = "programado";
                     lineItem.classList.remove('adelantado');
                     lineItem.classList.remove('retrasado');
                 }
-
-                let mapElementClass = "showMapIcon";
-                // Si no tenemos datos de ubicación añadimos una clase
-                if (!ubicacionLat && !ubicacionLon) {
-                    mapElementClass += " noLocationData";
-                }
-                
-                let mapElement = `<a class="${mapElementClass}" title="Ver linea en el mapa">Mapa</a>`;
 
                 // Recuperamos el destino desde los datos del trip_id, buses con la misma línea pueden tener destinos diferentes.
                 let destino = "";
                 if (busMasCercano.scheduled && busMasCercano.scheduled.destino) {
                     destino = busMasCercano.scheduled.destino;
                 }
-                // Cortamos destino a máximo 22 caracteres
-                if (destino.length > 25) {
-                    destino = destino.substring(0, 22) + "...";
+                // Cortamos destino a máximo 25 caracteres
+                if (destino.length > 28) {
+                    destino = destino.substring(0, 25) + "...";
                 }
 
                 let horaLlegadaProgramada = new Date(busMasCercano.scheduled.fechaHoraLlegada).toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
 
                 // Formato tiempo restante a mostrar
                 let tiempoRestanteHTML;
+                // Por defecto los tiempos son de hoy
+                let tiempoClass = 'hoy';
                 // Si el bus próximo es para un día diferente mostramos el día de la semana
                 if (futureDate) {
-                    tiempoRestanteHTML = tiempoRestante;
                     // Obtener el nombre del día de la semana
                     const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
                     var dayOfWeek = daysOfWeek[horaLlegada.getDay()];
-                    horaLlegada = dayOfWeek;
+                    horaLlegada = horaLlegadaProgramada;
+                    tiempoRestanteHTML = dayOfWeek;
+                    tiempoClass = 'futuro';
                 } else if (tiempoRestante > 59 ) {
                     // Si el tiempo restante es mayor de 59 minutos, lo mostramos en horas y minutos
                     let horas = Math.floor(tiempoRestante / 60);
@@ -1087,15 +1089,18 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 // Actualizar el HTML con los datos del bus más cercano
                 lineItem.innerHTML = `
                     <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                        <p class="hora-programada">
-                            <span class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</span> <span class="hora">${horaLlegadaProgramada}</span> <span class="diferencia">${diferencia}</span>
-                        </p>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia">${diferencia}</span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo">${tiempoRestanteHTML}</div>
-                        ${mapElement}
+                        <div class="tiempo ${tiempoClass}">${tiempoRestanteHTML}</div>
                         <div class="horaLlegada">${horaLlegada}</div>
                     </div>
                     ${alertHTML}
@@ -1105,15 +1110,18 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 if (estado && estado == 'SKIPPED') {
                     lineItem.innerHTML = `
                     <div class="linea" data-trip-id="${tripId}" data-vehicle-id="${vehicleId}" data-matricula="${matricula}">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                        <p class="hora-programada">
-                        </p>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion ${ocupacionClass}" title="${ocupacionDescription}">${ocupacionDescription}</div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo sin-servicio">-</div>
-                        ${mapElement}
-                        <div class="horaLlegada">Desviado</div>
+                        <div class="tiempo sin-servicio">Desviado</div>
                     </div>
                     ${alertHTML}
                 `;
@@ -1149,10 +1157,21 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 }
                 lineItem.innerHTML = `
                     <div class="linea">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                    </div> 
-                    <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion"></div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <div class="horaLlegada"></div>
+                    </div>
+                    ${alertHTML}
                 `;
             }
         } else {
@@ -1162,99 +1181,31 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                 }
                 lineItem.innerHTML = `
                     <div class="linea">
-                        <h3>${lineNumber}<a class="alert-icon">${alertIcon}</a></h3>
-                        <p class="destino">${destino}</p>
-                    </div> 
-                    <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="trip-info">
+                        <div class="ocupacion"></div>
+                        <div class="ruta">
+                            <p class="destino">${destino}</p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin servicio próximo</div>
+                        <div class="horaLlegada"></div>
+                    </div>
+                    ${alertHTML}
                 `;
         }
             // Cuadro de alertas
             lineItem.innerHTML += alertHTML;
 
-            // Agrega un controlador de eventos de clic a alert-icon
-            // TODO: Mover a utils con delegación de eventos
-            lineItem.querySelector('.alert-icon').addEventListener('click', function() {
-                const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
-                if (alertBox) {
-                        alertBox.style.display = 'flex';
-                        // Paramos las actualizaciones para que no se cierre el cuadro
-                        clearInterval(intervalId);
+            // Borramos event listeners antes de añadir los nuevos
+            removeExistingEventListeners(lineItem);
 
-                        // Agrega un controlador de eventos de clic a alerts-close
-                        alertBox.querySelector('.alerts-close').addEventListener('click', function() {
-                            this.parentNode.style.display = 'none';
-                            // Reanudamos y ejecutamos las actualizaciones
-                            iniciarIntervalo(updateBusList);
-                            updateBusList();
-                        });
-                }
-            });
-
-            // Agrega un controlador de eventos de clic mostrar el mapa si hay datos
-            // TODO: Mover a utils con delegación de eventos
-            let showMapIcon = lineItem.querySelector('.showMapIcon');
-            if (showMapIcon) {
-                showMapIcon.addEventListener('click', function(event) {
-                    const mapBox = document.querySelector('#mapContainer');
-                    // Obtenemos el tripId del elemento hermano llamado .linea
-                    const brotherElement = this.parentElement.previousElementSibling;
-                    const tripId = brotherElement.getAttribute('data-trip-id');
-                    const vehicleId = brotherElement.getAttribute('data-vehicle-id');
-                    const matricula = brotherElement.getAttribute('data-matricula');
-
-                    if (mapBox) {
-                        let paradaData = {
-                            latitud: scheduledData.parada[0].latitud,
-                            longitud: scheduledData.parada[0].longitud,
-                            nombre: scheduledData.parada[0].parada,
-                        };
-
-                        let busData = {
-                            tripId: tripId,
-                            matricula: matricula,
-                            vehicleId: vehicleId,
-                            lineNumber: lineNumber,
-                        };
-
-                        mapBox.classList.add('show');
-                        updateBusMap(busData, paradaData, true);
-
-                        // URL para mapa
-                        const dialogState = {
-                            dialogType: 'showTripMap'
-                        };
-                        history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
-                        trackCurrentUrl();
-
-                        // Si intervalMap ya está definido, limpiar el intervalo existente
-                        if (window.globalState.intervalMap) {
-                            clearInterval(window.globalState.intervalMap);
-                            window.globalState.intervalMap = null;
-                        }
-
-                        window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
-                
-                        // Agrega un controlador de eventos de clic a alerts-close
-                        mapBox.querySelector('.map-close').addEventListener('click', function() {
-                            mapBox.classList.remove('show');
-                            if (window.globalState.intervalMap) {
-                                // Paramos las actualizaciones
-                                clearInterval(window.globalState.intervalMap);
-                                window.globalState.intervalMap = null;
-                            }
-                            // Regresamos al home
-                            const dialogState = {
-                                dialogType: 'home'
-                            };
-                            history.replaceState(dialogState, document.title, '#/');
-                        });
-                
-                        event.stopPropagation();
-                    }
-
-                    scrollToElement(this.parentElement.parentElement);
-                });
-            }
+            // Eventos click a diferentes elementos generados dinámicamente
+            addEventListeners(lineItem, scheduledData, lineNumber);
             
             // Creamos el panel informativo desplegable
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
@@ -1264,14 +1215,145 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
             console.error('Error en fetchBusTime:', error);
             lineItem.innerHTML = `
                 <div class="linea">
-                    <h3>${lineNumber}</h3>
-                </div> 
-                <div class="tiempo sin-servicio">
-                    Sin datos en este momento
-                </div>`;
+                        <h3>${lineNumber}</h3>
+                    </div>
+                    <div class="hora-tiempo">
+                        <div class="tiempo sin-servicio">Sin datos en este momento</div>
+                    </div>
+            `;
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
             lineItem.appendChild(infoPanel);
         };
+}
+
+// Borra evenlisteners de DOM obsoleto
+function removeExistingEventListeners(lineItem) {
+    // Remove alert icon listener
+    const alertIcon = lineItem.querySelector('.alert-icon');
+    if (alertIcon) {
+      globalEventListeners.alertIcon.forEach(listener => {
+        alertIcon.removeEventListener('click', listener);
+      });
+      globalEventListeners.alertIcon.clear();
+    }
+  
+    // Remove occupancy listener
+    const occupancyElement = lineItem.querySelector('.ocupacion');
+    if (occupancyElement) {
+      globalEventListeners.occupancy.forEach(listener => {
+        occupancyElement.removeEventListener('click', listener);
+      });
+      globalEventListeners.occupancy.clear();
+    }
+  
+    // Remove lineItem listener
+    globalEventListeners.lineItem.forEach(listener => {
+      lineItem.removeEventListener('click', listener);
+    });
+    globalEventListeners.lineItem.clear();
+}
+
+// Añade listeners a elementos generados dinámicamente
+function addEventListeners(lineItem, scheduledData, lineNumber) {
+    // Add alert icon listener
+    const alertIcon = lineItem.querySelector('.alert-icon');
+    if (alertIcon) {
+      const alertListener = function(event) {
+        event.stopPropagation();
+        const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
+        if (alertBox) {
+          alertBox.style.display = 'flex';
+          const closeButton = alertBox.querySelector('.alerts-close');
+          closeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            alertBox.style.display = 'none';
+          }, { once: true });
+        }
+      };
+      alertIcon.addEventListener('click', alertListener);
+      globalEventListeners.alertIcon.add(alertListener);
+    }
+  
+    // Add occupancy listener
+    const occupancyElement = lineItem.querySelector('.ocupacion');
+    if (occupancyElement) {
+      const occupancyListener = function(event) {
+        event.stopPropagation();
+        showNotice('', occupancyElement.textContent);
+      };
+      occupancyElement.addEventListener('click', occupancyListener);
+      globalEventListeners.occupancy.add(occupancyListener);
+    }
+  
+    // Add lineItem listener
+    const lineItemListener = function(event) {
+        const mapBox = document.querySelector('#mapContainer');
+        // Obtenemos el tripId del elemento hermano llamado .linea
+        const brotherElement = this.firstElementChild;
+        const tripId = brotherElement.getAttribute('data-trip-id');
+        const vehicleId = brotherElement.getAttribute('data-vehicle-id');
+        const matricula = brotherElement.getAttribute('data-matricula');
+
+        /* Efecto click */
+        this.classList.add('clicked');
+        setTimeout(() => {
+            this.classList.remove('clicked');
+        }, 300);
+
+        if (mapBox) {
+            let paradaData = {
+                latitud: scheduledData.parada[0].latitud,
+                longitud: scheduledData.parada[0].longitud,
+                nombre: scheduledData.parada[0].parada,
+            };
+
+            let busData = {
+                tripId: tripId,
+                matricula: matricula,
+                vehicleId: vehicleId,
+                lineNumber: lineNumber,
+            };
+
+            mapBox.classList.add('show');
+            updateBusMap(busData, paradaData, true);
+
+            // URL para mapa
+            const dialogState = {
+                dialogType: 'showTripMap'
+            };
+            history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+            trackCurrentUrl();
+
+            // Si intervalMap ya está definido, limpiar el intervalo existente
+            if (window.globalState.intervalMap) {
+                clearInterval(window.globalState.intervalMap);
+                window.globalState.intervalMap = null;
+            }
+
+            window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
+    
+            // Agrega un controlador de eventos de clic a alerts-close
+            mapBox.querySelector('.map-close').addEventListener('click', function() {
+                mapBox.classList.remove('show');
+                if (window.globalState.intervalMap) {
+                    // Paramos las actualizaciones
+                    clearInterval(window.globalState.intervalMap);
+                    window.globalState.intervalMap = null;
+                }
+                // Regresamos al home
+                const dialogState = {
+                    dialogType: 'home'
+                };
+                history.replaceState(dialogState, document.title, '#/');
+            });
+    
+            event.stopPropagation();
+        }
+
+        scrollToElement(this);
+    };
+    lineItem.addEventListener('click', lineItemListener);
+    globalEventListeners.lineItem.add(lineItemListener);
 }
 
 // Combina los datos programados y en tiempo real agrupados por trip_id
