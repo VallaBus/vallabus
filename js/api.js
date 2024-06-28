@@ -857,6 +857,13 @@ export async function updateBusList() {
     updateLastUpdatedTime();
 }
 
+// Global object to store event listeners
+const globalEventListeners = {
+    alertIcon: new Set(),
+    occupancy: new Set(),
+    lineItem: new Set()
+  };
+
 // Función principal que actualiza los datos de una línea
 export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
     // URL del API con estáticos y tiempo real
@@ -1168,102 +1175,11 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
             // Cuadro de alertas
             lineItem.innerHTML += alertHTML;
 
-            // Agrega un controlador de eventos de clic a alert-icon
-            // TODO: Mover a utils con delegación de eventos
-            lineItem.querySelector('.alert-icon').addEventListener('click', function(event) {
-                event.stopPropagation(); /* Evitamos otros eventos clic */
-                const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
-                if (alertBox) {
-                        alertBox.style.display = 'flex';
+            // Borramos event listeners antes de añadir los nuevos
+            removeExistingEventListeners(lineItem);
 
-                        // Agrega un controlador de eventos de clic a alerts-close
-                        alertBox.querySelector('.alerts-close').addEventListener('click', function(event) {
-                            event.stopPropagation(); /* Evitamos otros eventos clic */
-                            this.parentNode.style.display = 'none';
-                        });
-                }
-            });
-
-            // Tooltips para iconos de ocupación
-            const ocupacionElement = lineItem.querySelector('.ocupacion');
-            if (ocupacionElement) {
-                ocupacionElement.addEventListener('click', function(event) {
-                    event.stopPropagation(); /* Evitamos que se abran otros clics */
-                    console.log('Click en ocupación');
-                    // Crea el tooltip
-                    showNotice('', ocupacionElement.textContent);
-                });
-            }
-
-            // Agrega un controlador de eventos de clic para mostrar el mapa
-            // al hacer clic sobre una línea
-            // TODO: Mover a utils con delegación de eventos
-            lineItem.addEventListener('click', function(event) {
-                    const mapBox = document.querySelector('#mapContainer');
-                    // Obtenemos el tripId del elemento hermano llamado .linea
-                    const brotherElement = this.firstElementChild;
-                    const tripId = brotherElement.getAttribute('data-trip-id');
-                    const vehicleId = brotherElement.getAttribute('data-vehicle-id');
-                    const matricula = brotherElement.getAttribute('data-matricula');
-
-                    /* Efecto click */
-                    this.classList.add('clicked');
-                    setTimeout(() => {
-                        this.classList.remove('clicked');
-                    }, 300);
-
-                    if (mapBox) {
-                        let paradaData = {
-                            latitud: scheduledData.parada[0].latitud,
-                            longitud: scheduledData.parada[0].longitud,
-                            nombre: scheduledData.parada[0].parada,
-                        };
-
-                        let busData = {
-                            tripId: tripId,
-                            matricula: matricula,
-                            vehicleId: vehicleId,
-                            lineNumber: lineNumber,
-                        };
-
-                        mapBox.classList.add('show');
-                        updateBusMap(busData, paradaData, true);
-
-                        // URL para mapa
-                        const dialogState = {
-                            dialogType: 'showTripMap'
-                        };
-                        history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
-                        trackCurrentUrl();
-
-                        // Si intervalMap ya está definido, limpiar el intervalo existente
-                        if (window.globalState.intervalMap) {
-                            clearInterval(window.globalState.intervalMap);
-                            window.globalState.intervalMap = null;
-                        }
-
-                        window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
-                
-                        // Agrega un controlador de eventos de clic a alerts-close
-                        mapBox.querySelector('.map-close').addEventListener('click', function() {
-                            mapBox.classList.remove('show');
-                            if (window.globalState.intervalMap) {
-                                // Paramos las actualizaciones
-                                clearInterval(window.globalState.intervalMap);
-                                window.globalState.intervalMap = null;
-                            }
-                            // Regresamos al home
-                            const dialogState = {
-                                dialogType: 'home'
-                            };
-                            history.replaceState(dialogState, document.title, '#/');
-                        });
-                
-                        event.stopPropagation();
-                    }
-
-                    scrollToElement(this);
-            });
+            // Eventos click a diferentes elementos generados dinámicamente
+            addEventListeners(lineItem, scheduledData, lineNumber);
             
             // Creamos el panel informativo desplegable
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
@@ -1281,6 +1197,136 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
             lineItem.appendChild(infoPanel);
         };
+}
+
+// Borra evenlisteners de DOM obsoleto
+function removeExistingEventListeners(lineItem) {
+    // Remove alert icon listener
+    const alertIcon = lineItem.querySelector('.alert-icon');
+    if (alertIcon) {
+      globalEventListeners.alertIcon.forEach(listener => {
+        alertIcon.removeEventListener('click', listener);
+      });
+      globalEventListeners.alertIcon.clear();
+    }
+  
+    // Remove occupancy listener
+    const occupancyElement = lineItem.querySelector('.ocupacion');
+    if (occupancyElement) {
+      globalEventListeners.occupancy.forEach(listener => {
+        occupancyElement.removeEventListener('click', listener);
+      });
+      globalEventListeners.occupancy.clear();
+    }
+  
+    // Remove lineItem listener
+    globalEventListeners.lineItem.forEach(listener => {
+      lineItem.removeEventListener('click', listener);
+    });
+    globalEventListeners.lineItem.clear();
+}
+
+// Añade listeners a elementos generados dinámicamente
+function addEventListeners(lineItem, scheduledData, lineNumber) {
+    // Add alert icon listener
+    const alertIcon = lineItem.querySelector('.alert-icon');
+    if (alertIcon) {
+      const alertListener = function(event) {
+        event.stopPropagation();
+        const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
+        if (alertBox) {
+          alertBox.style.display = 'flex';
+          const closeButton = alertBox.querySelector('.alerts-close');
+          closeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            alertBox.style.display = 'none';
+          }, { once: true });
+        }
+      };
+      alertIcon.addEventListener('click', alertListener);
+      globalEventListeners.alertIcon.add(alertListener);
+    }
+  
+    // Add occupancy listener
+    const occupancyElement = lineItem.querySelector('.ocupacion');
+    if (occupancyElement) {
+      const occupancyListener = function(event) {
+        event.stopPropagation();
+        showNotice('', occupancyElement.textContent);
+      };
+      occupancyElement.addEventListener('click', occupancyListener);
+      globalEventListeners.occupancy.add(occupancyListener);
+    }
+  
+    // Add lineItem listener
+    const lineItemListener = function(event) {
+        const mapBox = document.querySelector('#mapContainer');
+        // Obtenemos el tripId del elemento hermano llamado .linea
+        const brotherElement = this.firstElementChild;
+        const tripId = brotherElement.getAttribute('data-trip-id');
+        const vehicleId = brotherElement.getAttribute('data-vehicle-id');
+        const matricula = brotherElement.getAttribute('data-matricula');
+
+        /* Efecto click */
+        this.classList.add('clicked');
+        setTimeout(() => {
+            this.classList.remove('clicked');
+        }, 300);
+
+        if (mapBox) {
+            let paradaData = {
+                latitud: scheduledData.parada[0].latitud,
+                longitud: scheduledData.parada[0].longitud,
+                nombre: scheduledData.parada[0].parada,
+            };
+
+            let busData = {
+                tripId: tripId,
+                matricula: matricula,
+                vehicleId: vehicleId,
+                lineNumber: lineNumber,
+            };
+
+            mapBox.classList.add('show');
+            updateBusMap(busData, paradaData, true);
+
+            // URL para mapa
+            const dialogState = {
+                dialogType: 'showTripMap'
+            };
+            history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+            trackCurrentUrl();
+
+            // Si intervalMap ya está definido, limpiar el intervalo existente
+            if (window.globalState.intervalMap) {
+                clearInterval(window.globalState.intervalMap);
+                window.globalState.intervalMap = null;
+            }
+
+            window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
+    
+            // Agrega un controlador de eventos de clic a alerts-close
+            mapBox.querySelector('.map-close').addEventListener('click', function() {
+                mapBox.classList.remove('show');
+                if (window.globalState.intervalMap) {
+                    // Paramos las actualizaciones
+                    clearInterval(window.globalState.intervalMap);
+                    window.globalState.intervalMap = null;
+                }
+                // Regresamos al home
+                const dialogState = {
+                    dialogType: 'home'
+                };
+                history.replaceState(dialogState, document.title, '#/');
+            });
+    
+            event.stopPropagation();
+        }
+
+        scrollToElement(this);
+    };
+    lineItem.addEventListener('click', lineItemListener);
+    globalEventListeners.lineItem.add(lineItemListener);
 }
 
 // Combina los datos programados y en tiempo real agrupados por trip_id
