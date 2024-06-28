@@ -1407,10 +1407,11 @@ export function combineBusData(scheduledData) {
 // programados están en el día anterior
 export function combineBusDataFromTwoDays(day1Data, day2Data) {
     let combined = { ...day1Data }; // Comenzamos con los datos del primer día
+    console.log(combined);
 
     // Iteramos sobre las claves del segundo día
     Object.keys(day2Data).forEach(tripId => {
-        // Si el tripId ya existe en el objeto combinado, comparamos las fechas
+        // Si el tripId ya existe en el primer día, comparamos las fechas
         if (combined[tripId]) {
             // Comparamos las fechas de llegada de los datos programados y en tiempo real
             const day1ScheduledDate = combined[tripId].scheduled ? new Date(combined[tripId].scheduled.fechaHoraLlegada) : null;
@@ -1423,8 +1424,8 @@ export function combineBusDataFromTwoDays(day1Data, day2Data) {
                 combined[tripId].realTime = day2Data[tripId].realTime;
             }
 
-            // Si hay datos programados en el segundo día y son más recientes que los del primer día, los usamos
-            if (day2ScheduledDate && (!day1ScheduledDate || day2ScheduledDate > day1ScheduledDate)) {
+            // Si hay datos programados en el segundo día y son más antiguos que los del primer día, los usamos
+            if (day2ScheduledDate && (!day1ScheduledDate || day2ScheduledDate < day1ScheduledDate)) {
                 combined[tripId].scheduled = day2Data[tripId].scheduled;
             }
         } else {
