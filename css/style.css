@@ -143,13 +143,13 @@ button#addButton:active {
 
 button#removeAllButton {
     background: url('/img/trash-gray.png') no-repeat #EAEAEA;
-    background-size: 12px;
+    background-size: 10px;
     background-position: 15px center;
     color: #686868;
-    padding: 13px 1px 9px 34px;
-    width: 168px;
+    padding: 12px 1px 9px 34px;
+    width: 148px;
     margin: 0;
-    font-size: 0.8em;
+    font-size: 0.9em;
     text-align: center;
 }
 
@@ -2046,8 +2046,7 @@ button.remove-stop {
 }
 
 .foot-note {
-    padding: 0 0 0 1em;
-    margin-top: 0 1em;
+    padding: 0 1em;
     font-size: 0.85em;
 }
 
@@ -2072,7 +2071,7 @@ button.remove-stop {
 .foot-note #social-share a {
     width: calc(40% - 10px);
     text-align: center;
-    font-size: 0.85em;
+    font-size: 0.9em;
 }
 
 .foot-note a#twitter-share-button, .foot-note a#telegram-button, .foot-note a#facebook-share-button, .foot-note a#whatsapp-share-button, .foot-note a#instagram-button {
@@ -2086,6 +2085,10 @@ button.remove-stop {
 
 .foot-note a#twitter-share-button {
     background-color: #0d8bf2; /* Azul de Twitter */
+    background-image: url('/img/share-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note  a#twitter-share-button:hover {
@@ -2094,6 +2097,10 @@ button.remove-stop {
 
 .foot-note a#whatsapp-share-button {
     background-color: #25d366;
+    background-image: url('/img/share-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note a#instagram-button {
@@ -2117,6 +2124,10 @@ button.remove-stop {
 
 .foot-note a#facebook-share-button {
     background-color: #3B5998; /* Azul de Facebook */
+    background-image: url('/img/share-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
 }
 
 .foot-note a#facebook-share-button:hover {
@@ -2468,7 +2479,7 @@ body.dark-mode {
 
 .dark-mode button#removeAllButton {
     background: url('/img/trash-white.png') no-repeat #323232;
-    background-size: 12px;
+    background-size: 10px;
     background-position: 15px center;
     color: #b1b1b1;
 }
