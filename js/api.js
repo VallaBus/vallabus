@@ -945,8 +945,8 @@ export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
                     }
                 }
 
-                // Obtener los próximos 3 buses
-                busesProximos = await getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, 3);
+                // Obtener los próximos 2 buses
+                busesProximos = await getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, 2);
 
                 // Si hay datos en tiempo real, usarlos, de lo contrario, usar los programados
                 if (busMasCercano.realTime && busMasCercano.realTime.fechaHoraLlegada) {

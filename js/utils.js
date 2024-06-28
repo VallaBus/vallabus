@@ -98,7 +98,12 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
             // Verificamos que horaLlegada no sea null o vacío
             if (horaLlegada) {
-                let contentHTML = `<strong>${horaLlegada}</strong> ${destino}`;
+                let contentHTML = `<strong>${horaLlegada}</strong>
+                                <div>
+                                    <span class="ocupacion" data-trip-id="${tripId}"></span>
+                                    ${destino}
+                                </div>
+                `;
 
                 if (estado && estado == 'SKIPPED') {
                     contentHTML = 'Desviado';
@@ -107,7 +112,6 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
                 innerHTML += `
                     <li data-trip-id="${tripId}">
                         <span class="${llegadaClass}">${contentHTML}</span>
-                        <span class="ocupacion" data-trip-id="${tripId}"></span>
                     </li>
                 `;
             }

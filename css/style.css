@@ -635,9 +635,10 @@ html.ios .ios-only {
 }
 
 .additional-info-panel p, .additional-info-panel h2, .additional-info-panel ul, .additional-info-panel li {
-    margin: 0;
+    margin: 0 15px 0 0;
     padding: 0;
     list-style: none;
+    text-align: center;
 }
 
 .additional-info-panel .proximos-buses {
@@ -646,31 +647,43 @@ html.ios .ios-only {
     justify-content: center;
 }
 
+.additional-info-panel .proximos-buses ul {
+    display: flex;
+    flex-direction: row;
+}
+
 .additional-info-panel .proximos-buses span {
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 120px;
-    display: inline-block;
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.additional-info-panel .proximos-buses span.programado {
+.additional-info-panel .proximos-buses span strong {
+    font-size: 1.3em;
+}
+
+.additional-info-panel .proximos-buses span.programado strong {
     background: url('/img/clock.png') no-repeat;
     background-size: 12px;
-    background-position: 0px;
-    padding: 0 0 0 20px;
+    background-position: 0px 5px;
+    padding-left: 17px;
 }
 
-.additional-info-panel .proximos-buses span.realtime {
+.additional-info-panel .proximos-buses span.realtime strong {
     background: url('/img/feed.png') no-repeat;
     background-size: 12px;
-    background-position: 0px;
-    padding: 0 0 0 20px;
+    background-position: 0px 5px;
+    padding-left: 17px;
 }
 
 .additional-info-panel .proximos-buses span.ocupacion {
     background-size: 17px;
-    margin: 0 0 0 4px;
+    margin: 0;
+    background-position: 3px 4px;
 }
 
 .additional-info-panel .actions-buttons {
