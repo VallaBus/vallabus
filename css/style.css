@@ -1858,6 +1858,15 @@ button.remove-stop {
     color:#efefef;
 }
 
+#tips-banner #conexion-banner {
+    background: url('../img/overlays/logo-conexion.png') no-repeat 15px center #d68ab9;
+    background-size: 25px;
+}
+
+#tips-banner #conexion-banner a {
+    color: #5f1616;
+}
+
 #instagram-warning {
     color: #FFF;
     background-color: #2b7b6c;
