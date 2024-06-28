@@ -2067,6 +2067,7 @@ button.remove-stop {
 .foot-note {
     padding: 0 1em;
     font-size: 0.85em;
+    text-align: center;
 }
 
 .foot-note a {
