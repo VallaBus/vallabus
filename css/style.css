@@ -655,7 +655,6 @@ html.ios .ios-only {
 .additional-info-panel .proximos-buses span {
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 120px;
     white-space: nowrap;
     display: flex;
     flex-direction: column;
