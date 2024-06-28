@@ -663,6 +663,7 @@ html.ios .ios-only {
 
 .additional-info-panel .proximos-buses span strong {
     font-size: 1.3em;
+    margin-bottom: 3px;
 }
 
 .additional-info-panel .proximos-buses span.programado strong {
