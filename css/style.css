@@ -2081,11 +2081,26 @@ button.remove-stop {
     margin: 2em 0;
 }
 
+.foot-note #created-by {
+    margin-top: 4.5em;
+    padding: 9px 7px 9px 25px;
+    color: #636363;
+    border-radius: 10px;
+    background: url('../img/heart.png') no-repeat 17px center #FFFFFFBF;
+    background-size: 25px;
+}
+
+.dark-mode .foot-note #created-by {
+    background-color: #00000024;
+    color: #8d8d8d;
+}
+
 .foot-note #social-share {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
+    margin: 2em 0;
 }
   
 .foot-note #social-share a {
@@ -2096,7 +2111,7 @@ button.remove-stop {
 
 .foot-note a#twitter-share-button, .foot-note a#telegram-button, .foot-note a#facebook-share-button, .foot-note a#whatsapp-share-button, .foot-note a#instagram-button {
     display: inline-block;
-    padding: 10px 15px;
+    padding: 10px 0 10px 15px;
     margin: 5px;
     color: white;
     text-decoration: none;
@@ -2125,6 +2140,7 @@ button.remove-stop {
 
 .foot-note a#instagram-button {
     background-color: #E1306C;
+    padding: 10px 0;
 }
 
 .foot-note #legend {
@@ -2156,6 +2172,10 @@ button.remove-stop {
 
 .foot-note a#telegram-button {
     background-color: #24a1dd;
+    background-image: url('/img/logo.png');
+    background-repeat: no-repeat;
+    background-size: 15px;
+    background-position: 20px center;
 }
 
 .foot-note a#telegram-button:hover {
@@ -2166,11 +2186,20 @@ button#theme-toggle {
     background-color: #ffffff;
 }
 
+.foot-note #data-notice {
+    padding: 9px 7px;
+    color: #636363;
+}
+
+.dark-mode .foot-note #data-notice {
+    color: #8d8d8d;
+}
+
 footer {
     font-size: 0.8rem;
     text-align: center;
     padding: 1rem;
-    margin-top: 9em;
+    margin-top: 2em;
 }
 
 footer a {
