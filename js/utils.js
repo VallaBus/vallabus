@@ -678,7 +678,9 @@ export function showErrorPopUp(message) {
     errorMessage.classList.add('show');
     setTimeout(() => {
         errorMessage.classList.remove('show');
-    }, 3000); // ocultar después de 3 segundos
+        // Borramos del DOM el elemento
+        errorMessage.remove();
+    }, 2000); // ocultar después de 2 segundos
 }
 
 export function showSuccessPopUp(message, elementId = null) {
@@ -696,6 +698,8 @@ export function showSuccessPopUp(message, elementId = null) {
             const elementToScroll = document.getElementById(elementId);
             scrollToElement(elementToScroll);
             successMessage.classList.remove('show');
+            // Borramos del DOM el elemento
+            successMessage.remove();
             // Quitamos posibles diálogos que estén encima
             const horariosBox = document.getElementById("horarios-box");
             horariosBox.style.display = "none";
@@ -709,7 +713,9 @@ export function showSuccessPopUp(message, elementId = null) {
     successMessage.classList.add('show');
     setTimeout(() => {
         successMessage.classList.remove('show');
-    }, 3000); // ocultar después de 3 segundos
+        // Borramos del DOM el elemento
+        successMessage.remove();
+    }, 2000); // ocultar después de 2 segundos
 }
 
 export function iniciarIntervalo(updateBusList) {
