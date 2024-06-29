@@ -2108,6 +2108,7 @@ button.remove-stop {
     width: calc(40% - 10px);
     text-align: center;
     font-size: 0.9em;
+    font-weight: bold;
 }
 
 .foot-note a#twitter-share-button, .foot-note a#telegram-button, .foot-note a#facebook-share-button, .foot-note a#whatsapp-share-button, .foot-note a#instagram-button {
@@ -2121,7 +2122,7 @@ button.remove-stop {
 
 .foot-note a#twitter-share-button {
     background-color: #0d8bf2; /* Azul de Twitter */
-    background-image: url('/img/share-gray.png');
+    background-image: url('/img/share-white.png');
     background-repeat: no-repeat;
     background-size: 12px;
     background-position: 20px center;
@@ -2133,7 +2134,7 @@ button.remove-stop {
 
 .foot-note a#whatsapp-share-button {
     background-color: #25d366;
-    background-image: url('/img/share.png');
+    background-image: url('../img/share-white.png');
     background-repeat: no-repeat;
     background-size: 12px;
     background-position: 20px center;
@@ -2161,7 +2162,7 @@ button.remove-stop {
 
 .foot-note a#facebook-share-button {
     background-color: #3B5998; /* Azul de Facebook */
-    background-image: url('/img/share-gray.png');
+    background-image: url('../img/share-white.png');
     background-repeat: no-repeat;
     background-size: 12px;
     background-position: 20px center;
