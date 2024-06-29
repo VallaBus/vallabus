@@ -1686,7 +1686,7 @@ button.remove-stop {
     padding: 10px;
     border-radius: 5px;
     position: fixed;
-    top: 10px; 
+    top: 278px; 
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
@@ -1694,6 +1694,7 @@ button.remove-stop {
     z-index: 1100;
     display: none;
     text-align: center;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.32);
 }
 
 .error a, .success a {
@@ -1706,11 +1707,11 @@ button.remove-stop {
 }
 
 .error {
-    background-color: #a55b5b;
+    background-color: #7b2b2b;
 }
 
 .success {
-    background-color: #6ba379;
+    background-color: #2b7b6c;
 }
 
 .success p {
