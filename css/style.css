@@ -1859,15 +1859,6 @@ button.remove-stop {
     color:#efefef;
 }
 
-#tips-banner #conexion-banner {
-    background: url('../img/overlays/logo-conexion.png') no-repeat 15px center #d68ab9;
-    background-size: 25px;
-}
-
-#tips-banner #conexion-banner a {
-    color: #5f1616;
-}
-
 #instagram-warning {
     color: #FFF;
     background-color: #2b7b6c;
@@ -1898,31 +1889,6 @@ button.remove-stop {
 }
 
 .dark-mode #tips-banner #ruta-pucela a {
-    color: #efefef;
-}
-
-#newname-banner {
-    margin: 0; 
-    color: #0e4f0b; 
-    background-color: #25cbd336;
-    background-image: url('/img/info.png');
-    background-size: 12px;
-    background-repeat: no-repeat;
-    background-position: 15px center;
-    padding: 5px 5px 5px 26px;
-}
-
-.dark-mode #newname-banner {
-    background-image: url('/img/info-gray.png');
-    color: #efefef;
-}
-
-#newname-banner a {
-    color: #0e4f0b; 
-    text-decoration: none; 
-}
-
-.dark-mode #newname-banner a {
     color: #efefef;
 }
 
