@@ -761,7 +761,7 @@ export async function updateBusList() {
                 stopElement.classList.add('suprimida');
                 let suppressedStopAlert = document.createElement('div');
                 suppressedStopAlert.className = 'suppressedStopAlert';
-                suppressedStopAlert.innerHTML = "Esta parada es posible que esté suprimida actualmente, consulte si hay alertas en sus líneas para más información";
+                suppressedStopAlert.innerHTML = "Parada posiblemente suprimida en este momento, consulta las alertas en las líneas para más información";
                 
                 // Seleccionar el elemento stop-header dentro de stopElement
                 const stopHeaderElement = stopElement.querySelector('stop-header');
