@@ -1,4 +1,4 @@
-# VallaBus (ex-AUVASA Tracker)
+# VallaBus
 
 Esta aplicación web permite a los usuarios llevar un seguimiento de las líneas de autobús y paradas que les interesan en Valladolid, España.
 
