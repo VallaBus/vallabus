@@ -1479,19 +1479,8 @@ export async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
         // se consideran nocturnos si llegan entre las 0:00 y las 5:00
         const busesYesterdayData = await fetchScheduledBuses(stopNumber, lineNumber, yesterdayDate);
         const busesYesterday = combineBusData(busesYesterdayData);
-
-        // Filtrar solo los buses nocturnos del día anterior
-        const nightBusesYesterday = Object.entries(busesYesterday[lineNumber] || {}).reduce((acc, [tripId, bus]) => {
-            const arrivalTime = new Date(bus.scheduled.fechaHoraLlegada);
-            const arrivalHour = arrivalTime.getHours();
-            if (arrivalHour >= 24) {
-                acc[tripId] = bus;
-            }
-            return acc;
-        }, {});
-
         // Agrupar los datos de ayer y hoy por trip_id
-        const combinedData = combineBusDataFromTwoDays(buses, nightBusesYesterday);
+        const combinedData = combineBusDataFromTwoDays(buses, busesYesterday[lineNumber]);
         if (combinedData) {
             busMasCercanoHoy = buscarBusMasCercano(combinedData);
         }
