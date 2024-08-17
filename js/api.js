@@ -1422,8 +1422,12 @@ export function combineBusDataFromTwoDays(day1Data, day2Data) {
                 combined[tripId].realTime = day2Data[tripId].realTime;
             }
 
-            // Si hay datos programados en el segundo día y son más antiguos que los del primer día, los usamos
-            if (day2ScheduledDate && (!day1ScheduledDate || day2ScheduledDate < day1ScheduledDate)) {
+            // Cuando haya datos programados de ayer y sean de horas nocturnas (0:00 a 5:00) y
+            // Si no hay datos programados del primer día (hoy) o
+            // Si hay datos programados en el segundo día (ayer) y son más antiguos que los del primer día (hoy)
+            // Usamos los programados del segundo día (ayer)
+            // Esto permite que si un bus nocturno solo tiene datos el segundo día (ayer) y no hoy, podemos usar los datos
+            if (day2ScheduledDate && day2ScheduledDate.getHours() < 5 && (!day1ScheduledDate || day2ScheduledDate < day1ScheduledDate)) {
                 combined[tripId].scheduled = day2Data[tripId].scheduled;
             }
         } else {
