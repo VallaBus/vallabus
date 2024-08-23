@@ -1,13 +1,11 @@
-import { showNotice, uuidv4 } from './utils.js';
-
-export const pushApi = 'https://push.vallabus.com';
+const pushApi = 'https://push.vallabus.com';
 
 let clientId = localStorage.getItem('clientId');
 if (!clientId) {
     clientId = uuidv4();
     localStorage.setItem('clientId', clientId);
 }
-export function registerNotification(title, message) {
+function registerNotification(title, message) {
     fetch(pushApi + '/push-notification', {
         method: 'POST',
         headers: {
@@ -24,7 +22,7 @@ export function registerNotification(title, message) {
     .catch(error => console.error('Error:', error));
 }
 
-export function subscribeToPushNotifications() {
+function subscribeToPushNotifications() {
     navigator.serviceWorker.ready.then(registration => {
         return registration.pushManager.getSubscription().then(existingSubscription => {
             if (existingSubscription) {
@@ -106,7 +104,7 @@ export function subscribeToPushNotifications() {
 }
 
 
-export function addLineNotification(bellButton, stopNumber, lineNumber) {
+function addLineNotification(bellButton, stopNumber, lineNumber) {
     const currentNotification = JSON.parse(localStorage.getItem('busNotification'));
     if (currentNotification && currentNotification.stopNumber === stopNumber && currentNotification.lineNumber === lineNumber) {
         localStorage.removeItem('busNotification');
@@ -128,7 +126,7 @@ export function addLineNotification(bellButton, stopNumber, lineNumber) {
     }
 }
 
-export function updateNotifications(bellButton, stopNumber, lineNumber) {
+function updateNotifications(bellButton, stopNumber, lineNumber) {
     // Si stopNumber y lineNumber son null, borramos del localstorage todo y salimos
     if (!stopNumber ||!lineNumber) {
         localStorage.removeItem('busNotifications');
@@ -161,7 +159,7 @@ export function updateNotifications(bellButton, stopNumber, lineNumber) {
 }
 
 // La función principal que lee las notificaciones guardadas y las ejecuta si toca
-export function checkAndSendBusArrivalNotification(tiempoRestante, lineNumber, stopNumber, stopName) {
+function checkAndSendBusArrivalNotification(tiempoRestante, lineNumber, stopNumber, stopName) {
     if (tiempoRestante <= 3) {
         let notifications = JSON.parse(localStorage.getItem('busNotifications')) || [];
         let notificationExists = notifications.some(n => n.stopNumber === stopNumber && n.lineNumber === lineNumber);

@@ -1,6 +1,3 @@
-import { fetchApi, fetchSuppressedStops, getStopLines, getBusDestinationsForStop } from './api.js';
-import { mapEvents } from './utils.js';
-
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
 let centerControl;
 let paradaMarker;
@@ -23,7 +20,7 @@ let lon = null;
 let updateMapPromise = Promise.resolve();
 let latestUpdateId = 0;
 
-export async function updateBusMap(busData, paradaData, centerMap) {
+async function updateBusMap(busData, paradaData, centerMap) {
     const currentUpdateId = ++latestUpdateId;
 
     // Cancel any previous update
@@ -540,7 +537,7 @@ function prepararDatosParadas(paradas) {
 let biciGeoJSONLayer = null;
 
 // Mapa para paradas cercanas
-export async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
+async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
     
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
@@ -701,7 +698,7 @@ function prepararDatosBiciParadas(paradas) {
     };
 }
 // Mapa para paradas cercanas BIKI
-export async function mapaParadasBiciCercanas(paradas) {
+async function mapaParadasBiciCercanas(paradas) {
     
     let iconUrl = 'img/bike-stop.png';
 
@@ -735,7 +732,7 @@ export async function mapaParadasBiciCercanas(paradas) {
     }).addTo(window.myMapParadasCercanas);
 }
 
-export async function limpiarMapaParadasBiciCercanas() {
+async function limpiarMapaParadasBiciCercanas() {
     if (window.myMapParadasCercanas && biciGeoJSONLayer) {
         window.myMapParadasCercanas.removeLayer(biciGeoJSONLayer);
         biciGeoJSONLayer = null;
