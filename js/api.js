@@ -49,8 +49,6 @@ async function fetchApiFromFallback(url) {
     }
 }
 
-// Recuperamos todas las alertas vigentes
-const allAlerts = fetchAllBusAlerts();
 let busStops = [];
 let bikeStops = [];
 
@@ -678,6 +676,8 @@ async function updateBusList() {
     let removeAllButton = document.getElementById('removeAllButton');
     removeAllButton.style.display = busLines.length > 0 ? 'flex' : 'none';
 
+    // Recuperamos todas las alertas vigentes
+    const allAlerts = await fetchAllBusAlerts();
     // Verificar si hay alertas globales y mostrar el banner si es necesario
     const globalAlerts = filterBusAlerts(allAlerts, null);
     displayGlobalAlertsBanner(globalAlerts);
@@ -829,7 +829,7 @@ async function updateBusList() {
                 busElement = createBusElement(busId, line, index, stopElement);
             }
             // Llamar a fetchBusTime independientemente de si el busElement es nuevo o ya existía
-            fetchBusTime(line.stopNumber, line.lineNumber, busElement);
+            fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts);
         });
 
 
@@ -859,7 +859,7 @@ const globalEventListeners = {
   };
 
 // Función principal que actualiza los datos de una línea
-async function fetchBusTime(stopNumber, lineNumber, lineItem) {
+async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
     // URL del API con estáticos y tiempo real
     const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
 
