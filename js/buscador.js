@@ -1,6 +1,3 @@
-import { loadBusStops, showNearestStops} from './api.js';
-import { toogleSidebar, displayLoadingSpinner, closeAllDialogs, dialogIds, showError } from './utils.js';
-
 // Mostrar sugerencias de paradas al introducir texto
 document.getElementById('stopNumber').addEventListener('input', async function() {
     const inputText = this.value;

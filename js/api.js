@@ -1,7 +1,3 @@
-import { getCachedData, setCacheData, updateStopName, createInfoPanel, removeObsoleteElements, updateLastUpdatedTime, iniciarIntervalo, calculateDistance, hideLoadingSpinner, createStopElement, createBusElement, createMostrarHorarios, displayGlobalAlertsBanner, toogleSidebar, scrollToElement, createRemoveStopButton, getYesterdayDate, getFutureDate, showErrorPopUp, showSuccessPopUp, getFormattedDate, closeAllDialogs, dialogIds, displayLoadingSpinner, showError, showIframe, trackCurrentUrl, cleanMatricula, showNotice } from './utils.js';
-import { checkAndSendBusArrivalNotification, updateNotifications } from './notifications.js';
-import { updateBusMap, mapaParadasCercanas, mapaParadasBiciCercanas, limpiarMapaParadasBiciCercanas } from './mapa.js';
-
 // Definir la URL base del API, no incluir la / al final
 // API Endpoint principal del API
 const apiEndPoint = 'https://gtfs.vallabus.com';
@@ -11,7 +7,7 @@ const apiEndPoint = 'https://gtfs.vallabus.com';
 const fallbackApiEndPoint = null;
 
 // Function to handle API calls with fallback logic
-export async function fetchApi(url) {
+async function fetchApi(url) {
     try {
         const response = await fetch(apiEndPoint + url);
         // If the primary API fails, switch to fallback API
@@ -35,7 +31,7 @@ export async function fetchApi(url) {
 }
 
 // Function to handle API calls from fallback API
-export async function fetchApiFromFallback(url) {
+async function fetchApiFromFallback(url) {
     try {
         const response = await fetch(url);
         // Verificar si la respuesta del fallback API es correcta
@@ -54,11 +50,9 @@ export async function fetchApiFromFallback(url) {
 }
 
 // Recuperamos todas las alertas vigentes
-const allAlerts = await fetchAllBusAlerts();
+const allAlerts = fetchAllBusAlerts();
 let busStops = [];
 let bikeStops = [];
-
-export let intervalId;
 
 // Cache para los destinos de lineas
 const stopsDestinationsCache = {
@@ -68,7 +62,7 @@ const stopsDestinationsCache = {
 };
 
 // Comprobación de si lineas y paradas existen en los datos del API
-export async function stopAndLineExist(stopNumber, lineNumber) {
+async function stopAndLineExist(stopNumber, lineNumber) {
     // Buscar la parada en busStops usando stopNumber
     const busStops = await loadBusStops();
     const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
@@ -93,7 +87,7 @@ export async function stopAndLineExist(stopNumber, lineNumber) {
 }
 
 // Agrupar conjunto de paradas por su número de parada
-export function groupByStops(busLines) {
+function groupByStops(busLines) {
     return busLines.reduce(function(acc, line) {
         if (!acc[line.stopNumber]) {
             acc[line.stopNumber] = [];
@@ -104,7 +98,7 @@ export function groupByStops(busLines) {
 }
 
 // Función para obtener el nombre de la parada del JSON
-export async function getStopName(stopId) {
+async function getStopName(stopId) {
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -122,7 +116,7 @@ export async function getStopName(stopId) {
 }
 
 // Función para obtener la ubicación de la parada del JSON
-export async function getStopGeo(stopId) {
+async function getStopGeo(stopId) {
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -140,7 +134,7 @@ export async function getStopGeo(stopId) {
 }
 
 // Función para obtener las líneas de una parada
-export async function getStopLines(stopId) {
+async function getStopLines(stopId) {
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -160,7 +154,7 @@ export async function getStopLines(stopId) {
     }
 }
 // Obtener ocupación de un vehículo
-export async function fetchBusInfo(tripId) {
+async function fetchBusInfo(tripId) {
     try {
         const response = await fetchApi(`/v2/busPosition/${tripId}`);
         // Si no hay datos los dejamos como null
@@ -193,7 +187,7 @@ export async function fetchBusInfo(tripId) {
 }
 
 // Obtener todas los avisos y alertas
-export async function fetchAllBusAlerts() {
+async function fetchAllBusAlerts() {
     try {
         const response = await fetchApi('/alertas/');
 
@@ -219,7 +213,7 @@ export async function fetchAllBusAlerts() {
 }
 
 // Filtrar y mostrar solo las alertas de una línea en concreto
-export function filterBusAlerts(alerts, busLine) {
+function filterBusAlerts(alerts, busLine) {
     // Verifica si alerts es array y no está vacío
     if (!Array.isArray(alerts) || alerts.length === 0) {
         return [];
@@ -239,7 +233,7 @@ export function filterBusAlerts(alerts, busLine) {
 
 // Filtrar y mostrar las alertas de una parada específica
 // TODO: Añadir la llamada cuando mostrarmos el nombre de las paradas
-export function filterAlertsByStop(alerts, stopNumber) {
+function filterAlertsByStop(alerts, stopNumber) {
     // Verifica si alerts es array y no está vacío
     if (!Array.isArray(alerts) || alerts.length === 0) {
         return [];
@@ -257,7 +251,7 @@ export function filterAlertsByStop(alerts, stopNumber) {
 }
 
 // Obtener el listado de paradas suprimidas
-export async function fetchSuppressedStops() {
+async function fetchSuppressedStops() {
     try {
         const response = await fetchApi('/paradas/suprimidas/');
 
@@ -285,7 +279,7 @@ export async function fetchSuppressedStops() {
 // Consultamos en el api los horarios programados
 // Podemos perdirselos de sólo una parada
 // O podemos especificar también línea y fecha
-export async function fetchScheduledBuses(stopNumber, lineNumber, date) {
+async function fetchScheduledBuses(stopNumber, lineNumber, date) {
     
     const baseCacheKey = `busSchedule_${stopNumber}`;
     let cacheKey = lineNumber ? `${baseCacheKey}_${lineNumber}` : baseCacheKey;
@@ -322,7 +316,7 @@ export async function fetchScheduledBuses(stopNumber, lineNumber, date) {
     }
 }
 
-export async function getBusDestinationsForStop(stopNumber) {
+async function getBusDestinationsForStop(stopNumber) {
     const currentTime = Date.now();
 
     // Verificar si los datos están en caché y aún son válidos
@@ -375,7 +369,7 @@ export async function getBusDestinationsForStop(stopNumber) {
 }
 
 // Genera el HTML en base a una consulta a los horarios programados de una parada
-export async function displayScheduledBuses(stopNumber, date) {
+async function displayScheduledBuses(stopNumber, date) {
     let horariosElement = document.createElement('div');
     horariosElement.className = 'horarios';
     horariosElement.id = 'horarios-' + stopNumber;
@@ -545,7 +539,7 @@ export async function displayScheduledBuses(stopNumber, date) {
     return horariosElement;
 }
 
-export async function addBusLine(stopNumber, lineNumber, confirm = false) {
+async function addBusLine(stopNumber, lineNumber, confirm = false) {
 
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
 
@@ -670,12 +664,12 @@ export async function addBusLine(stopNumber, lineNumber, confirm = false) {
     }
 }
 
-export function saveBusLines(busLines) {
+function saveBusLines(busLines) {
     localStorage.setItem('busLines', JSON.stringify(busLines));
 }
 
 // Función principal que crea y actualiza la lista de paradas y líneas
-export async function updateBusList() {
+async function updateBusList() {
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
     const stops = groupByStops(busLines);
@@ -865,7 +859,7 @@ const globalEventListeners = {
   };
 
 // Función principal que actualiza los datos de una línea
-export async function fetchBusTime(stopNumber, lineNumber, lineItem) {
+async function fetchBusTime(stopNumber, lineNumber, lineItem) {
     // URL del API con estáticos y tiempo real
     const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
 
@@ -1357,7 +1351,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
 }
 
 // Combina los datos programados y en tiempo real agrupados por trip_id
-export function combineBusData(scheduledData) {
+function combineBusData(scheduledData) {
     let combined = {};
 
     // Procesar los datos programados
@@ -1405,7 +1399,7 @@ export function combineBusData(scheduledData) {
 // Combina los datos programados y tiempo real de dos días diferentes y agrupa por trip_id
 // Esto es necesario cuando de madrugada tiene datos en tiempo real de buses cuyos datos
 // programados están en el día anterior
-export function combineBusDataFromTwoDays(day1Data, day2Data) {
+function combineBusDataFromTwoDays(day1Data, day2Data) {
     let combined = { ...day1Data }; // Comenzamos con los datos del primer día
     // Iteramos sobre las claves del segundo día
     Object.keys(day2Data).forEach(tripId => {
@@ -1440,7 +1434,7 @@ export function combineBusDataFromTwoDays(day1Data, day2Data) {
 }
 
 // Lógica principal para determinar de un conjunto de buses ordenados por tripID, cual es el bus siguiente o más cercano
-export async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
+async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
     if (!buses) return null;
 
     let busMasCercanoHoy = null;
@@ -1530,7 +1524,7 @@ export async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
     } : null;
 }
 
-export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, numBuses) {
+async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, numBuses) {
     let futureData;
     // Convertir busesLinea a un array
     let busesArray = Object.values(busesLinea);
@@ -1617,7 +1611,7 @@ export async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNu
     return nextBuses;
 }
 
-export function removeBusLine(stopNumber, lineNumber) {
+function removeBusLine(stopNumber, lineNumber) {
    
     let avisoBorrado = `¿Seguro que quieres borrar la línea ${lineNumber} de la parada ${stopNumber}?`;
 
@@ -1659,7 +1653,7 @@ export function removeBusLine(stopNumber, lineNumber) {
     }
 }
 
-export function removeStop(stopId) {
+function removeStop(stopId) {
     let avisoBorrado = `¿Seguro que quieres quitar la parada ${stopId} y todas sus líneas?`;
 
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
@@ -1693,7 +1687,7 @@ export function removeStop(stopId) {
     }
 }
 
-export function removeAllBusLines() {
+function removeAllBusLines() {
     // Mostrar un cuadro de diálogo de confirmación
     if (confirm("¿Seguro que quieres borrar todas las líneas y paradas en seguimiento?")) {
         let busLines = [];
@@ -1731,7 +1725,7 @@ export function removeAllBusLines() {
 }
 
 // Función para guardar un JSON con todas las paradas
-export async function loadBusStops() {
+async function loadBusStops() {
     const cacheKey = 'busStops';
     const cachedData = getCachedData(cacheKey);
 
@@ -1761,7 +1755,7 @@ export async function loadBusStops() {
 }
 
 // Función para guardar un JSON con todas las paradas GBFS
-export async function loadBikeStops() {
+async function loadBikeStops() {
 
     // Realiza una llamada al API
     try {
@@ -1781,7 +1775,7 @@ export async function loadBikeStops() {
 }
 
 // Función para mostrar las paradas más cercanas
-export async function showNearestStops(position) {
+async function showNearestStops(position) {
     const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
     const busStops = await loadBusStops();
     const bikeStops = await loadBikeStops();
@@ -1830,7 +1824,7 @@ export async function showNearestStops(position) {
 let currentResultsListener = null;
 
 // Función para mostrar los resultados de las paradas más cercanas
-export async function displayNearestStopsResults(stops, bikeStops, userLocation) {
+async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     let resultsDiv = document.getElementById('nearestStopsResults');
     resultsDiv.style.display = 'block';
 

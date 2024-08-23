@@ -1,25 +1,22 @@
-import { addLineNotification } from './notifications.js';
-import { removeBusLine, displayScheduledBuses, updateBusList, removeStop, removeAllBusLines, addBusLine, showNearestStops, fetchBusInfo } from './api.js';
-
 // Declaración global de intervalId
 let intervalId;
 
 // Listado de ids de diálogos de la app
-export const dialogIds = [
+const dialogIds = [
     'horarios-box',
     'nearestStopsResults',
     'iframe-container'
 ];
 
 // Generar o recuperar el ID único del cliente
-export function uuidv4() {
+function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
 }
 
-export function createButton(className, text, onClick) {
+function createButton(className, text, onClick) {
     const button = document.createElement('button');
     button.className = className;
     button.innerHTML = text;
@@ -29,7 +26,7 @@ export function createButton(className, text, onClick) {
     return button;
 }
 
-export function showNotice(lineNumber, message = null) {
+function showNotice(lineNumber, message = null) {
     // Crear el elemento de notificación
     const notification = document.createElement('div');
     notification.className = 'notification-popup';
@@ -58,7 +55,7 @@ export function showNotice(lineNumber, message = null) {
 }
 
 // Creación del panel lateral desplegable con info extra de la línea
-export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
+async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
     let tripId;
     let infoPanel = document.createElement('div');
     infoPanel.className = 'additional-info-panel';
@@ -219,7 +216,7 @@ export async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
 // Muestra dialogo de rutas con ruta al destino desde ubicación del usuario
 // Opcionalmente acepta una fecha en formato YYYY-MM-DD y una hora HH:MM
-export function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null) {
+function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null) {
     // Abrimos el planeador de rutas
     let plannerURL;
     let arriveBy = 'false';
@@ -250,7 +247,7 @@ export function showRouteToDestination(destName, destY, destX, arriveByDate = nu
     }
 }
 
-export function updateStopName(stopElement, newName, stopGeo) {
+function updateStopName(stopElement, newName, stopGeo) {
     // Actualiza el nombre de la parada en el DOM
     const nameElement = stopElement.querySelector('h2');
     const stopNumber = stopElement.id;
@@ -325,7 +322,7 @@ async function toggleFixedStop(event) {
     localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
 }
 
-export function createStopElement(stopId, busList) {
+function createStopElement(stopId, busList) {
     let welcomeBox = document.getElementById('welcome-box');
     welcomeBox.style.display = 'none';
     
@@ -362,7 +359,7 @@ export function createStopElement(stopId, busList) {
     return stopElement;
 }
 
-export function createBusElement(busId, line, index, stopElement) {
+function createBusElement(busId, line, index, stopElement) {
     let busElement = document.createElement('div');
     busElement.className = `line-info linea-${line.lineNumber}`;
     busElement.id = busId;
@@ -391,7 +388,7 @@ export function createBusElement(busId, line, index, stopElement) {
     return busElement;
 }
 
-export function createMostrarHorarios(stopId, stopElement, horariosBox) {
+function createMostrarHorarios(stopId, stopElement, horariosBox) {
     let mostrarHorarios = document.createElement('button');
     mostrarHorarios.classList.add('mostrar-horarios');
     mostrarHorarios.id = `mostrar-horarios-${stopId}`;
@@ -417,7 +414,7 @@ export function createMostrarHorarios(stopId, stopElement, horariosBox) {
     });
 }
 
-export function createRemoveStopButton(stopId, stopElement) {
+function createRemoveStopButton(stopId, stopElement) {
     
     let borrarParada = stopElement.querySelector('.remove-stop');
     
@@ -437,7 +434,7 @@ export function createRemoveStopButton(stopId, stopElement) {
     return removeStopButton;
 }
 
-export function removeObsoleteElements(stops) {
+function removeObsoleteElements(stops) {
     // Obtener todos los elementos de parada del DOM
     const allStopElements = document.querySelectorAll('.stop-block');
 
@@ -465,7 +462,7 @@ export function removeObsoleteElements(stops) {
     });
 }
 
-export function getCachedData(cacheKey) {
+function getCachedData(cacheKey) {
     const cached = localStorage.getItem(cacheKey);
     if (!cached) {
         return null;
@@ -486,7 +483,7 @@ export function getCachedData(cacheKey) {
     return null;
 }
 
-export function setCacheData(cacheKey, data) {
+function setCacheData(cacheKey, data) {
     const cacheEntry = JSON.stringify({
         data: data,
         timestamp: new Date().toISOString()
@@ -495,7 +492,7 @@ export function setCacheData(cacheKey, data) {
 }
 
 // Borra las claves obsoletas del caché
-export function cleanObsoleteCache() {
+function cleanObsoleteCache() {
     let counter = 0;
     // Iteramos de forma inversa porque al borrar un elemento el índice cambia
     for (let i = localStorage.length - 1; i >= 0; i--) {
@@ -523,7 +520,7 @@ export function cleanObsoleteCache() {
     //console.log(`${counter} elementos obsoletos del caché borrados`);
 }
 
-export function showCache() {
+function showCache() {
     // Crear un elemento div para el diálogo
     const dialog = document.createElement('div');
     dialog.style.position = 'absolute';
@@ -610,26 +607,26 @@ export function showCache() {
     document.body.appendChild(dialog);
 }
 
-export function updateLastUpdatedTime() {
+function updateLastUpdatedTime() {
     const now = new Date();
     const formattedTime = now.toLocaleTimeString(); // Formatea la hora como prefieras
     document.getElementById('last-update').textContent = `Última actualización: ${formattedTime}`;
 }
 
 // Función para mostrar el spinner de carga
-export function displayLoadingSpinner() {
+function displayLoadingSpinner() {
     let spinnerOverlay = document.getElementById('spinnerOverlay');
     spinnerOverlay.style.display = 'flex';
 }
 
 // Función para ocultar el spinner de carga
-export function hideLoadingSpinner() {
+function hideLoadingSpinner() {
     let spinnerOverlay = document.getElementById('spinnerOverlay');
     spinnerOverlay.style.display = 'none';
 }
 
 // Función para calcular la distancia entre dos puntos
-export function calculateDistance(loc1, loc2) {
+function calculateDistance(loc1, loc2) {
     const rad = function(x) { return x * Math.PI / 180; };
     const R = 6378137; // Radio de la Tierra en metros
     const dLat = rad(loc2.y - loc1.y);
@@ -642,7 +639,7 @@ export function calculateDistance(loc1, loc2) {
     return distance.toFixed(2); // Devuelve la distancia en metros
 }    
 
-export function showError(error) {
+function showError(error) {
     let message;
     switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -667,7 +664,7 @@ export function showError(error) {
     hideLoadingSpinner();
 }    
 
-export function showErrorPopUp(message) {
+function showErrorPopUp(message) {
     // Crear div para el mensaje 
     const errorMessage = document.createElement('div');
     errorMessage.textContent = message;
@@ -683,7 +680,7 @@ export function showErrorPopUp(message) {
     }, 2000); // ocultar después de 2 segundos
 }
 
-export function showSuccessPopUp(message, elementId = null) {
+function showSuccessPopUp(message, elementId = null) {
     // Crear div para el mensaje 
     const successMessage = document.createElement('div');
     successMessage.textContent = message;
@@ -718,7 +715,7 @@ export function showSuccessPopUp(message, elementId = null) {
     }, 2000); // ocultar después de 2 segundos
 }
 
-export function iniciarIntervalo(updateBusList) {
+function iniciarIntervalo(updateBusList) {
     // Hacemos coincidir el intervalo con el inicio de cada minuto
     let ahora = new Date();
     // Calcula cuántos segundos han pasado desde el inicio del minuto actual
@@ -733,7 +730,7 @@ export function iniciarIntervalo(updateBusList) {
     }, tiempoHastaProximoIntervalo * 1000);
 }
 
-export function displayGlobalAlertsBanner(alerts) {
+function displayGlobalAlertsBanner(alerts) {
     let alertsBox = document.getElementById('globalAlertsBox');
     if (!alertsBox) {
         alertsBox = document.createElement('div');
@@ -833,7 +830,7 @@ export function displayGlobalAlertsBanner(alerts) {
 }
 
 // Función para abrir el panel lateral
-export function toogleSidebar() {
+function toogleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const menuButton = document.getElementById('menuButton');
 
@@ -846,7 +843,7 @@ export function toogleSidebar() {
 }
 
 // Devuelve la posición de un elemento
-export function getElementPosition(element) {
+function getElementPosition(element) {
     let yPosition = 0;
     while (element) {
         yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
@@ -856,7 +853,7 @@ export function getElementPosition(element) {
 }
 
 // Scroll de la página para ir a un elemento
-export function scrollToElement(element) {
+function scrollToElement(element) {
     if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         const elementPosition = getElementPosition(element);
@@ -870,7 +867,7 @@ export function scrollToElement(element) {
 }
 
 // Mostramos una URL ocupando toda la pantalla (menos el header) en un iframe
-export function showIframe (url) {
+function showIframe (url) {
     const iframeContainer = document.getElementById('iframe-container');
     iframeContainer.innerHTML = ''; 
     // Crear el iframe y agregarlo al contenedor
@@ -907,7 +904,7 @@ export function showIframe (url) {
 }
 
 // Función para cerrar un overlay y guardar la preferencia del usuario
-export function closeOverlay(overlayId) {
+function closeOverlay(overlayId) {
     const overlay = document.getElementById(overlayId);
     if (overlay) {
         overlay.style.display = 'none';
@@ -917,7 +914,7 @@ export function closeOverlay(overlayId) {
 }
 
 // Función para mostrar un overlay si no ha sido cerrado por el usuario y si el usuario tiene paradas y líneas añadidas
-export function showOverlayIfNotClosed(overlayId) {
+function showOverlayIfNotClosed(overlayId) {
     const overlay = document.getElementById(overlayId);
     if (overlay) {
         // Verifica si el overlay ya ha sido cerrado
@@ -936,7 +933,7 @@ export function showOverlayIfNotClosed(overlayId) {
 // Funciones varias para eventos en elementos
 
 // Detección y cambio de de theme claro/oscuro
-export function themeEvents() {
+function themeEvents() {
     // Determina el tema del usuario basándose en la preferencia guardada en localStorage
     // o en la preferencia del sistema operativo.
     const themeToggle = document.getElementById('theme-toggle');
@@ -967,7 +964,7 @@ export function themeEvents() {
 }
 
 // Acciones para botones añadir y quitar
-export function addRemoveButtonsEvents() {
+function addRemoveButtonsEvents() {
     const addButton = document.getElementById('addButton');
     const removeAllButton = document.getElementById('removeAllButton');
 
@@ -995,7 +992,7 @@ export function addRemoveButtonsEvents() {
 }
 
 // Eventos del sidebar
-export function sidebarEvents() {
+function sidebarEvents() {
 
     // Si hacemos click fuera del sidebar, la cerramos
     document.addEventListener('click', function(event) {
@@ -1073,7 +1070,7 @@ export function sidebarEvents() {
 }
 
 // Eventos en el diálogo de mostrar horarios programados
-export function scheduledBusesEvents() {
+function scheduledBusesEvents() {
     let horariosBox = document.getElementById('horarios-box');
     let closeButtons = horariosBox.querySelectorAll('.horarios-close');
     // Eventos al hacer click en cambiar fecha
@@ -1108,7 +1105,7 @@ export function scheduledBusesEvents() {
 }
 
 // Eventos que hacen scroll al arriba de la página
-export function scrollTopEvents() {
+function scrollTopEvents() {
     // Al hacer clic en el header hacemos scroll arriba
     const headerTitle = document.getElementById('title');
     if (headerTitle) {
@@ -1143,7 +1140,7 @@ export function scrollTopEvents() {
 }
 
 // Eventos varios de clic a botones y elementos
-export function clickEvents() {
+function clickEvents() {
 
     // Solicita la geolocalización del usuario para encontrar las paradas más cercanas.
     // Muestra un spinner de carga mientras se obtiene la posición.
@@ -1240,7 +1237,7 @@ export function clickEvents() {
 }
 
 // Eventos para el banner de tips
-export function tipsBannerEvents() {
+function tipsBannerEvents() {
     // Mostrar solo uno de los tips de forma aleatoria
     const tipsBanner = document.getElementById('tips-banner');
     // Obtener todos los tips hijos
@@ -1267,7 +1264,7 @@ export function tipsBannerEvents() {
     }
 }
 
-export function socialBrowserWarning() {
+function socialBrowserWarning() {
     // Aviso si se accede desde el navegador de instagram
     // Check if the referrer is from Instagram
     if (document.referrer.includes('instagram.com') || document.referrer.includes('facebook.com')) {
@@ -1280,7 +1277,7 @@ export function socialBrowserWarning() {
 }
 
 // Eventos a controlar en elementos del mapa
-export function mapEvents() {
+function mapEvents() {
 
     // Mediante delegación de eventos controlamos clics
     document.addEventListener('DOMContentLoaded', function() {
@@ -1297,7 +1294,7 @@ export function mapEvents() {
 }
 
 // Obtener el día anterior
-export function getYesterdayDate() {
+function getYesterdayDate() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const year = yesterday.getFullYear();
@@ -1307,7 +1304,7 @@ export function getYesterdayDate() {
 }
 
 // Obtener la fecha de i días en el futuro
-export function getFutureDate(days) {
+function getFutureDate(days) {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
     const year = futureDate.getFullYear();
@@ -1317,7 +1314,7 @@ export function getFutureDate(days) {
 }
 
 // De un objeto fecha completo, devuelve fecha en formato YYYYMMDD
-export function getFormattedDate(fecha) {
+function getFormattedDate(fecha) {
     var año = fecha.getFullYear().toString();
     var mes = (fecha.getMonth() + 1).toString();
     var día = fecha.getDate().toString();
@@ -1331,7 +1328,7 @@ export function getFormattedDate(fecha) {
 }
 
 // Función para ocultar elementos
-export function closeAllDialogs(ids) {
+function closeAllDialogs(ids) {
     ids.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1348,7 +1345,7 @@ export function closeAllDialogs(ids) {
 }
 
 // Manejo de estado de URLs y acciones en cada ruta
-export function routersEvents() {
+function routersEvents() {
     window.addEventListener('popstate', async function(event) {
         // Verifica si hay un estado guardado
         if (event.state && window.location.hash === '') {
@@ -1386,7 +1383,7 @@ export function routersEvents() {
 }
 
 // Función para enviar la URL actual a Matomo
-export function trackCurrentUrl() {
+function trackCurrentUrl() {
     // Envía la URL actual a Matomo
     if (typeof _paq !== 'undefined') {
         let currentUrl = window.location.hash;
@@ -1403,7 +1400,7 @@ export function trackCurrentUrl() {
 
 // Comprobamos si el usuario no tiene paradas y lo mandamos a exportar de auvasatracker
 // Pero solo lo hacemos una vez
-export function checkStatusForMigration() {
+function checkStatusForMigration() {
     // Obtiene el valor de 'busLines' del localStorage
     const busLines = localStorage.getItem('busLines');
     // Obtiene el valor de 'migrationStatus' del localStorage
@@ -1423,7 +1420,7 @@ export function checkStatusForMigration() {
 }
 
 // Añade un espacio entre los carácteres de una matrícula
-export function cleanMatricula(str) {
+function cleanMatricula(str) {
     // Slice the string to separate the part before and after the 4th character
     const beforeFourthChar = str.slice(0, 4);
     const afterFourthChar = str.slice(4);
@@ -1432,7 +1429,7 @@ export function cleanMatricula(str) {
 }
 
 // Si entra desde iOS y no tiene paradas añadidas mostramos botón instalar
-export function showIosInstallButton() {
+function showIosInstallButton() {
     // Obtiene el valor de 'busLines' del localStorage
     const busLines = localStorage.getItem('busLines');
     if (!busLines || busLines === 'null' || busLines === '') {

@@ -1,7 +1,3 @@
-import { iniciarIntervalo, showOverlayIfNotClosed, closeOverlay, sidebarEvents, themeEvents, addRemoveButtonsEvents, scrollTopEvents, scheduledBusesEvents, clickEvents, socialBrowserWarning, routersEvents, checkStatusForMigration, tipsBannerEvents, cleanObsoleteCache, showIosInstallButton } from './utils.js';
-import { updateBusList } from './api.js';
-import { isIOS } from './browser.js';
-
 if (document.readyState === "loading") {  // Cargando aún no ha terminado
     document.addEventListener("DOMContentLoaded", main);
 } else {  // `DOMContentLoaded` ya se ha disparado
