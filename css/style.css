@@ -2714,6 +2714,18 @@ body.dark-mode {
     stroke: #505050;
 }
 
+/* Líneas R al recinto ferial */
+.bus-icon.linea-R, .linea-R h3, #busMap .linea-R, span.linea-R,
+.bus-icon.linea-R1, .linea-R1 h3, #busMap .linea-R1, span.linea-R1,
+.bus-icon.linea-R2, .linea-R2 h3, #busMap .linea-R2, span.linea-R2,
+.bus-icon.linea-R3, .linea-R3 h3, #busMap .linea-R3, span.linea-R3,
+.bus-icon.linea-R4, .linea-R4 h3, #busMap .linea-R4, span.linea-R4,
+.bus-icon.linea-R5, .linea-R5 h3, #busMap .linea-R5, span.linea-R5 {
+    background-color: #532FA2;
+    stroke: #532FA2;
+    color: #fff;
+}
+
 /* Líneas de ECSA */
 .bus-icon.linea-L01 , .linea-L01 h3, #busMap .linea-L01, span.linea-L01 {
     background-color: #23b4ca;
