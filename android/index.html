@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redireccionando a VallaBus</title>
+    <script>
+        function isAndroid() {
+            return /Android/i.test(navigator.userAgent);
+        }
+
+        function redirect() {
+            var androidAppUrl = 'https://play.google.com/store/apps/details?id=com.auvasatracker.twa';
+            var websiteUrl = 'https://vallabus.com';
+            
+            if (isAndroid()) {
+                window.location.href = androidAppUrl;
+            } else {
+                window.location.href = websiteUrl;
+            }
+        }
+
+        // Matomo tracking code
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://stats.vallabus.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+
+        // Wait for Matomo to load, then redirect
+        _paq.push(['trackEvent', 'Redirect', 'Loaded']);
+        _paq.push([function() {
+            setTimeout(redirect, 300);  // Small delay to ensure tracking is sent
+        }]);
+    </script>
+</head>
+<body>
+    <noscript>
+        <p><a href="https://play.google.com/store/apps/details?id=com.auvasatracker.twa">Haz click aquí</a> para instalar VallaBus en Android desde el Play Store o <a href="https://vallabus.com">aquí para acceder desde otros sistema</a></p>
+    </noscript>
+</body>
+</html>
