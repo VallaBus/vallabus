@@ -1448,7 +1448,8 @@ function showIosInstallButton() {
                         <source src="/img/ios-install.mp4" type="video/mp4">
                     </video>
                     <h2>Añade VallaBus a tu pantalla de inicio</h2>
-                    <p>Haz clic en el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> de Safari y "Añadir a la pantalla de inicio"</p>
+                    <p>1. Haz clic en el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> de Safari y "Añadir a la pantalla de inicio"</p>
+                    <p>2. Abre la app desde el icono y añade tu primera parada para que se oculte el botón de instalar.</p>
                     <button class="close-overlay">Entendido</button>
                 </div>
             `;
