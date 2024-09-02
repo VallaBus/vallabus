@@ -314,6 +314,19 @@ async function fetchScheduledBuses(stopNumber, lineNumber, date) {
     }
 }
 
+/**
+ * Obtiene los destinos de las líneas de autobús para una parada específica.
+ * 
+ * @param {string} stopNumber - El número de la parada de autobús.
+ * @returns {Promise<Object>} Un objeto con los destinos de las líneas de autobús.
+ * 
+ * @description
+ * Esta función consulta la API para obtener los destinos de las líneas de autobús.
+ * Utiliza un sistema de caché para mejorar el rendimiento y reducir las llamadas a la API.
+ * Los datos se almacenan en caché para futuras consultas rápidas.
+ * 
+ * @throws {Error} Si hay un problema con la llamada a la API.
+ */
 async function getBusDestinationsForStop(stopNumber) {
     const currentTime = Date.now();
 
@@ -366,7 +379,21 @@ async function getBusDestinationsForStop(stopNumber) {
     }
 }
 
-// Genera el HTML en base a una consulta a los horarios programados de una parada
+/**
+ * Genera el HTML en base a una consulta a los horarios programados de una parada
+ * 
+ * @param {string} stopNumber - El número de la parada de autobús.
+ * @param {string} [date] - La fecha para la cual se solicitan los horarios (opcional).
+ * @returns {Promise<HTMLElement>} Un elemento HTML con los horarios programados.
+ * 
+ * @description 
+ * Esta función consulta la API para obtener los horarios programados de los autobuses.
+ * Utiliza un sistema de caché para mejorar el rendimiento y reducir las llamadas a la API.
+ * Si se proporcionan lineNumber y date, la consulta será más específica.
+ * Los datos se almacenan en caché para futuras consultas rápidas.
+ * 
+ * @throws {Error} Si hay un problema con la llamada a la API.
+ */
 async function displayScheduledBuses(stopNumber, date) {
     let horariosElement = document.createElement('div');
     horariosElement.className = 'horarios';
@@ -537,6 +564,21 @@ async function displayScheduledBuses(stopNumber, date) {
     return horariosElement;
 }
 
+/**
+ * Añade una línea de autobús a la lista de líneas guardadas en el almacenamiento local.
+ * 
+ * @param {string} stopNumber - El número de la parada de autobús.
+ * @param {string} lineNumber - El número de la línea de autobús.
+ * @param {boolean} [confirm=false] - Si es true, se mostrará una confirmación antes de añadir la línea.
+ * @returns {Promise<void>} - No devuelve nada, pero actualiza la lista de líneas y muestra mensajes de éxito o error.
+ * 
+ * @description
+ * Esta función añade una línea de autobús a la lista de líneas guardadas en el almacenamiento local.
+ * Si se proporciona solo la parada, se añaden todas las líneas de esa parada.
+ * Si se proporciona tanto la parada como la línea, se añade la línea específica.
+ * 
+ * @throws {Error} Si no se proporciona una parada o línea válida.
+ */ 
 async function addBusLine(stopNumber, lineNumber, confirm = false) {
 
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
@@ -662,11 +704,34 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
     }
 }
 
+/**
+ * Guarda las líneas de autobús en el almacenamiento local.
+ * 
+ * @param {Array} busLines - Un array de objetos que representan las líneas de autobús.
+ * @returns {void} - No devuelve nada, pero guarda las líneas en el almacenamiento local.
+ * 
+ * @description
+ * Esta función guarda las líneas de autobús en el almacenamiento local.
+ * Utiliza JSON.stringify para convertir el array de líneas en una cadena antes de guardarlo.
+ * 
+ * @throws {Error} Si no se proporciona un array válido de líneas.
+ */
 function saveBusLines(busLines) {
     localStorage.setItem('busLines', JSON.stringify(busLines));
 }
 
-// Función principal que crea y actualiza la lista de paradas y líneas
+/**
+ * Actualiza la lista de paradas y líneas.
+ * 
+ * @returns {Promise<void>} - No devuelve nada, pero actualiza la lista de paradas y líneas.
+ * 
+ * @description
+ * Esta función actualiza la lista de paradas y líneas.
+ * Recupera las paradas y líneas guardadas previamente en Localstorage, crea los elementos HTML necesarios y actualiza los horarios.
+ * También gestiona la visualización de alertas globales y paradas suprimidas.
+ * 
+ * @throws {Error} Si no se puede recuperar las paradas o líneas desde Localstorage.
+ */
 async function updateBusList() {
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
@@ -858,7 +923,22 @@ const globalEventListeners = {
     lineItem: new Set()
   };
 
-// Función principal que actualiza los datos de una línea
+/**
+ * Actualiza los datos de una línea específica.
+ * 
+ * @param {string} stopNumber - El número de la parada.
+ * @param {string} lineNumber - El número de la línea.
+ * @param {HTMLElement} lineItem - El elemento HTML que representa la línea.
+ * @param {Array} allAlerts - Un array de alertas de autobuses.
+ * @returns {void} - No devuelve nada, pero actualiza los datos de la línea.
+ * 
+ * @description
+ * Esta función actualiza los datos de una línea específica.
+ * Recupera los datos del API, procesa los datos y actualiza el HTML de la línea.
+ * También gestiona la visualización de alertas para la línea.
+ * 
+ * @throws {Error} Si no se puede recuperar los datos del API.
+ */
 async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
     // URL del API con estáticos y tiempo real
     const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
@@ -1220,7 +1300,19 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
         };
 }
 
-// Borra evenlisteners de DOM obsoleto
+/**
+ * Elimina los listeners de eventos existentes en un elemento específico.
+ * Esto es necesario para evitar que se ejecuten múltiples listeners al mismo tiempo.
+ * 
+ * @param {HTMLElement} lineItem - El elemento HTML del que se deben eliminar los listeners.
+ * @returns {void} - No devuelve nada, pero elimina los listeners de los elementos.
+ * 
+ * @description 
+ * Esta función elimina los listeners de eventos existentes en un elemento específico.
+ * Recorre los listeners de alerta, ocupación y línea y elimina los correspondientes.
+ * 
+ * @throws {Error} Si no se puede encontrar un elemento específico.
+ */
 function removeExistingEventListeners(lineItem) {
     // Remove alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
@@ -1247,7 +1339,20 @@ function removeExistingEventListeners(lineItem) {
     globalEventListeners.lineItem.clear();
 }
 
-// Añade listeners a elementos generados dinámicamente
+/**
+ * Añade listeners a elementos generados dinámicamente.
+ * 
+ * @param {HTMLElement} lineItem - El elemento HTML que representa la línea.
+ * @param {Object} scheduledData - Los datos programados de la línea.
+ * @param {string} lineNumber - El número de la línea.
+ * @returns {void} - No devuelve nada, pero añade los listeners a los elementos.
+ * 
+ * @description
+ * Esta función añade listeners a elementos generados dinámicamente.
+ * Añade un listener para la alerta, ocupación y línea.
+ * 
+ * @throws {Error} Si no se puede encontrar un elemento específico.
+ */
 function addEventListeners(lineItem, scheduledData, lineNumber) {
     // Add alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
@@ -1350,7 +1455,17 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
     globalEventListeners.lineItem.add(lineItemListener);
 }
 
-// Combina los datos programados y en tiempo real agrupados por trip_id
+/**
+ * Combina los datos programados y en tiempo real agrupados por trip_id.
+ * 
+ * @param {Object} scheduledData - Los datos programados de la línea.
+ * @returns {Object} - Un objeto combinado de datos programados y en tiempo real.
+ * 
+ * @description
+ * Esta función combina los datos programados y en tiempo real en un solo objeto.
+ * 
+ * @throws {Error} Si no se proporciona un objeto válido de datos programados.
+ */
 function combineBusData(scheduledData) {
     let combined = {};
 
@@ -1433,7 +1548,19 @@ function combineBusDataFromTwoDays(day1Data, day2Data) {
     return combined;
 }
 
-// Lógica principal para determinar de un conjunto de buses ordenados por tripID, cual es el bus siguiente o más cercano
+/**
+ * Elige el bus más cercano en función de la hora actual.
+ * 
+ * @param {Object} buses - Un objeto que contiene los datos de los buses ordenados por tripID.
+ * @param {string} stopNumber - El número de la parada.
+ * @param {string} lineNumber - El número de la línea.
+ * @returns {Object|null} - Un objeto que contiene los datos del bus más cercano o null si no se encuentra ninguno.
+ * 
+ * @description
+ * Esta función elige el bus más cercano en función de la hora actual.
+ * 
+ * @throws {Error} Si no se proporciona un objeto válido de buses.
+ */
 async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
     if (!buses) return null;
 
@@ -1524,6 +1651,21 @@ async function elegirBusMasCercano(buses, stopNumber, lineNumber) {
     } : null;
 }
 
+/**
+ * Obtiene los buses siguientes a mostrar en la lista.
+ * 
+ * @param {Object} busMasCercano - El bus más cercano encontrado.
+ * @param {Object} busesLinea - Los buses de la línea actual.
+ * @param {string} stopNumber - El número de la parada.
+ * @param {string} lineNumber - El número de la línea.
+ * @param {number} numBuses - El número de buses a mostrar.
+ * @returns {Array} - Un array de buses siguientes.
+ * 
+ * @description
+ * Esta función obtiene los buses siguientes a mostrar en la lista.
+ * 
+ * @throws {Error} Si no se proporciona un objeto válido de buses.
+ */
 async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, numBuses) {
     let futureData;
     // Convertir busesLinea a un array
@@ -1611,6 +1753,18 @@ async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, n
     return nextBuses;
 }
 
+/**
+ * Elimina una línea de autobús de la lista de líneas.
+ * 
+ * @param {string} stopNumber - El número de la parada.
+ * @param {string} lineNumber - El número de la línea.
+ * @returns {void} - No devuelve nada, pero elimina la línea de la lista.
+ * 
+ * @description
+ * Esta función elimina una línea de autobús de la lista de líneas.
+ * 
+ * @throws {Error} Si no se proporciona un número de parada o línea.
+ */
 function removeBusLine(stopNumber, lineNumber) {
    
     let avisoBorrado = `¿Seguro que quieres borrar la línea ${lineNumber} de la parada ${stopNumber}?`;
@@ -1653,6 +1807,17 @@ function removeBusLine(stopNumber, lineNumber) {
     }
 }
 
+/**
+ * Elimina una parada y todas sus líneas.
+ * 
+ * @param {string} stopId - El número de la parada.
+ * @returns {void} - No devuelve nada, pero elimina la parada y todas sus líneas.
+ * 
+ * @description
+ * Esta función elimina una parada y todas sus líneas.
+ * 
+ * @throws {Error} Si no se proporciona un número de parada.
+ */
 function removeStop(stopId) {
     let avisoBorrado = `¿Seguro que quieres quitar la parada ${stopId} y todas sus líneas?`;
 
@@ -1687,6 +1852,16 @@ function removeStop(stopId) {
     }
 }
 
+/**
+ * Elimina todas las líneas y paradas en seguimiento.
+ * 
+ * @returns {void} - No devuelve nada, pero elimina todas las líneas y paradas en seguimiento.
+ * 
+ * @description
+ * Esta función elimina todas las líneas y paradas en seguimiento.
+ * 
+ * @throws {Error} Si no se proporciona un número de parada o línea.
+ */
 function removeAllBusLines() {
     // Mostrar un cuadro de diálogo de confirmación
     if (confirm("¿Seguro que quieres borrar todas las líneas y paradas en seguimiento?")) {
@@ -1774,7 +1949,17 @@ async function loadBikeStops() {
     }
 }
 
-// Función para mostrar las paradas más cercanas
+/**
+ * Muestra las paradas más cercanas.
+ * 
+ * @param {Object} position - La posición del usuario.
+ * @returns {void} - No devuelve nada, pero muestra las paradas más cercanas.
+ * 
+ * @description
+ * Esta función muestra las paradas más cercanas al usuario.
+ * 
+ * @throws {Error} Si no se proporciona una posición válida.
+ */
 async function showNearestStops(position) {
     const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
     const busStops = await loadBusStops();
@@ -1823,7 +2008,19 @@ async function showNearestStops(position) {
 
 let currentResultsListener = null;
 
-// Función para mostrar los resultados de las paradas más cercanas
+/**
+ * Muestra los resultados de las paradas más cercanas.
+ * 
+ * @param {Array} stops - Los datos de las paradas más cercanas.
+ * @param {Array} bikeStops - Los datos de todas las paradas de bicicletas.
+ * @param {Object} userLocation - La ubicación del usuario.
+ * @returns {void} - No devuelve nada, pero muestra los resultados.
+ * 
+ * @description
+ * Esta función muestra los resultados de las paradas más cercanas al usuario.
+ * 
+ * @throws {Error} Si no se proporcionan datos válidos.
+ */
 async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     let resultsDiv = document.getElementById('nearestStopsResults');
     resultsDiv.style.display = 'block';
