@@ -256,12 +256,13 @@ button#installIosButton {
 .autocomplete-result.nearbyStopsSuggestion {
     background-color: transparent;
     background-image: url('/img/find-nearby.png');
-    background-size: 18px;
+    background-size: 15px;
     background-repeat: no-repeat;
-    font-size: 0.9em;
+    font-size: 0.8em;
     justify-content: center;
-    background-position: 40px;
+    background-position: 13px;
     padding: 5px;
+    font-weight: bold;
 }
 
 #lineSuggestions {
