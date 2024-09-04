@@ -1764,6 +1764,8 @@ button.remove-stop {
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 15px center;
+    position: relative;
+    padding-right: 25px; /* Espacio para el botón de cierre */
 }
 
 .dark-mode #tips-banner p {
@@ -1780,6 +1782,26 @@ button.remove-stop {
 #tips-banner p img {
     height: 12px;
 } 
+
+.close-tip {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.close-tip:hover {
+    color: #333;
+}
+
+/* Css para los banners inidividuales */
 
 #tips-banner #share-whatsapp {
     margin: 0; 

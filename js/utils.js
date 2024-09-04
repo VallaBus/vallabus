@@ -1245,22 +1245,62 @@ function tipsBannerEvents() {
     // Flag para controlar si tenemos elementos sticky
     let hasSticky = false;
 
-    // Generamos un índice aleatorio
-    const randomIndex = Math.floor(Math.random() * children.length);
+    // Obtener los tips cerrados del localStorage
+    let closedTips = JSON.parse(localStorage.getItem('closedTips')) || [];
 
-    // Ocultamos todos los tips por defecto
-    for (let i = 0; i < children.length; i++) {
-        children[i].style.display = 'none';
+    // Función para crear y añadir el botón de cierre
+    function addCloseButton(tip) {
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '×';
+        closeButton.className = 'close-tip';
+        tip.appendChild(closeButton);
 
-        // Los elementos sticky se muestran siempre
-        if (children[i].classList.contains('sticky')) {
-            children[i].style.display = 'block';
-            hasSticky = true;
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tip.style.display = 'none';
+            if (!closedTips.includes(tip.id)) {
+                closedTips.push(tip.id);
+                localStorage.setItem('closedTips', JSON.stringify(closedTips));
+            }
+            // Si cerramos un tip no sticky, mostramos otro aleatorio
+            if (!tip.classList.contains('sticky')) {
+                showRandomTip();
+            }
+        });
+    }
+
+    // Función para mostrar un tip aleatorio
+    function showRandomTip() {
+        const availableTips = Array.from(children).filter(tip => 
+            !tip.classList.contains('sticky') && 
+            !closedTips.includes(tip.id)
+        );
+        if (availableTips.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableTips.length);
+            availableTips[randomIndex].style.display = 'block';
         }
     }
-    // Mostramos uno aleatorio si no hay sticky
-    if(!hasSticky) {
-        children[randomIndex].style.display = 'block';
+
+    // Procesar cada tip
+    for (let i = 0; i < children.length; i++) {
+        const tip = children[i];
+        
+        // Añadir botón de cierre a cada tip
+        addCloseButton(tip);
+
+        // Verificar si el tip ha sido cerrado previamente
+        if (closedTips.includes(tip.id)) {
+            tip.style.display = 'none';
+        } else if (tip.classList.contains('sticky')) {
+            tip.style.display = 'block';
+            hasSticky = true;
+        }
+        // Los no sticky se mantienen con display: none
+    }
+
+    // Mostrar un tip aleatorio si no hay sticky
+    if (!hasSticky) {
+        showRandomTip();
     }
 }
 
