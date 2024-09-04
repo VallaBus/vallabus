@@ -52,7 +52,7 @@ document.getElementById('stopNumber').addEventListener('click', async function()
         resultsContainer.style.display = 'block';
 
         let resultElement = document.createElement('div');
-        resultElement.innerHTML = `Buscar todas las paradas cercanas`;
+        resultElement.innerHTML = `Ver paradas cercanas`;
         resultElement.classList.add('autocomplete-result');
         resultElement.classList.add('nearbyStopsSuggestion');
         resultElement.addEventListener('click', function() {
