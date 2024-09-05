@@ -1,3 +1,36 @@
+// Definir getUserLocation al principio del archivo
+let lastKnownLocation = null;
+let lastLocationTime = 0;
+
+function getUserLocation(callback) {
+    const now = Date.now();
+    if (lastKnownLocation && (now - lastLocationTime < 30000)) {
+        callback(lastKnownLocation);
+        return;
+    }
+
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                lastKnownLocation = {
+                    x: position.coords.longitude,
+                    y: position.coords.latitude
+                };
+                lastLocationTime = now;
+                callback(lastKnownLocation);
+            },
+            function(error) {
+                console.error("Error obteniendo la ubicación:", error);
+                callback(null);
+            },
+            { maximumAge: 30000, timeout: 15000 }
+        );
+    } else {
+        console.log("Geolocalización no soportada por este navegador.");
+        callback(null);
+    }
+}
+
 // Mostrar sugerencias de paradas al introducir texto
 document.getElementById('stopNumber').addEventListener('click', async function() {
     const inputText = this.value;
@@ -8,22 +41,13 @@ document.getElementById('stopNumber').addEventListener('click', async function()
         resultsContainer.innerHTML = '';
         resultsContainer.style.display = 'block';
 
-        if ("geolocation" in navigator) {
-            // Intentamos obtener la ubicación directamente
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    // Éxito: mostramos las 5 paradas más cercanas
-                    showTop5NearestStops(resultsContainer);
-                },
-                function(error) {
-                    // Error o permiso denegado: mostramos solo el enlace
-                    showNearbyStopsLink(resultsContainer);
-                },
-                { timeout: 5000 }
-            );
-        } else {
-            console.log("Geolocalización no soportada por este navegador.");
-        }
+        getUserLocation(function(location) {
+            if (location) {
+                showTop5NearestStops(resultsContainer);
+            } else {
+                showNearbyStopsLink(resultsContainer);
+            }
+        });
     }
 });
 
@@ -41,17 +65,13 @@ document.getElementById('stopNumber').addEventListener('input', async function()
         displaySearchResults(matchingStops, resultsContainer);
     } else {
         // Si el campo está vacío, volvemos a mostrar las paradas cercanas o el enlace
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    showTop5NearestStops(resultsContainer);
-                },
-                function(error) {
-                    showNearbyStopsLink(resultsContainer);
-                },
-                { timeout: 5000 }
-            );
-        }
+        getUserLocation(function(location) {
+            if (location) {
+                showTop5NearestStops(resultsContainer);
+            } else {
+                showNearbyStopsLink(resultsContainer);
+            }
+        });
     }
 });
 
@@ -61,22 +81,24 @@ function showNearbyStopsLink(container) {
     resultElement.classList.add('autocomplete-result', 'nearbyStopsSuggestion');
     resultElement.addEventListener('click', function() {
         container.innerHTML = '';
-        if (navigator.geolocation) {
-            displayLoadingSpinner();
-            closeAllDialogs(dialogIds);
-            navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
-            toogleSidebar();
-        } else {
-            console.log("Geolocalización no soportada por este navegador.");
-        }
+        getUserLocation(function(location) {
+            if (location) {
+                displayLoadingSpinner();
+                closeAllDialogs(dialogIds);
+                showNearestStops({ coords: { latitude: location.y, longitude: location.x } });
+                toogleSidebar();
+            } else {
+                console.log("No se pudo obtener la ubicación.");
+            }
+        });
     });
     container.appendChild(resultElement);
 }
 
 async function showTop5NearestStops(container) {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async function(position) {
-            const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
+    getUserLocation(async function(location) {
+        if (location) {
+            const userLocation = location;
             const busStops = await loadBusStops();
             
             let sortedStops = busStops.map(stop => {
@@ -87,10 +109,10 @@ async function showTop5NearestStops(container) {
             let top5Stops = sortedStops.slice(0, 5);
 
             displayTop5NearestStops(top5Stops, container);
-        }, showError, { maximumAge: 6000, timeout: 15000 });
-    } else {
-        console.log("Geolocalización no soportada por este navegador.");
-    }
+        } else {
+            console.log("No se pudo obtener la ubicación.");
+        }
+    });
 }
 
 function displayTop5NearestStops(stops, container) {
@@ -102,6 +124,38 @@ function displayTop5NearestStops(stops, container) {
     headerElement.classList.add('autocomplete-header');
     container.appendChild(headerElement);
 
+    // Añadir spinner de carga mientras se detecta la geolocalización
+    let searchingElement = document.createElement('div');
+    searchingElement.innerHTML = '<div class="spinner"></div>';
+    searchingElement.classList.add('searching-message');
+    container.appendChild(searchingElement);
+
+    getUserLocation(async function(location) {
+        if (location) {
+            const userLocation = location;
+            const busStops = await loadBusStops();
+            
+            let sortedStops = busStops.map(stop => {
+                let distance = calculateDistance(userLocation, stop.ubicacion);
+                return { ...stop, distance: distance };
+            }).sort((a, b) => a.distance - b.distance);
+
+            let top5Stops = sortedStops.slice(0, 5);
+
+            // Eliminar el mensaje de "Buscando..."
+            container.removeChild(searchingElement);
+
+            // Mostrar las paradas
+            displayStops(top5Stops, container);
+        } else {
+            console.log("No se pudo obtener la ubicación.");
+            // Eliminar el mensaje de "Buscando..."
+            container.removeChild(searchingElement);
+        }
+    });
+}
+
+function displayStops(stops, container) {
     stops.forEach(stop => {
         let resultElement = document.createElement('div');
         let numParadaSpan = document.createElement('span');
