@@ -1,75 +1,159 @@
 // Mostrar sugerencias de paradas al introducir texto
-document.getElementById('stopNumber').addEventListener('input', async function() {
-    const inputText = this.value;
-    const matchingStops = await searchByStopNumber(inputText);
-
-    // Limpia resultados previos
-    const resultsContainer = document.getElementById('autocompleteResults');
-    resultsContainer.innerHTML = '';
-
-    // Si no hay texto, no genera resultados
-    if (inputText.trim() === '') {
-        return;
-    }
-
-    resultsContainer.style.display = 'block';
-
-    // Crea y muestra los resultados
-   matchingStops.forEach(function(stop) {
-       let resultElement = document.createElement('div');
-       let numParadaSpan = document.createElement('span');
-       numParadaSpan.classList.add('numParada');
-   
-       // Verifica si el código de la parada comienza con un formato específico con nombre de empresa como "ECSA:"
-       const match = stop.parada.numero.match(/^([^:]+):/);
-       if (match) {
-           // Utiliza la parte del nombre antes de los dos puntos como nombre de clase en minúsculas
-           const className = match[1].toLowerCase();
-           numParadaSpan.classList.add(className);
-       }
-   
-       numParadaSpan.textContent = stop.parada.numero;
-   
-       resultElement.innerHTML = `${numParadaSpan.outerHTML} ${stop.parada.nombre}`;
-       resultElement.classList.add('autocomplete-result');
-       resultElement.addEventListener('click', function() {
-           document.getElementById('stopNumber').value = stop.parada.numero;
-           resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
-       });
-       resultsContainer.appendChild(resultElement);
-   });
-});
-
-// Mostrar tip sobre paradas cercanas al hacer clic en input de parada
 document.getElementById('stopNumber').addEventListener('click', async function() {
     const inputText = this.value;
+    const resultsContainer = document.getElementById('autocompleteResults');
 
-    // Solo mostramos sugerencia si no hay texto
+    // Solo mostramos sugerencias si no hay texto
     if (inputText.trim() === '') {
-        // Limpia resultados previos
-        const resultsContainer = document.getElementById('autocompleteResults');
         resultsContainer.innerHTML = '';
         resultsContainer.style.display = 'block';
 
-        let resultElement = document.createElement('div');
-        resultElement.innerHTML = `Ver paradas cercanas`;
-        resultElement.classList.add('autocomplete-result');
-        resultElement.classList.add('nearbyStopsSuggestion');
-        resultElement.addEventListener('click', function() {
-            resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
-            // Mandamos al diálogo de paradas cercanas
-            if (navigator.geolocation) {
-                displayLoadingSpinner();
-                closeAllDialogs(dialogIds);
-                navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
-                toogleSidebar();
-            } else {
-               console.log("Geolocalización no soportada por este navegador.");
-            }
-        });
-        resultsContainer.appendChild(resultElement);
+        if ("geolocation" in navigator) {
+            navigator.permissions.query({name:'geolocation'}).then(function(result) {
+                if (result.state === 'granted') {
+                    // El usuario ya ha dado permiso, mostramos las 5 paradas más cercanas
+                    showTop5NearestStops(resultsContainer);
+                } else {
+                    // El usuario aún no ha dado permiso, mostramos el enlace
+                    showNearbyStopsLink(resultsContainer);
+                }
+            });
+        } else {
+            console.log("Geolocalización no soportada por este navegador.");
+        }
     }
 });
+
+// Evento de input para el campo de búsqueda de paradas
+document.getElementById('stopNumber').addEventListener('input', async function() {
+    const inputText = this.value;
+    const resultsContainer = document.getElementById('autocompleteResults');
+
+    // Limpia resultados previos
+    resultsContainer.innerHTML = '';
+
+    // Si hay texto, mostramos las sugerencias de búsqueda
+    if (inputText.trim() !== '') {
+        const matchingStops = await searchByStopNumber(inputText);
+        displaySearchResults(matchingStops, resultsContainer);
+    } else {
+        // Si el campo está vacío, volvemos a mostrar las paradas cercanas o el enlace
+        if ("geolocation" in navigator) {
+            navigator.permissions.query({name:'geolocation'}).then(function(result) {
+                if (result.state === 'granted') {
+                    showTop5NearestStops(resultsContainer);
+                } else {
+                    showNearbyStopsLink(resultsContainer);
+                }
+            });
+        }
+    }
+});
+
+function showNearbyStopsLink(container) {
+    let resultElement = document.createElement('div');
+    resultElement.innerHTML = `Ver paradas cercanas`;
+    resultElement.classList.add('autocomplete-result', 'nearbyStopsSuggestion');
+    resultElement.addEventListener('click', function() {
+        container.innerHTML = '';
+        if (navigator.geolocation) {
+            displayLoadingSpinner();
+            closeAllDialogs(dialogIds);
+            navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
+            toogleSidebar();
+        } else {
+            console.log("Geolocalización no soportada por este navegador.");
+        }
+    });
+    container.appendChild(resultElement);
+}
+
+async function showTop5NearestStops(container) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
+            const busStops = await loadBusStops();
+            
+            let sortedStops = busStops.map(stop => {
+                let distance = calculateDistance(userLocation, stop.ubicacion);
+                return { ...stop, distance: distance };
+            }).sort((a, b) => a.distance - b.distance);
+
+            let top5Stops = sortedStops.slice(0, 5);
+
+            displayTop5NearestStops(top5Stops, container);
+        }, showError, { maximumAge: 6000, timeout: 15000 });
+    } else {
+        console.log("Geolocalización no soportada por este navegador.");
+    }
+}
+
+function displayTop5NearestStops(stops, container) {
+    container.innerHTML = '';
+
+    // Añadir cabecera
+    let headerElement = document.createElement('div');
+    headerElement.textContent = 'Paradas cercanas';
+    headerElement.classList.add('autocomplete-header');
+    container.appendChild(headerElement);
+
+    stops.forEach(stop => {
+        let resultElement = document.createElement('div');
+        let numParadaSpan = document.createElement('span');
+        numParadaSpan.classList.add('numParada');
+   
+        const match = stop.parada.numero.match(/^([^:]+):/);
+        if (match) {
+            const className = match[1].toLowerCase();
+            numParadaSpan.classList.add(className);
+        }
+   
+        numParadaSpan.textContent = stop.parada.numero;
+   
+        resultElement.innerHTML = `${numParadaSpan.outerHTML} <span class="stopName">${stop.parada.nombre}</span> <span class="distance">(${Math.round(stop.distance)}m)</span>`;
+        resultElement.classList.add('autocomplete-result');
+        resultElement.addEventListener('click', function() {
+            document.getElementById('stopNumber').value = stop.parada.numero;
+            container.innerHTML = '';
+        });
+        container.appendChild(resultElement);
+    });
+
+    let moreStopsLink = document.createElement('div');
+    moreStopsLink.innerHTML = 'Ver más paradas cercanas';
+    moreStopsLink.classList.add('autocomplete-result', 'nearbyStopsSuggestion');
+    moreStopsLink.addEventListener('click', function() {
+        displayLoadingSpinner();
+        closeAllDialogs(dialogIds);
+        showNearestStops({ coords: { latitude: stops[0].ubicacion.y, longitude: stops[0].ubicacion.x } });
+        toogleSidebar();
+    });
+    container.appendChild(moreStopsLink);
+}
+
+function displaySearchResults(stops, container) {
+    stops.forEach(function(stop) {
+        let resultElement = document.createElement('div');
+        let numParadaSpan = document.createElement('span');
+        numParadaSpan.classList.add('numParada');
+   
+        const match = stop.parada.numero.match(/^([^:]+):/);
+        if (match) {
+            const className = match[1].toLowerCase();
+            numParadaSpan.classList.add(className);
+        }
+   
+        numParadaSpan.textContent = stop.parada.numero;
+   
+        resultElement.innerHTML = `${numParadaSpan.outerHTML} ${stop.parada.nombre}`;
+        resultElement.classList.add('autocomplete-result');
+        resultElement.addEventListener('click', function() {
+            document.getElementById('stopNumber').value = stop.parada.numero;
+            container.innerHTML = '';
+        });
+        container.appendChild(resultElement);
+    });
+}
 
 // Función para buscar paradas por nombre o número
 async function searchByStopNumber(name) {

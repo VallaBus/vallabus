@@ -214,6 +214,14 @@ button#installIosButton {
     box-sizing: border-box;
 }
 
+.autocomplete-header {
+    font-size: 0.8em;
+    background-color: rgb(51, 51, 51);
+    text-align: center;
+    color: rgb(238, 238, 238);
+    padding: 3px 0;
+}
+
 .autocomplete-result {
     cursor: pointer;
     margin: 2px;
@@ -221,7 +229,9 @@ button#installIosButton {
     border-bottom: 1px solid #eee;
     display: flex; 
     align-items: center;
-} 
+    justify-content: flex-start;
+    position: relative;
+}
 
 .dark-mode .autocomplete-result {
     border-bottom: 1px solid #444;
@@ -236,6 +246,21 @@ button#installIosButton {
     margin-right: 10px;
     min-width: 60px;
     text-align: center;
+    flex-shrink: 0;
+}
+
+.autocomplete-result .stopName {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.autocomplete-result .distance {
+    color: #999;
+    font-size: 0.8em;
+    margin-left: auto;
+    padding-left: 10px;
+    flex-shrink: 0;
 }
 
 /* Color de parada para otras empresas */
