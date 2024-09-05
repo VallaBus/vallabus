@@ -9,15 +9,18 @@ document.getElementById('stopNumber').addEventListener('click', async function()
         resultsContainer.style.display = 'block';
 
         if ("geolocation" in navigator) {
-            navigator.permissions.query({name:'geolocation'}).then(function(result) {
-                if (result.state === 'granted') {
-                    // El usuario ya ha dado permiso, mostramos las 5 paradas más cercanas
+            // Intentamos obtener la ubicación directamente
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Éxito: mostramos las 5 paradas más cercanas
                     showTop5NearestStops(resultsContainer);
-                } else {
-                    // El usuario aún no ha dado permiso, mostramos el enlace
+                },
+                function(error) {
+                    // Error o permiso denegado: mostramos solo el enlace
                     showNearbyStopsLink(resultsContainer);
-                }
-            });
+                },
+                { timeout: 5000 }
+            );
         } else {
             console.log("Geolocalización no soportada por este navegador.");
         }
@@ -39,13 +42,15 @@ document.getElementById('stopNumber').addEventListener('input', async function()
     } else {
         // Si el campo está vacío, volvemos a mostrar las paradas cercanas o el enlace
         if ("geolocation" in navigator) {
-            navigator.permissions.query({name:'geolocation'}).then(function(result) {
-                if (result.state === 'granted') {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
                     showTop5NearestStops(resultsContainer);
-                } else {
+                },
+                function(error) {
                     showNearbyStopsLink(resultsContainer);
-                }
-            });
+                },
+                { timeout: 5000 }
+            );
         }
     }
 });
