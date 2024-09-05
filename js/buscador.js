@@ -102,6 +102,38 @@ function displayTop5NearestStops(stops, container) {
     headerElement.classList.add('autocomplete-header');
     container.appendChild(headerElement);
 
+    // Añadir spinner de carga mientras se detecta la geolocalización
+    let searchingElement = document.createElement('div');
+    searchingElement.innerHTML = '<div class="spinner"></div>';
+    searchingElement.classList.add('searching-message');
+    container.appendChild(searchingElement);
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
+            const busStops = await loadBusStops();
+            
+            let sortedStops = busStops.map(stop => {
+                let distance = calculateDistance(userLocation, stop.ubicacion);
+                return { ...stop, distance: distance };
+            }).sort((a, b) => a.distance - b.distance);
+
+            let top5Stops = sortedStops.slice(0, 5);
+
+            // Eliminar el mensaje de "Buscando..."
+            container.removeChild(searchingElement);
+
+            // Mostrar las paradas
+            displayStops(top5Stops, container);
+        }, showError, { maximumAge: 6000, timeout: 15000 });
+    } else {
+        console.log("Geolocalización no soportada por este navegador.");
+        // Eliminar el mensaje de "Buscando..."
+        container.removeChild(searchingElement);
+    }
+}
+
+function displayStops(stops, container) {
     stops.forEach(stop => {
         let resultElement = document.createElement('div');
         let numParadaSpan = document.createElement('span');
