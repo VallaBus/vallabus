@@ -1388,23 +1388,26 @@ function closeAllDialogs(ids) {
 function handleRoute() {
     const hash = window.location.hash;
 
-    if (hash === '' || hash === '#/') {
+    if (hash === '' || hash === '#/' || hash === '#') {
         closeAllDialogs(dialogIds);
-    } else if (hash.startsWith('#/lineas/')) {
+    } else if (hash.startsWith('#/lineas') || hash.startsWith('#/lineas/')) {
         displayLoadingSpinner();
         closeAllDialogs(dialogIds);
         showIframe('https://rutas.vallabus.com/#/route');
-    } else if (hash.startsWith('#/rutas/')) {
+        history.replaceState(null, null, '#/lineas/');
+    } else if (hash.startsWith('#/rutas') || hash.startsWith('#/rutas/')) {
         displayLoadingSpinner();
         closeAllDialogs(dialogIds);
         showIframe('https://rutas.vallabus.com');
-    } else if (hash === '#/cercanas/') {
+        history.replaceState(null, null, '#/rutas/');
+    } else if (hash === '#/cercanas' || hash === '#/cercanas/') {
         if (navigator.geolocation) {
             displayLoadingSpinner();
             navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
         } else {
             console.log("Geolocalización no soportada por este navegador.");
         }
+        history.replaceState(null, null, '#/cercanas/');
     } else if (hash.startsWith('#linea-')) {
         // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
     } else {
