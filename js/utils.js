@@ -1385,40 +1385,44 @@ function closeAllDialogs(ids) {
 }
 
 // Manejo de estado de URLs y acciones en cada ruta
-function routersEvents() {
-    window.addEventListener('popstate', async function(event) {
-        // Verifica si hay un estado guardado
-        if (event.state && window.location.hash === '') {
-            // Aquí puedes verificar el estado guardado para determinar qué diálogo abrir
-            if (event.state.dialogType === 'scheduledTimes') {
-                const stopNumber = event.state.stopNumber;
-                if (stopNumber) {  await displayScheduledBuses(stopNumber); }
-            } else if (event.state.dialogType === 'nearbyStops') {
-                if (navigator.geolocation) {
-                    displayLoadingSpinner();
-                    navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
-                    toogleSidebar();
-                } else {
-                   console.log("Geolocalización no soportada por este navegador.");
-                }
-            } else if (event.state.dialogType === 'home') {
-                closeAllDialogs(dialogIds);
-            }
-        } else if (window.location.hash.startsWith('#linea-')) {
-            // Si tenemos enlaces a #linea- no hacemos nada y dejamos que funcionen normal
-            return;
-        } else {
-            // Si no hay estado guardado, asume que el usuario quiere volver a la página principal
-            // Lógica para cerrar cualquier diálogo abierto y mostrar la página principal
-            // Regresamos al home
-            const dialogState = {
-                dialogType: 'home'
-            };
-            history.replaceState(dialogState, document.title, '#/');
-            closeAllDialogs(dialogIds);
-        }
+function handleRoute() {
+    const hash = window.location.hash;
 
-        trackCurrentUrl();
+    if (hash === '' || hash === '#/') {
+        closeAllDialogs(dialogIds);
+    } else if (hash.startsWith('#/lineas/')) {
+        displayLoadingSpinner();
+        closeAllDialogs(dialogIds);
+        showIframe('https://rutas.vallabus.com/#/route');
+    } else if (hash.startsWith('#/rutas/')) {
+        displayLoadingSpinner();
+        closeAllDialogs(dialogIds);
+        showIframe('https://rutas.vallabus.com');
+    } else if (hash === '#/cercanas/') {
+        if (navigator.geolocation) {
+            displayLoadingSpinner();
+            navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
+        } else {
+            console.log("Geolocalización no soportada por este navegador.");
+        }
+    } else if (hash.startsWith('#linea-')) {
+        // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
+    } else {
+        // Si no coincide con ningún deeplink conocido, volver a la página principal
+        history.replaceState({ dialogType: 'home' }, document.title, '#/');
+        closeAllDialogs(dialogIds);
+    }
+
+    trackCurrentUrl();
+}
+
+function routersEvents() {
+    // Manejar la ruta inicial cuando se carga la página
+    handleRoute();
+
+    // Manejar cambios en la ruta
+    window.addEventListener('popstate', function(event) {
+        handleRoute();
     });
 }
 
