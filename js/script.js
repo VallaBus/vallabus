@@ -94,8 +94,13 @@ function showInstallButton() {
     installButton.addEventListener('click', (e) => {
         // Oculta el botón ya que no se necesita más
         installButton.style.display = 'none';
+
+        // Mostramos el spinner con el mensaje de instalación
+        displayLoadingSpinner("Instalando, por favor espera...");
+
         // Muestra el prompt de instalación
         deferredPrompt.prompt();
+        
         // Espera a que el usuario responda al prompt
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
@@ -104,7 +109,11 @@ function showInstallButton() {
             } else {
                 console.log('Usuario rechazó la instalación');
                 _paq.push(['trackEvent', 'installbutton', 'click', 'rejected']);
+                // Si el usuario rechaza, volvemos a mostrar el botón
+                installButton.style.display = 'block';
             }
+            // Ocultamos el spinner
+            hideLoadingSpinner();
             deferredPrompt = null;
         });
     });
