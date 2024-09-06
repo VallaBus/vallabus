@@ -2493,6 +2493,113 @@ footer a:hover {
     border-right: 10px solid transparent;
 }
 
+.dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 90%;
+    width: 320px;
+}
+
+.dialog h2 {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.dialog button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.dialog button#exportDataBtn {
+    background-color: #4CAF50; /* Verde para exportar */
+}
+
+.dialog button#exportDataBtn:hover {
+    background-color: #45a049;
+}
+
+.dialog button#importDataBtn {
+    background-color: #2196F3; /* Azul para importar */
+}
+
+.dialog button#importDataBtn:hover {
+    background-color: #1e87db;
+}
+
+.dialog button#closeDataDialogBtn {
+    background-image: url("/img/close.png");
+    background-size: 16px;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 16px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    float: right;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    display: block;
+    background-color: #FFF;
+    background-position: 8px 8px;
+    z-index: 1000;
+}
+
+/* Dark mode styles */
+.dark-mode .dialog {
+    background-color: #323232;
+    color: #eeeeee;
+    box-shadow: 0 2px 16px 0 rgba(41, 41, 48, 0.2);
+}
+
+.dark-mode .dialog button#exportDataBtn {
+    background-color: #45a049;
+}
+
+.dark-mode .dialog button#exportDataBtn:hover {
+    background-color: #4CAF50;
+}
+
+.dark-mode .dialog button#importDataBtn {
+    background-color: #1e87db;
+}
+
+.dark-mode .dialog button#importDataBtn:hover {
+    background-color: #2196F3;
+}
+
+.dark-mode .dialog button#closeDataDialogBtn {
+    background-color: #2d2d2d;
+    border: 1px solid #7b7b7b;
+}
+
+.dark-mode .dialog h2 {
+    color: #eeeeee;
+}
+
+.dark-mode .dialog p, .dark-mode .dialog ul {
+    color: #eeeeee;
+}
+
 /* Dark mode */
 body.dark-mode {
     background-color: #262626;

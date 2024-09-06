@@ -520,93 +520,6 @@ function cleanObsoleteCache() {
     //console.log(`${counter} elementos obsoletos del caché borrados`);
 }
 
-function showCache() {
-    // Crear un elemento div para el diálogo
-    const dialog = document.createElement('div');
-    dialog.style.position = 'absolute';
-    dialog.style.top = '50%';
-    dialog.style.left = '50%';
-    dialog.style.transform = 'translate(-50%, -32%)';
-    dialog.style.background = 'white';
-    dialog.style.padding = '20px';
-    dialog.style.border = '1px solid black';
-    dialog.style.borderRadius = '10px';
-    dialog.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-    dialog.style.zIndex = '1000';
-
-    // Crear un elemento table para mostrar las claves
-    const table = document.createElement('table');
-    table.style.width = '100%';
-    table.style.borderCollapse = 'collapse';
-
-    // Crear un elemento thead para el título de la tabla
-    const thead = document.createElement('thead');
-    const tr = document.createElement('tr');
-    const th1 = document.createElement('th');
-    th1.textContent = 'Registro';
-    const th2 = document.createElement('th');
-    th2.textContent = 'Tamaño';
-    tr.appendChild(th1);
-    tr.appendChild(th2);
-    thead.appendChild(tr);
-    table.appendChild(thead);
-
-    // Crear un elemento tbody para los datos de la tabla
-    const tbody = document.createElement('tbody');
-
-    let totalSize = 0;
-
-    // Iterar sobre las claves del almacenamiento local
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        const value = localStorage.getItem(key);
-
-        // Calcular el tamaño del valor en bytes
-        const valueSize = JSON.stringify(value).length;
-
-        // Convertir el tamaño de bytes a KB
-        const valueSizeKB = (valueSize / 1024).toFixed(2);
-
-        // Agregar el tamaño total
-        totalSize += valueSize;
-
-        // Crear un elemento tr para cada clave
-        const tr = document.createElement('tr');
-        const td1 = document.createElement('td');
-        td1.textContent = key;
-        const td2 = document.createElement('td');
-        td2.textContent = `${valueSizeKB} KB`;
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tbody.appendChild(tr);
-    }
-
-    table.appendChild(tbody);
-
-    // Agregar la tabla al diálogo
-    dialog.appendChild(table);
-
-    // Mostrar el tamaño total
-    const totalSizeKB = (totalSize / 1024).toFixed(2);
-    const totalSizeElement = document.createElement('p');
-    totalSizeElement.textContent = `Tamaño total: ${totalSizeKB} KB`;
-    dialog.appendChild(totalSizeElement);
-
-    // Crear un botón para cerrar el diálogo
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Cerrar';
-    closeButton.style.marginTop = '20px';
-    closeButton.onclick = function() {
-        document.body.removeChild(dialog);
-    };
-
-    // Agregar el botón al diálogo
-    dialog.appendChild(closeButton);
-
-    // Agregar el diálogo al body
-    document.body.appendChild(dialog);
-}
-
 function updateLastUpdatedTime() {
     const now = new Date();
     const formattedTime = now.toLocaleTimeString(); // Formatea la hora como prefieras
@@ -1169,7 +1082,7 @@ function scrollTopEvents() {
 function clickEvents() {
 
     // Solicita la geolocalización del usuario para encontrar las paradas más cercanas.
-    // Muestra un spinner de carga mientras se obtiene la posici��n.
+    // Muestra un spinner de carga mientras se obtiene la posición.
     const nearestStopsButton = document.querySelector('#nearestStops button');
     nearestStopsButton.addEventListener('click', function() {
         if (navigator.geolocation) {
@@ -1252,14 +1165,8 @@ function clickEvents() {
         }
     });
 
-    // Botón para mostrar datos guardados
-    const showDataButton = document.getElementById('show-data');
-    if (showDataButton) {
-        // Guardamos cada vez que se hace click en un enlace dentro de un parrafo hijo
-        showDataButton.addEventListener('click', function(e) {
-            showCache();
-        });
-    }
+    // Añadir el evento al enlace "Tus datos"
+    document.getElementById('show-data').addEventListener('click', showDataDialog);
 }
 
 // Eventos para el banner de tips
@@ -1537,5 +1444,137 @@ function showIosInstallButton() {
             }
             _paq.push(['trackEvent', 'installIosbutton', 'click']);
         });
+    }
+}
+
+function showDialog(dialogId, content) {
+    const dialog = document.getElementById(dialogId);
+    if (dialog) {
+        dialog.innerHTML = content;
+        dialog.style.display = 'block';
+    } else {
+        console.error(`Elemento con id ${dialogId} no encontrado`);
+    }
+}
+
+/* Dialogo para exportar e importar datos */
+function showDataDialog() {
+    // Crear el diálogo si no existe
+    let dialog = document.getElementById('dataDialog');
+    if (!dialog) {
+        dialog = document.createElement('div');
+        dialog.id = 'dataDialog';
+        dialog.className = 'dialog';
+        document.body.appendChild(dialog);
+    }
+
+    // Obtener los datos de busLines
+    const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+
+    // Calcular paradas únicas y líneas
+    const uniqueStops = new Set(busLines.map(item => item.stopNumber)).size;
+    const uniqueLines = new Set(busLines.map(item => item.lineNumber)).size;
+    const uniqueFixedStops = new Set(busLines.map(item => item.fixedStop)).size;
+
+    // Contenido del diálogo
+    const dialogContent = `
+        <h2>Tus datos</h2>
+        <ul>
+            <li>Paradas guardadas: ${uniqueStops}</li>
+            <li>Líneas guardadas: ${uniqueLines}</li>
+            <li>Paradas fijadas: ${uniqueFixedStops}</li>
+        </ul>
+        <button id="exportDataBtn">Exportar datos</button>
+        <button id="importDataBtn">Importar datos</button>
+        <button id="closeDataDialogBtn"></button>
+    `;
+
+    dialog.innerHTML = dialogContent;
+    dialog.style.display = 'block';
+
+    // Añadir eventos a los botones
+    document.getElementById('exportDataBtn').addEventListener('click', exportData);
+    document.getElementById('importDataBtn').addEventListener('click', importData);
+    document.getElementById('closeDataDialogBtn').addEventListener('click', () => {
+        dialog.style.display = 'none';
+    });
+}
+
+function exportData() {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        try {
+            data[key] = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+            // Si no se puede parsear como JSON, guardamos el valor como string
+            data[key] = localStorage.getItem(key);
+        }
+    }
+
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vallabus_datos.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importData() {
+    if (confirm('ADVERTENCIA: Importar nuevos datos reemplazará todos tus datos, líneas y paradas actuales. ¿Deseas continuar?')) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let backup = null;
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validar que data es un objeto
+                    if (typeof data !== 'object' || data === null) {
+                        throw new Error('El archivo no contiene un objeto JSON válido.');
+                    }
+
+                    // Crear backup solo si la validación inicial pasa
+                    backup = {};
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        backup[key] = localStorage.getItem(key);
+                    }
+
+                    // Limpiar localStorage actual
+                    localStorage.clear();
+                    // Importar todos los datos
+                    for (const [key, value] of Object.entries(data)) {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    }
+
+                    alert('Datos importados correctamente');
+                    updateBusList(); // Actualizar la lista de paradas y líneas
+                    document.getElementById('dataDialog').style.display = 'none'; // Cerrar el diálogo
+                } catch (error) {
+                    if (backup) {
+                        // Restaurar el backup solo si se creó y hubo un error
+                        localStorage.clear();
+                        for (const [key, value] of Object.entries(backup)) {
+                            localStorage.setItem(key, value);
+                        }
+                    }
+                    alert(`Error al importar los datos: ${error.message}`);
+                    console.error('Error al importar datos:', error);
+                } finally {
+                    // Limpiar la referencia al backup
+                    backup = null;
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
 }
