@@ -613,16 +613,42 @@ function updateLastUpdatedTime() {
     document.getElementById('last-update').textContent = `Última actualización: ${formattedTime}`;
 }
 
-// Función para mostrar el spinner de carga
-function displayLoadingSpinner() {
-    let spinnerOverlay = document.getElementById('spinnerOverlay');
+// Función para mostrar el spinner con un mensaje personalizado
+function displayLoadingSpinner(message = "") {
+    const spinnerOverlay = document.getElementById('spinnerOverlay');
+    
+    // Eliminar cualquier contenido existente
+    spinnerOverlay.innerHTML = '';
+    
+    // Crear y añadir el spinner
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+    spinnerOverlay.appendChild(spinner);
+    
+    // Crear y añadir el nuevo mensaje
+    if (message) {
+        const messageElement = document.createElement('p');
+        messageElement.textContent = message;
+        messageElement.style.color = '#fff';
+        messageElement.style.marginTop = '10px';
+        messageElement.style.textAlign = 'center';
+        spinnerOverlay.appendChild(messageElement);
+    }
+    
     spinnerOverlay.style.display = 'flex';
+    spinnerOverlay.style.flexDirection = 'column';
 }
 
-// Función para ocultar el spinner de carga
+// Función para ocultar el spinner
 function hideLoadingSpinner() {
-    let spinnerOverlay = document.getElementById('spinnerOverlay');
+    const spinnerOverlay = document.getElementById('spinnerOverlay');
     spinnerOverlay.style.display = 'none';
+    
+    // Eliminar el mensaje si existe
+    const messageElement = spinnerOverlay.querySelector('p');
+    if (messageElement) {
+        spinnerOverlay.removeChild(messageElement);
+    }
 }
 
 // Función para calcular la distancia entre dos puntos
@@ -1143,7 +1169,7 @@ function scrollTopEvents() {
 function clickEvents() {
 
     // Solicita la geolocalización del usuario para encontrar las paradas más cercanas.
-    // Muestra un spinner de carga mientras se obtiene la posición.
+    // Muestra un spinner de carga mientras se obtiene la posici��n.
     const nearestStopsButton = document.querySelector('#nearestStops button');
     nearestStopsButton.addEventListener('click', function() {
         if (navigator.geolocation) {

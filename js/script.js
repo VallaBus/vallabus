@@ -94,16 +94,36 @@ function showInstallButton() {
     installButton.addEventListener('click', (e) => {
         // Oculta el botón ya que no se necesita más
         installButton.style.display = 'none';
+        displayLoadingSpinner("Iniciando instalación...");
+
         // Muestra el prompt de instalación
         deferredPrompt.prompt();
+        
         // Espera a que el usuario responda al prompt
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('Usuario aceptó la instalación');
                 _paq.push(['trackEvent', 'installbutton', 'click', 'accepted']);
+                
+                // Cambiar el mensaje del spinner
+                displayLoadingSpinner("Instalando VallaBus...");
+                
+                // Mantener el spinner visible por un tiempo más largo
+                setTimeout(() => {
+                    hideLoadingSpinner();
+                    displayLoadingSpinner("¡Instalación completada! Puedes cerrar esta ventana.");
+                    
+                    // Ocultar el mensaje final después de unos segundos
+                    setTimeout(() => {
+                        hideLoadingSpinner();
+                    }, 3000);
+                }, 10000); // Ajusta este tiempo según sea necesario
             } else {
                 console.log('Usuario rechazó la instalación');
                 _paq.push(['trackEvent', 'installbutton', 'click', 'rejected']);
+                // Si el usuario rechaza, volvemos a mostrar el botón
+                installButton.style.display = 'block';
+                hideLoadingSpinner();
             }
             deferredPrompt = null;
         });
