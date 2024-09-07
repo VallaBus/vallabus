@@ -1322,7 +1322,7 @@ function closeAllDialogs(ids) {
 }
 
 // Manejo de estado de URLs y acciones en cada ruta
-function handleRoute() {
+async function handleRoute() {
     const hash = window.location.hash;
 
     if (hash === '' || hash === '#/' || hash === '#') {
@@ -1351,16 +1351,26 @@ function handleRoute() {
         const stopNumber = hash.split('/')[2];
         if (stopNumber) {
             displayLoadingSpinner();
-            closeAllDialogs(dialogIds);
-            displayScheduledBuses(stopNumber).then(horariosElement => {
-                const horariosBox = document.getElementById('horarios-box');
-                horariosBox.setAttribute('data-stopNumber', stopNumber);
-                horariosBox.innerHTML = horariosElement.innerHTML;
-                horariosBox.style.display = 'block';
-                horariosBox.scrollTo(0, 0);
+            const busStops = await loadBusStops();
+            const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
+
+            if (!stopData) {
+                showErrorPopUp('Error: Parada no encontrada o vacía');
+                history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                closeAllDialogs(dialogIds);
                 hideLoadingSpinner();
-                clearInterval(intervalId);
-            });
+            } else {
+                closeAllDialogs(dialogIds);
+                displayScheduledBuses(stopNumber).then(horariosElement => {
+                    const horariosBox = document.getElementById('horarios-box');
+                    horariosBox.setAttribute('data-stopNumber', stopNumber);
+                    horariosBox.innerHTML = horariosElement.innerHTML;
+                    horariosBox.style.display = 'block';
+                    horariosBox.scrollTo(0, 0);
+                    hideLoadingSpinner();
+                    clearInterval(intervalId);
+                });
+            }
         }
     } else if (hash.startsWith('#linea-')) {
         // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
