@@ -1473,20 +1473,23 @@ function showDataDialog() {
 
     // Calcular paradas únicas y líneas
     const uniqueStops = new Set(busLines.map(item => item.stopNumber)).size;
-    const uniqueLines = new Set(busLines.map(item => item.lineNumber)).size;
-    const uniqueFixedStops = new Set(busLines.map(item => item.fixedStop)).size;
+    const totalLines = busLines.length;
+    
+    // Obtener fixedStops del localStorage
+    const fixedStops = JSON.parse(localStorage.getItem('fixedStops') || '[]');
+    const uniqueFixedStops = fixedStops.length;
 
     // Contenido del diálogo
     const dialogContent = `
+        <button id="closeDataDialogBtn"></button>
         <h2>Tus datos</h2>
         <ul>
             <li>Paradas guardadas: ${uniqueStops}</li>
-            <li>Líneas guardadas: ${uniqueLines}</li>
+            <li>Líneas guardadas: ${totalLines}</li>
             <li>Paradas fijadas: ${uniqueFixedStops}</li>
         </ul>
         <button id="exportDataBtn">Exportar datos</button>
         <button id="importDataBtn">Importar datos</button>
-        <button id="closeDataDialogBtn"></button>
     `;
 
     dialog.innerHTML = dialogContent;
