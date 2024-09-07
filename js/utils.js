@@ -1347,6 +1347,21 @@ function handleRoute() {
         history.replaceState(null, null, '#/cercanas/');
     } else if (hash === '#/datos' || hash === '#/datos/') {
         showDataDialog();
+    } else if (hash.startsWith('#/horarios/')) {
+        const stopNumber = hash.split('/')[2];
+        if (stopNumber) {
+            displayLoadingSpinner();
+            closeAllDialogs(dialogIds);
+            displayScheduledBuses(stopNumber).then(horariosElement => {
+                const horariosBox = document.getElementById('horarios-box');
+                horariosBox.setAttribute('data-stopNumber', stopNumber);
+                horariosBox.innerHTML = horariosElement.innerHTML;
+                horariosBox.style.display = 'block';
+                horariosBox.scrollTo(0, 0);
+                hideLoadingSpinner();
+                clearInterval(intervalId);
+            });
+        }
     } else if (hash.startsWith('#linea-')) {
         // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
     } else {
