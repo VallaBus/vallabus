@@ -169,7 +169,43 @@ function displayStops(stops, container) {
    
         numParadaSpan.textContent = stop.parada.numero;
    
-        resultElement.innerHTML = `${numParadaSpan.outerHTML} <span class="stopName">${stop.parada.nombre}</span> <span class="distance">(${Math.round(stop.distance)}m)</span>`;
+        // Crear un array con todas las líneas
+        const allLines = [
+            ...(stop.lineas.ordinarias || []),
+            ...(stop.lineas.poligonos || []),
+            ...(stop.lineas.matinales || []),
+            ...(stop.lineas.futbol || []),
+            ...(stop.lineas.buho || []),
+            ...(stop.lineas.universidad || [])
+        ];
+
+        // Ordenar las líneas: primero numéricas, luego alfanuméricas
+        const sortedLines = allLines.sort((a, b) => {
+            const aIsNumeric = /^\d+$/.test(a);
+            const bIsNumeric = /^\d+$/.test(b);
+            if (aIsNumeric && bIsNumeric) {
+                return parseInt(a) - parseInt(b);
+            } else if (aIsNumeric) {
+                return -1;
+            } else if (bIsNumeric) {
+                return 1;
+            } else {
+                return a.localeCompare(b);
+            }
+        });
+
+        // Limitar a 5 líneas y añadir "..." si hay más
+        const displayedLines = sortedLines.slice(0, 5);
+        const lineText = displayedLines.map(line => `<span class="linea linea-${line}">${line}</span>`).join(' ') + (sortedLines.length > 5 ? ' ...' : '');
+   
+        resultElement.innerHTML = `
+            ${numParadaSpan.outerHTML}
+            <div class="stop-info">
+                <span class="stopName">${stop.parada.nombre}</span>
+                <span class="stopLines">${lineText}</span>
+            </div>
+            <span class="distance">(${Math.round(stop.distance)}m)</span>
+        `;
         resultElement.classList.add('autocomplete-result');
         resultElement.addEventListener('click', function() {
             document.getElementById('stopNumber').value = stop.parada.numero;

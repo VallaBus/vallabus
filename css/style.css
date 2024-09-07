@@ -228,7 +228,7 @@ button#installIosButton {
     padding: 5px;
     border-bottom: 1px solid #eee;
     display: flex; 
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     position: relative;
 }
@@ -249,10 +249,30 @@ button#installIosButton {
     flex-shrink: 0;
 }
 
-.autocomplete-result .stopName {
+.autocomplete-result .stop-info {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
     min-width: 0;
+}
+
+.autocomplete-result .stopName {
+    font-size: 0.9em;
+}
+
+.autocomplete-result .stopLines {
+    font-size: 0.8em;
+    color: #666;
+    margin: 5px 0;
+}
+.autocomplete-result .stopLines .linea {
+    padding: 1px 3px;
+    margin-right: 4px;
+    text-align: center;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 13px;
 }
 
 .autocomplete-result .distance {
@@ -261,6 +281,7 @@ button#installIosButton {
     margin-left: auto;
     padding-left: 10px;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 
 /* Placeholder mientras se buscan paradas cercanas */
