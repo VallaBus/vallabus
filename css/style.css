@@ -207,6 +207,38 @@ button#installIosButton {
     justify-content: center;
 }
 
+.clear-input {
+    position: absolute;
+    right: 82px;
+    top: 25%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    padding: 0 5px;
+    z-index: 2;
+}
+
+.clear-input:hover {
+    color: #333;
+}
+
+.dark-mode .clear-input {
+    color: #ccc;
+}
+
+.dark-mode .clear-input:hover {
+    color: #fff;
+}
+
+#stopNumber, #lineNumber {
+    padding-right: 30px;
+}
+
+#formulario #inputs input {
+    position: relative;
+}
+
 #autocompleteResults {
     margin-top: 12px; 
     background-color: white;

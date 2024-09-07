@@ -277,6 +277,8 @@ document.getElementById('stopNumber').addEventListener('focus', function() {
     if (inputText.trim() !== '') {
         resultsContainer.style.display = 'block';
     }
+
+    toggleClearButton(this, this.clearButton);
 });
 
 // Cerrar el cuadro de búsqueda si se hace clic fuera de él
@@ -423,4 +425,50 @@ document.getElementById('addButton').addEventListener('click', function() {
 // Actualizar el glow después de que se complete la acción del botón
 document.getElementById('addButton').addEventListener('click', function() {
     setTimeout(updateGlowEffects, 100);
+});
+
+// Añadir estas funciones al principio del archivo
+function addClearButton(inputElement) {
+    const clearButton = document.createElement('span');
+    clearButton.innerHTML = '&times;';
+    clearButton.className = 'clear-input';
+    clearButton.style.display = 'none';
+    inputElement.parentNode.insertBefore(clearButton, inputElement.nextSibling);
+
+    clearButton.addEventListener('click', function(e) {
+        e.stopPropagation(); // Evita que el clic se propague al botón de añadir
+        inputElement.value = '';
+        this.style.display = 'none';
+        inputElement.focus();
+        updateGlowEffects();
+    });
+
+    return clearButton;
+}
+
+function toggleClearButton(inputElement, clearButton) {
+    if (inputElement.value.trim() !== '') {
+        clearButton.style.display = 'inline';
+    } else {
+        clearButton.style.display = 'none';
+    }
+}
+
+// Añadir estos event listeners al final del archivo
+document.addEventListener('DOMContentLoaded', function() {
+    const stopNumberInput = document.getElementById('stopNumber');
+
+    stopNumberInput.clearButton = addClearButton(stopNumberInput);
+
+    stopNumberInput.addEventListener('input', function() {
+        toggleClearButton(this, this.clearButton);
+    });
+
+
+    stopNumberInput.addEventListener('blur', function() {
+        setTimeout(() => {
+            this.clearButton.style.display = 'none';
+        }, 100);
+    });
+
 });
