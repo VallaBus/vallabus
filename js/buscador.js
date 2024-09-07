@@ -73,6 +73,8 @@ document.getElementById('stopNumber').addEventListener('input', async function()
             }
         });
     }
+
+    updateGlowEffects();
 });
 
 function showNearbyStopsLink(container) {
@@ -210,6 +212,7 @@ function displayStops(stops, container) {
         resultElement.addEventListener('click', function() {
             document.getElementById('stopNumber').value = stop.parada.numero;
             container.innerHTML = '';
+            updateGlowEffects();
         });
         container.appendChild(resultElement);
     });
@@ -245,6 +248,7 @@ function displaySearchResults(stops, container) {
         resultElement.addEventListener('click', function() {
             document.getElementById('stopNumber').value = stop.parada.numero;
             container.innerHTML = '';
+            updateGlowEffects();
         });
         container.appendChild(resultElement);
     });
@@ -320,6 +324,8 @@ document.getElementById('lineNumber').addEventListener('focus', async function()
     } else {
         console.error('Error: Parada no encontrada en los datos locales');
     }
+
+    updateGlowEffects();
 });
 
 // Si el input de línea pierde el foco, borramos las sugerencias
@@ -381,3 +387,40 @@ function displayLineSuggestions(buses) {
         resultsContainer.appendChild(resultElement);
     });
 }
+
+// Función para actualizar los efectos de glow
+function updateGlowEffects() {
+    const stopNumber = document.getElementById('stopNumber').value;
+    const lineNumber = document.getElementById('lineNumber');
+    const addButton = document.getElementById('addButton');
+
+    if (stopNumber.trim() !== '') {
+        addButton.classList.add('glow-blue');
+        lineNumber.classList.remove('glow-red');
+        document.getElementById('stopNumber').classList.remove('glow-red');
+    } else {
+        addButton.classList.remove('glow-blue');
+        if (lineNumber.value.trim() !== '') {
+            document.getElementById('stopNumber').classList.add('glow-red');
+        } else {
+            document.getElementById('stopNumber').classList.remove('glow-red');
+        }
+    }
+}
+
+// Añadir nuevos event listeners
+document.getElementById('stopNumber').addEventListener('input', updateGlowEffects);
+document.getElementById('lineNumber').addEventListener('input', updateGlowEffects);
+document.getElementById('stopNumber').addEventListener('blur', function() {
+    setTimeout(updateGlowEffects, 100);
+});
+
+// Nuevo event listener para el botón de añadir
+document.getElementById('addButton').addEventListener('click', function() {
+    this.classList.remove('glow-blue');
+});
+
+// Actualizar el glow después de que se complete la acción del botón
+document.getElementById('addButton').addEventListener('click', function() {
+    setTimeout(updateGlowEffects, 100);
+});
