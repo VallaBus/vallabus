@@ -5,7 +5,8 @@ let intervalId;
 const dialogIds = [
     'horarios-box',
     'nearestStopsResults',
-    'iframe-container'
+    'iframe-container',
+    'dataDialog'
 ];
 
 // Generar o recuperar el ID único del cliente
@@ -1166,7 +1167,10 @@ function clickEvents() {
     });
 
     // Añadir el evento al enlace "Tus datos"
-    document.getElementById('show-data').addEventListener('click', showDataDialog);
+    document.getElementById('show-data').addEventListener('click', function(event) {
+        event.preventDefault();
+        showDataDialog();
+    });
 }
 
 // Eventos para el banner de tips
@@ -1341,6 +1345,8 @@ function handleRoute() {
             console.log("Geolocalización no soportada por este navegador.");
         }
         history.replaceState(null, null, '#/cercanas/');
+    } else if (hash === '#/datos' || hash === '#/datos/') {
+        showDataDialog();
     } else if (hash.startsWith('#linea-')) {
         // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
     } else {
@@ -1495,11 +1501,18 @@ function showDataDialog() {
     dialog.innerHTML = dialogContent;
     dialog.style.display = 'block';
 
+    // Cambiar la URL a /#/datos
+    history.pushState({ dialogType: 'data' }, 'Tus datos', '#/datos');
+    trackCurrentUrl();
+
     // Añadir eventos a los botones
     document.getElementById('exportDataBtn').addEventListener('click', exportData);
     document.getElementById('importDataBtn').addEventListener('click', importData);
     document.getElementById('closeDataDialogBtn').addEventListener('click', () => {
         dialog.style.display = 'none';
+        // Volver a la página principal al cerrar el diálogo
+        history.pushState({ dialogType: 'home' }, document.title, '#/');
+        trackCurrentUrl();
     });
 }
 
