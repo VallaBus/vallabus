@@ -769,17 +769,22 @@ function displayGlobalAlertsBanner(alerts) {
     }
 }
 
-// Función para abrir el panel lateral
-function toogleSidebar() {
+// Función para abrir o cerrar el panel lateral
+function toogleSidebar(forceClose = false) {
     const sidebar = document.getElementById('sidebar');
     const menuButton = document.getElementById('menuButton');
 
-    // Alterna la clase para abrir o cerrar el sidebar
-    sidebar.classList.toggle('sidebar-open'); 
-    menuButton.classList.toggle('menu-button-open');
-
-    // Cambia el icono según el estado del sidebar
-    menuButton.innerHTML = sidebar.classList.contains('sidebar-open') ? '✖' : '☰';
+    if (forceClose || sidebar.classList.contains('sidebar-open')) {
+        // Cerrar el sidebar
+        sidebar.classList.remove('sidebar-open'); 
+        menuButton.classList.remove('menu-button-open');
+        menuButton.innerHTML = '☰';
+    } else {
+        // Abrir el sidebar
+        sidebar.classList.add('sidebar-open');
+        menuButton.classList.add('menu-button-open');
+        menuButton.innerHTML = '✖';
+    }
 }
 
 // Devuelve la posición de un elemento
@@ -937,7 +942,7 @@ function sidebarEvents() {
     // Si hacemos click fuera del sidebar, la cerramos
     document.addEventListener('click', function(event) {
         if (sidebar.classList.contains('sidebar-open') && !sidebar.contains(event.target) && event.target !== menuButton) {
-            toogleSidebar();
+            toogleSidebar(true);
         }
     });
 
@@ -977,7 +982,7 @@ function sidebarEvents() {
 
             // Si la distancia del deslizamiento es mayor que el umbral, ejecuta toogleSidebar
             if (swipeDistance > swipeThreshold) {
-                toogleSidebar();
+                toogleSidebar(true);
             }
         }
     }, false);
@@ -1068,7 +1073,7 @@ function scrollTopEvents() {
             event.preventDefault();
             const headerHeight = document.querySelector('header').offsetHeight;
             window.scrollTo({ top: -headerHeight, behavior: 'smooth' });
-            toogleSidebar();
+            toogleSidebar(true);
             // Regresamos al home
             const dialogState = {
                 dialogType: 'home'
@@ -1082,20 +1087,6 @@ function scrollTopEvents() {
 // Eventos varios de clic a botones y elementos
 function clickEvents() {
 
-    // Solicita la geolocalización del usuario para encontrar las paradas más cercanas.
-    // Muestra un spinner de carga mientras se obtiene la posición.
-    const nearestStopsButton = document.querySelector('#nearestStops button');
-    nearestStopsButton.addEventListener('click', function() {
-        if (navigator.geolocation) {
-            displayLoadingSpinner();
-            closeAllDialogs(dialogIds);
-            navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
-            toogleSidebar();
-        } else {
-           console.log("Geolocalización no soportada por este navegador.");
-        }
-    });
-
     // Banner con tips
     const tipsBanner = document.getElementById('tips-banner');
     if (tipsBanner) {
@@ -1108,35 +1099,6 @@ function clickEvents() {
             }
         });
     }
-
-    // Iframes de rutas y paradas
-    const routesButton = document.getElementById('routesButton');
-    routesButton.addEventListener('click', function() {
-        displayLoadingSpinner();
-        closeAllDialogs(dialogIds);
-        showIframe('https://rutas.vallabus.com');
-        // URL para rutas
-        const dialogState = {
-            dialogType: 'planRoute'
-        };
-        history.pushState(dialogState, `Planificar ruta`, `#/rutas/`);
-        trackCurrentUrl();
-        toogleSidebar();
-    });
-    
-    const viewLinesButton = document.getElementById('viewLinesButton');
-    viewLinesButton.addEventListener('click', function() {
-        displayLoadingSpinner();
-        closeAllDialogs(dialogIds);
-        showIframe('https://rutas.vallabus.com/#/route');
-        // URL para visor de líneas
-        const dialogState = {
-            dialogType: 'showLines'
-        };
-        history.pushState(dialogState, `Planificar ruta`, `#/lineas/`);
-        trackCurrentUrl();
-        toogleSidebar();
-    });
 
     // Cualquier elemento con clase routeTo enlaza a rutas
     // data-arrive-date y data-arrive-time son opcionales
@@ -1164,12 +1126,6 @@ function clickEvents() {
                 showRouteToDestination(destName, destY, destX);
             }
         }
-    });
-
-    // Añadir el evento al enlace "Tus datos"
-    document.getElementById('show-data').addEventListener('click', function(event) {
-        event.preventDefault();
-        showDataDialog();
     });
 }
 
@@ -1314,6 +1270,10 @@ function closeAllDialogs(ids) {
     });
     const mapBox = document.getElementById('mapContainer');
     mapBox.classList.remove('show');
+
+    // Cerrar el sidebar
+    toogleSidebar(true);
+
     // Si intervalMap ya está definido, limpiar el intervalo existente
     if (window.globalState.intervalMap) {
         clearInterval(window.globalState.intervalMap);
@@ -1323,61 +1283,73 @@ function closeAllDialogs(ids) {
 
 // Manejo de estado de URLs y acciones en cada ruta
 async function handleRoute() {
-    const hash = window.location.hash;
+    const hash = window.location.hash.replace(/\/$/, ''); // Elimina la barra final si existe
 
-    if (hash === '' || hash === '#/' || hash === '#') {
-        closeAllDialogs(dialogIds);
-    } else if (hash.startsWith('#/lineas') || hash.startsWith('#/lineas/')) {
-        displayLoadingSpinner();
-        closeAllDialogs(dialogIds);
-        showIframe('https://rutas.vallabus.com/#/route');
-        history.replaceState(null, null, '#/lineas/');
-    } else if (hash.startsWith('#/rutas') || hash.startsWith('#/rutas/')) {
-        displayLoadingSpinner();
-        closeAllDialogs(dialogIds);
-        showIframe('https://rutas.vallabus.com');
-        history.replaceState(null, null, '#/rutas/');
-    } else if (hash === '#/cercanas' || hash === '#/cercanas/') {
-        if (navigator.geolocation) {
-            displayLoadingSpinner();
-            navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
-        } else {
-            console.log("Geolocalización no soportada por este navegador.");
-        }
-        history.replaceState(null, null, '#/cercanas/');
-    } else if (hash === '#/datos' || hash === '#/datos/') {
-        showDataDialog();
-    } else if (hash.startsWith('#/horarios/')) {
-        const stopNumber = hash.split('/')[2];
-        if (stopNumber) {
-            displayLoadingSpinner();
-            const busStops = await loadBusStops();
-            const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
+    // No cerramos el sidebar ni los diálogos para los enlaces #linea-X
+    if (!hash.startsWith('#linea-')) {
+        // Cerrar el sidebar antes de procesar la ruta
+        toogleSidebar(true);
 
-            if (!stopData) {
-                showErrorPopUp('Error: Parada no encontrada o vacía');
-                history.replaceState({ dialogType: 'home' }, document.title, '#/');
-                closeAllDialogs(dialogIds);
-                hideLoadingSpinner();
+        // Cerrar todos los diálogos antes de procesar la nueva ruta
+        closeAllDialogs(dialogIds);
+    }
+
+    switch(hash) {
+        case '':
+        case '#':
+        case '#/':
+            // No hacemos nada con el historial aquí
+            break;
+        case '#/lineas':
+            displayLoadingSpinner();
+            showIframe('https://rutas.vallabus.com/#/route');
+            break;
+        case '#/rutas':
+            displayLoadingSpinner();
+            showIframe('https://rutas.vallabus.com');
+            break;
+        case '#/cercanas':
+            if (navigator.geolocation) {
+                displayLoadingSpinner();
+                navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
             } else {
-                closeAllDialogs(dialogIds);
-                displayScheduledBuses(stopNumber).then(horariosElement => {
-                    const horariosBox = document.getElementById('horarios-box');
-                    horariosBox.setAttribute('data-stopNumber', stopNumber);
-                    horariosBox.innerHTML = horariosElement.innerHTML;
-                    horariosBox.style.display = 'block';
-                    horariosBox.scrollTo(0, 0);
-                    hideLoadingSpinner();
-                    clearInterval(intervalId);
-                });
+                console.log("Geolocalización no soportada por este navegador.");
             }
-        }
-    } else if (hash.startsWith('#linea-')) {
-        // No hacemos nada con enlaces a líneas específicas, ya que tenemos anchors en los horarios programados que queremos que funcionen
-    } else {
-        // Si no coincide con ningún deeplink conocido, volver a la página principal
-        history.replaceState({ dialogType: 'home' }, document.title, '#/');
-        closeAllDialogs(dialogIds);
+            break;
+        case '#/datos':
+            showDataDialog();
+            break;
+        default:
+            if (hash.startsWith('#/horarios/')) {
+                const stopNumber = hash.split('/')[2];
+                if (stopNumber) {
+                    displayLoadingSpinner();
+                    const busStops = await loadBusStops();
+                    const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
+
+                    if (!stopData) {
+                        showErrorPopUp('Error: Parada no encontrada o vacía');
+                        history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                        hideLoadingSpinner();
+                    } else {
+                        displayScheduledBuses(stopNumber).then(horariosElement => {
+                            const horariosBox = document.getElementById('horarios-box');
+                            horariosBox.setAttribute('data-stopNumber', stopNumber);
+                            horariosBox.innerHTML = horariosElement.innerHTML;
+                            horariosBox.style.display = 'block';
+                            horariosBox.scrollTo(0, 0);
+                            hideLoadingSpinner();
+                            clearInterval(intervalId);
+                        });
+                    }
+                }
+            } else if (hash.startsWith('#linea-')) {
+                // No hacemos nada especial aquí, permitimos que funcione normalmente
+            } else {
+                // Si no coincide con ningún deeplink conocido, volver a la página principal
+                history.replaceState({ dialogType: 'home' }, document.title, '#/');
+            }
+            break;
     }
 
     trackCurrentUrl();
@@ -1390,6 +1362,23 @@ function routersEvents() {
     // Manejar cambios en la ruta
     window.addEventListener('popstate', function(event) {
         handleRoute();
+    });
+
+    // Manejar clics en enlaces internos
+    document.body.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
+            const newHash = new URL(e.target.href).hash;
+            if (newHash.startsWith('#linea-')) {
+                // Permitir el comportamiento por defecto para enlaces #linea-X
+                return;
+            }
+            e.preventDefault();
+            const newUrl = e.target.href.replace(/\/$/, ''); // Elimina la barra final si existe
+            if (newUrl !== window.location.href) {
+                history.pushState(null, '', newUrl);
+                handleRoute();
+            }
+        }
     });
 }
 
@@ -1525,10 +1514,6 @@ function showDataDialog() {
 
     dialog.innerHTML = dialogContent;
     dialog.style.display = 'block';
-
-    // Cambiar la URL a /#/datos
-    history.pushState({ dialogType: 'data' }, 'Tus datos', '#/datos');
-    trackCurrentUrl();
 
     // Añadir eventos a los botones
     document.getElementById('exportDataBtn').addEventListener('click', exportData);

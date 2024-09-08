@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202409071617">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202409081135">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -123,15 +123,12 @@
     <div id="nearestStopsResults"></div>
 
     <div id="sidebar" class="sidebar">
-        <!-- Aquí puedes agregar tus enlaces y contenido -->
-               
-            <div class="sidebar-links">
-                <p><a id="scrollTop" href="#">Volver al inicio</a></p>
-                <div id="nearestStops"><button id="searchNearStops">Paradas cercanas</button></div>
-                <button id="routesButton">Planifica tu ruta</button>
-                <button id="viewLinesButton">Ver todas las líneas</button>
-            </div>
-
+        <div class="sidebar-links">
+            <a href="#/" id="scrollTop">Volver al inicio</a>
+            <a href="#/cercanas" id="nearestStopsButton">Paradas cercanas</a>
+            <a href="#/rutas" id="routesButton">Planifica tu ruta</a>
+            <a href="#/lineas" id="viewLinesButton">Ver todas las líneas</a>
+        </div>
         <div id="sidebar-stops"></div>
     </div>
 

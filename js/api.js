@@ -1373,7 +1373,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
       globalEventListeners.alertIcon.add(alertListener);
     }
   
-    // Add occupancy listener
+    // Add occupancy listener para mostrar la ocupación al hacer clic
     const occupancyElement = lineItem.querySelector('.ocupacion');
     if (occupancyElement) {
       const occupancyListener = function(event) {
@@ -1384,7 +1384,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
       globalEventListeners.occupancy.add(occupancyListener);
     }
   
-    // Add lineItem listener
+    // Add lineItem listener para mostrar el mapa al hacer clic
     const lineItemListener = function(event) {
         const mapBox = document.querySelector('#mapContainer');
         // Obtenemos el tripId del elemento hermano llamado .linea
@@ -1393,7 +1393,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
         const vehicleId = brotherElement.getAttribute('data-vehicle-id');
         const matricula = brotherElement.getAttribute('data-matricula');
 
-        /* Efecto click */
+        /* Efecto visual hightlight al hacer click */
         this.classList.add('clicked');
         setTimeout(() => {
             this.classList.remove('clicked');
@@ -1413,6 +1413,10 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
                 lineNumber: lineNumber,
             };
 
+            // Ocultar el sidebar si estuviera abierto
+            toogleSidebar(true);
+
+            // Mostrar el mapa
             mapBox.classList.add('show');
             updateBusMap(busData, paradaData, true);
 
@@ -2024,13 +2028,6 @@ let currentResultsListener = null;
 async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     let resultsDiv = document.getElementById('nearestStopsResults');
     resultsDiv.style.display = 'block';
-
-    // URL para paradas cercanas
-    const dialogState = {
-        dialogType: 'nearbyStops'
-    };
-    history.pushState(dialogState, `Paradas cercanas`, `#/cercanas/`);
-    trackCurrentUrl();
 
     resultsDiv.innerHTML = '<button id="close-nearest-stops">X</button>';
 
