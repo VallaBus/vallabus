@@ -158,6 +158,7 @@ async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
                 // Si no es null asignamos la clase
                 if (ocupacion) {
                     const occupancyStatusMapping = {
+                        'no': 'Sin datos de ocupación',
                         'empty': 'Todos los asientos están libres',
                         'many': 'Hay bastantes asientos libres',
                         'few': 'Hay pocos asientos libres',
