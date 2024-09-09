@@ -1744,6 +1744,7 @@ button.remove-stop {
 /* No mostramos nada si los datos son nulos, vacíos o no_data_available */
 .line-info .ocupacion.null, .line-info .ocupacion.undefined, .line-info .ocupacion.no {
     cursor: default;
+    z-index: -100; /* Evitamos que se pueda hacer clic */
 }
 
 /* Estilo extra para los iconos en el panel de info de próximos buses */
