@@ -1531,13 +1531,18 @@ function exportData() {
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        try {
-            data[key] = JSON.parse(localStorage.getItem(key));
-        } catch (e) {
-            // Si no se puede parsear como JSON, guardamos el valor como string
-            data[key] = localStorage.getItem(key);
+        // Excluir claves que comienzan con 'busSchedule_' y la clave 'busStops'
+        if (!key.startsWith('busSchedule_') && key !== 'busStops') {
+            try {
+                data[key] = JSON.parse(localStorage.getItem(key));
+            } catch (e) {
+                // Si no se puede parsear como JSON, guardamos el valor como string
+                data[key] = localStorage.getItem(key);
+            }
         }
     }
+
+    console.log('Datos completos a exportar:', data);
 
     const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
@@ -1584,7 +1589,14 @@ function importData() {
 
                     alert('Datos importados correctamente');
                     updateBusList(); // Actualizar la lista de paradas y líneas
-                    document.getElementById('dataDialog').style.display = 'none'; // Cerrar el diálogo
+                    closeAllDialogs(dialogIds); // Cerrar todos los diálogos
+                    
+                    // Redirigir al home y actualizar la URL
+                    const dialogState = {
+                        dialogType: 'home'
+                    };
+                    history.pushState(dialogState, document.title, '#/');
+                    trackCurrentUrl(); // Asumiendo que esta función actualiza el seguimiento de la URL
                 } catch (error) {
                     if (backup) {
                         // Restaurar el backup solo si se creó y hubo un error
