@@ -929,7 +929,7 @@ button.remove-stop {
 }
 
 /* Botón de cierre de diálogos */
-#horarios-box .horarios-close, #nearestStopsResults #close-nearest-stops, .dialog #closeDataDialogBtn {
+#horarios-box .horarios-close, #nearestStopsResults #close-nearest-stops, .dialog .closeDialogBtn {
     background-image: url("/img/close.png");
     background-size: 16px;
     width: 16px;
@@ -1192,7 +1192,7 @@ button.remove-stop {
     background-color: #2196F3;
 }
 
-.dark-mode .dialog button#closeDataDialogBtn {
+.dark-mode .dialog .closeDialogBtn {
     background-color: #2d2d2d;
     border: 1px solid #7b7b7b;
 }
@@ -1203,6 +1203,101 @@ button.remove-stop {
 
 .dark-mode .dialog p, .dark-mode .dialog ul {
     color: #eeeeee;
+}
+
+#statusDialog .status-summary {
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 3em;
+}
+
+#statusDialog .status-icon {
+    width: 60px; /* Reducido para móviles */
+    height: 60px; /* Reducido para móviles */
+    margin: 0 auto 15px;
+    background-color: #2EB67D;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#statusDialog .status-icon::after {
+    content: '✓';
+    color: white;
+    font-size: 30px; /* Reducido para móviles */
+}
+
+#statusDialog .status-message {
+    font-size: 16px; /* Reducido para móviles */
+    color: #1d1c1d;
+    margin-bottom: 5px;
+}
+
+#statusDialog .status-submessage {
+    font-size: 14px;
+    color: #616061;
+}
+
+#statusDialog .status-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Una sola columna para móviles */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#statusDialog .status-item {
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente en móviles */
+    align-items: flex-start; /* Alinea los elementos a la izquierda */
+}
+
+#statusDialog .status-item-name {
+    font-weight: bold;
+    color: #1d1c1d;
+    margin-bottom: 5px; /* Espacio entre nombre y estado */
+}
+
+#statusDialog .status-item-status {
+    color: #2EB67D;
+    font-weight: bold;
+}
+
+/* Media query para pantallas más grandes */
+@media (min-width: 768px) {
+    #statusDialog h2 {
+        font-size: 28px;
+    }
+
+    #statusDialog .status-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    #statusDialog .status-icon::after {
+        font-size: 40px;
+    }
+
+    #statusDialog .status-message {
+        font-size: 18px;
+    }
+
+    #statusDialog .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #statusDialog .status-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #statusDialog .status-item-name {
+        margin-bottom: 0;
+    }
 }
 
 #lineas-correspondencia {

@@ -49,6 +49,19 @@ async function fetchApiFromFallback(url) {
     }
 }
 
+async function fetchApiStatus() {
+    try {
+        const response = await fetchApi('/status/');
+        if (!response.ok) {
+            throw new Error('Error al obtener el estado del API');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error al obtener el estado del API:', error);
+        return null;
+    }
+}
+
 let busStops = [];
 let bikeStops = [];
 
