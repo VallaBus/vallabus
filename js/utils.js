@@ -6,7 +6,8 @@ const dialogIds = [
     'horarios-box',
     'nearestStopsResults',
     'iframe-container',
-    'dataDialog'
+    'dataDialog',
+    'statusDialog'
 ];
 
 // Generar o recuperar el ID único del cliente
@@ -1320,6 +1321,9 @@ async function handleRoute() {
         case '#/datos':
             showDataDialog();
             break;
+        case '#/estado':
+            showStatusDialog();
+            break;
         default:
             if (hash.startsWith('#/horarios/')) {
                 const stopNumber = hash.split('/')[2];
@@ -1354,6 +1358,85 @@ async function handleRoute() {
     }
 
     trackCurrentUrl();
+}
+
+async function showStatusDialog() {
+    // Crear el diálogo si no existe
+    let dialog = document.getElementById('statusDialog');
+    if (!dialog) {
+        dialog = document.createElement('div');
+        dialog.id = 'statusDialog';
+        dialog.className = 'dialog';
+        document.body.appendChild(dialog);
+    }
+
+    // Contenido inicial del diálogo
+    const dialogContent = `
+        <button id="closeStatusDialogBtn" class="closeDialogBtn"></button>
+        <h2>Estado del servicio</h2>
+        <div id="statusContent"></div>
+    `;
+
+    dialog.innerHTML = dialogContent;
+    dialog.style.display = 'block';
+
+    displayLoadingSpinner();
+    const statusData = await fetchApiStatus();
+    if (statusData) {
+        const statusContent = document.getElementById('statusContent');
+        
+        // Verificar si todas las agencias y servicios están activos
+        const allAgenciesActive = Object.entries(statusData.gtfs.realtime).every(([agency, services]) => 
+            Object.values(services).every(Boolean)
+        );
+        const allActive = allAgenciesActive && statusData.gtfs.static && statusData.gbfs;
+        
+        let agencyStatusHtml = '';
+        
+        // Generar HTML para cada agencia
+        for (const [agency, services] of Object.entries(statusData.gtfs.realtime)) {
+            agencyStatusHtml += `
+                <h2>${agency}</h2>
+                ${Object.entries(services).map(([service, status]) => `
+                    <div class="status-item">
+                        <span class="status-item-name">${service}</span>
+                        <span class="status-item-status">${status ? 'Operativo' : 'Inactivo'}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        statusContent.innerHTML = `
+            <div class="status-summary">
+                <div class="status-icon"></div>
+                <h2 class="status-message">${allActive ? 'Todos los sistemas funcionan correctamente' : 'Algunos sistemas presentan problemas'}</h2>
+                <p class="status-submessage">Estado actual de los servicios de VallaBus</p>
+            </div>
+            <div class="status-grid">
+                ${agencyStatusHtml}
+                <div class="status-item">
+                    <span class="status-item-name">GTFS estático</span>
+                    <span class="status-item-status">${statusData.gtfs.static ? 'Operativo' : 'Inactivo'}</span>
+                </div>
+                <h2>BIKI</h2>
+                <div class="status-item">
+                    <span class="status-item-name">Datos GBFS</span>
+                    <span class="status-item-status">${statusData.gbfs ? 'Operativo' : 'Inactivo'}</span>
+                </div>
+            </div>
+        `;
+    } else {
+        showErrorPopUp('Error al obtener el estado del servicio');
+    }
+    hideLoadingSpinner();
+
+    // Añadir evento al botón de cerrar
+    document.getElementById('closeStatusDialogBtn').addEventListener('click', () => {
+        dialog.style.display = 'none';
+        // Volver a la página principal al cerrar el diálogo
+        history.pushState({ dialogType: 'home' }, document.title, '#/');
+        trackCurrentUrl();
+    });
 }
 
 function routersEvents() {
@@ -1502,7 +1585,7 @@ function showDataDialog() {
 
     // Contenido del diálogo
     const dialogContent = `
-        <button id="closeDataDialogBtn"></button>
+        <button id="closeDataDialogBtn" class="closeDialogBtn"></button>
         <h2>Tus datos</h2>
         <ul>
             <li>Paradas guardadas: ${uniqueStops}</li>
