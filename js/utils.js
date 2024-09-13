@@ -1390,6 +1390,7 @@ async function showStatusDialog() {
             Object.values(services).every(Boolean)
         );
         const allActive = allAgenciesActive && statusData.gtfs.static && statusData.gbfs;
+        const allInactive = !allAgenciesActive && !statusData.gtfs.static && !statusData.gbfs;
         
         let agencyStatusHtml = '';
         
@@ -1400,33 +1401,40 @@ async function showStatusDialog() {
                 ${Object.entries(services).map(([service, status]) => `
                     <div class="status-item">
                         <span class="status-item-name">${service}</span>
-                        <span class="status-item-status">${status ? 'Operativo' : 'Inactivo'}</span>
+                        <span class="status-item-status ${status ? 'status-active' : 'status-inactive'}">${status ? 'Operativo' : 'Inactivo'}</span>
                     </div>
                 `).join('')}
             `;
         }
         
         statusContent.innerHTML = `
-            <div class="status-summary">
+            <div class="status-summary ${allActive ? 'all-active' : allInactive ? 'all-inactive' : 'some-inactive'}">
                 <div class="status-icon"></div>
-                <h2 class="status-message">${allActive ? 'Todos los sistemas funcionan correctamente' : 'Algunos sistemas presentan problemas'}</h2>
+                <h2 class="status-message">${allActive ? 'Todos los sistemas funcionan correctamente' : allInactive ? 'Todos los sistemas están inactivos' : 'Algunos sistemas presentan problemas'}</h2>
                 <p class="status-submessage">Estado actual de los servicios de VallaBus</p>
             </div>
             <div class="status-grid">
                 ${agencyStatusHtml}
                 <div class="status-item">
                     <span class="status-item-name">GTFS estático</span>
-                    <span class="status-item-status">${statusData.gtfs.static ? 'Operativo' : 'Inactivo'}</span>
+                    <span class="status-item-status ${statusData.gtfs.static ? 'status-active' : 'status-inactive'}">${statusData.gtfs.static ? 'Operativo' : 'Inactivo'}</span>
                 </div>
                 <h2>BIKI</h2>
                 <div class="status-item">
                     <span class="status-item-name">Datos GBFS</span>
-                    <span class="status-item-status">${statusData.gbfs ? 'Operativo' : 'Inactivo'}</span>
+                    <span class="status-item-status ${statusData.gbfs ? 'status-active' : 'status-inactive'}">${statusData.gbfs ? 'Operativo' : 'Inactivo'}</span>
                 </div>
             </div>
         `;
     } else {
-        showErrorPopUp('Error al obtener el estado del servicio');
+        statusContent.innerHTML = `
+            <div class="status-summary all-inactive">
+                <div class="status-icon"></div>
+                <h2 class="status-message">El API de VallaBus está inactiva</h2>
+                <p class="status-submessage">No se puede obtener el estado actual de los servicios</p>
+                <p class="status-submessage">Si crees que esto es un error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a> o <a href="https://twitter.com/vallabusapp">Twitter</a></p>
+            </div>
+        `;
     }
     hideLoadingSpinner();
 

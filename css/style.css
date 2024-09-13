@@ -1160,6 +1160,10 @@ button.remove-stop {
     transition: background-color 0.3s;
 }
 
+.dialog a {
+    color: #828282;
+}
+
 .dialog button#exportDataBtn {
     background-color: #4CAF50; /* Verde para exportar */
 }
@@ -1212,10 +1216,9 @@ button.remove-stop {
 }
 
 #statusDialog .status-icon {
-    width: 60px; /* Reducido para móviles */
-    height: 60px; /* Reducido para móviles */
+    width: 60px;
+    height: 60px;
     margin: 0 auto 15px;
-    background-color: #2EB67D;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1223,13 +1226,36 @@ button.remove-stop {
 }
 
 #statusDialog .status-icon::after {
-    content: '✓';
+    font-size: 30px;
     color: white;
-    font-size: 30px; /* Reducido para móviles */
+}
+
+#statusDialog .all-active .status-icon {
+    background-color: #2EB67D;
+}
+
+#statusDialog .all-active .status-icon::after {
+    content: '✓';
+}
+
+#statusDialog .some-inactive .status-icon {
+    background-color: #ECB22E;
+}
+
+#statusDialog .some-inactive .status-icon::after {
+    content: '!';
+}
+
+#statusDialog .all-inactive .status-icon {
+    background-color: #E01E5A;
+}
+
+#statusDialog .all-inactive .status-icon::after {
+    content: '✕';
 }
 
 #statusDialog .status-message {
-    font-size: 16px; /* Reducido para móviles */
+    font-size: 16px;
     color: #1d1c1d;
     margin-bottom: 5px;
 }
@@ -1241,7 +1267,7 @@ button.remove-stop {
 
 #statusDialog .status-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Una sola columna para móviles */
+    grid-template-columns: 1fr;
     gap: 15px;
     margin-top: 20px;
 }
@@ -1251,27 +1277,29 @@ button.remove-stop {
     border-radius: 4px;
     padding: 15px;
     display: flex;
-    flex-direction: column; /* Apila los elementos verticalmente en móviles */
-    align-items: flex-start; /* Alinea los elementos a la izquierda */
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 #statusDialog .status-item-name {
     font-weight: bold;
     color: #1d1c1d;
-    margin-bottom: 5px; /* Espacio entre nombre y estado */
+    margin-bottom: 5px;
 }
 
 #statusDialog .status-item-status {
-    color: #2EB67D;
     font-weight: bold;
 }
 
-/* Media query para pantallas más grandes */
-@media (min-width: 768px) {
-    #statusDialog h2 {
-        font-size: 28px;
-    }
+#statusDialog .status-active {
+    color: #2EB67D;
+}
 
+#statusDialog .status-inactive {
+    color: #E01E5A;
+}
+
+@media (min-width: 768px) {
     #statusDialog .status-icon {
         width: 70px;
         height: 70px;
