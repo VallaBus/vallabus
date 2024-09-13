@@ -69,6 +69,13 @@ function main() {
 
     // Mostrar advertencia si el usuario está accediendo desde un webview integrado de una app de social media
     socialBrowserWarning();
+
+    // Verificar el estado de los servicios y mostrar banner si es necesario
+    checkAndShowStatusBanner();
+
+    // Configurar un intervalo para verificar el estado periódicamente
+    setInterval(checkAndShowStatusBanner, 5 * 60 * 1000); // Cada 5 minutos
+
 }
 
 let deferredPrompt;

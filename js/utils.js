@@ -1410,8 +1410,9 @@ async function showStatusDialog() {
         statusContent.innerHTML = `
             <div class="status-summary ${allActive ? 'all-active' : allInactive ? 'all-inactive' : 'some-inactive'}">
                 <div class="status-icon"></div>
-                <h2 class="status-message">${allActive ? 'Todos los sistemas funcionan correctamente' : allInactive ? 'Todos los sistemas están inactivos' : 'Algunos sistemas presentan problemas'}</h2>
+                <h2 class="status-message">${allActive ? 'Todos los servicios funcionan correctamente' : allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas'}</h2>
                 <p class="status-submessage">Estado actual de los servicios de VallaBus</p>
+                <p class="status-submessage">Si algún servicio no está operativo es posible que VallaBus no pueda mostrar algunos datos, o no de forma actualizada</p>
             </div>
             <div class="status-grid">
                 ${agencyStatusHtml}
@@ -1424,6 +1425,9 @@ async function showStatusDialog() {
                     <span class="status-item-name">Datos GBFS</span>
                     <span class="status-item-status ${statusData.gbfs ? 'status-active' : 'status-inactive'}">${statusData.gbfs ? 'Operativo' : 'Inactivo'}</span>
                 </div>
+            </div>
+            <div>
+                <p class="status-submessage">Si crees que alguna información presenta algún error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a> o <a href="https://twitter.com/vallabusapp">Twitter</a></p>
             </div>
         `;
     } else {
@@ -1445,6 +1449,62 @@ async function showStatusDialog() {
         history.pushState({ dialogType: 'home' }, document.title, '#/');
         trackCurrentUrl();
     });
+}
+
+async function checkAndShowStatusBanner() {
+    try {
+        const statusData = await fetchApiStatus();
+        const tipsBanner = document.getElementById('tips-banner');
+        let statusBanner = document.getElementById('status-banner');
+
+        if (!statusData) {
+            throw new Error('No se pudo obtener el estado de los servicios');
+        }
+
+        const allAgenciesActive = Object.entries(statusData.gtfs.realtime).every(([agency, services]) => 
+            Object.values(services).every(Boolean)
+        );
+        const allActive = allAgenciesActive && statusData.gtfs.static && statusData.gbfs;
+        const allInactive = !allAgenciesActive && !statusData.gtfs.static && !statusData.gbfs;
+
+        if (!allActive) {
+            if (!statusBanner) {
+                statusBanner = document.createElement('p');
+                statusBanner.id = 'status-banner';
+                statusBanner.className = 'sticky';
+                tipsBanner.insertBefore(statusBanner, tipsBanner.firstChild);
+            }
+
+            const iconClass = allInactive ? 'all-inactive' : 'some-inactive';
+            const message = allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas';
+            
+            statusBanner.innerHTML = `
+                <div class="status-icon ${iconClass}"></div>
+                <a href="#/estado">${message}</a>
+            `;
+            statusBanner.style.display = 'block';
+        } else if (statusBanner) {
+            statusBanner.remove();
+        }
+    } catch (error) {
+        console.error('Error al obtener el estado de los servicios:', error);
+        
+        const tipsBanner = document.getElementById('tips-banner');
+        let statusBanner = document.getElementById('status-banner');
+        
+        if (!statusBanner) {
+            statusBanner = document.createElement('p');
+            statusBanner.id = 'status-banner';
+            statusBanner.className = 'sticky status-error';
+            tipsBanner.insertBefore(statusBanner, tipsBanner.firstChild);
+        }
+
+        statusBanner.innerHTML = `
+            <div class="status-icon all-inactive"></div>
+            <a href="#/estado">Todos los servicios están caídos</a>
+        `;
+        statusBanner.style.display = 'block';
+    }
 }
 
 function routersEvents() {

@@ -2110,6 +2110,55 @@ button.remove-stop {
 
 /* Css para los banners inidividuales */
 
+#status-banner {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffebee;
+    color: #c62828;
+    font-weight: bold;
+}
+
+#status-banner a {
+    margin-left: 10px;
+    color: #c62828;
+    text-decoration: underline;
+}
+
+#status-banner.status-error {
+    background-color: #E01E5AD1;
+    color: #FFF;
+}
+
+#status-banner.status-error a {
+    color: #FFF;
+}
+
+#status-banner .status-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#status-banner .status-icon::before {
+    content: '!';
+    font-weight: bold;
+    color: white;
+}
+
+#status-banner .status-icon.all-inactive {
+    background-color: #E01E5A;
+}
+
+#status-banner .status-icon.some-inactive {
+    background-color: #ffa000;
+}
+
 #tips-banner #share-whatsapp {
     margin: 0; 
     color: #0e4f0b; 
