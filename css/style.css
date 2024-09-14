@@ -3076,6 +3076,24 @@ body.dark-mode {
     stroke: #505050;
 }
 
+.bus-icon.linea-LP, .linea-LP h3, #busMap .linea-LP, span.linea-LP {
+    background-color: #2fb7b7;
+    stroke: #2fb7b7;
+    color: #FFF;
+}
+
+.bus-icon.linea-LC, .linea-LC h3, #busMap .linea-LC, span.linea-LC {
+    background-color: #5ebd5a;
+    stroke: #5ebd5a;
+    color: #FFF;
+}
+
+.bus-icon.linea-LD, .linea-LD h3, #busMap .linea-LD, span.linea-LD {
+    background-color: #ee4ba4;
+    stroke: ee4ba4;
+    color: #FFF;
+}
+
 .bus-icon.linea-F1, .linea-F1 h3, #busMap .linea-F1, span.linea-F1, .bus-icon.linea-F2, .linea-F2 h3, #busMap .linea-F2, span.linea-F2, .bus-icon.linea-F3, .linea-F3 h3, #busMap .linea-F3, span.linea-F3, .bus-icon.linea-F4, .linea-F4 h3, #busMap .linea-F4, span.linea-F4, .bus-icon.linea-F5, .linea-F5 h3, #busMap .linea-F5, span.linea-F5, .bus-icon.linea-F6, .linea-F6 h3, #busMap .linea-F6, span.linea-F6 {
     background-color: #006d38;
     stroke: #006d38;
