@@ -954,7 +954,6 @@ button.remove-stop {
 
 .dark-mode #horarios-box .horarios-close, .dark-mode #nearestStopsResults #close-nearest-stops, .dark-mode .dialog {
     background-color: #2d2d2d;
-    border: 1px solid #7b7b7b;
 }
 
 #horarios-box #stopDateInput {
@@ -1198,7 +1197,6 @@ button.remove-stop {
 
 .dark-mode .dialog .closeDialogBtn {
     background-color: #2d2d2d;
-    border: 1px solid #7b7b7b;
 }
 
 .dark-mode .dialog h2 {
@@ -1296,6 +1294,64 @@ button.remove-stop {
 }
 
 #statusDialog .status-inactive {
+    color: #E01E5A;
+}
+
+.dark-mode #statusDialog .status-summary {
+    margin-top: 2em;
+}
+
+.dark-mode #statusDialog .status-icon {
+    background-color: #2d2d2d;
+}
+
+.dark-mode #statusDialog .status-icon::after {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .all-active .status-icon {
+    background-color: #2EB67D;
+}
+
+.dark-mode #statusDialog .some-inactive .status-icon {
+    background-color: #ECB22E;
+}
+
+.dark-mode #statusDialog .all-inactive .status-icon {
+    background-color: #E01E5A;
+}
+
+.dark-mode #statusDialog .status-message {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-submessage {
+    color: #CCCCCC;
+}
+
+.dark-mode #statusDialog .status-grid {
+    gap: 10px;
+}
+
+.dark-mode #statusDialog .status-item {
+    background-color: #252525;
+    border-radius: 2px;
+    padding: 10px;
+}
+
+.dark-mode #statusDialog .status-item-name {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-item-status {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-active {
+    color: #45a049;
+}
+
+.dark-mode #statusDialog .status-inactive {
     color: #E01E5A;
 }
 
@@ -3090,7 +3146,7 @@ body.dark-mode {
 
 .bus-icon.linea-LD, .linea-LD h3, #busMap .linea-LD, span.linea-LD {
     background-color: #ee4ba4;
-    stroke: ee4ba4;
+    stroke: #ee4ba4;
     color: #FFF;
 }
 
