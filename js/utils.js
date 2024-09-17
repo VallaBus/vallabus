@@ -891,34 +891,66 @@ function showOverlayIfNotClosed(overlayId) {
 
 // Funciones varias para eventos en elementos
 
-// Detección y cambio de de theme claro/oscuro
+// Cambio de theme auto/oscuro/claro
 function themeEvents() {
-    // Determina el tema del usuario basándose en la preferencia guardada en localStorage
-    // o en la preferencia del sistema operativo.
     const themeToggle = document.getElementById('theme-toggle');
-    const themeToggleIcon = document.getElementById('theme-toggle-icon');
-    let savedTheme = localStorage.getItem('theme');
 
-    if (!savedTheme) {
-        // Si no hay un tema guardado en localStorage, establece el tema basado en la preferencia del sistema operativo.
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            savedTheme = 'dark';
+    // Función para aplicar el tema
+    function applyTheme(theme) {
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let isDark;
+
+        if (theme === 'dark') {
+            isDark = true;
+        } else if (theme === 'light') {
+            isDark = false;
         } else {
-            savedTheme = 'light';
+            // Modo auto: seguir preferencia del sistema
+            isDark = prefersDarkMode;
         }
-        // Guarda la preferencia del sistema operativo en localStorage.
-        localStorage.setItem('theme', savedTheme);
+
+        document.documentElement.classList.toggle('dark-mode', isDark);
+        updateThemeToggleIcon(theme);
     }
 
-    document.body.classList.toggle('dark-mode', savedTheme === 'dark');
-    themeToggleIcon.textContent = savedTheme === 'dark' ? '🌜' : '🌞';
+    // Función para actualizar el icono del toggle
+    function updateThemeToggleIcon(theme) {
+        if (theme === 'auto') {
+            themeToggle.innerHTML = '🌓';
+        } else {
+            themeToggle.innerHTML = theme === 'dark' ? '🌜' : '🌞';
+        }
+    }
 
-    // Switch del modo claro/oscuro
+    // Switch del modo auto/oscuro/claro
     themeToggle.addEventListener('click', () => {
-        const isDarkMode = document.body.classList.toggle('dark-mode');
-        themeToggleIcon.textContent = isDarkMode ? '🌜' : '🌞';
-        // Guardar la preferencia del usuario
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        const currentTheme = localStorage.getItem('theme') || 'auto';
+        let newTheme;
+        switch(currentTheme) {
+            case 'auto':
+                newTheme = 'dark';
+                break;
+            case 'dark':
+                newTheme = 'light';
+                break;
+            default:
+                newTheme = 'auto';
+        }
+
+        if (newTheme === 'auto') {
+            localStorage.removeItem('theme');
+        } else {
+            localStorage.setItem('theme', newTheme);
+        }
+
+        applyTheme(newTheme);
+    });
+
+    // Escuchar cambios en la preferencia del sistema
+    window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+        if (!localStorage.getItem('theme')) {
+            applyTheme('auto');
+        }
     });
 }
 
