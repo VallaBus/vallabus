@@ -34,8 +34,11 @@ async function updateBusMap(busData, paradaData, centerMap) {
         }
     
         try {
-            // Detectamos el theme para ofrecer una capa u otra de mapa
-            const savedTheme = localStorage.getItem('theme');
+            // Si el html es dark-mode, usamos la capa de mapa oscura
+            let savedTheme;
+            if (document.documentElement.classList.contains('dark-mode')) {
+                savedTheme = 'dark';
+            }
 
             // Añadimos la nueva capa de mapa basada en el tema
             if (savedTheme === "dark") {
@@ -396,7 +399,11 @@ async function addStopsToMap(tripId, lineNumber) {
                     lineasHTML += '</div>';
 
                     let iconUrl = 'img/bus-stop.png';
-                    const savedTheme = localStorage.getItem('theme');
+                    // Si el html es dark-mode, usamos la capa de mapa oscura
+                    let savedTheme;
+                    if (document.documentElement.classList.contains('dark-mode')) {
+                        savedTheme = 'dark';
+                    }
 
                     if (savedTheme === "dark") {
                         iconUrl = 'img/bus-stop-dark.png';
@@ -555,8 +562,11 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
     let iconUrl = 'img/bus-stop.png';
     const suppressedStops = await fetchSuppressedStops();
 
-    // Detectamos el theme para ofrecer una capa u otra de mapa
-    const savedTheme = localStorage.getItem('theme');
+    // Si el html es dark-mode, usamos la capa de mapa oscura
+    let savedTheme;
+    if (document.documentElement.classList.contains('dark-mode')) {
+        savedTheme = 'dark';
+    }
     if (savedTheme === "dark"){
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
             attribution:'&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -702,8 +712,11 @@ async function mapaParadasBiciCercanas(paradas) {
     
     let iconUrl = 'img/bike-stop.png';
 
-    // Detectamos el theme para ofrecer una capa u otra de mapa
-    const savedTheme = localStorage.getItem('theme');
+    // Si el html es dark-mode, usamos la capa de mapa oscura
+    let savedTheme;
+    if (document.documentElement.classList.contains('dark-mode')) {
+        savedTheme = 'dark';
+    }
     if (savedTheme === "dark"){
         iconUrl = 'img/bike-stop-dark.png';
     }
