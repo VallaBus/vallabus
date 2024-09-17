@@ -9,8 +9,18 @@ function main() {
     // Objeto global para almacenar y acceder a intervalos
     window.globalState = window.globalState || {};
 
-    // Verificamos si necesita migración desde auvasatracker
-    // checkStatusForMigration();
+    // Verificar si hay paradas guardadas
+    const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+    const hasStops = busLines.length > 0;
+
+    // Mostrar mensaje de bienvenida o mostrar placeholder inmediato si hay paradas
+    if (hasStops) {
+        document.getElementById('welcome-box').style.display = 'none';
+        document.getElementById('initial-placeholder').style.display = 'block';
+        showSkeletonLoader();
+    } else {
+        showWelcomeMessage();
+    }
 
     // Limpieza de caché en localstorage obsoleto
     cleanObsoleteCache();

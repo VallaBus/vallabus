@@ -775,153 +775,150 @@ async function updateBusList() {
     // Obtén la lista de paradas "Fijas" del almacenamiento local
     let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
     
-    // Ordena las paradas en función de su índice en fixedStops, de manera que las paradas añadidas más recientemente aparezcan primero
+    // Ordena las paradas: primero las fijadas (con las más recientes arriba), luego el resto
     let sortedStops = Object.keys(stops).sort((a, b) => {
-        const aIndex = fixedStops.indexOf(a);
-        const bIndex = fixedStops.indexOf(b);
-    
-        // Si ambas paradas están en fixedStops, ordenar por su índice (las más recientes primero)
-        if (aIndex !== -1 && bIndex !== -1) {
-            return bIndex - aIndex;
-        }
-        // Si solo una de las paradas está en fixedStops, mostrarla primero
-        else if (aIndex !== -1) {
-            return -1;
-        } else if (bIndex !== -1) {
-            return 1;
-        }
-        // Si ninguna de las paradas está en fixedStops, ordenarlas alfabéticamente
-        else {
+        const aFixed = fixedStops.includes(a);
+        const bFixed = fixedStops.includes(b);
+        
+        if (aFixed && bFixed) {
+            // Si ambas están fijadas, ordenar por su índice en fixedStops (orden inverso)
+            return fixedStops.indexOf(b) - fixedStops.indexOf(a);
+        } else if (aFixed) {
+            return -1; // a va primero
+        } else if (bFixed) {
+            return 1; // b va primero
+        } else {
+            // Si ninguna está fijada, ordenar alfabéticamente
             return a.localeCompare(b);
         }
     });
     
     // Crea un nuevo array con los objetos ordenados
-    let sortedStopsArray = [];
-    sortedStops.forEach(key => {
-        sortedStopsArray.push({ stopId: key, lines: stops[key] });
-    });
+    let sortedStopsArray = sortedStops.map(key => ({ stopId: key, lines: stops[key] }));
 
     // Creamos las paradas una a una
     (async () => {
         for (let stop of sortedStopsArray) {
-        let stopId = stop.stopId;
+            let stopId = stop.stopId;
 
-        let stopElement = document.getElementById(stopId);
-        // Solo creamos las paradas que no estaban creadas previamente
-        // A menos que no hayan pasado recreateStops
-        if (!stopElement) {
-            stopElement = createStopElement(stopId, busList);
-        }
+            let stopElement = document.getElementById(stopId);
+            if (!stopElement) {
+                stopElement = createStopElement(stopId, busList, false); // No crear como skeleton
+            }
 
-        const stopName = await getStopName(stopId);
-        const stopGeo = await getStopGeo(stopId);
+            const stopName = await getStopName(stopId);
+            const stopGeo = await getStopGeo(stopId);
 
-        // Actualizamos el nombre de la parada si ha cambiado
-        if (stopName) {
-            let updatedName = `<span class="stop-name">${stopName} <span class="stopId">(${stopId})</span></span>`;
-            if (!stopElement.querySelector('.stopId') || stopElement.querySelector('.stopId').textContent !== '(' + stopId + ')') {
+            if (stopName) {
+                let updatedName = `<span class="stop-name">${stopName} <span class="stopId">(${stopId})</span></span>`;
                 updateStopName(stopElement, updatedName, stopGeo);
+                stopElement.classList.remove('skeleton');
+                stopElement.querySelector('.stop-header').classList.remove('skeleton-text');
             }
-        }
 
-        // Comprobar si la parada está suprimida
-        const stopSuppressed = suppressedStops.some(stop => stop.numero === stopId);
-        if (stopSuppressed) {
-            // Solo añadimos información si no la tenía antes
-            if (!stopElement.classList.contains('suprimida')) {
-                stopElement.classList.add('suprimida');
-                let suppressedStopAlert = document.createElement('div');
-                suppressedStopAlert.className = 'suppressedStopAlert';
-                suppressedStopAlert.innerHTML = "Parada posiblemente suprimida en este momento, consulta las alertas en las líneas para más información";
-                
-                // Seleccionar el elemento stop-header dentro de stopElement
-                const stopHeaderElement = stopElement.querySelector('stop-header');
-                if (stopHeaderElement) {
-                    // Insertar suppressedStopAlert justo después del stopHeaderElement
-                    stopHeaderElement.insertAdjacentElement('afterend', suppressedStopAlert);
-                } else {
-                    // Si no hay un elemento h2, añadirlo al final de stopElement como antes
-                    stopElement.appendChild(suppressedStopAlert);
+            // Comprobar si la parada está suprimida
+            const stopSuppressed = suppressedStops.some(stop => stop.numero === stopId);
+            if (stopSuppressed) {
+                // Solo añadimos información si no la tenemos antes
+                if (!stopElement.classList.contains('suprimida')) {
+                    stopElement.classList.add('suprimida');
+                    let suppressedStopAlert = document.createElement('div');
+                    suppressedStopAlert.className = 'suppressedStopAlert';
+                    suppressedStopAlert.innerHTML = "Parada posiblemente suprimida en este momento, consulta las alertas en las líneas para más información";
+                    
+                    // Seleccionar el elemento stop-header dentro de stopElement
+                    const stopHeaderElement = stopElement.querySelector('stop-header');
+                    if (stopHeaderElement) {
+                        // Insertar suppressedStopAlert justo después del stopHeaderElement
+                        stopHeaderElement.insertAdjacentElement('afterend', suppressedStopAlert);
+                    } else {
+                        // Si no hay un elemento h2, añadirlo al final de stopElement como antes
+                        stopElement.appendChild(suppressedStopAlert);
+                    }
                 }
-            }
-        } else {
-            // Si la parada no está suprimida, eliminar el div de alerta si existe
-            const suppressedStopAlert = stopElement.querySelector('.suppressedStopAlert');
-            if (suppressedStopAlert) {
-                suppressedStopAlert.remove();
-            }
-        }
-
-        // Actualizamos el listado en el sidebar
-        stopsListHTML += `<li><a class="sidebar-stop-link" data-stopid="${stopId}" href="#${stopId}">${stopName}</a></li>`;
-        sidebarStops.innerHTML = `
-            <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
-            <p class="sidebar-footer">fijará una parada arriba en la lista</p>
-        `;
-        // Agregar event listener a los enlaces del sidebar
-        const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
-        stopLinks.forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
-                toogleSidebar(); // Cerrar el sidebar
-                closeAllDialogs(dialogIds);
-                // Regresamos al home
-                const dialogState = {
-                    dialogType: 'home'
-                };
-                history.replaceState(dialogState, document.title, '#/');
-                const linkStopId = link.getAttribute('data-stopid');
-                const stopElement = document.getElementById(linkStopId);
-                if (stopElement) {
-                    scrollToElement(stopElement);
-                }
-            });
-        });
-
-        // Creamos todas las líneas añadidas en esa parada, mostrando primero las numéricas y luego las que tienen una letra
-        stops[stopId].sort((a, b) => {
-            const aNumber = parseInt(a.lineNumber, 10);
-            const bNumber = parseInt(b.lineNumber, 10);
-            const aIsNumber = !isNaN(aNumber);
-            const bIsNumber = !isNaN(bNumber);
-
-            if (aIsNumber && bIsNumber) {
-                // Si ambos son números, compararlos numéricamente
-                return aNumber - bNumber;
-            } else if (aIsNumber && !bIsNumber) {
-                // Si a es un número y b no, a va primero
-                return -1;
-            } else if (!aIsNumber && bIsNumber) {
-                // Si a no es un número y b sí, b va primero
-                return 1;
             } else {
-                // Si ambos no son números, compararlos alfabéticamente
-                return a.lineNumber.localeCompare(b.lineNumber);
+                // Si la parada no está suprimida, eliminar el div de alerta si existe
+                const suppressedStopAlert = stopElement.querySelector('.suppressedStopAlert');
+                if (suppressedStopAlert) {
+                    suppressedStopAlert.remove();
+                }
             }
-        }).forEach((line, index) => {
-            const busId = stopId + '-' + line.lineNumber;
-            let busElement = document.getElementById(busId);
-            // Solo creamos las líneas que no estaban creadas previamente
-            if (!busElement) {
-                busElement = createBusElement(busId, line, index, stopElement);
+
+            // Actualizamos el listado en el sidebar
+            stopsListHTML += `<li><a class="sidebar-stop-link" data-stopid="${stopId}" href="#${stopId}">${stopName}</a></li>`;
+            sidebarStops.innerHTML = `
+                <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
+                <p class="sidebar-footer">fijará una parada arriba en la lista</p>
+            `;
+            // Agregar event listener a los enlaces del sidebar
+            const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
+            stopLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
+                    toogleSidebar(); // Cerrar el sidebar
+                    closeAllDialogs(dialogIds);
+                    // Regresamos al home
+                    const dialogState = {
+                        dialogType: 'home'
+                    };
+                    history.replaceState(dialogState, document.title, '#/');
+                    const linkStopId = link.getAttribute('data-stopid');
+                    const stopElement = document.getElementById(linkStopId);
+                    if (stopElement) {
+                        scrollToElement(stopElement);
+                    }
+                });
+            });
+
+            // Creamos todas las líneas añadidas en esa parada, mostrando primero las numéricas y luego las que tienen una letra
+            stops[stopId].sort((a, b) => {
+                const aNumber = parseInt(a.lineNumber, 10);
+                const bNumber = parseInt(b.lineNumber, 10);
+                const aIsNumber = !isNaN(aNumber);
+                const bIsNumber = !isNaN(bNumber);
+
+                if (aIsNumber && bIsNumber) {
+                    // Si ambos son números, compararlos numéricamente
+                    return aNumber - bNumber;
+                } else if (aIsNumber && !bIsNumber) {
+                    // Si a es un número y b no, a va primero
+                    return -1;
+                } else if (!aIsNumber && bIsNumber) {
+                    // Si a no es un número y b sí, b va primero
+                    return 1;
+                } else {
+                    // Si ambos no son números, compararlos alfabéticamente
+                    return a.lineNumber.localeCompare(b.lineNumber);
+                }
+            }).forEach((line, index) => {
+                const busId = stopId + '-' + line.lineNumber;
+                let busElement = document.getElementById(busId);
+                // Solo creamos las líneas que no estaban creadas previamente
+                if (!busElement) {
+                    busElement = createBusElement(busId, line, index, stopElement);
+                }
+                // Llamar a fetchBusTime y quitar las clases skeleton cuando se complete
+                fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts).then(() => {
+                    busElement.classList.remove('skeleton', 'skeleton-text');
+                });
+            });
+
+            createRemoveStopButton(stopId, stopElement);
+
+            // Botón para motrar horarios al final
+            let mostrarHorarios = stopElement.querySelector('.mostrar-horarios');
+            // Para asegurarnos que queda al final al añadir una linea lo borramos y lo volvemos a colocar
+            if (mostrarHorarios) {
+                mostrarHorarios.remove();
             }
-            // Llamar a fetchBusTime independientemente de si el busElement es nuevo o ya existía
-            fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts);
-        });
+            mostrarHorarios = createMostrarHorarios(stopId, stopElement, horariosBox);
 
-
-        createRemoveStopButton(stopId, stopElement);
-
-        // Botón para motrar horarios al final
-        let mostrarHorarios = stopElement.querySelector('.mostrar-horarios');
-        // Para asegurarnos que queda al final al añadir una linea lo borramos y lo volvemos a colocar
-        if (mostrarHorarios) {
-            mostrarHorarios.remove();
+            // Asegurarse de quitar todas las clases skeleton restantes
+            stopElement.querySelectorAll('.skeleton, .skeleton-text').forEach(el => {
+                el.classList.remove('skeleton', 'skeleton-text');
+            });
         }
-        mostrarHorarios = createMostrarHorarios(stopId, stopElement, horariosBox);
-
-    }})().catch(error => {
+    })().catch(error => {
         console.error('Error processing stops:', error);
     });
 
@@ -1894,8 +1891,7 @@ function removeAllBusLines() {
         localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
 
         // Volvemos a mostrar el welcome-box
-        let welcomeBox = document.getElementById('welcome-box');
-        welcomeBox.style.display = 'block';
+        showWelcomeMessage();
 
         // Ocultamos el boton removeallbutton
         let removeAllButton = document.getElementById('removeAllButton');

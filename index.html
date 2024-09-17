@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202409162020">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202409172200">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -42,6 +42,7 @@
     form-action 'self';
     ">
 
+    <script src="js/theme-loader.js"></script>
     <script src="js/matomo.js"></script>
 </head>
 
@@ -108,6 +109,14 @@
             <p>Ver paradas cercanas o planificar su ruta</p>
             <h2>Instala o añade la app</h2>
             <p>Si accedes desde web, no olvides instalar o <strong>Agregar a la pantalla principal</strong> desde el menú del navegador o desde el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> en iOS</p>
+        </div>
+        <!-- Placeholder inicial -->
+        <div id="initial-placeholder">
+            <div class="stop-block skeleton">
+                <div class="stop-header skeleton-text"></div>
+                <div class="line-info skeleton-text"></div>
+                <div class="line-info skeleton-text"></div>
+            </div>
         </div>
     </div>
 

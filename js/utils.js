@@ -261,20 +261,30 @@ function updateStopName(stopElement, newName, stopGeo) {
         const stopNameSpan = nameElement.querySelector('.stop-name');
         const stopName = stopNameSpan ? stopNameSpan.textContent : 'Destino';
 
-        // Icono de mapa
-        const mapIconElement = document.createElement('a');
-        mapIconElement.className = 'mapIcon';
-        mapIconElement.setAttribute('title', 'Cómo llegar');
-        mapIconElement.textContent = 'Mapa';
+        // Buscar un mapIcon existente
+        let mapIconElement = stopElement.querySelector('.mapIcon');
 
-        nameElement.insertAdjacentElement('afterend', mapIconElement);
+        // Si no existe, crear uno nuevo
+        if (!mapIconElement) {
+            mapIconElement = document.createElement('a');
+            mapIconElement.className = 'mapIcon';
+            mapIconElement.setAttribute('title', 'Cómo llegar');
+            mapIconElement.textContent = 'Mapa';
 
-        mapIconElement.addEventListener('click', function(event) {
-            // Prevenir la acción por defecto del enlace
-            event.preventDefault();
+            nameElement.insertAdjacentElement('afterend', mapIconElement);
 
-            showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
-        });
+            mapIconElement.addEventListener('click', function(event) {
+                // Prevenir la acción por defecto del enlace
+                event.preventDefault();
+                showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
+            });
+        } else {
+            // Si ya existe, actualizar solo el evento click
+            mapIconElement.onclick = function(event) {
+                event.preventDefault();
+                showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
+            };
+        }
     }
 }
 
@@ -325,16 +335,18 @@ async function toggleFixedStop(event) {
     localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
 }
 
-function createStopElement(stopId, busList) {
+function createStopElement(stopId, busList, isSkeleton = false) {
     let welcomeBox = document.getElementById('welcome-box');
-    welcomeBox.style.display = 'none';
+    if (welcomeBox) {
+        welcomeBox.style.display = 'none';
+    }
     
     let stopElement = document.createElement('div');
     stopElement.id = stopId;
-    stopElement.className = 'stop-block';
+    stopElement.className = 'stop-block' + (isSkeleton ? ' skeleton' : '');
 
     let headerElement = document.createElement('div');
-    headerElement.className = 'stop-header';
+    headerElement.className = 'stop-header' + (isSkeleton ? ' skeleton-text' : '');
 
     let nameElement = document.createElement('h2');
     nameElement.textContent = `${stopId}`;
@@ -362,9 +374,9 @@ function createStopElement(stopId, busList) {
     return stopElement;
 }
 
-function createBusElement(busId, line, index, stopElement) {
+function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
     let busElement = document.createElement('div');
-    busElement.className = `line-info linea-${line.lineNumber}`;
+    busElement.className = `line-info${isSkeleton ? ' skeleton-text' : ''} linea-${line.lineNumber}`;
     busElement.id = busId;
 
     if (index % 2 === 0) {
@@ -879,34 +891,66 @@ function showOverlayIfNotClosed(overlayId) {
 
 // Funciones varias para eventos en elementos
 
-// Detección y cambio de de theme claro/oscuro
+// Cambio de theme auto/oscuro/claro
 function themeEvents() {
-    // Determina el tema del usuario basándose en la preferencia guardada en localStorage
-    // o en la preferencia del sistema operativo.
     const themeToggle = document.getElementById('theme-toggle');
-    const themeToggleIcon = document.getElementById('theme-toggle-icon');
-    let savedTheme = localStorage.getItem('theme');
 
-    if (!savedTheme) {
-        // Si no hay un tema guardado en localStorage, establece el tema basado en la preferencia del sistema operativo.
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            savedTheme = 'dark';
+    // Función para aplicar el tema
+    function applyTheme(theme) {
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        let isDark;
+
+        if (theme === 'dark') {
+            isDark = true;
+        } else if (theme === 'light') {
+            isDark = false;
         } else {
-            savedTheme = 'light';
+            // Modo auto: seguir preferencia del sistema
+            isDark = prefersDarkMode;
         }
-        // Guarda la preferencia del sistema operativo en localStorage.
-        localStorage.setItem('theme', savedTheme);
+
+        document.documentElement.classList.toggle('dark-mode', isDark);
+        updateThemeToggleIcon(theme);
     }
 
-    document.body.classList.toggle('dark-mode', savedTheme === 'dark');
-    themeToggleIcon.textContent = savedTheme === 'dark' ? '🌜' : '🌞';
+    // Función para actualizar el icono del toggle
+    function updateThemeToggleIcon(theme) {
+        if (theme === 'auto') {
+            themeToggle.innerHTML = '🌓';
+        } else {
+            themeToggle.innerHTML = theme === 'dark' ? '🌜' : '🌞';
+        }
+    }
 
-    // Switch del modo claro/oscuro
+    // Switch del modo auto/oscuro/claro
     themeToggle.addEventListener('click', () => {
-        const isDarkMode = document.body.classList.toggle('dark-mode');
-        themeToggleIcon.textContent = isDarkMode ? '🌜' : '🌞';
-        // Guardar la preferencia del usuario
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        const currentTheme = localStorage.getItem('theme') || 'auto';
+        let newTheme;
+        switch(currentTheme) {
+            case 'auto':
+                newTheme = 'dark';
+                break;
+            case 'dark':
+                newTheme = 'light';
+                break;
+            default:
+                newTheme = 'auto';
+        }
+
+        if (newTheme === 'auto') {
+            localStorage.removeItem('theme');
+        } else {
+            localStorage.setItem('theme', newTheme);
+        }
+
+        applyTheme(newTheme);
+    });
+
+    // Escuchar cambios en la preferencia del sistema
+    window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+        if (!localStorage.getItem('theme')) {
+            applyTheme('auto');
+        }
     });
 }
 
@@ -1766,5 +1810,67 @@ function importData() {
             reader.readAsText(file);
         };
         input.click();
+    }
+}
+
+function showWelcomeMessage() {
+    const welcomeBox = document.getElementById('welcome-box');
+    if (welcomeBox) {
+        welcomeBox.style.display = 'block';
+    }
+}
+
+function showSkeletonLoader() {
+    const busList = document.getElementById('busList');
+    const initialPlaceholder = document.getElementById('initial-placeholder');
+    if (busList && initialPlaceholder) {
+        // Ocultar el placeholder inicial de inmediato
+        initialPlaceholder.style.display = 'none';
+
+        // Obtener las paradas guardadas
+        const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+        
+        // Obtener las paradas fijadas
+        const fixedStops = JSON.parse(localStorage.getItem('fixedStops') || '[]');
+        
+        // Crear un objeto para agrupar las líneas por parada
+        const stopLines = busLines.reduce((acc, {stopNumber, lineNumber}) => {
+            if (!acc[stopNumber]) {
+                acc[stopNumber] = new Set();
+            }
+            acc[stopNumber].add(lineNumber);
+            return acc;
+        }, {});
+
+        // Ordenar las paradas: primero las fijadas (con las más recientes arriba), luego el resto
+        const sortedStops = Object.keys(stopLines).sort((a, b) => {
+            const aFixed = fixedStops.includes(a);
+            const bFixed = fixedStops.includes(b);
+            
+            if (aFixed && bFixed) {
+                // Si ambas están fijadas, ordenar por su índice en fixedStops (orden inverso)
+                return fixedStops.indexOf(b) - fixedStops.indexOf(a);
+            } else if (aFixed) {
+                return -1;
+            } else if (bFixed) {
+                return 1;
+            } else {
+                return a.localeCompare(b);
+            }
+        });
+
+        // Crear elementos para cada parada con clases skeleton
+        sortedStops.forEach(stopNumber => {
+            const stopElement = createStopElement(stopNumber, busList, true);
+            
+            // Añadir una línea skeleton por cada línea en esta parada
+            const lines = Array.from(stopLines[stopNumber]);
+            lines.forEach((lineNumber, index) => {
+                createBusElement(`${stopNumber}-${lineNumber}`, {lineNumber}, index, stopElement, true);
+            });
+        });
+
+        // Eliminar el placeholder inicial después de crear los elementos skeleton
+        initialPlaceholder.remove();
     }
 }
