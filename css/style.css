@@ -537,6 +537,7 @@ button#installIosButton {
     background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
     background-size: 140px;
     border: 1px solid #CCCCCCBA;
+    display: none;
 }
 
 #welcome-box h2 {
@@ -911,6 +912,44 @@ button.remove-stop {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+/* Skeleton placeholder */
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f9ff9c 25%, #e0e0e0 50%, #f0f9ff9c 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+.stop-block.skeleton .line-info {
+    height: 1rem;
+    margin-bottom: 0.7rem;
+}
+
+.stop-block.skeleton .stop-header {
+    color: transparent;
+}
+
+.dark-mode .skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+}
+
+.dark-mode .stop-block.skeleton {
+    border-color: #3a3a3a;
+}
+
+.dark-mode .stop-block.skeleton .line-info.highlight {
+    background-color: #3b3d3d;
 }
 
 #horarios-box, .dialog {
