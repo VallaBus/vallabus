@@ -1248,6 +1248,11 @@ function socialBrowserWarning() {
     // Lista de orígenes permitidos
     const allowedOrigins = ['https://www.instagram.com', 'https://m.instagram.com', 'https://www.facebook.com', 'https://m.facebook.com'];
 
+    // Si el referrer está vacío, no hacemos nada
+    if (!document.referrer) {
+        return;
+    }
+
     try {
         // Crear un objeto URL a partir del referrer
         const referrerUrl = new URL(document.referrer);
@@ -1262,7 +1267,6 @@ function socialBrowserWarning() {
         }
     } catch (error) {
         // Si hay un error al parsear la URL, no hacemos nada
-        console.error('Error al procesar el referrer:', error);
     }
 }
 
