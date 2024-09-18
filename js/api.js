@@ -181,7 +181,7 @@ async function fetchBusInfo(tripId) {
 
             if (data && data.length && data[0].ocupacion) {
                 const occupancyStatus = data[0].ocupacion;
-                busInfo.ocupacion = occupancyStatus.split('_')[0].replace('"', '').toLowerCase();
+                busInfo.ocupacion = occupancyStatus.split('_')[0].replace(/"/g, '').toLowerCase();
             }
 
             if (busInfo) {
