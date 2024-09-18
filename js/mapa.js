@@ -94,7 +94,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
                         if (centerMap) {
-                            myMap.panTo([lat, lon]);
+                            myMap.panTo([lat, lon], {animate: true, duration: 1});
                         }
                     }
 
@@ -249,8 +249,11 @@ function calculateBearing(lat1, lon1, lat2, lon2) {
 
 let directionIcons = [];
 // Función para dibujar indicadores de dirección para cada segmento de línea en la ruta
-function drawDirectionIndicators(mapName, routeCoordinates, className) {
-    if (routeCoordinates.length < 2) return; // Asegúrate de que haya al menos dos puntos
+function drawDirectionIndicators(mapName, routeCoordinates, className) {   
+    if (routeCoordinates.length < 2) {
+        console.log('No hay suficientes coordenadas para dibujar indicadores');
+        return;
+    }
 
     // Elimina los iconos de dirección existentes
     directionIcons.forEach(icon => {
@@ -328,7 +331,15 @@ async function addRouteShapesToMap(tripId, lineNumber) {
         }).addTo(myMap);
 
         // Extraer coordenadas de shapesData GeoJSON
-        const routeCoordinates = shapesData.features[0].geometry.coordinates;
+        let routeCoordinates = [];
+        if (shapesData.features && shapesData.features.length > 0 && shapesData.features[0].geometry) {
+            if (shapesData.features[0].geometry.type === "LineString") {
+                routeCoordinates = shapesData.features[0].geometry.coordinates;
+            } else if (shapesData.features[0].geometry.type === "MultiLineString") {
+                routeCoordinates = shapesData.features[0].geometry.coordinates.flat();
+            }
+        }
+
         const className = `linea-${lineNumber}`;
         // Pintamos los indicadores de dirección
         drawDirectionIndicators(myMap, routeCoordinates, className);
