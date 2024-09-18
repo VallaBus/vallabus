@@ -1327,6 +1327,11 @@ function closeAllDialogs(ids) {
     }
 }
 
+// Función para eliminar caracteres no alfanuméricos, puntos, guiones y dos puntos de una cadena
+function sanitizeString(str) {
+    return str.replace(/[^\w.:-]/g, '');
+}
+
 // Manejo de estado de URLs y acciones en cada ruta
 async function handleRoute() {
     const hash = window.location.hash.replace(/\/$/, ''); // Elimina la barra final si existe
@@ -1370,7 +1375,7 @@ async function handleRoute() {
             break;
         default:
             if (hash.startsWith('#/horarios/')) {
-                const stopNumber = hash.split('/')[2];
+                const stopNumber = sanitizeString(hash.split('/')[2]);
                 if (stopNumber) {
                     displayLoadingSpinner();
                     const busStops = await loadBusStops();
@@ -1394,6 +1399,8 @@ async function handleRoute() {
                 }
             } else if (hash.startsWith('#linea-')) {
                 // No hacemos nada especial aquí, permitimos que funcione normalmente
+                // Sanitizar el número de línea si es necesario
+                const lineNumber = sanitizeString(hash.split('-')[1]);
             } else {
                 // Si no coincide con ningún deeplink conocido, volver a la página principal
                 history.replaceState({ dialogType: 'home' }, document.title, '#/');
