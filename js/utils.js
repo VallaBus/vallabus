@@ -1243,15 +1243,30 @@ function tipsBannerEvents() {
     }
 }
 
+// Mostrar un mensaje de advertencia si el usuario accede desde Instagram o Facebook
 function socialBrowserWarning() {
-    // Aviso si se accede desde el navegador de instagram
-    // Check if the referrer is from Instagram
-    if (document.referrer.includes('instagram.com') || document.referrer.includes('facebook.com')) {
-        const tipsBannerElement = document.getElementById('tips-banner');
-        const instagramWarning = document.createElement('p');
-        instagramWarning.id = 'instagram-warning';
-        instagramWarning.innerHTML = '<strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente';
-        tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
+    // Lista de orígenes permitidos
+    const allowedOrigins = ['https://www.instagram.com', 'https://m.instagram.com', 'https://www.facebook.com', 'https://m.facebook.com'];
+
+    // Si el referrer está vacío, no hacemos nada
+    if (!document.referrer) {
+        return;
+    }
+
+    try {
+        // Crear un objeto URL a partir del referrer
+        const referrerUrl = new URL(document.referrer);
+        
+        // Verificar si el origen del referrer está en la lista de orígenes permitidos
+        if (allowedOrigins.includes(referrerUrl.origin)) {
+            const tipsBannerElement = document.getElementById('tips-banner');
+            const instagramWarning = document.createElement('p');
+            instagramWarning.id = 'instagram-warning';
+            instagramWarning.innerHTML = '<strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente';
+            tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
+        }
+    } catch (error) {
+        // Si hay un error al parsear la URL, no hacemos nada
     }
 }
 
