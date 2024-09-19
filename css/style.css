@@ -2313,6 +2313,14 @@ button.remove-stop {
     background-position: 15px center;
 }
 
+#tips-banner .blog-banner {
+    background-image: url('/img/file.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+}
+
+
 #tips-banner #map-tip {
     background-image: url('/img/bus-location-white.png');
     background-size: 22px;
