@@ -4,7 +4,7 @@ const apiEndPoint = 'https://gtfs.vallabus.com';
 
 // Fallback API endpoint
 // const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
-const fallbackApiEndPoint = null;
+const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
 
 // Function to handle API calls with fallback logic
 async function fetchApi(url) {
