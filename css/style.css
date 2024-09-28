@@ -2373,6 +2373,37 @@ button.remove-stop {
     color: #efefef;
 }
 
+#tips-banner #basuracero-0924 {
+    margin: 0; 
+    color: #fcf5ff; 
+    background-color: #7361a0;
+    background-image: url('/img/overlays/basuracero.png');
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: 9px center;
+}
+
+.dark-mode #tips-banner #basuracero-0924 {
+    background-color: #7361a0;
+}
+
+#tips-banner #basuracero-0924 a {
+    color: #fcf5ff; 
+    text-decoration: none; 
+    display: inline-block; 
+    padding: 5px 5px 5px 26px;
+    font-weight: normal;
+}
+
+.dark-mode #tips-banner #basuracero-0924 a {
+    color: #efefef;
+}
+
+#tips-banner #basuracero-0924 a span{
+    font-weight: bold;
+}
+
+
 .global-alerts-box {
     background-image: url('../img/bell-gray.png');
     background-repeat: no-repeat;
