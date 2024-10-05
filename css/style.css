@@ -2403,6 +2403,36 @@ button.remove-stop {
     font-weight: bold;
 }
 
+#tips-banner .paradasparatodas {
+    margin: 0; 
+    color: #fcf5ff; 
+    background-color: #8b3575;
+    background-image: url('/img/info-gray.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 11px center;
+}
+
+.dark-mode #tips-banner .paradasparatodas {
+    background-color: #8b3575;
+}
+
+#tips-banner .paradasparatodas a {
+    color: #fcf5ff; 
+    text-decoration: none; 
+    display: inline-block; 
+    padding: 5px 5px 5px 26px;
+    font-weight: normal;
+}
+
+.dark-mode #tips-banner .paradasparatodas a {
+    color: #efefef;
+}
+
+#tips-banner .paradasparatodas a span{
+    font-weight: bold;
+}
+
 
 .global-alerts-box {
     background-image: url('../img/bell-gray.png');
