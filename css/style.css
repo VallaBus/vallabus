@@ -3404,6 +3404,11 @@ html.dark-mode body {
     left: 7px;
 }
 
+.dark-mode .search-results {
+    background-color: #333;
+    color: #ededed;
+}
+
 .search-result-item {
     cursor: pointer;
     padding: 5px;
