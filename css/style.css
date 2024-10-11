@@ -3254,6 +3254,7 @@ html.dark-mode body {
 
 .dark-mode .dialog button:first-child {
     color: #ededed;
+    background-color: #333;
 }
 
 .dialog button:last-child {
