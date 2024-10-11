@@ -657,6 +657,7 @@ button#installIosButton {
 
 .dark-mode #addFavoriteButton {
     background-color: #404040;
+    background-image: url("/img/add-light.png");
 }
 
 #welcome-box {
@@ -3249,6 +3250,10 @@ html.dark-mode body {
 .dialog button:first-child {
     background-color: transparent;
     color: #333;
+}
+
+.dark-mode .dialog button:first-child {
+    color: #ededed;
 }
 
 .dialog button:last-child {
