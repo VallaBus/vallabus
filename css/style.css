@@ -608,7 +608,7 @@ button#installIosButton {
     color: #eeeeee;
 }
 
-#fav-destinations #home-destination::before {
+#fav-destinations #home-destination {
     background-image: url("/img/home.png");
 }
 
