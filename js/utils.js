@@ -691,7 +691,7 @@ function displayGlobalAlertsBanner(alerts) {
         alertsBox.id = 'globalAlertsBox';
         alertsBox.className = 'global-alerts-box';
         alertsBox.innerHTML = '<ul></ul>';
-        document.body.insertBefore(alertsBox, document.getElementById('busList'));
+        document.body.insertBefore(alertsBox, document.getElementById('fav-destinations'));
     }
 
     const alertsList = alertsBox.querySelector('ul');
@@ -1432,7 +1432,7 @@ async function showStatusDialog() {
     if (!dialog) {
         dialog = document.createElement('div');
         dialog.id = 'statusDialog';
-        dialog.className = 'dialog';
+        dialog.className = 'dialog-data';
         document.body.appendChild(dialog);
     }
 
@@ -1702,7 +1702,7 @@ function showDataDialog() {
     if (!dialog) {
         dialog = document.createElement('div');
         dialog.id = 'dataDialog';
-        dialog.className = 'dialog';
+        dialog.className = 'dialog-data';
         document.body.appendChild(dialog);
     }
 

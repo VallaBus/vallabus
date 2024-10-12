@@ -519,11 +519,230 @@ button#installIosButton {
     overflow: auto;
 }
 
-.bus-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
+/* Destinos rápidos */
+
+#fav-destinations {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #CCCCCCBA;
+    border-radius: 4px;
+    margin: 10px 4px;
+    position: relative;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    overflow: hidden;
 }
+
+.dark-mode #fav-destinations {
+    background-color: #333 !important;
+    color: #eeeeee;
+    border: 1px solid #404040BA !important;
+}
+
+#fav-destinations p {
+    font-weight: bold;
+    background-image: url("/img/directions.png");
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 20px;
+    height: 20px;
+    text-indent: -9999px;
+    overflow: hidden;
+    margin: 0 4px 0 0;
+}
+
+#fav-destinations ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-grow: 1;
+    max-height: 40px;
+}
+
+#fav-destinations ul::-webkit-scrollbar {
+    display: none;
+}
+
+#addFavoriteButton, #configFavoritesButton {
+    flex-shrink: 0;
+    margin-left: 10px;
+    background-image: url("/img/gear.png");
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 15px;
+    height: 15px;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+#fav-destinations li {
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 5px 15px 3px 35px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    background-image: url("/img/star.png");
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    white-space: nowrap;
+    overflow: clip;
+    text-overflow: ellipsis;
+    max-width: 115px;
+}
+
+.dark-mode #fav-destinations li {
+    background-color: #404040;
+    color: #eeeeee;
+}
+
+#fav-destinations #home-destination {
+    background-image: url("/img/home.png");
+}
+
+#fav-destinations li:hover {
+    background-color: #e0e0e0;
+}
+
+.dark-mode #fav-destinations li:hover {
+    background-color: #404040;
+}
+
+.gray-emoji {
+    filter: grayscale(100%);
+}
+
+.gray-text {
+    color: #808080; /* O cualquier tono de gris que prefieras */
+}
+
+#addFavoriteButton {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 1.2em;
+    background-image: url("/img/add.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 20px;
+    height: 20px;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+.dark-mode #addFavoriteButton {
+    background-color: #404040;
+    background-image: url("/img/add-light.png");
+}
+
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+}
+
+.dark-mode .toggle-container {
+    border-top-color: #444;
+}
+
+.toggle-container label {
+    font-size: 0.9em;
+}
+
+.toggle-container input[type="checkbox"] {
+    appearance: none;
+    width: 50px;
+    height: 24px;
+    background-color: #ccc;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked {
+    background-color: #4CAF50;
+}
+
+.toggle-container input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    background-color: white;
+    transition: transform 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked::before {
+    transform: translateX(26px);
+}
+
+.dark-mode .toggle-container input[type="checkbox"] {
+    background-color: #555;
+}
+
+.dark-mode .toggle-container input[type="checkbox"]:checked {
+    background-color: #45a049;
+}
+
+.add-favorite-button {
+    border-radius: 20px !important;
+    margin: 0 auto !important;
+    font-size: 0.7em;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    height: 14px;
+    background-image: url("/img/add-light.png");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: left;
+    background-color: transparent;
+    color: gray;
+    padding: 1px 0 0 19px !important;
+}
+
+.add-favorite-button:hover {
+    background-color: #e0e0e0;
+}
+
+.dark-mode .add-favorite-button {
+    background-color: #404040;
+    color: #eeeeee;
+}
+
+.dark-mode .add-favorite-button:hover {
+    background-color: #505050;
+}
+
+.map-instruction {
+    font-size: 0.8em;
+    color: #666;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Welcome box */
 
 #welcome-box {
     position: relative;
@@ -531,8 +750,7 @@ button#installIosButton {
     overflow: auto;
     background: #fff;
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
-    width: 90%;
-    margin: 1em auto 1em auto;
+    margin: 0 4px 15px 4px;
     padding: 150px 0 5px 0;
     background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
     background-size: 140px;
@@ -895,7 +1113,7 @@ button.remove-stop {
     padding: 34px 34px 0 0;
 }
 
-.line-info .alert-box, #horarios-box, #nearestStopsResults, .dialog {
+.line-info .alert-box, #horarios-box, #nearestStopsResults, .dialog-data {
     position: fixed;
     border-radius: 12px;
     overflow: auto;
@@ -952,7 +1170,7 @@ button.remove-stop {
     background-color: #3b3d3d;
 }
 
-#horarios-box, .dialog {
+#horarios-box, .dialog-data {
     width: calc(100%);
     height: 100%;
     overflow-y: auto;
@@ -968,7 +1186,7 @@ button.remove-stop {
 }
 
 /* Botón de cierre de diálogos */
-#horarios-box .horarios-close, #nearestStopsResults #close-nearest-stops, .dialog .closeDialogBtn {
+#horarios-box .horarios-close, #nearestStopsResults #close-nearest-stops, .dialog-data .closeDialogBtn {
     background-image: url("/img/close.png");
     background-size: 16px;
     width: 16px;
@@ -991,7 +1209,7 @@ button.remove-stop {
     z-index: 1000;
 }
 
-.dark-mode #horarios-box .horarios-close, .dark-mode #nearestStopsResults #close-nearest-stops, .dark-mode .dialog {
+.dark-mode #horarios-box .horarios-close, .dark-mode #nearestStopsResults #close-nearest-stops, .dark-mode .dialog-data {
     background-color: #2d2d2d;
 }
 
@@ -1180,12 +1398,12 @@ button.remove-stop {
     width: 45px;
 }
 
-.dialog h2 {
+.dialog-data h2 {
     font-size: 1.2em;
     margin: 0;
 }
 
-.dialog button {
+.dialog-data button {
     display: block;
     width: 100%;
     margin: 10px 0;
@@ -1198,51 +1416,51 @@ button.remove-stop {
     transition: background-color 0.3s;
 }
 
-.dialog a {
+.dialog-data a {
     color: #828282;
 }
 
-.dialog button#exportDataBtn {
+.dialog-data button#exportDataBtn {
     background-color: #4CAF50; /* Verde para exportar */
 }
 
-.dialog button#exportDataBtn:hover {
+.dialog-data button#exportDataBtn:hover {
     background-color: #45a049;
 }
 
-.dialog button#importDataBtn {
+.dialog-data button#importDataBtn {
     background-color: #2196F3; /* Azul para importar */
 }
 
-.dialog button#importDataBtn:hover {
+.dialog-data button#importDataBtn:hover {
     background-color: #1e87db;
 }
 
-.dark-mode .dialog button#exportDataBtn {
+.dark-mode .dialog-data button#exportDataBtn {
     background-color: #45a049;
 }
 
-.dark-mode .dialog button#exportDataBtn:hover {
+.dark-mode .dialog-data button#exportDataBtn:hover {
     background-color: #4CAF50;
 }
 
-.dark-mode .dialog button#importDataBtn {
+.dark-mode .dialog-data button#importDataBtn {
     background-color: #1e87db;
 }
 
-.dark-mode .dialog button#importDataBtn:hover {
+.dark-mode .dialog-data button#importDataBtn:hover {
     background-color: #2196F3;
 }
 
-.dark-mode .dialog .closeDialogBtn {
+.dark-mode .dialog-data .closeDialogBtn {
     background-color: #2d2d2d;
 }
 
-.dark-mode .dialog h2 {
+.dark-mode .dialog-data h2 {
     color: #eeeeee;
 }
 
-.dark-mode .dialog p, .dark-mode .dialog ul {
+.dark-mode .dialog-data p, .dark-mode .dialog-data ul {
     color: #eeeeee;
 }
 
@@ -1592,7 +1810,7 @@ button.remove-stop {
 }
 
 /* Enlaces en el sidebar */
-#routesButton, #viewLinesButton, #nearestStopsButton {
+#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton {
     color: #818181;
     font-size: 0.9em;
     text-align: center;
@@ -1619,6 +1837,13 @@ button.remove-stop {
 #viewLinesButton {
     background-color: transparent;
     background-image: url('/img/bus-gray.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+}
+
+#quickDestinationsButton {
+    background-color: transparent;
+    background-image: url('/img/directions.png');
     background-size: 16px;
     background-repeat: no-repeat;
 }
@@ -2871,6 +3096,19 @@ footer a:hover {
     background-color: #064a3d;
 }
 
+#overlay-destinos-rapidos-1024 .overlay-content {
+    top: 140px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/destinos-rapidos.png');
+    padding-top: 130px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
+
 #overlay-cercanas-biki0624 .overlay-content {
     top: 60px;
     width: 308px;
@@ -3062,12 +3300,265 @@ html.dark-mode body {
     color: #b1b1b1;
 }
 
+.dialog {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 105;
+    top: 0;
+    left: 0;
+    overflow-y: auto; /* Permite desplazamiento vertical si el contenido es largo */
+}
+
+.dialog-content { 
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 85%;
+    max-width: 500px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-height: 80vh; /* Limita la altura máxima al 80% de la altura de la ventana */
+    overflow-y: auto; /* Permite desplazamiento vertical si el contenido excede la altura máxima */
+}
+
+body.dialog-open {
+    overflow: hidden; /* Previene el desplazamiento del body cuando el diálogo está abierto */
+    position: fixed;
+    width: 100%;
+}
+
+.dialog h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1em;
+}
+
+.dialog-content .dialog-subtitle {
+    font-size: 0.8em;
+    margin-bottom: 10px;
+}
+
+.dialog input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.dialog-actions {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.dialog button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.dialog button:first-child {
+    background-color: transparent;
+    color: #333;
+}
+
+.dark-mode .dialog button:first-child {
+    color: #ededed;
+    background-color: #333;
+}
+
+.dialog button:last-child {
+    background-color: #ededed;
+    color: #333;
+}
+
+.dark-mode .dialog-content {
+    background-color: #333;
+    color: #ededed;
+}
+
+.dark-mode .dialog h2 {
+    color: #ededed;
+}
+
+.dark-mode .dialog input {
+    background-color: #444;
+    color: #fff;
+    border-color: #555;
+}
+
+#configFavoritesDialog .dialog-content h2, #favoriteDialog .dialog-content h2 {
+    background-image: url('/img/directions.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 25px;
+}
+
+#homeDialog .dialog-content h2 {
+    background-image: url('/img/home.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 25px;
+}
+
+#configFavoritesButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+#configFavoritesButton img {
+    width: 15px;
+    height: 15px;
+}
+
+#favoritesList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#favoritesList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.delete-favorite-icon {
+    width: 15px;
+    height: 15px;
+    background-image: url('../img/trash-gray.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    border: none;
+    background-color: transparent !important;
+    vertical-align: middle;
+    margin-left: 10px;
+    padding: 4px !important;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.search-input {
+    flex-grow: 1;
+}
+
+.search-button {
+    margin-left: 5px;
+    padding: 5px;
+}
+
+.search-icon {
+    background-image: url("../img/search.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.dialog #favoriteCurrentLocationButton button {
+    background-color:#549488;
+    color: #ededed;
+}
+
+.dialog .error-message {
+    color: #f34949;
+  display: block;
+  font-size: 0.9em;
+    margin: 1em 0;
+}
+
+#homeCurrentLocationButton, #favoriteCurrentLocationButton {
+    font-size: 0.8em;
+    padding: 8px;
+}
+
+.location-icon {
+    background-image: url("../img/location-white.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.map-container {
+    height: 300px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.current-location-button {
+    display: flex;
+    align-items: center;
+    margin: 10px auto !important;
+}
+
+.dialog-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.search-results {
+    display: none;
+    position: absolute;
+    z-index: 1001;
+    background-color: white;
+    list-style-type: none;
+    padding: 5px;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    top: 156px;
+    left: 7px;
+}
+
+.dark-mode .search-results {
+    background-color: #333;
+    color: #ededed;
+}
+
+.search-result-item {
+    cursor: pointer;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
 /* Estilos para pantallas pequeñas */
 @media (max-width: 576px) {
     .container {
       padding: 1rem; 
     }
-}
+}  
   
   /* Estilos para pantallas medianas */  
   @media (min-width: 577px) and (max-width: 768px) {

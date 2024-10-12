@@ -24,17 +24,18 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202409191908">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202410121355">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/Control.Geocoder.css" />
 
     <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' https://stats.vallabus.com https://beta.vallabus.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: https://vallabus.com https://beta.vallabus.com https://*.tile.openstreetmap.org https://*.tile.thunderforest.com https://*.basemaps.cartocdn.com;
-    connect-src 'self' https://stats.vallabus.com https://beta.vallabus.com https://gtfs.vallabus.com https://gtfs2.vallabus.com https://push.vallabus.com;
+    connect-src 'self' https://stats.vallabus.com https://beta.vallabus.com https://gtfs.vallabus.com https://gtfs2.vallabus.com https://push.vallabus.com https://nominatim.openstreetmap.org;
     font-src 'self';
     frame-src 'self' https://rutas.vallabus.com;
     object-src 'none';
@@ -47,26 +48,16 @@
 </head>
 
 <body>
-    <div id="overlay-cercanas-biki0624" class="overlay">
+    <div id="overlay-destinos-rapidos-1024" class="overlay">
         <div class="overlay-content">
             <div class="arrow"></div>
-            <h2>Estaciones BIKI en paradas cercanas</h2>
-            <p>Ahora podrás activar la visualización de las estaciones de alquiler de bicis BIKI desde la opción del menú "Paradas cercanas"</p>
-            <button class="close-overlay">Entendido</button>
-        </div>
-    </div>
-
-    <div id="overlay-nueva-ui0624" class="overlay">
-        <div class="overlay-content">
-            <div class="arrow"></div>
-            <video preload="true" autoplay loop controls>
-                <source src="/img/overlays/nueva-ui.mp4" type="video/mp4">
-            </video>
-            <h2>Nueva interfaz simplificada</h2>
+            <h2>Destinos rápidos</h2>
             <ul>
-                <li>Toca en la línea para ver el bus en el mapa</li>
-                <li>Ver el nivel de ocupación del bus</li>
-                <li>Despliega el lateral para ver próximos buses</li>
+                <li>Nueva barra superior</li>
+                <li>Define tus <strong>destinos más usados</strong></li>
+                <li>Accede a <strong>cómo llegar con un clic</strong></li>
+                <li>Personaliza con <strong>emoticonos 💼 🏋️‍♂️ 📖</strong></li>
+                <li>Oculta o muestra la barra como prefieras</li>
             </ul>
             <button class="close-overlay">Entendido</button>
         </div>
@@ -101,6 +92,15 @@
         <p id="basuracero-0924"><a href="https://basuracero.pucelabits.org/?mtm_campaign=vallabus0924"><span>¿Cansado de ver Valladolid descuidada?</span><br />Descubre BasuraCero, la app colaborativa</a></p>
         <!--<p id="paradasparatodas-1024" class="paradasparatodas"><a href="https://x.com/vallabusapp/status/1842518622956085262"><span>"Paradas para todas" ya disponible</span><br />para mujeres en líneas Búho</a></p>-->
         <!--<p id="map-tip"><strong>Los tiempos pueden sufrir cambios</strong><br/>Verifica el mapa de tu bus</p>-->
+    </div>
+
+    <div id="fav-destinations">
+        <p>Ir a</p>
+        <ul>
+            <li id="home-destination">Casa</li>
+        </ul>
+        <button id="addFavoriteButton">+</button>
+        <button id="configFavoritesButton">⚙️</button>
     </div>
 
     <div class="bus-list" id="busList">
@@ -139,6 +139,7 @@
             <a href="#/cercanas" id="nearestStopsButton">Paradas cercanas</a>
             <a href="#/rutas" id="routesButton">Planifica tu ruta</a>
             <a href="#/lineas" id="viewLinesButton">Ver todas las líneas</a>
+            <a href="#" id="quickDestinationsButton">Destinos rápidos</a>
         </div>
         <div id="sidebar-stops"></div>
     </div>
@@ -181,6 +182,51 @@
         <a href="#/estado" id="show-status">Estado</a>
     </footer>
 
+    <!-- Diálogo para añadir Casa -->
+    <div id="homeDialog" class="dialog">
+        <div class="dialog-content">
+            <h2>Definir Casa</h2>
+            <input type="text" id="homeName" placeholder="Nombre (ej. Mi Casa)">
+            <input type="text" id="homeLat" placeholder="Latitud">
+            <input type="text" id="homeLon" placeholder="Longitud">
+            <div class="dialog-actions">
+                <button id="cancelHomeDialog">Cancelar</button>
+                <button id="saveHomeDialog">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diálogo para añadir Destino Favorito -->
+    <div id="favoriteDialog" class="dialog">
+        <div class="dialog-content">
+            <h2>Añadir destino rápido</h2>
+            <input type="text" id="favoriteName" placeholder="Nombre del destino">
+            <input type="text" id="favoriteLat" placeholder="Latitud">
+            <input type="text" id="favoriteLon" placeholder="Longitud">
+            <div class="dialog-actions">
+                <button id="cancelFavoriteDialog">Cancelar</button>
+                <button id="saveFavoriteDialog">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diálogo para configurar favoritos -->
+    <div id="configFavoritesDialog" class="dialog">
+        <div class="dialog-content">
+            <h2>Gestionar destinos rápidos</h2>
+            <p class="dialog-subtitle">Te permite definir destinos para acceder a su ruta rápidamente</p>
+            <ul id="favoritesList"></ul>
+            <button id="addNewFavoriteButton" class="add-favorite-button">Añadir</button>
+            <div class="toggle-container">
+                <label for="hideFavBar">Ocultar barra de destinos</label>
+                <input type="checkbox" id="hideFavBar">
+            </div>
+            <div class="dialog-actions">
+                <button id="closeConfigDialog">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="iframe-container" style="display: none;">
         <!-- Aquí se insertará el iframe -->
     </div>
@@ -190,16 +236,17 @@
     </div>
     
     <script src="js/leaflet/leaflet.js"></script>
+    <script src="js/leaflet/Control.Geocoder.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/mapa.js"></script>
     <script src="js/api.js"></script>
     <script src="js/buscador.js"></script>
     <script src="js/browser.js"></script>
+    <script src="js/favDestinations.js"></script>
     <script src="js/script.js"></script>
     
     <script src="js/serviceworker-check.js"></script>
-    
 </body>
 
 </html>
