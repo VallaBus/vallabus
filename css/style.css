@@ -646,6 +646,91 @@ button#installIosButton {
     background-image: url("/img/add-light.png");
 }
 
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+}
+
+.dark-mode .toggle-container {
+    border-top-color: #444;
+}
+
+.toggle-container label {
+    font-size: 0.9em;
+}
+
+.toggle-container input[type="checkbox"] {
+    appearance: none;
+    width: 50px;
+    height: 24px;
+    background-color: #ccc;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked {
+    background-color: #4CAF50;
+}
+
+.toggle-container input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    background-color: white;
+    transition: transform 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked::before {
+    transform: translateX(26px);
+}
+
+.dark-mode .toggle-container input[type="checkbox"] {
+    background-color: #555;
+}
+
+.dark-mode .toggle-container input[type="checkbox"]:checked {
+    background-color: #45a049;
+}
+
+.add-favorite-button {
+    border-radius: 20px !important;
+    margin: 0 auto !important;
+    font-size: 0.7em;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    height: 14px;
+    background-image: url("/img/add-light.png");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: left;
+    background-color: transparent;
+    color: gray;
+    padding: 1px 0 0 19px !important;
+}
+
+.add-favorite-button:hover {
+    background-color: #e0e0e0;
+}
+
+.dark-mode .add-favorite-button {
+    background-color: #404040;
+    color: #eeeeee;
+}
+
+.dark-mode .add-favorite-button:hover {
+    background-color: #505050;
+}
+
 /* Welcome box */
 
 #welcome-box {
@@ -1715,7 +1800,7 @@ button.remove-stop {
 }
 
 /* Enlaces en el sidebar */
-#routesButton, #viewLinesButton, #nearestStopsButton {
+#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton {
     color: #818181;
     font-size: 0.9em;
     text-align: center;
@@ -1742,6 +1827,13 @@ button.remove-stop {
 #viewLinesButton {
     background-color: transparent;
     background-image: url('/img/bus-gray.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+}
+
+#quickDestinationsButton {
+    background-color: transparent;
+    background-image: url('/img/directions.png');
     background-size: 16px;
     background-repeat: no-repeat;
 }
@@ -3213,6 +3305,11 @@ html.dark-mode body {
     font-size: 1em;
 }
 
+.dialog-content #favoritesDescription {
+    font-size: 0.8em;
+    margin-bottom: 10px;
+}
+
 .dialog input {
     width: 90%;
     padding: 10px;
@@ -3263,6 +3360,14 @@ html.dark-mode body {
     background-color: #444;
     color: #fff;
     border-color: #555;
+}
+
+#configFavoritesDialog .dialog-content h2 {
+    background-image: url('/img/directions.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 25px;
 }
 
 #configFavoritesButton {

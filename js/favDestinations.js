@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cargar destinos favoritos del localStorage
     loadFavoriteDestinations();
 
-    console.log(homeDestination);
-
     // Usar delegación de eventos para manejar clics en destinos favoritos
     favDestinations.addEventListener('click', function(event) {
         const target = event.target;
@@ -38,6 +36,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para configurar favoritos
     configFavoritesButton.addEventListener('click', showConfigFavoritesDialog);
 
+    // Evento para gestionar destinos rápidos en el sidebar
+    const quickDestinationsButton = document.getElementById('quickDestinationsButton');
+
+    quickDestinationsButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        showConfigFavoritesDialog();
+        toogleSidebar(true); // Cerramos el sidebar
+    });
+
     // Eventos para los diálogos
     document.getElementById('cancelHomeDialog').addEventListener('click', () => homeDialog.style.display = 'none');
     document.getElementById('saveHomeDialog').addEventListener('click', saveHomeDestination);
@@ -61,11 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             favList.appendChild(li);
         });
 
-        // Actualizar la visibilidad del botón de configurar
-        const configFavoritesButton = document.getElementById('configFavoritesButton');
-        if (configFavoritesButton) {
-            configFavoritesButton.style.display = hasSavedLocations() ? 'block' : 'none';
-        }
+        updateFavBarVisibility();
     }
 
     function showLocationDialog(isHome) {
@@ -311,6 +314,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
         favorites.forEach(fav => addFavoriteToConfigList(favoritesList, fav.name, fav));
 
+        // Configurar el estado del checkbox
+        const hideFavBar = document.getElementById('hideFavBar');
+        hideFavBar.checked = localStorage.getItem('hideFavBar') === 'true';
+
         configFavoritesDialog.style.display = 'block';
     }
 
@@ -367,4 +374,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const favoriteDestinations = localStorage.getItem('favoriteDestinations');
         return homeDestination || (favoriteDestinations && JSON.parse(favoriteDestinations).length > 0);
     }
+
+    // Evento para ocultar/mostrar la barra de destinos
+    document.getElementById('hideFavBar').addEventListener('change', function() {
+        localStorage.setItem('hideFavBar', this.checked);
+        updateFavBarVisibility();
+    });
+
+    function updateFavBarVisibility() {
+        const favDestinations = document.getElementById('fav-destinations');
+        const isHidden = localStorage.getItem('hideFavBar') === 'true';
+        favDestinations.style.display = isHidden ? 'none' : 'flex';
+    }
+
+    // Asegúrate de llamar a updateFavBarVisibility() al cargar la página
+    updateFavBarVisibility();
+
+    // Evento para añadir un nuevo destino rápido
+    document.getElementById('addNewFavoriteButton').addEventListener('click', function() {
+        closeDialog(configFavoritesDialog);
+        showAddFavoriteDialog();
+    });
 });

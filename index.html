@@ -149,6 +149,7 @@
             <a href="#/cercanas" id="nearestStopsButton">Paradas cercanas</a>
             <a href="#/rutas" id="routesButton">Planifica tu ruta</a>
             <a href="#/lineas" id="viewLinesButton">Ver todas las líneas</a>
+            <a href="#" id="quickDestinationsButton">Destinos rápidos</a>
         </div>
         <div id="sidebar-stops"></div>
     </div>
@@ -222,8 +223,14 @@
     <!-- Diálogo para configurar favoritos -->
     <div id="configFavoritesDialog" class="dialog">
         <div class="dialog-content">
-            <h2>Configurar destinos rápidos</h2>
+            <h2>Gestionar destinos rápidos</h2>
+            <p id="favoritesDescription">Te permite definir destinos para acceder a su ruta rápidamente</p>
             <ul id="favoritesList"></ul>
+            <button id="addNewFavoriteButton" class="add-favorite-button">Añadir</button>
+            <div class="toggle-container">
+                <label for="hideFavBar">Ocultar barra de destinos</label>
+                <input type="checkbox" id="hideFavBar">
+            </div>
             <div class="dialog-actions">
                 <button id="closeConfigDialog">Cerrar</button>
             </div>
