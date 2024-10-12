@@ -526,7 +526,7 @@ button#installIosButton {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid #CCCCCCBA;
     border-radius: 4px;
-    margin: 10px 4px 15px 4px;
+    margin: 10px 4px;
     position: relative;
     font-size: 0.9em;
     display: flex;
@@ -547,7 +547,7 @@ button#installIosButton {
     background-size: 20px;
     background-repeat: no-repeat;
     background-position: center;
-    width: 25px;
+    min-width: 20px;
     height: 20px;
     text-indent: -9999px;
     overflow: hidden;
@@ -593,24 +593,19 @@ button#installIosButton {
     cursor: pointer;
     transition: background-color 0.3s ease;
     text-transform: uppercase;
+    background-image: url("/img/star.png");
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    white-space: nowrap;
+    overflow: clip;
+    text-overflow: ellipsis;
+    max-width: 100px;
 }
 
 .dark-mode #fav-destinations li {
     background-color: #404040;
     color: #eeeeee;
-}
-
-#fav-destinations li::before {
-    content: '';
-    background-image: url("/img/star.png");
-    background-size: 16px;
-    background-repeat: no-repeat;
-    width: 16px;
-    height: 16px;
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 #fav-destinations #home-destination::before {
@@ -3305,7 +3300,7 @@ html.dark-mode body {
     font-size: 1em;
 }
 
-.dialog-content #favoritesDescription {
+.dialog-content .dialog-subtitle {
     font-size: 0.8em;
     margin-bottom: 10px;
 }
@@ -3362,8 +3357,16 @@ html.dark-mode body {
     border-color: #555;
 }
 
-#configFavoritesDialog .dialog-content h2 {
+#configFavoritesDialog .dialog-content h2, #favoriteDialog .dialog-content h2 {
     background-image: url('/img/directions.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 25px;
+}
+
+#homeDialog .dialog-content h2 {
+    background-image: url('/img/home.png');
     background-size: 16px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -3445,6 +3448,11 @@ html.dark-mode body {
     margin: 1em 0;
 }
 
+#homeCurrentLocationButton, #favoriteCurrentLocationButton {
+    font-size: 0.8em;
+    padding: 8px;
+}
+
 .location-icon {
     background-image: url("../img/location-white.png");
     background-size: contain;
@@ -3472,10 +3480,6 @@ html.dark-mode body {
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
-}
-
-.dialog-button {
-    /* Estilos para los botones del diálogo */
 }
 
 .search-results {

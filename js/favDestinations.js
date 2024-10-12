@@ -1,23 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const favDestinations = document.getElementById('fav-destinations');
-    const homeDestination = document.getElementById('home-destination');
-    const addFavoriteButton = document.getElementById('addFavoriteButton');
-    const configFavoritesButton = document.getElementById('configFavoritesButton');
-    const homeDialog = document.getElementById('homeDialog');
-    const favoriteDialog = document.getElementById('favoriteDialog');
-    const configFavoritesDialog = document.getElementById('configFavoritesDialog');
+    const elements = [
+        'fav-destinations',
+        'home-destination',
+        'addFavoriteButton',
+        'configFavoritesButton',
+        'homeDialog',
+        'favoriteDialog',
+        'configFavoritesDialog',
+        'closeConfigDialog',
+        'addNewFavoriteButton'
+    ];
 
-    let currentMap = null; // Variable global para mantener una referencia al mapa actual
+    const foundElements = {};
+
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        foundElements[id] = element;
+    });
+
+    if (Object.values(foundElements).some(el => el === null)) {
+        console.error('Algunos elementos necesarios no están presentes en el DOM. Abortando la inicialización.');
+        return;
+    }
+
+    let currentMap = null;
 
     // Cargar destinos favoritos del localStorage
     loadFavoriteDestinations();
 
     // Usar delegación de eventos para manejar clics en destinos favoritos
-    favDestinations.addEventListener('click', function(event) {
+    foundElements['fav-destinations'].addEventListener('click', function(event) {
         const target = event.target;
         if (target.tagName === 'LI') {
             if (target.id === 'home-destination') {
-                console.log("Clic en Casa detectado");
                 const home = JSON.parse(localStorage.getItem('homeDestination'));
                 if (home) {
                     showRouteToDestination(home.name, home.lat, home.lon);
@@ -31,10 +46,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Evento para añadir nuevo destino favorito
-    addFavoriteButton.addEventListener('click', showAddFavoriteDialog);
+    foundElements['addFavoriteButton'].addEventListener('click', showAddFavoriteDialog);
 
     // Evento para configurar favoritos
-    configFavoritesButton.addEventListener('click', showConfigFavoritesDialog);
+    foundElements['configFavoritesButton'].addEventListener('click', showConfigFavoritesDialog);
+
+    // Eventos para los diálogos
+    foundElements['closeConfigDialog'].addEventListener('click', () => closeDialog(foundElements['configFavoritesDialog']));
+    foundElements['addNewFavoriteButton'].addEventListener('click', () => {
+        closeDialog(foundElements['configFavoritesDialog']);
+        showAddFavoriteDialog();
+    });
+
+    function showConfigFavoritesDialog() {
+        const favoritesList = document.getElementById('favoritesList');
+        if (!favoritesList) {
+            console.error('La lista de favoritos no se encontró en el DOM');
+            return;
+        }
+        favoritesList.innerHTML = ''; // Limpiar la lista
+
+        const home = JSON.parse(localStorage.getItem('homeDestination'));
+        if (home) {
+            addFavoriteToConfigList(favoritesList, 'Casa', home);
+        }
+
+        const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
+        favorites.forEach(fav => addFavoriteToConfigList(favoritesList, fav.name, fav));
+
+        // Configurar el estado del checkbox
+        const hideFavBar = document.getElementById('hideFavBar');
+        if (hideFavBar) {
+            hideFavBar.checked = localStorage.getItem('hideFavBar') === 'true';
+        } else {
+            console.error('El checkbox hideFavBar no se encontró en el DOM');
+        }
+
+        foundElements['configFavoritesDialog'].style.display = 'block';
+    }
+
+    function closeDialog(dialog) {
+        if (dialog) {
+            dialog.style.display = 'none';
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+        }
+    }
 
     // Evento para gestionar destinos rápidos en el sidebar
     const quickDestinationsButton = document.getElementById('quickDestinationsButton');
@@ -46,15 +105,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Eventos para los diálogos
-    document.getElementById('cancelHomeDialog').addEventListener('click', () => homeDialog.style.display = 'none');
+    document.getElementById('cancelHomeDialog').addEventListener('click', () => closeDialog(foundElements['homeDialog']));
     document.getElementById('saveHomeDialog').addEventListener('click', saveHomeDestination);
-    document.getElementById('cancelFavoriteDialog').addEventListener('click', () => favoriteDialog.style.display = 'none');
+    document.getElementById('cancelFavoriteDialog').addEventListener('click', () => closeDialog(foundElements['favoriteDialog']));
     document.getElementById('saveFavoriteDialog').addEventListener('click', saveFavoriteDestination);
-    document.getElementById('closeConfigDialog').addEventListener('click', () => configFavoritesDialog.style.display = 'none');
 
     function loadFavoriteDestinations() {
         const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
-        const favList = favDestinations.querySelector('ul');
+        const favList = foundElements['fav-destinations'].querySelector('ul');
         
         // Limpiar la lista antes de cargar
         favList.innerHTML = '<li id="home-destination">Casa</li>';
@@ -72,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showLocationDialog(isHome) {
-        const dialog = isHome ? homeDialog : favoriteDialog;
+        const dialog = isHome ? foundElements['homeDialog'] : foundElements['favoriteDialog'];
         const dialogId = isHome ? 'home' : 'favorite';
         const latInputId = `${dialogId}Lat`;
         const lonInputId = `${dialogId}Lon`;
@@ -81,7 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const dialogContent = dialog.querySelector('.dialog-content');
         dialogContent.innerHTML = `
             <h2>${isHome ? 'Definir Casa' : 'Añadir destino rápido'}</h2>
-            ${!isHome ? `<input type="text" id="${dialogId}Name" placeholder="Nombre del destino">` : ''}
+            <p class="dialog-subtitle">Te permitirá acceder a la ruta más rápida</p>
+            ${!isHome ? `<input type="text" id="${dialogId}Name" placeholder="Nombre del destino" maxlength="25">` : ''}
             <div class="search-container">
                 <input type="text" id="${dialogId}SearchInput" class="search-input" placeholder="Buscar dirección">
                 <button id="${dialogId}SearchButton" class="search-button">
@@ -91,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div id="${dialogId}MapContainer" class="map-container"></div>
             <button id="${dialogId}CurrentLocationButton" class="current-location-button">
                 <span class="location-icon"></span>
-                Mi ubicación actual
+                Usar tu ubicación
             </button>
             <div id="${dialogId}ErrorMessage" class="error-message"></div>
             <div class="dialog-buttons">
@@ -119,8 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const name = document.getElementById(`${dialogId}Name`).value.trim();
                 if (!name) {
                     errorMessage.textContent = errorMessage.textContent ? 
-                        'Debe elegir una ubicación y proporcionar un nombre' : 
-                        'Debe proporcionar un nombre';
+                        'Debes elegir una ubicación y proporcionar un nombre' : 
+                        'Debes proporcionar un nombre';
                     hasError = true;
                 }
             }
@@ -149,6 +208,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Inicializar el mapa inmediatamente
         initializeMap(dialogId, latInputId, lonInputId);
+
+        // Añadir este nuevo evento después de configurar los otros eventos
+        if (!isHome) {
+            const nameInput = document.getElementById(`${dialogId}Name`);
+            nameInput.addEventListener('input', function() {
+                if (this.value.length > 25) {
+                    this.value = this.value.slice(0, 25);
+                }
+            });
+        }
     }
 
     function initializeMap(dialogId, latInputId, lonInputId) {
@@ -286,39 +355,12 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMap.invalidateSize();
     }
 
-    function closeDialog(dialog) {
-        dialog.style.display = 'none';
-        if (currentMap) {
-            currentMap.remove();
-            currentMap = null;
-        }
-    }
-
     function showHomeDialog() {
         showLocationDialog(true);
     }
 
     function showAddFavoriteDialog() {
         showLocationDialog(false);
-    }
-
-    function showConfigFavoritesDialog() {
-        const favoritesList = document.getElementById('favoritesList');
-        favoritesList.innerHTML = ''; // Limpiar la lista
-
-        const home = JSON.parse(localStorage.getItem('homeDestination'));
-        if (home) {
-            addFavoriteToConfigList(favoritesList, 'Casa', home);
-        }
-
-        const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
-        favorites.forEach(fav => addFavoriteToConfigList(favoritesList, fav.name, fav));
-
-        // Configurar el estado del checkbox
-        const hideFavBar = document.getElementById('hideFavBar');
-        hideFavBar.checked = localStorage.getItem('hideFavBar') === 'true';
-
-        configFavoritesDialog.style.display = 'block';
     }
 
     function addFavoriteToConfigList(list, name, data) {
@@ -357,7 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveFavoriteDestination() {
-        const name = document.getElementById('favoriteName').value.trim();
+        const nameInput = document.getElementById('favoriteName');
+        const name = nameInput.value.trim().slice(0, 25);
         const lat = document.getElementById('favoriteLat').value;
         const lon = document.getElementById('favoriteLon').value;
         
@@ -392,7 +435,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Evento para añadir un nuevo destino rápido
     document.getElementById('addNewFavoriteButton').addEventListener('click', function() {
-        closeDialog(configFavoritesDialog);
+        closeDialog(foundElements['configFavoritesDialog']);
         showAddFavoriteDialog();
     });
 });
+
+console.log('Script favDestinations.js cargado');
