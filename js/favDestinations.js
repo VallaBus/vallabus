@@ -58,6 +58,24 @@ document.addEventListener('DOMContentLoaded', function() {
         showAddFavoriteDialog();
     });
 
+    function openDialog(dialog) {
+        if (dialog) {
+            dialog.style.display = 'block';
+            document.body.classList.add('dialog-open');
+        }
+    }
+
+    function closeDialog(dialog) {
+        if (dialog) {
+            dialog.style.display = 'none';
+            document.body.classList.remove('dialog-open');
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+        }
+    }
+
     function showConfigFavoritesDialog() {
         const favoritesList = document.getElementById('favoritesList');
         if (!favoritesList) {
@@ -82,17 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('El checkbox hideFavBar no se encontró en el DOM');
         }
 
-        foundElements['configFavoritesDialog'].style.display = 'block';
-    }
-
-    function closeDialog(dialog) {
-        if (dialog) {
-            dialog.style.display = 'none';
-            if (currentMap) {
-                currentMap.remove();
-                currentMap = null;
-            }
-        }
+        openDialog(foundElements['configFavoritesDialog']);
     }
 
     // Evento para gestionar destinos rápidos en el sidebar
@@ -221,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             closeDialog(dialog);
         };
 
-        dialog.style.display = 'block';
+        openDialog(dialog);
 
         // Asegurarse de que el mapa anterior se elimine si existe
         if (currentMap) {

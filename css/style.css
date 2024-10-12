@@ -3301,6 +3301,7 @@ html.dark-mode body {
     z-index: 105;
     top: 0;
     left: 0;
+    overflow-y: auto; /* Permite desplazamiento vertical si el contenido es largo */
 }
 
 .dialog-content { 
@@ -3308,10 +3309,18 @@ html.dark-mode body {
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 85%;
     max-width: 500px;
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-height: 80vh; /* Limita la altura máxima al 80% de la altura de la ventana */
+    overflow-y: auto; /* Permite desplazamiento vertical si el contenido excede la altura máxima */
+}
+
+body.dialog-open {
+    overflow: hidden; /* Previene el desplazamiento del body cuando el diálogo está abierto */
+    position: fixed;
+    width: 100%;
 }
 
 .dialog h2 {
