@@ -588,7 +588,7 @@ button#installIosButton {
 #fav-destinations li {
     background-color: #f0f0f0;
     border-radius: 20px;
-    padding: 5px 15px 2px 35px;
+    padding: 5px 15px 3px 35px;
     position: relative;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -3102,7 +3102,7 @@ footer a:hover {
     background-color: #054a3dfa;
     font-size: 0.85em;
     background-image: url('/img/overlays/destinos-rapidos.png');
-    padding-top: 148px;
+    padding-top: 130px;
     background-size: contain;
     background-repeat: no-repeat;
     left: 50%; /* Mueve el elemento hacia la derecha */
