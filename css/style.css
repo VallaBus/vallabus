@@ -588,7 +588,7 @@ button#installIosButton {
 #fav-destinations li {
     background-color: #f0f0f0;
     border-radius: 20px;
-    padding: 5px 15px 5px 35px;
+    padding: 5px 15px 2px 35px;
     position: relative;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -600,7 +600,7 @@ button#installIosButton {
     white-space: nowrap;
     overflow: clip;
     text-overflow: ellipsis;
-    max-width: 100px;
+    max-width: 115px;
 }
 
 .dark-mode #fav-destinations li {

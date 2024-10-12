@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dialogContent.innerHTML = `
             <h2>${isHome ? 'Definir Casa' : 'Añadir destino rápido'}</h2>
             <p class="dialog-subtitle">Te permitirá acceder a la ruta más rápida</p>
-            <p class="dialog-subtitle">Añade un emoticono al inicio del nombre para personalizarlo 😉</p>
+            ${!isHome ? '<p class="dialog-subtitle">Añade un emoticono al inicio del nombre para personalizarlo 😉</p>' : ''}
             ${!isHome ? `<input type="text" id="${dialogId}Name" placeholder="Nombre del destino" maxlength="25">` : ''}
             <div class="search-container">
                 <input type="text" id="${dialogId}SearchInput" class="search-input" placeholder="Buscar dirección">
