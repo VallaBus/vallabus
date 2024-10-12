@@ -266,7 +266,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const areaCenter = [41.652251, -4.724532];
         const initialZoom = 13;
         
-        currentMap = L.map(`${dialogId}MapContainer`).setView(areaCenter, initialZoom);
+        currentMap = L.map(`${dialogId}MapContainer`, {
+            center: areaCenter,
+            zoom: initialZoom,
+            dragging: false,
+            touchZoom: true,
+            scrollWheelZoom: false,
+            doubleClickZoom: true,
+            boxZoom: false,
+            tap: false,
+            keyboard: false,
+            zoomControl: true
+        });
         
         // Usar las capas de mapa de mapa.js
         if (document.documentElement.classList.contains('dark-mode')) {
