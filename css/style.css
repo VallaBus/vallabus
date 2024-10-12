@@ -3081,6 +3081,19 @@ footer a:hover {
     background-color: #064a3d;
 }
 
+#overlay-destinos-rapidos-1024 .overlay-content {
+    top: 140px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/destinos-rapidos.png');
+    padding-top: 148px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%; /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%); /* Ajusta el elemento hacia la izquierda */
+}
+
 #overlay-cercanas-biki0624 .overlay-content {
     top: 60px;
     width: 308px;
