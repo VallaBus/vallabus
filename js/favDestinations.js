@@ -119,7 +119,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         favorites.forEach(fav => {
             const li = document.createElement('li');
-            li.textContent = fav.name;
+            
+            // Comprobar si el nombre comienza con un emoticono
+            const startsWithEmoji = /^\p{Emoji}/u.test(fav.name);
+            
+            if (startsWithEmoji) {
+                // Extraer el emoticono (primer carácter)
+                const emoji = fav.name.charAt(0);
+                const restOfName = fav.name.slice(1);
+                
+                // Opción 1: Usar filtro CSS
+                li.innerHTML = `<span class="gray-emoji">${emoji}</span>${restOfName}`;
+                
+                // Opción 2: Usar color gris
+                // li.innerHTML = `<span class="gray-text">${emoji}</span>${restOfName}`;
+                
+                li.style.paddingLeft = '15px';
+                li.style.backgroundImage = 'none';
+            } else {
+                li.textContent = fav.name;
+                li.style.paddingLeft = '35px';
+                li.style.backgroundImage = 'url("/img/star.png")';
+            }
+            
             li.dataset.name = fav.name;
             li.dataset.lat = fav.lat;
             li.dataset.lon = fav.lon;

@@ -620,6 +620,14 @@ button#installIosButton {
     background-color: #404040;
 }
 
+.gray-emoji {
+    filter: grayscale(100%);
+}
+
+.gray-text {
+    color: #808080; /* O cualquier tono de gris que prefieras */
+}
+
 #addFavoriteButton {
     background-color: #f0f0f0;
     border: none;
