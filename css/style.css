@@ -519,6 +519,8 @@ button#installIosButton {
     overflow: auto;
 }
 
+/* Destinos rápidos */
+
 #fav-destinations {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -559,39 +561,15 @@ button#installIosButton {
     margin: 0;
     gap: 10px;
     flex-wrap: nowrap;
-    overflow-x: hidden;
-    transition: all 0.3s ease;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     flex-grow: 1;
     max-height: 40px;
 }
 
-#fav-destinations.overflowing ul {
-    margin-right: 30px;
-}
-
-#expand-favorites {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: transparent;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 18px;
-    line-height: 24px;
-    text-align: center;
-    cursor: pointer;
-    z-index: 1;
-    background-image: url('../img/arrow-down.png');
-    background-size: 12px;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-#fav-destinations.expanded #expand-favorites {
-    background-image: url('../img/arrow-up.png');
+#fav-destinations ul::-webkit-scrollbar {
+    display: none;
 }
 
 #addFavoriteButton, #configFavoritesButton {
@@ -659,6 +637,8 @@ button#installIosButton {
     background-color: #404040;
     background-image: url("/img/add-light.png");
 }
+
+/* Welcome box */
 
 #welcome-box {
     position: relative;

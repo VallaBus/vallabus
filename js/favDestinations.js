@@ -61,21 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
             favList.appendChild(li);
         });
 
-        // Añadir el botón de desplegar
-        const expandButton = document.createElement('button');
-        expandButton.id = 'expand-favorites';
-        expandButton.textContent = '...';
-        expandButton.style.display = 'none';
-        favList.appendChild(expandButton);
-
         // Actualizar la visibilidad del botón de configurar
         const configFavoritesButton = document.getElementById('configFavoritesButton');
         if (configFavoritesButton) {
             configFavoritesButton.style.display = hasSavedLocations() ? 'block' : 'none';
         }
-
-        // Comprobar si necesitamos mostrar el botón de desplegar
-        checkOverflow();
     }
 
     function showLocationDialog(isHome) {
@@ -372,56 +362,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function toggleExpand() {
-        const favDestinationsElement = document.getElementById('fav-destinations');
-        favDestinationsElement.classList.toggle('expanded');
-        const expandButton = document.getElementById('expand-favorites');
-        
-        if (favDestinationsElement.classList.contains('expanded')) {
-            expandButton.style.backgroundImage = "url('../img/arrow-up.png')";
-            favDestinationsElement.querySelector('ul').style.maxHeight = favDestinationsElement.querySelector('ul').scrollHeight + 'px';
-        } else {
-            expandButton.style.backgroundImage = "url('../img/arrow-down.png')";
-            favDestinationsElement.querySelector('ul').style.maxHeight = '40px'; // Altura inicial
-        }
+    function hasSavedLocations() {
+        const homeDestination = localStorage.getItem('homeDestination');
+        const favoriteDestinations = localStorage.getItem('favoriteDestinations');
+        return homeDestination || (favoriteDestinations && JSON.parse(favoriteDestinations).length > 0);
     }
-
-    function checkOverflow() {
-        const favDestinationsElement = document.getElementById('fav-destinations');
-        const favList = favDestinationsElement.querySelector('ul');
-        const expandButton = document.getElementById('expand-favorites');
-        
-        // Ocultar temporalmente el botón para medir correctamente
-        expandButton.style.display = 'none';
-        
-        // Restablecer max-height para medir correctamente
-        favList.style.maxHeight = 'none';
-        
-        // Medir el ancho del contenido y el contenedor
-        const contentWidth = Array.from(favList.children).reduce((total, child) => total + child.offsetWidth, 0);
-        const containerWidth = favDestinationsElement.offsetWidth;
-        
-        if (contentWidth > containerWidth) {
-            expandButton.style.display = 'block';
-            favDestinationsElement.classList.add('overflowing');
-            favList.style.maxHeight = '40px'; // Restablecer la altura máxima
-        } else {
-            expandButton.style.display = 'none';
-            favDestinationsElement.classList.remove('overflowing');
-            favList.style.maxHeight = 'none'; // Mantener expandido si no hay overflow
-        }
-    }
-
-    // Añadir event listener para el botón de desplegar
-    document.getElementById('expand-favorites').addEventListener('click', toggleExpand);
-
-    // Llamar a checkOverflow cuando se carga la página y cuando se redimensiona la ventana
-    window.addEventListener('load', checkOverflow);
-    window.addEventListener('resize', checkOverflow);
 });
-
-function hasSavedLocations() {
-    const homeDestination = localStorage.getItem('homeDestination');
-    const favoriteDestinations = localStorage.getItem('favoriteDestinations');
-    return homeDestination || (favoriteDestinations && JSON.parse(favoriteDestinations).length > 0);
-}
