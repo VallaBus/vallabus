@@ -33,23 +33,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const target = event.target;
         if (target.tagName === 'LI') {
             if (target.id === 'home-destination') {
+                _paq.push(['trackEvent', 'Destinos', 'Clic', 'Casa']);
                 const home = JSON.parse(localStorage.getItem('homeDestination'));
                 if (home) {
                     showRouteToDestination(home.name, home.lat, home.lon);
+                    _paq.push(['trackEvent', 'Destinos', 'Ir', 'Casa']);
                 } else {
                     showHomeDialog();
                 }
             } else {
                 showRouteToDestination(target.dataset.name, target.dataset.lat, target.dataset.lon);
+                _paq.push(['trackEvent', 'Destinos', 'Ir', 'Otros']);
             }
         }
     });
 
     // Evento para añadir nuevo destino favorito
-    foundElements['addFavoriteButton'].addEventListener('click', showAddFavoriteDialog);
+    foundElements['addFavoriteButton'].addEventListener('click', () => {
+        _paq.push(['trackEvent', 'Destinos', 'Añadir', 'Botón']);
+        showAddFavoriteDialog();
+    });
 
     // Evento para configurar favoritos
-    foundElements['configFavoritesButton'].addEventListener('click', showConfigFavoritesDialog);
+    foundElements['configFavoritesButton'].addEventListener('click', () => {
+        _paq.push(['trackEvent', 'Destinos', 'Configurar', 'Botón']);
+        showConfigFavoritesDialog();
+    });
 
     // Eventos para los diálogos
     foundElements['closeConfigDialog'].addEventListener('click', () => closeDialog(foundElements['configFavoritesDialog']));
@@ -108,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     quickDestinationsButton.addEventListener('click', function(event) {
         event.preventDefault();
+        _paq.push(['trackEvent', 'Destinos', 'Configurar', 'Sidebar']);
         showConfigFavoritesDialog();
         toogleSidebar(true); // Cerramos el sidebar
     });
@@ -459,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const favDestinations = document.getElementById('fav-destinations');
         const isHidden = localStorage.getItem('hideFavBar') === 'true';
         favDestinations.style.display = isHidden ? 'none' : 'flex';
+        _paq.push(['trackEvent', 'Destinos', 'Ocultar', isHidden ? 'Si' : 'No']);
     }
 
     // Asegúrate de llamar a updateFavBarVisibility() al cargar la página
@@ -466,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Evento para añadir un nuevo destino rápido
     document.getElementById('addNewFavoriteButton').addEventListener('click', function() {
+        _paq.push(['trackEvent', 'Destinos', 'Añadir', 'Diálogo']);
         closeDialog(foundElements['configFavoritesDialog']);
         showAddFavoriteDialog();
     });
