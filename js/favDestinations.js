@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             <div id="${dialogId}MapContainer" class="map-container"></div>
+            <p class="map-instruction">Usa dos dedos para moverte por el mapa</p>
             <button id="${dialogId}CurrentLocationButton" class="current-location-button">
                 <span class="location-icon"></span>
                 Usar tu ubicación
