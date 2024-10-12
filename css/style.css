@@ -734,8 +734,7 @@ button#installIosButton {
     overflow: auto;
     background: #fff;
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
-    width: 90%;
-    margin: 1em auto 1em auto;
+    margin: 0 4px 15px 4px;
     padding: 150px 0 5px 0;
     background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
     background-size: 140px;
