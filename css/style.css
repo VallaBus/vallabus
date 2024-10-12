@@ -547,7 +547,7 @@ button#installIosButton {
     background-size: 20px;
     background-repeat: no-repeat;
     background-position: center;
-    width: 20px;
+    width: 25px;
     height: 20px;
     text-indent: -9999px;
     overflow: hidden;
@@ -575,6 +575,14 @@ button#installIosButton {
 #addFavoriteButton, #configFavoritesButton {
     flex-shrink: 0;
     margin-left: 10px;
+    background-image: url("/img/gear.png");
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 15px;
+    height: 15px;
+    text-indent: -9999px;
+    overflow: hidden;
 }
 
 #fav-destinations li {
