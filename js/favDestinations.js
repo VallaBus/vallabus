@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const dialogContent = dialog.querySelector('.dialog-content');
         dialogContent.innerHTML = `
             <h2>${isHome ? 'Definir Casa' : 'Añadir destino rápido'}</h2>
-            <p class="dialog-subtitle">Te permitirá acceder a la ruta más rápida</p>
-            ${!isHome ? '<p class="dialog-subtitle">Añade un emoticono al inicio del nombre para personalizarlo 😉</p>' : ''}
+            <p class="dialog-subtitle">Para acceder a la ruta más rápidamente</p>
+            ${!isHome ? '<p class="dialog-subtitle" style="color: #808080;">Añade un emoticono al inicio del nombre para personalizarlo 😉</p>' : ''}
             ${!isHome ? `<input type="text" id="${dialogId}Name" placeholder="Nombre del destino" maxlength="25">` : ''}
             <div class="search-container">
                 <input type="text" id="${dialogId}SearchInput" class="search-input" placeholder="Buscar dirección">
@@ -418,14 +418,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addFavoriteToConfigList(list, name, data) {
         const li = document.createElement('li');
-        li.textContent = name;
-        
+        li.className = 'favorite-item';
+
+        // Botón para ir a la ruta
+        const routeButton = document.createElement('button');
+        routeButton.className = 'route-favorite-icon';
+        routeButton.setAttribute('aria-label', 'Ir a la ruta');
+        routeButton.addEventListener('click', () => showRouteToDestination(name, data.lat, data.lon));
+
+        // Nombre del favorito
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = name;
+        nameSpan.className = 'favorite-name';
+
+        // Botón para borrar
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-favorite-icon';
         deleteButton.setAttribute('aria-label', 'Borrar favorito');
         deleteButton.addEventListener('click', () => deleteFavorite(name, data));
-        
+
+        // Añadir elementos al li
+        li.appendChild(routeButton);
+        li.appendChild(nameSpan);
         li.appendChild(deleteButton);
+        
         list.appendChild(li);
     }
 
