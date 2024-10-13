@@ -658,63 +658,188 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
     }
     // Si solo se ha proporcionado la parada, añadir todas las líneas de esa parada tras confirmación
     else if (stopNumber && !lineNumber) {
-        if (window.confirm(`Esto añadirá la parada ${stopNumber} con TODAS sus líneas. Para añadir una sola línea cancele y rellénela en el formulario`)) {
-            const allLines = [
-                ...(stopData.lineas.ordinarias || []), 
-                ...(stopData.lineas.poligonos || []), 
-                ...(stopData.lineas.matinales || []), 
-                ...(stopData.lineas.futbol || []), 
-                ...(stopData.lineas.buho || []), 
-                ...(stopData.lineas.universidad || [])
-            ];
+        showLineSelectionDialog(stopData);
+    }
+}
 
-            allLines.forEach(line => {
-                const exists = busLines.some(busLine => busLine.stopNumber === stopNumber && busLine.lineNumber === line);
-                if (!exists) {
-                    busLines.push({ stopNumber: stopNumber, lineNumber: line });
-                }
-            });
+async function showLineSelectionDialog(stopData) {
+    const dialog = document.createElement('div');
+    dialog.id = 'lineSelectionDialog';
+    dialog.className = 'dialog';
+    dialog.style.display = 'block';
+    
+    const allLines = [
+        ...(stopData.lineas.ordinarias || []), 
+        ...(stopData.lineas.poligonos || []), 
+        ...(stopData.lineas.matinales || []), 
+        ...(stopData.lineas.futbol || []), 
+        ...(stopData.lineas.buho || []), 
+        ...(stopData.lineas.universidad || [])
+    ].sort((a, b) => {
+        const aIsNumeric = /^\d+$/.test(a);
+        const bIsNumeric = /^\d+$/.test(b);
+        
+        if (aIsNumeric && bIsNumeric) {
+            return parseInt(a) - parseInt(b);
+        } else if (aIsNumeric) {
+            return -1;
+        } else if (bIsNumeric) {
+            return 1;
+        } else {
+            return a.localeCompare(b);
+        }
+    });
 
-            saveBusLines(busLines);
-            updateBusList();
+    let dialogContent = `
+        <button class="dialog-close">X</button>
+        <div class="dialog-content">
+        <h2>${stopData.parada.nombre} (${stopData.parada.numero})</h2>
+        <p class="dialog-subtitle">Selecciona todas las líneas que quieres añadir</p>
+        <div class="line-list">
+    `;
 
-            showSuccessPopUp('Todas las líneas de la parada añadidas');
+    // Obtener los destinos de las líneas
+    const destinations = await getBusDestinationsForStop(stopData.parada.numero);
 
-            // Limpiar el contenido del input stopNumber
-            document.getElementById('stopNumber').value = '';
+    allLines.forEach(line => {
+        const lineDestinations = destinations[line] || ['Destino desconocido'];
+        const destinationText = lineDestinations.join(' / ');
+        dialogContent += `
+            <label class="line-pill">
+                <input type="checkbox" name="line" value="${line}">
+                <span class="pill-content linea-${line}">
+                    <span class="line-number">${line}</span>
+                    <span class="line-destination">${destinationText}</span>
+                </span>
+            </label>
+        `;
+    });
 
-            // Limpiamos sugerencias de lineas
-            document.getElementById('lineSuggestions').innerHTML = '';
+    dialogContent += `
+        </div>
+        <div class="dialog-buttons">
+            <button id="addAllLines">Añadir todas</button>
+            <button id="addSelectedLines" disabled>Añadir seleccionadas</button>
+        </div>
+        </div>
+    `;
 
-            // Hacer scroll suave a la parada cuando el elemento se haya creado
+    dialog.innerHTML = dialogContent;
+    document.body.appendChild(dialog);
+
+    const addSelectedLinesButton = document.getElementById('addSelectedLines');
+
+    // Función para actualizar el estado del botón
+    const updateButtonState = () => {
+        const selectedLines = dialog.querySelectorAll('input[name="line"]:checked');
+        addSelectedLinesButton.disabled = selectedLines.length === 0;
+    };
+
+    // Agregar event listener a cada checkbox
+    dialog.querySelectorAll('input[name="line"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateButtonState);
+    });
+
+    document.getElementById('addAllLines').addEventListener('click', () => {
+        addAllLinesForStop(stopData);
+        document.body.removeChild(dialog);
+    });
+
+    // Asegurarse de que el botón existe antes de añadir el event listener
+    if (addSelectedLinesButton) {
+        addSelectedLinesButton.addEventListener('click', () => {
+            const selectedLines = Array.from(dialog.querySelectorAll('input[name="line"]:checked')).map(cb => cb.value);
+            addSelectedLinesForStop(stopData, selectedLines);
+            document.body.removeChild(dialog);
+        });
+    } else {
+        console.error('El botón "Añadir seleccionadas" no se encontró en el DOM');
+    }
+
+    // Añadir evento para cerrar el diálogo
+    const closeButton = dialog.querySelector('.dialog-close');
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(dialog);
+    });
+}
+
+function addAllLinesForStop(stopData) {
+    let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
+    const allLines = [
+        ...(stopData.lineas.ordinarias || []), 
+        ...(stopData.lineas.poligonos || []), 
+        ...(stopData.lineas.matinales || []), 
+        ...(stopData.lineas.futbol || []), 
+        ...(stopData.lineas.buho || []), 
+        ...(stopData.lineas.universidad || [])
+    ];
+
+    const stopNumber = stopData.parada.numero;
+
+    allLines.forEach(line => {
+        if (!busLines.some(bl => bl.stopNumber === stopNumber && bl.lineNumber === line)) {
+            busLines.push({ stopNumber: stopNumber, lineNumber: line });
+        }
+    });
+
+    saveBusLines(busLines);
+    updateBusList();
+    showSuccessPopUp('Todas las líneas de la parada añadidas');
+
+    // Limpiar el contenido del input stopNumber
+    document.getElementById('stopNumber').value = '';
+
+    // Limpiamos sugerencias de lineas
+    document.getElementById('lineSuggestions').innerHTML = '';
+
+    // Hacer scroll suave a la parada
+    scrollToStop(stopNumber);
+}
+
+function addSelectedLinesForStop(stopData, selectedLines) {
+    let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
+
+    selectedLines.forEach(line => {
+        if (!busLines.some(bl => bl.stopNumber === stopData.parada.numero && bl.lineNumber === line)) {
+            busLines.push({ stopNumber: stopData.parada.numero, lineNumber: line });
+        }
+    });
+
+    saveBusLines(busLines);
+    updateBusList();
+    showSuccessPopUp(`${selectedLines.length} línea(s) añadida(s) a la parada`);
+
+    // Limpiamos sugerencias de lineas
+    document.getElementById('lineSuggestions').innerHTML = '';
+
+    // Hacer scroll suave a la parada
+    scrollToStop(stopData.parada.numero);
+}
+
+function scrollToStop(stopNumber) {
+    // Hacer scroll suave a la parada cuando el elemento se haya creado
+    const stopElement = document.getElementById(stopNumber);
+    if (stopElement) {
+        scrollToElement(stopElement);
+    } else {
+        // Si el elemento no existe, crear un MutationObserver para observar cambios en el contenedor de paradas
+        const observer = new MutationObserver((mutationsList, observer) => {
+            // Buscar el elemento en cada mutación
             const stopElement = document.getElementById(stopNumber);
             if (stopElement) {
+                // Si el elemento existe, hacer scroll y desconectar el observador
                 scrollToElement(stopElement);
-            } else {
-                // Si el elemento no existe, crear un MutationObserver para observar cambios en el contenedor de paradas
-                const observer = new MutationObserver((mutationsList, observer) => {
-                    // Buscar el elemento en cada mutación
-                    const stopElement = document.getElementById(stopNumber);
-                    if (stopElement) {
-                        // Si el elemento existe, hacer scroll y desconectar el observador
-                        scrollToElement(stopElement);
-                        observer.disconnect(); // Detener la observación una vez que se haya encontrado el elemento
-                    }
-                });
+                observer.disconnect(); // Detener la observación una vez que se haya encontrado el elemento
+            }
+        });
 
-                // Seleccionar el contenedor que contiene las paradas
-                const paradasContainer = document.getElementById('busList');
-                if (paradasContainer) {
-                    // Configurar el observador para observar cambios en los hijos del contenedor
-                    observer.observe(paradasContainer, { childList: true });
-                }
-            } 
-        } else {
-            // El usuario no aceptó, por lo que no hacemos nada
-            console.log("El usuario no desea añadir todas las líneas de la parada.");
-            return false;
+        // Seleccionar el contenedor que contiene las paradas
+        const paradasContainer = document.getElementById('busList');
+        if (paradasContainer) {
+            // Configurar el observador para observar cambios en los hijos del contenedor
+            observer.observe(paradasContainer, { childList: true });
         }
-    }
+    } 
 }
 
 /**
@@ -1010,7 +1135,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
                         if (ocupacion) {
                             const occupancyStatusMapping = {
                                 'no': 'Sin datos de ocupación',
-                                'empty': 'Todos los asientos están libres',
+                                'empty': 'Todos los asientos estn libres',
                                 'many': 'Hay bastantes asientos libres',
                                 'few': 'Hay pocos asientos libres',
                                 'standing': 'No hay asientos, solo de pie',
