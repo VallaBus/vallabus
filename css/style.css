@@ -3499,6 +3499,11 @@ body.dialog-open {
     z-index: 1000;
 }
 
+#reorder-tip {
+    opacity: 0.6;
+    text-align: center;
+}
+
 .route-favorite-icon {
     width: 20px;
     height: 20px;
