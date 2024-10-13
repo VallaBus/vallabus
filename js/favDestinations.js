@@ -595,34 +595,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let touchStartY;
     let touchedElement;
+    let lastMoveTime = 0;
+    const moveThreshold = 20; // píxeles
+    const moveDelay = 300; // milisegundos
 
     function handleTouchStart(e) {
         const touch = e.touches[0];
         touchStartY = touch.clientY;
         touchedElement = e.target.closest('.favorite-item');
-        touchedElement.classList.add('dragging');
+        if (touchedElement && touchedElement.dataset.name !== 'Casa') {
+            touchedElement.classList.add('dragging');
+        }
     }
 
     function handleTouchMove(e) {
         if (!touchedElement || touchedElement.dataset.name === 'Casa') return;
         e.preventDefault();
+        
         const touch = e.touches[0];
         const currentY = touch.clientY;
         const deltaY = currentY - touchStartY;
         
-        const list = touchedElement.parentNode;
-        const items = Array.from(list.children);
-        const currentIndex = items.indexOf(touchedElement);
+        const currentTime = new Date().getTime();
+        if (currentTime - lastMoveTime < moveDelay) return;
         
-        if (deltaY < 0 && currentIndex > 1) {
-            // Mover hacia arriba, pero no antes de "Casa"
-            list.insertBefore(touchedElement, items[currentIndex - 1]);
-        } else if (deltaY > 0 && currentIndex < items.length - 1) {
-            // Mover hacia abajo
-            list.insertBefore(items[currentIndex + 1], touchedElement);
+        if (Math.abs(deltaY) >= moveThreshold) {
+            const list = touchedElement.parentNode;
+            const items = Array.from(list.children);
+            const currentIndex = items.indexOf(touchedElement);
+            
+            if (deltaY < 0 && currentIndex > 1) {
+                // Mover hacia arriba, pero no antes de "Casa"
+                list.insertBefore(touchedElement, items[currentIndex - 1]);
+                touchStartY = currentY;
+                lastMoveTime = currentTime;
+            } else if (deltaY > 0 && currentIndex < items.length - 1) {
+                // Mover hacia abajo
+                list.insertBefore(items[currentIndex + 1], touchedElement);
+                touchStartY = currentY;
+                lastMoveTime = currentTime;
+            }
         }
-        
-        touchStartY = currentY;
     }
 
     function handleTouchEnd() {

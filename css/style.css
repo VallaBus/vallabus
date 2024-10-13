@@ -3453,8 +3453,9 @@ body.dialog-open {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #cccccc1c;
     touch-action: pan-y;
+    transition: transform 0.2s ease;
 }
 
 .favorite-content {
@@ -3493,8 +3494,9 @@ body.dialog-open {
 }
 
 .favorite-item.dragging {
-    opacity: 0.5;
-    background-color: #f0f0f0;
+    opacity: 0.8;
+    transform: scale(1.05);
+    z-index: 1000;
 }
 
 .route-favorite-icon {
