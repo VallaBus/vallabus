@@ -3449,6 +3449,31 @@ body.dialog-open {
     margin-bottom: 10px;
 }
 
+.favorite-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.route-favorite-icon {
+    width: 20px;
+    height: 20px;
+    background-image: url('../img/directions.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    margin-right: 12px;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+.favorite-name {
+    flex-grow: 1;
+}
+
 .delete-favorite-icon {
     width: 15px;
     height: 15px;
