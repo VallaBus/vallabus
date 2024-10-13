@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         openDialog(foundElements['configFavoritesDialog']);
+
+        favoritesList.addEventListener('dragover', handleDragOver);
+        favoritesList.addEventListener('drop', handleDrop);
     }
 
     // Evento para gestionar destinos rápidos en el sidebar
@@ -419,33 +422,108 @@ document.addEventListener('DOMContentLoaded', function() {
     function addFavoriteToConfigList(list, name, data) {
         const li = document.createElement('li');
         li.className = 'favorite-item';
+        li.dataset.name = name;
 
-        // Botón para ir a la ruta
+        const content = document.createElement('div');
+        content.className = 'favorite-content';
+
+        // Añadir el botón de ruta
         const routeButton = document.createElement('button');
         routeButton.className = 'route-favorite-icon';
         routeButton.setAttribute('aria-label', 'Ir a la ruta');
         routeButton.addEventListener('click', () => showRouteToDestination(name, data.lat, data.lon));
+        content.appendChild(routeButton);
 
-        // Nombre del favorito
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = name;
         nameSpan.className = 'favorite-name';
+        nameSpan.textContent = name;
+        content.appendChild(nameSpan);
 
-        // Botón para borrar
+        const iconsContainer = document.createElement('div');
+        iconsContainer.className = 'favorite-icons';
+
+        if (name !== 'Casa') {
+            li.draggable = true;
+            const dragIcon = document.createElement('span');
+            dragIcon.className = 'drag-icon';
+            dragIcon.innerHTML = '&#8942;&#8942;';
+            iconsContainer.appendChild(dragIcon);
+
+            li.addEventListener('dragstart', handleDragStart);
+            li.addEventListener('dragover', handleDragOver);
+            li.addEventListener('drop', handleDrop);
+            li.addEventListener('touchstart', handleTouchStart, {passive: false});
+            li.addEventListener('touchmove', handleTouchMove, {passive: false});
+            li.addEventListener('touchend', handleTouchEnd);
+        }
+
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-favorite-icon';
-        deleteButton.setAttribute('aria-label', 'Borrar favorito');
-        deleteButton.addEventListener('click', () => deleteFavorite(name, data));
+        deleteButton.addEventListener('click', () => deleteFavorite(name));
+        iconsContainer.appendChild(deleteButton);
 
-        // Añadir elementos al li
-        li.appendChild(routeButton);
-        li.appendChild(nameSpan);
-        li.appendChild(deleteButton);
-        
+        content.appendChild(iconsContainer);
+        li.appendChild(content);
         list.appendChild(li);
     }
 
-    function deleteFavorite(name, data) {
+    function handleDragStart(e) {
+        e.dataTransfer.setData('text/plain', e.target.closest('.favorite-item').dataset.name);
+        e.target.closest('.favorite-item').classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); // Necesario para permitir el soltar
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const draggedName = e.dataTransfer.getData('text/plain');
+        const draggedElement = document.querySelector(`.favorite-item[data-name="${draggedName}"]`);
+        const dropTarget = e.target.closest('.favorite-item');
+
+        if (draggedElement && dropTarget && draggedElement !== dropTarget && dropTarget.dataset.name !== 'Casa') {
+            const list = dropTarget.parentNode;
+            const items = Array.from(list.children);
+            const fromIndex = items.indexOf(draggedElement);
+            const toIndex = items.indexOf(dropTarget);
+
+            // Asegurarse de que no se coloque antes de "Casa"
+            if (toIndex > 0 || (toIndex === 0 && items[0].dataset.name !== 'Casa')) {
+                if (fromIndex < toIndex) {
+                    dropTarget.parentNode.insertBefore(draggedElement, dropTarget.nextSibling);
+                } else {
+                    dropTarget.parentNode.insertBefore(draggedElement, dropTarget);
+                }
+                updateFavoritesOrder();
+            }
+        }
+
+        document.querySelectorAll('.favorite-item').forEach(item => {
+            item.classList.remove('dragging');
+        });
+    }
+
+    function updateFavoritesOrder() {
+        const favoritesList = document.getElementById('favoritesList');
+        const newOrder = Array.from(favoritesList.children)
+            .filter(li => li.dataset.name !== 'Casa')
+            .map(li => li.dataset.name);
+
+        let favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
+        const casa = favorites.find(fav => fav.name === 'Casa');
+        favorites = favorites.filter(fav => fav.name !== 'Casa');
+        favorites.sort((a, b) => newOrder.indexOf(a.name) - newOrder.indexOf(b.name));
+        
+        if (casa) {
+            favorites.unshift(casa); // Asegurarse de que "Casa" siempre esté primero
+        }
+        
+        localStorage.setItem('favoriteDestinations', JSON.stringify(favorites));
+        loadFavoriteDestinations();
+    }
+
+    function deleteFavorite(name) {
         if (name === 'Casa') {
             localStorage.removeItem('homeDestination');
         } else {
@@ -453,8 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
             favorites = favorites.filter(fav => fav.name !== name);
             localStorage.setItem('favoriteDestinations', JSON.stringify(favorites));
         }
-        loadFavoriteDestinations(); // Actualizar la lista de favoritos y la visibilidad del botón
-        showConfigFavoritesDialog(); // Actualizar la lista en el diálogo
+        loadFavoriteDestinations();
+        showConfigFavoritesDialog();
     }
 
     function saveHomeDestination() {
@@ -514,6 +592,59 @@ document.addEventListener('DOMContentLoaded', function() {
         closeDialog(foundElements['configFavoritesDialog']);
         showAddFavoriteDialog();
     });
+
+    let touchStartY;
+    let touchedElement;
+    let lastMoveTime = 0;
+    const moveThreshold = 20; // píxeles
+    const moveDelay = 300; // milisegundos
+
+    function handleTouchStart(e) {
+        const touch = e.touches[0];
+        touchStartY = touch.clientY;
+        touchedElement = e.target.closest('.favorite-item');
+        if (touchedElement && touchedElement.dataset.name !== 'Casa') {
+            touchedElement.classList.add('dragging');
+        }
+    }
+
+    function handleTouchMove(e) {
+        if (!touchedElement || touchedElement.dataset.name === 'Casa') return;
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        const currentY = touch.clientY;
+        const deltaY = currentY - touchStartY;
+        
+        const currentTime = new Date().getTime();
+        if (currentTime - lastMoveTime < moveDelay) return;
+        
+        if (Math.abs(deltaY) >= moveThreshold) {
+            const list = touchedElement.parentNode;
+            const items = Array.from(list.children);
+            const currentIndex = items.indexOf(touchedElement);
+            
+            if (deltaY < 0 && currentIndex > 1) {
+                // Mover hacia arriba, pero no antes de "Casa"
+                list.insertBefore(touchedElement, items[currentIndex - 1]);
+                touchStartY = currentY;
+                lastMoveTime = currentTime;
+            } else if (deltaY > 0 && currentIndex < items.length - 1) {
+                // Mover hacia abajo
+                list.insertBefore(items[currentIndex + 1], touchedElement);
+                touchStartY = currentY;
+                lastMoveTime = currentTime;
+            }
+        }
+    }
+
+    function handleTouchEnd() {
+        if (touchedElement) {
+            touchedElement.classList.remove('dragging');
+            updateFavoritesOrder();
+            touchedElement = null;
+        }
+    }
 });
 
 console.log('Script favDestinations.js cargado');
