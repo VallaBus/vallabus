@@ -489,15 +489,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Evento para ocultar/mostrar la barra de destinos
     document.getElementById('hideFavBar').addEventListener('change', function() {
-        localStorage.setItem('hideFavBar', this.checked);
-        updateFavBarVisibility();
+        const newValue = this.checked;
+        const oldValue = localStorage.getItem('hideFavBar') === 'true';
+        
+        if (newValue !== oldValue) {
+            localStorage.setItem('hideFavBar', newValue);
+            updateFavBarVisibility();
+            trackEvent('Destinos', 'Ocultar', newValue ? 'Si' : 'No');
+        }
     });
 
     function updateFavBarVisibility() {
         const favDestinations = document.getElementById('fav-destinations');
         const isHidden = localStorage.getItem('hideFavBar') === 'true';
         favDestinations.style.display = isHidden ? 'none' : 'flex';
-        trackEvent('Destinos', 'Ocultar', isHidden ? 'Si' : 'No');
     }
 
     // Asegúrate de llamar a updateFavBarVisibility() al cargar la página
