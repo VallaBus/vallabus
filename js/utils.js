@@ -219,23 +219,27 @@ async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
 // Muestra dialogo de rutas con ruta al destino desde ubicación del usuario
 // Opcionalmente acepta una fecha en formato YYYY-MM-DD y una hora HH:MM
-function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null) {
+function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null, bike = false) {
     // Abrimos el planeador de rutas
     let plannerURL;
     let arriveBy = 'false';
     let arriveByParams = '';
-
+    let modeButtons = 'transit';
     // Si se definió una hora de llegada
     if (arriveByDate && arriveByHour) {
         arriveBy = 'true'
         arriveByParams = `&date=${arriveByDate}&time=${encodeURIComponent(arriveByHour)}`;
     }
-    
 
+    // Si es ruta en bici
+    if (bike) {
+        modeButtons = 'transit_bicycle';
+    }
+    
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             displayLoadingSpinner();
-            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900&modeButtons=transit_bicycle`
+            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900&modeButtons=${modeButtons}`;
             showIframe(plannerURL);
             // URL para rutas
             const dialogState = {
@@ -276,13 +280,13 @@ function updateStopName(stopElement, newName, stopGeo) {
             mapIconElement.addEventListener('click', function(event) {
                 // Prevenir la acción por defecto del enlace
                 event.preventDefault();
-                showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
+                showRouteToDestination(stopName, stopGeo.y, stopGeo.x, null, null, true);
             });
         } else {
             // Si ya existe, actualizar solo el evento click
             mapIconElement.onclick = function(event) {
                 event.preventDefault();
-                showRouteToDestination(stopName, stopGeo.y, stopGeo.x);
+                showRouteToDestination(stopName, stopGeo.y, stopGeo.x, null, null, true);
             };
         }
     }
@@ -1148,7 +1152,8 @@ function clickEvents() {
 
     // Cualquier elemento con clase routeTo enlaza a rutas
     // data-arrive-date y data-arrive-time son opcionales
-    // Ejemplo: <a href="#" class="routeTo" data-dest-name="Estadio José Zorilla" data-dest-y="41.6440028" data-dest-x="-4.7605973" data-arrive-date="2024-05-11" data-arrive-time="18:00">Planifica tu viaje al Estadio</a>
+    // data-bike es opcional y si está, añade el modo bici
+    // Ejemplo: <a href="#" class="routeTo" data-dest-name="Estadio José Zorilla" data-dest-y="41.6440028" data-dest-x="-4.7605973" data-arrive-date="2024-05-11" data-arrive-time="18:00" data-bike="true">Planifica tu viaje al Estadio</a>
     document.addEventListener('click', function(event) {
         // Verifica si el evento se originó en un elemento con clase routeTo
         if (event.target.matches('.routeTo')) {
@@ -1162,14 +1167,20 @@ function clickEvents() {
             // Datos opcionales
             const arriveByDate = event.target.getAttribute('data-arrive-date');
             const arriveByHour = event.target.getAttribute('data-arrive-time');
+            
+            // Si el enlace tiene el atributo data-bike, añadimos el modo bici
+            let bike = false;
+            if (event.target.getAttribute('data-bike')) {
+                bike = true;
+            }
 
             // Llama a la función showRouteToDestination con los datos extraídos
 
             // Verifica si los atributos necesarios están definidos
             if (destName && destX && destY && arriveByDate && arriveByHour) {
-                showRouteToDestination(destName, destY, destX, arriveByDate, arriveByHour);
+                showRouteToDestination(destName, destY, destX, arriveByDate, arriveByHour, bike);
             } else if (destName && destX && destY) {
-                showRouteToDestination(destName, destY, destX);
+                showRouteToDestination(destName, destY, destX, null, null, bike);
             }
         }
     });
