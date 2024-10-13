@@ -1616,6 +1616,13 @@ function trackCurrentUrl() {
     }
 }
 
+// Función para manejar los eventos de seguimiento de manera segura
+function trackEvent(category, action, name) {
+    if (typeof _paq !== 'undefined') {
+        _paq.push(['trackEvent', category, action, name]);
+    }
+}
+
 // Comprobamos si el usuario no tiene paradas y lo mandamos a exportar de auvasatracker
 // Pero solo lo hacemos una vez
 function checkStatusForMigration() {
