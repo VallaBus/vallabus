@@ -1817,7 +1817,7 @@ button.remove-stop {
 }
 
 /* Enlaces en el sidebar */
-#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton {
+#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton, #communityButton {
     color: #818181;
     font-size: 0.9em;
     text-align: center;
@@ -1853,6 +1853,14 @@ button.remove-stop {
     background-image: url('/img/directions.png');
     background-size: 16px;
     background-repeat: no-repeat;
+}
+
+#communityButton {
+    background-color: transparent;
+    background-image: url('/img/users.png');
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 0px 2px;
 }
 
 .closeRoutesButton {
