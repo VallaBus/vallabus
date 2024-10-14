@@ -887,7 +887,7 @@ function showOverlayIfNotClosed(overlayId) {
         const hasBusLines = busLines && JSON.parse(busLines).length > 0;
 
         if (!overlayClosed && hasBusLines) {
-            // Si el overlay no ha sido cerrado y el usuario no tiene paradas ni líneas añadidas, muéstralo
+            // Si el overlay no ha sido cerrado y el usuario tiene paradas y líneas añadidas, muéstralo
             overlay.style.display = 'block';
         }
     }
