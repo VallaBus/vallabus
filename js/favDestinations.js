@@ -33,12 +33,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const target = event.target;
         if (target.tagName === 'LI') {
             if (target.id === 'home-destination') {
-                trackEvent('Destinos', 'Clic', 'Casa');
                 const home = JSON.parse(localStorage.getItem('homeDestination'));
                 if (home) {
                     showRouteToDestination(home.name, home.lat, home.lon);
                     trackEvent('Destinos', 'Ir', 'Casa');
                 } else {
+                    trackEvent('Destinos', 'Clic', 'Casa');
                     showHomeDialog();
                 }
             } else {
