@@ -871,8 +871,16 @@ function saveBusLines(busLines) {
  * @throws {Error} Si no se puede recuperar las paradas o líneas desde Localstorage.
  */
 async function updateBusList() {
+    const legend = document.getElementById('legend');
+
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
-    let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
+    const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+    if (busLines.length > 0) {
+        legend.style.display = 'block';
+    } else {
+        legend.style.display = 'none';
+    }
+
     const stops = groupByStops(busLines);
 
     // No mostramos el botón de borrar todas si no hay lineas añadidas
@@ -1984,6 +1992,10 @@ function removeStop(stopId) {
             removeAllButton.style.display = 'none';
             let horariosBox = document.getElementById('horarios-box');
             horariosBox.innerHTML = '';
+
+            // Ocultamos el legend
+            const legend = document.getElementById('legend');
+            legend.style.display = 'none';
         }
 
         saveBusLines(busLines);
