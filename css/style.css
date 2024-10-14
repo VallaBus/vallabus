@@ -751,15 +751,13 @@ button#installIosButton {
     background: #fff;
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
     margin: 0 4px 15px 4px;
-    padding: 150px 0 5px 0;
-    background: url("/img/welcome-logo.png") no-repeat #FFF center 8px;
-    background-size: 140px;
+    padding: 10px 0 5px 0;
     border: 1px solid #CCCCCCBA;
     display: none;
 }
 
 #welcome-box h2 {
-    font-size: 1em;
+    font-size: 1.2em;
     line-height: 1em;
     color: #0c0c0e;
     font-weight: bold;
@@ -768,7 +766,49 @@ button#installIosButton {
 
 #welcome-box p {
     padding: 0 20px;
-    font-size: 0.9em;
+    font-size: 0.8em;
+}
+
+#welcome-box button {
+    margin: 10px auto;
+    padding: 12px 11px 11px 36px;
+    cursor: pointer;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 20px;
+    background-color: #2b7b6cc9;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8em;
+    margin-left: 3px;
+}
+
+#welcome-box #welcome-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 20px;
+}
+
+#welcome-box button a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#welcome-box #viewCercanasButton {
+    background-image: url("/img/find-nearby-white.png");
+}
+
+#welcome-box #routePlannerButton {
+    background-image: url("/img/routes-white.png");
+}
+
+#welcome-box #install-tip {
+    margin-top: 2em;
+    color: #666;
 }
 
 .ios-only {
@@ -790,7 +830,7 @@ html.ios .ios-only {
     margin: 0px 0 0 0;
     background-color: #c1c4ca;
     background-image: url("/img/add.png");
-    background-size: 8px;
+    background-size: 10px;
     width: 0px;
     height: 0px;
     text-indent: -9999px;
@@ -800,7 +840,7 @@ html.ios .ios-only {
     border-radius: 50%;
     border: 1px solid #cdcdcd;
     display: inline-block;
-    background-position: 6px 6px;
+    background-position: 5px 5px;
     position: absolute;
 }
 
@@ -3264,8 +3304,7 @@ html.dark-mode body {
 
 .dark-mode #welcome-box {
     box-shadow: 0 8px 64px 0 rgba(12,12,14,.12);
-    background: url("/img/welcome-logo-white.png") no-repeat #2d2d2d center 8px;
-    background-size: 140px;
+    background-color: #2d2d2d;
     border: 1px solid #404040BA !important;
 }
 
