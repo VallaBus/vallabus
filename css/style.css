@@ -850,7 +850,7 @@ html.ios .ios-only {
 }
 
 #welcome-box span.button-sample {
-    margin: 0 0 0 3px;
+    margin: -3px 0 0 3px;
     background-color: #c1c4ca;
     background-image: url("/img/add.png");
     background-size: 10px;

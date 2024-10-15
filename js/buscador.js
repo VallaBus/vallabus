@@ -454,7 +454,7 @@ function toggleClearButton(inputElement, clearButton) {
     }
 }
 
-// Añadir estos event listeners al final del archivo
+// Añadir el botón de borrar al input de stopNumber
 document.addEventListener('DOMContentLoaded', function() {
     const stopNumberInput = document.getElementById('stopNumber');
 
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleClearButton(this, this.clearButton);
     });
 
-
+    // Ocultar el botón de borrar si el usuario hace clic fuera del input
     stopNumberInput.addEventListener('blur', function() {
         setTimeout(() => {
             this.clearButton.style.display = 'none';
