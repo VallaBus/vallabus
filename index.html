@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202410151700">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=202410151930">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -105,14 +105,15 @@
     <div class="bus-list" id="busList">
         <div id="welcome-box">
             <h2>Tu lista</h2>
-            <p>Aún no tienes nada, ¡comienza añadiendo tus paradas y líneas más usadas! </p>
-            <p class="center"><strong>Usa el formulario superior</strong></p>
-            <p class="center"><strong>y luego pulsa el botón <span class="button-sample">+</span></strong></p>
+            <div id="welcome-box-content">
+                <p>Añade tus paradas y líneas<br /> más usadas aquí</p>
+                <p>Usa el formulario en la parte superior</p>
+            </div>
             <div id="welcome-buttons">
                 <button id="viewCercanasButton"><a href="#/cercanas">Ver cercanas</a></button>
                 <button id="routePlannerButton"><a href="#/rutas">Planificar ruta</a></button>
             </div>
-            <p id="install-tip">Si accedes desde web, no olvides instalar o <strong>Agregar a la pantalla principal</strong> desde el menú del navegador o desde el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> en iOS</p>
+            <p id="install-tip">No olvides instalar o <strong>Agregar a la pantalla principal</strong> desde el menú del navegador o desde el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> en iOS</p>
         </div>
         <!-- Placeholder inicial -->
         <div id="initial-placeholder">
