@@ -1200,6 +1200,10 @@ function tipsBannerEvents() {
     // Obtener los tips cerrados del localStorage
     let closedTips = JSON.parse(localStorage.getItem('closedTips')) || [];
 
+    // Verificar si el usuario tiene paradas guardadas
+    const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+    const hasStops = busLines.length > 0;
+
     // Función para crear y añadir el botón de cierre
     function addCloseButton(tip) {
         const closeButton = document.createElement('button');
@@ -1227,7 +1231,7 @@ function tipsBannerEvents() {
             !tip.classList.contains('sticky') && 
             !closedTips.includes(tip.id)
         );
-        if (availableTips.length > 0) {
+        if (availableTips.length > 0 && hasStops) {
             const randomIndex = Math.floor(Math.random() * availableTips.length);
             availableTips[randomIndex].style.display = 'block';
         }
@@ -1246,12 +1250,15 @@ function tipsBannerEvents() {
         } else if (tip.classList.contains('sticky')) {
             tip.style.display = 'block';
             hasSticky = true;
+        } else if (!hasStops) {
+            // Ocultar tips no sticky si el usuario no tiene paradas guardadas
+            tip.style.display = 'none';
         }
-        // Los no sticky se mantienen con display: none
+        // Los no sticky se mantienen con display: none si el usuario tiene paradas
     }
 
-    // Mostrar un tip aleatorio si no hay sticky
-    if (!hasSticky) {
+    // Mostrar un tip aleatorio si no hay sticky y el usuario tiene paradas guardadas
+    if (!hasSticky && hasStops) {
         showRandomTip();
     }
 }
