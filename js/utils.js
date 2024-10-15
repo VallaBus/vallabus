@@ -1737,6 +1737,10 @@ function showDataDialog() {
     const fixedStops = JSON.parse(localStorage.getItem('fixedStops') || '[]');
     const uniqueFixedStops = fixedStops.length;
 
+    // Obtener destinos rapidos
+    const favoriteDestinations = JSON.parse(localStorage.getItem('favoriteDestinations') || '[]');
+    const uniqueFavoriteDestinations = favoriteDestinations.length;
+
     // Contenido del diálogo
     const dialogContent = `
         <button id="closeDataDialogBtn" class="closeDialogBtn"></button>
@@ -1745,6 +1749,7 @@ function showDataDialog() {
             <li>Paradas guardadas: ${uniqueStops}</li>
             <li>Líneas guardadas: ${totalLines}</li>
             <li>Paradas fijadas: ${uniqueFixedStops}</li>
+            <li>Destinos rápidos: ${uniqueFavoriteDestinations}</li>
         </ul>
         <button id="exportDataBtn">Exportar datos</button>
         <button id="importDataBtn">Importar datos</button>
@@ -1828,12 +1833,8 @@ function importData() {
                     updateBusList(); // Actualizar la lista de paradas y líneas
                     closeAllDialogs(dialogIds); // Cerrar todos los diálogos
                     
-                    // Redirigir al home y actualizar la URL
-                    const dialogState = {
-                        dialogType: 'home'
-                    };
-                    history.pushState(dialogState, document.title, '#/');
-                    trackCurrentUrl(); // Asumiendo que esta función actualiza el seguimiento de la URL
+                    // Recargar la página en la ruta raíz
+                    window.location.href = '/';
                 } catch (error) {
                     if (backup) {
                         // Restaurar el backup solo si se creó y hubo un error
