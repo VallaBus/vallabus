@@ -663,6 +663,7 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
 }
 
 async function showLineSelectionDialog(stopData) {
+    displayLoadingSpinner();
     const dialog = document.createElement('div');
     dialog.id = 'lineSelectionDialog';
     dialog.className = 'dialog';
@@ -761,6 +762,7 @@ async function showLineSelectionDialog(stopData) {
     closeButton.addEventListener('click', () => {
         document.body.removeChild(dialog);
     });
+    hideLoadingSpinner();
 }
 
 function addAllLinesForStop(stopData) {
@@ -1936,8 +1938,7 @@ function removeBusLine(stopNumber, lineNumber) {
         // Si no quedan paradas, mostramos el mensaje de bienvenida de nuevo
         if (busLines.length === 0) {
             // Volvemos a mostrar el welcome-box
-            let welcomeBox = document.getElementById('welcome-box');
-            welcomeBox.style.display = 'block';
+            showWelcomeMessage();
 
             // Ocultamos el boton removeallbutton
             let removeAllButton = document.getElementById('removeAllButton');
@@ -1984,8 +1985,7 @@ function removeStop(stopId) {
         // Si no quedan paradas, mostramos el mensaje de bienvenida de nuevo
         if (busLines.length === 0) {
             // Volvemos a mostrar el welcome-box
-            let welcomeBox = document.getElementById('welcome-box');
-            welcomeBox.style.display = 'block';
+            showWelcomeMessage();
 
             // Ocultamos el boton removeallbutton
             let removeAllButton = document.getElementById('removeAllButton');

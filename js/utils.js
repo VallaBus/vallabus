@@ -343,6 +343,8 @@ function createStopElement(stopId, busList, isSkeleton = false) {
     let welcomeBox = document.getElementById('welcome-box');
     if (welcomeBox) {
         welcomeBox.style.display = 'none';
+        const formulario = document.querySelector('#formulario form');
+        formulario.classList.remove('featured');
     }
     
     let stopElement = document.createElement('div');
@@ -1857,6 +1859,15 @@ function showWelcomeMessage() {
     const welcomeBox = document.getElementById('welcome-box');
     if (welcomeBox) {
         welcomeBox.style.display = 'block';
+
+        // Añadir la clase 'featured' al formulario
+        const formulario = document.querySelector('#formulario form');
+        formulario.classList.add('featured');
+
+        // Añadir evento para quitar la clase 'featured' al hacer clic en el formulario
+        formulario.addEventListener('click', function() {
+            this.classList.remove('featured');
+        });
     }
 }
 

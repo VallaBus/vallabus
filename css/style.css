@@ -202,6 +202,20 @@ button#installIosButton {
     max-width: 360px;
 }
 
+#formulario form.featured {
+    box-shadow: 0 0 3px 2px rgba(97, 218, 251, 0.5);
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 3px 2px rgba(97, 218, 251, 0.5);
+    }
+    to {
+        box-shadow: 0 0 5px 3px rgba(97, 218, 251, 0.8);
+    }
+}
+
 #formulario #inputs {
     display: flex;
     flex-direction: column;
@@ -774,6 +788,7 @@ button#installIosButton {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    margin-top: 2em;
 }
 
 #welcome-box button {
@@ -810,8 +825,9 @@ button#installIosButton {
 }
 
 #welcome-box #install-tip {
-    margin-top: 2em;
+    margin-top: 4em;
     color: #666;
+    font-size: 0.7em;
 }
 
 .ios-only {
