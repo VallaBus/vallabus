@@ -1497,8 +1497,8 @@ async function showStatusDialog() {
             <div class="status-summary ${allActive ? 'all-active' : allInactive ? 'all-inactive' : 'some-inactive'}">
                 <div class="status-icon"></div>
                 <h2 class="status-message">${allActive ? 'Todos los servicios funcionan correctamente' : allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas'}</h2>
-                <p class="status-submessage">Estado actual de los servicios de VallaBus</p>
-                <p class="status-submessage">Si algún servicio no está operativo es posible que VallaBus no pueda mostrar algunos datos, o no de forma actualizada</p>
+                <p class="status-submessage">Estado de los servicios que usa VallaBus</p>
+                <p class="status-submessage">Si algún servicio externo no está operativo es posible que VallaBus no pueda mostrar algunos datos, o no de forma actualizada</p>
             </div>
             <div class="status-grid">
                 ${agencyStatusHtml}
