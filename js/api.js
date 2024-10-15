@@ -794,6 +794,12 @@ function addAllLinesForStop(stopData) {
     // Limpiamos sugerencias de lineas
     document.getElementById('lineSuggestions').innerHTML = '';
 
+    // Establecemos la URL al home
+    const dialogState = {
+        dialogType: 'home'
+    };
+    history.pushState(dialogState, document.title, '#/');
+
     // Hacer scroll suave a la parada
     scrollToStop(stopNumber);
 }
@@ -813,6 +819,12 @@ function addSelectedLinesForStop(stopData, selectedLines) {
 
     // Limpiamos sugerencias de lineas
     document.getElementById('lineSuggestions').innerHTML = '';
+
+    // Establecemos la URL al home
+    const dialogState = {
+        dialogType: 'home'
+    };
+    history.pushState(dialogState, document.title, '#/');
 
     // Hacer scroll suave a la parada
     scrollToStop(stopData.parada.numero);
