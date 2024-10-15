@@ -2782,7 +2782,7 @@ button.remove-stop {
 
 .global-alerts-box .alert-text-container {
     padding: 0px 26px 0px 2px;
-    height: 18px;
+    height: 14px;
     overflow: hidden;
     position: relative;
     transition: max-height 0.5s ease-in;
