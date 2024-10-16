@@ -146,3 +146,39 @@ function showInstallButton() {
         });
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formulario = document.getElementById('formulario');
+    const toggleButton = document.getElementById('toggleSearchButton');
+    const isCollapsed = localStorage.getItem('searchCollapsed') === 'true';
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    function toggleSearch() {
+        formulario.classList.toggle('collapsed');
+        toggleButton.classList.toggle('floating');
+        const isNowCollapsed = formulario.classList.contains('collapsed');
+        localStorage.setItem('searchCollapsed', isNowCollapsed);
+
+        toggleButton.title = isNowCollapsed ? "Mostrar búsqueda" : "Ocultar búsqueda";
+
+        if (!isNowCollapsed) {
+            // Si el formulario se está mostrando, hacemos scroll hacia arriba
+            scrollToTop();
+        }
+    }
+
+    toggleButton.addEventListener('click', toggleSearch);
+
+    // Inicializar el estado del formulario basado en la preferencia guardada
+    if (isCollapsed) {
+        formulario.classList.add('collapsed');
+        toggleButton.classList.add('floating');
+        toggleButton.title = "Mostrar búsqueda";
+    }
+});

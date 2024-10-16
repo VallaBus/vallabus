@@ -181,6 +181,66 @@ button#installIosButton {
     font-family: SF Pro Text,SF Pro Icons,Helvetica Neue,Helvetica,Arial,sans-serif;
 }
 
+#search-container {
+    position: relative;
+    z-index: 101;
+    max-width: 95%;
+    margin: 50px auto 0 auto;
+}
+
+#formulario {
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out;
+    max-height: 500px;
+    opacity: 1;
+    overflow: hidden;
+}
+
+#formulario.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: -50px;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+#toggleSearchButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    z-index: 102;
+}
+
+#toggleSearchButton .close-icon {
+    font-size: 24px;
+    color: #666;
+}
+
+#toggleSearchButton.floating {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    top: auto;
+    width: 56px;
+    height: 56px;
+    background-color: #2b7b6c;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+#toggleSearchButton.floating .close-icon {
+    color: white;
+    transform: rotate(45deg);
+}
+
 #formulario {
     padding: 0;
     z-index: 101;
@@ -738,11 +798,6 @@ button#installIosButton {
 
 .add-favorite-button:hover {
     background-color: #e0e0e0;
-}
-
-.dark-mode .add-favorite-button {
-    background-color: #404040;
-    color: #eeeeee;
 }
 
 .dark-mode .add-favorite-button:hover {
@@ -1535,16 +1590,8 @@ button.remove-stop {
     background-color: #4CAF50;
 }
 
-.dark-mode .dialog-data button#importDataBtn {
-    background-color: #1e87db;
-}
-
 .dark-mode .dialog-data button#importDataBtn:hover {
     background-color: #2196F3;
-}
-
-.dark-mode .dialog-data .closeDialogBtn {
-    background-color: #2d2d2d;
 }
 
 .dark-mode .dialog-data h2 {

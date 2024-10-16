@@ -70,14 +70,19 @@
         <button id="installIosButton" style="display: none;">Instalar</button>
     </header>
  
-    <div id="formulario">
-        <form>
-            <div id="inputs">
-                <input type="text" id="stopNumber" placeholder="Introduce una parada" />
-                <input type="text" id="lineNumber" placeholder="Introduce una línea" />
-            </div>
-            <button id="addButton" title="Añadir a seguimiento" type="button">+</button>
-        </form>
+    <div id="search-container">
+        <div id="formulario">
+            <form>
+                <div id="inputs">
+                    <input type="text" id="stopNumber" placeholder="Introduce una parada" />
+                    <input type="text" id="lineNumber" placeholder="Introduce una línea" />
+                </div>
+                <button id="addButton" title="Añadir a seguimiento" type="button">+</button>
+            </form>
+        </div>
+        <button id="toggleSearchButton" title="Ocultar búsqueda">
+            <span class="close-icon">×</span>
+        </button>
     </div>
 
     <div id="autocompleteResults"></div>
