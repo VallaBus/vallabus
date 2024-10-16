@@ -794,6 +794,9 @@ function addAllLinesForStop(stopData) {
     // Limpiamos sugerencias de lineas
     document.getElementById('lineSuggestions').innerHTML = '';
 
+    // Quitamos el glow al botón añadir
+    updateGlowEffects();
+
     // Establecemos la URL al home
     const dialogState = {
         dialogType: 'home'
