@@ -441,6 +441,8 @@ function addClearButton(inputElement) {
         this.style.display = 'none';
         inputElement.focus();
         updateGlowEffects();
+        // Limpiamos sugerencias de paradas
+        document.getElementById('autocompleteResults').innerHTML = '';
     });
 
     return clearButton;
