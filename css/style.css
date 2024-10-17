@@ -1138,8 +1138,12 @@ html.ios .ios-only {
 }
 
 .highlight-update {
-    background-color: #ffff99; /* Cambia esto al color que quieras */
+    background-color: #ffff99c4;
     transition: background-color 1s ease;
+}
+
+.dark-mode .highlight-update {
+    background-color: #ffff994c;
 }
 
 .line-info:first-child {
