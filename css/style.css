@@ -110,7 +110,7 @@ input#stopNumber, input#lineNumber {
 
 button {
     padding: 10px 20px;
-    background-color: #2b7b6c;
+    background-color: hsl(168.8, 48.2%, 32.5%);
     border: none;
     border-radius: 4px;
     color: white;
@@ -2433,7 +2433,7 @@ button.remove-stop {
 }
 
 .error {
-    background-color: #7b2b2b;
+    background-color: #f34949;
 }
 
 .success {
@@ -2763,7 +2763,7 @@ button.remove-stop {
     background-repeat: no-repeat;
     background-size: 12px;
     background-color: #f8f5d7;
-    color: #72711c;
+    color: hsl(54.5, 70.2%, 24.8%);
     border: 1px solid #f5f4c6;
     padding: 5px 5px 5px 34px;
     margin-bottom: 10px;
@@ -3474,8 +3474,8 @@ body.dialog-open {
 }
 
 .dialog button:last-child {
-    background-color: #ededed;
-    color: #333;
+    background-color: hsl(169.3, 48.3%, 88.6%);
+    color: hsl(169.3, 48.3%, 12.6%);
 }
 
 .dark-mode .dialog-content {
@@ -3581,6 +3581,7 @@ body.dialog-open {
     opacity: 0.8;
     transform: scale(1.05);
     z-index: 1000;
+    box-shadow: 0 4px 6px hsla(0, 0%,0%,0.2);
 }
 
 #reorder-tip {
@@ -3613,9 +3614,8 @@ body.dialog-open {
     flex-grow: 1;
 }
 
-.search-button {
-    margin-left: 5px;
-    padding: 5px;
+.search-button, #closeConfigDialog {
+    background-color: hsl(169.3, 6.3%, 95%) !important;
 }
 
 .search-icon {
@@ -3625,11 +3625,6 @@ body.dialog-open {
     width: 20px;
     height: 20px;
     display: inline-block;
-}
-
-.dialog #favoriteCurrentLocationButton button {
-    background-color:#549488;
-    color: #ededed;
 }
 
 .dialog .error-message {
