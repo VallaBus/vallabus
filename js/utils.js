@@ -1554,15 +1554,16 @@ async function checkAndShowStatusBanner() {
         const allInactive = !allAgenciesActive && !statusData.gtfs.static && !statusData.gbfs;
 
         if (!allActive) {
+            const iconClass = allInactive ? 'all-inactive' : 'some-inactive';
+            const message = allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas';
+
             if (!statusBanner) {
                 statusBanner = document.createElement('p');
                 statusBanner.id = 'status-banner';
                 statusBanner.className = 'sticky';
+                statusBanner.classList.add(iconClass);
                 tipsBanner.insertBefore(statusBanner, tipsBanner.firstChild);
             }
-
-            const iconClass = allInactive ? 'all-inactive' : 'some-inactive';
-            const message = allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas';
             
             statusBanner.innerHTML = `
                 <div class="status-icon ${iconClass}"></div>

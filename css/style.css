@@ -2546,30 +2546,30 @@ button.remove-stop {
     display: flex;
     align-items: center;
     padding: 10px;
-    background-color: #ffebee;
-    color: #c62828;
+    background-color: hsl(41.7, 60.3%, 85.3%) !important;
+    border-left: 6px solid hsl(41.7, 60.3%, 48.3%) !important;
+    color: hsl(41.7, 60.3%, 48.3%) !important;
     font-weight: bold;
 }
 
 #status-banner a {
     margin-left: 10px;
-    color: #c62828;
-    text-decoration: underline;
+    color: hsl(41.7, 60.3%, 25.3%) !important;
 }
 
-#status-banner.status-error {
-    background-color: #E01E5AD1;
-    color: #FFF;
+#status-banner.all-inactive {
+    background-color: hsl(9.7, 60.3%, 85.3%) !important;
+    border-left: 6px solid hsl(9.7, 60.3%, 48.3%) !important;
+    color: hsl(9.7, 60.3%, 48.3%) !important;
 }
 
-#status-banner.status-error a {
-    color: #FFF;
+#status-banner.all-inactive a {
+    color: hsl(9.7, 60.3%, 48.3%) !important;
 }
 
 #status-banner .status-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -2584,11 +2584,11 @@ button.remove-stop {
 }
 
 #status-banner .status-icon.all-inactive {
-    background-color: #E01E5A;
+    background-color: hsl(9.7, 60.3%, 48.3%);
 }
 
 #status-banner .status-icon.some-inactive {
-    background-color: #ECB22E;
+    background-color: hsl(41.7, 60.3%, 48.3%);
 }
 
 /* Banners con tips personalizados */
