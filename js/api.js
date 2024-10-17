@@ -784,6 +784,9 @@ function addAllLinesForStop(stopData) {
         }
     });
 
+    // Cerramos cualquier diálogo
+    closeAllDialogs(dialogIds);
+
     saveBusLines(busLines);
     updateBusList();
     showSuccessPopUp('Todas las líneas de la parada añadidas');
@@ -818,10 +821,13 @@ function addSelectedLinesForStop(stopData, selectedLines) {
 
     saveBusLines(busLines);
     updateBusList();
-    showSuccessPopUp(`${selectedLines.length} línea(s) añadida(s) a la parada`);
+    showSuccessPopUp(`${selectedLines.length} línea${selectedLines.length > 1 ? 's' : ''} añadida${selectedLines.length > 1 ? 's' : ''} a la parada`);
 
     // Limpiamos sugerencias de lineas
     document.getElementById('lineSuggestions').innerHTML = '';
+
+    // Cerramos cualquier diálogo
+    closeAllDialogs(dialogIds);
 
     // Establecemos la URL al home
     const dialogState = {
@@ -2208,10 +2214,8 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
         resultsDiv.removeEventListener('click', currentResultsListener);
     }
 
-    // Crear una nueva función para el event listener
-    currentResultsListener = async function (event) {
-        if (event.target.matches('#close-nearest-stops')) {
-            resultsDiv.style.display = 'none';
+    function closeNearestStops() {
+        resultsDiv.style.display = 'none';
             // Eliminar el event listener cuando se cierra el diálogo
             resultsDiv.removeEventListener('click', currentResultsListener);
             currentResultsListener = null;
@@ -2219,13 +2223,16 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
             const dialogState = {
                 dialogType: 'home'
             };
-            history.replaceState(dialogState, document.title, '#/');
+        history.replaceState(dialogState, document.title, '#/');
+    }
+
+    // Crear una nueva función para el event listener
+    currentResultsListener = async function (event) {
+        if (event.target.matches('#close-nearest-stops')) {
+            closeNearestStops();
         } else if (event.target.matches('.stopResult .addStopButton')) {
             let stopNumber = event.target.getAttribute('data-stop-number');
-            const addBusLineStatus = await addBusLine(stopNumber);
-            if (addBusLineStatus != false) {
-                resultsDiv.style.display = 'none';
-            }
+            await addBusLine(stopNumber);
         } else if (event.target.matches('#show-bikes')) {
             if (bikeStops) {
                 // Si está activado el toogle ocultamos paradas

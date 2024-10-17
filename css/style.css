@@ -40,6 +40,10 @@ header {
     z-index: 101;
 }
 
+.dark-mode header {
+    background-color: hsl(159.1, 41.3%, 15.5%);
+}
+
 header h1 {
     color: #89bd6b;
     text-shadow: #000 0px 0px 35px;
@@ -59,6 +63,10 @@ header h1 {
     width: 100%;
     height: 100%;
     cursor: pointer;
+}
+
+.dark-mode header h1 {
+    color: hsl(98, 34.3%, 49%);
 }
 
 header h1 a {
@@ -110,7 +118,7 @@ input#stopNumber, input#lineNumber {
 
 button {
     padding: 10px 20px;
-    background-color: #2b7b6c;
+    background-color: hsl(168.8, 48.2%, 32.5%);
     border: none;
     border-radius: 4px;
     color: white;
@@ -693,7 +701,7 @@ button#installIosButton {
 }
 
 .toggle-container input[type="checkbox"]:checked {
-    background-color: #4CAF50;
+    background-color: hsla(168.8, 48.2%, 32.5%, 0.79);
 }
 
 .toggle-container input[type="checkbox"]::before {
@@ -741,7 +749,6 @@ button#installIosButton {
 }
 
 .dark-mode .add-favorite-button {
-    background-color: #404040;
     color: #eeeeee;
 }
 
@@ -2433,7 +2440,7 @@ button.remove-stop {
 }
 
 .error {
-    background-color: #7b2b2b;
+    background-color: #f34949;
 }
 
 .success {
@@ -2484,14 +2491,16 @@ button.remove-stop {
 #tips-banner p {
     display: none; /* Ocultos por defecto */
     margin: 0;
-    padding: 5px;
-    color: #72711c;
-    background-color: #f8f5d7;
+    padding: 5px 0;
+    color: hsl(168.8, 23.2%, 19.5%);
+    background-color: hsl(168.8, 9.2%, 92.5%);
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 15px center;
     position: relative;
-    padding-right: 25px; /* Espacio para el botón de cierre */
+    padding-right: 25px;
+    border-left: 6px solid hsl(168.8, 23.2%, 30.5%);
+    line-height: 1.5em;
 }
 
 .dark-mode #tips-banner p {
@@ -2500,9 +2509,13 @@ button.remove-stop {
 }
 
 #tips-banner p a {
-    color: #72711c; 
+    color: hsl(168.8, 23.2%, 19.5%); 
     text-decoration: none; 
     font-weight: bold;
+}
+
+.dark-mode #tips-banner p a {
+    color: hsl(168.8, 23.2%, 93%);
 }
 
 #tips-banner p img {
@@ -2516,15 +2529,15 @@ button.remove-stop {
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 20px;
-    color: #888;
+    color: hsl(168.8, 23.2%, 30.5%);
     background: none;
     border: none;
     padding: 0;
     line-height: 1;
 }
 
-.close-tip:hover {
-    color: #333;
+.dark-mode .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
 }
 
 /* Css para los banners inidividuales */
@@ -2578,19 +2591,22 @@ button.remove-stop {
     background-color: #ECB22E;
 }
 
+/* Banners con tips personalizados */
+
 #tips-banner #share-whatsapp {
     margin: 0; 
     color: #0e4f0b; 
-    background-color: #25d36636;
+    background-color: hsl(142.1, 23.8%, 88.9%);
     background-image: url('/img/share.png');
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 15px center;
+    border-left: none;
 }
 
 .dark-mode #tips-banner #share-whatsapp {
     background-image: url('/img/share-gray.png');
-    background-color: #205047;
+    background-color: hsl(142.1, 22.8%, 16.9%);
 }
 
 #tips-banner #share-whatsapp a {
@@ -2605,36 +2621,12 @@ button.remove-stop {
     color: #efefef;
 }
 
-#tips-banner #follow-banner, #tips-banner .blog-banner, #tips-banner #community-banner {
-    margin: 0; 
-    padding: 5px;
-    color: #FFF;
-    background-color: #2B7B6C;
-    background-size: 12px;
-    background-repeat: no-repeat;
-    background-position: 15px center;
-}
-
-.dark-mode #tips-banner #follow-banner, .dark-mode #tips-banner .blog-banner, .dark-mode #tips-banner #community-banner {
-    background-color: #205047;
-    color: #efefef;
-}
-
-#tips-banner #follow-banner a, #tips-banner .blog-banner a,  #tips-banner #community-banner a {
-    color: #FFF; 
-    text-decoration: underline; 
-    font-weight: bold;
-}
-
-.dark-mode #tips-banner #follow-banner a, .dark-mode #tips-banner .blog-banner a, .dark-mode #tips-banner #community-banner a {
-    color: #efefef;
-}
-
 #tips-banner #community-banner {
     background-image: url('/img/comments-gray.png');
     background-size: 22px;
     background-repeat: no-repeat;
     background-position: 15px center;
+    border-left: none;
 }
 
 #tips-banner .blog-banner {
@@ -2642,6 +2634,7 @@ button.remove-stop {
     background-size: 15px;
     background-repeat: no-repeat;
     background-position: 15px center;
+    border-left: none;
 }
 
 
@@ -2651,8 +2644,7 @@ button.remove-stop {
     background-repeat: no-repeat;
     background-position: 15px center;
     padding: 5px 5px 5px 22px;
-    background-color: #2B7B6C;
-    color: #FFF;
+    border-left: none;
 }
 
 .dark-mode #tips-banner #map-tip {
@@ -2660,8 +2652,6 @@ button.remove-stop {
     background-size: 15px;
     background-repeat: no-repeat;
     background-position: 13px center;
-    background-color: #205047;
-    color:#efefef;
 }
 
 #instagram-warning {
@@ -2671,44 +2661,54 @@ button.remove-stop {
     font-size: 0.9em;
 }
 
-#tips-banner #ruta-pucela {
-    margin: 0; 
-    color: #fcf5ff; 
-    background-color: #8f6b9f;
+#tips-banner .ruta-pucela {
+    margin: 0;
+    color: hsl(282, 100%, 98%);
+    background-color: hsl(281.5, 9%, 78.2%);
     background-image: url('/img/overlays/pucela.png');
     background-size: 24px;
     background-repeat: no-repeat;
     background-position: 10px center;
+    border-left: none;
+    border-top: 3px solid hsl(281.5, 9%, 53.2%);
 }
 
-.dark-mode #tips-banner #ruta-pucela {
-    background-color: #543d5e;
+.dark-mode #tips-banner .ruta-pucela {
+    background-color: hsl(281.5, 9%, 25.2%);
 }
 
-#tips-banner #ruta-pucela a {
-    color: #fcf5ff; 
-    text-decoration: none; 
-    display: inline-block; 
-    padding: 5px 5px 5px 26px;
-    border-radius: 10px; /* Bordes redondeados para el enlace */
+#tips-banner .ruta-pucela a {
+    color: hsl(281.5, 21.3%, 24%);
+    text-decoration: none;
+    display: inline-block;
+    padding: 5px 5px 5px 30px;
 }
 
-.dark-mode #tips-banner #ruta-pucela a {
-    color: #efefef;
+.dark-mode #tips-banner .ruta-pucela a {
+    color: hsl(281.5, 21.3%, 90%);
+}
+
+#tips-banner .ruta-pucela .close-tip {
+    color: hsl(281.5, 21.3%, 24%);
+}
+
+.dark-mode #tips-banner .ruta-pucela .close-tip {
+    color: hsl(281.5, 21.3%, 90%);
 }
 
 #tips-banner #basuracero-0924 {
-    margin: 0; 
-    color: #fcf5ff; 
-    background-color: #7361a0;
+    margin: 0;
+    color: hsl(282, 100%, 98%);
+    background-color: hsl(257.1, 14.9%, 49.4%);
     background-image: url('/img/overlays/basuracero.png');
     background-size: 24px;
     background-repeat: no-repeat;
     background-position: 9px center;
+    border-left: none;
 }
 
 .dark-mode #tips-banner #basuracero-0924 {
-    background-color: #7361a0;
+    background-color: hsl(257.1, 14.9%, 27.4%);
 }
 
 #tips-banner #basuracero-0924 a {
@@ -2725,6 +2725,10 @@ button.remove-stop {
 
 #tips-banner #basuracero-0924 a span{
     font-weight: bold;
+}
+
+#tips-banner #basuracero-0924 .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
 }
 
 #tips-banner .paradasparatodas {
@@ -2757,15 +2761,17 @@ button.remove-stop {
     font-weight: bold;
 }
 
+/* Fin de los banners individuales */
+
 
 .global-alerts-box {
     background-image: url('../img/bell-gray.png');
     background-repeat: no-repeat;
     background-size: 12px;
-    background-color: #f8f5d7;
-    color: #72711c;
-    border: 1px solid #f5f4c6;
-    padding: 5px 5px 5px 34px;
+    background-color: hsl(54.5, 70.2%, 90.8%);
+    color: hsl(54.5, 70.2%, 24.8%);
+    border: 1px solid hsl(58.7, 70.1%, 86.9%);
+    padding: 6px 5px 6px 34px;
     margin-bottom: 10px;
     display: none;
     font-size: 0.8em;
@@ -2774,12 +2780,8 @@ button.remove-stop {
 
 .dark-mode .global-alerts-box {
     background-color: #333;
-    color: #CCC;
-    border-top: 3px solid #ac7928;
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
+    border: 1px solid #333;
+    color: hsl(0, 0%, 86.3%);
 }
 
 .global-alerts-box ul {
@@ -3474,13 +3476,20 @@ body.dialog-open {
 }
 
 .dialog button:last-child {
-    background-color: #ededed;
-    color: #333;
+    background-color: hsl(169.3, 48.3%, 88.6%);
+    color: hsl(169.3, 48.3%, 12.6%);
+}
+
+.dark-mode .dialog button:last-child {
+    background-color: hsl(169.3, 53.3%, 21.6%);
+    color: hsl(169.3, 48.3%, 100%);
 }
 
 .dark-mode .dialog-content {
-    background-color: #333;
-    color: #ededed;
+    background-color: hsl(0, 0%, 20%);
+    color: hsl(0, 0%, 92.9%);
+    border: 1px solid hsl(0, 0%, 23.3%);
+    box-shadow: 0 4px 8px hsla(0, 0%, 54%, 0.1);
 }
 
 .dark-mode .dialog h2 {
@@ -3581,6 +3590,7 @@ body.dialog-open {
     opacity: 0.8;
     transform: scale(1.05);
     z-index: 1000;
+    box-shadow: 0 4px 6px hsla(0, 0%,0%,0.2);
 }
 
 #reorder-tip {
@@ -3613,9 +3623,12 @@ body.dialog-open {
     flex-grow: 1;
 }
 
-.search-button {
-    margin-left: 5px;
-    padding: 5px;
+.search-button, #closeConfigDialog {
+    background-color: hsl(169.3, 6.3%, 95%) !important;
+}
+
+.dark-mode .search-button, .dark-mode #closeConfigDialog {
+    background-color: hsl(169.3, 6.3%, 14%) !important;
 }
 
 .search-icon {
@@ -3625,11 +3638,6 @@ body.dialog-open {
     width: 20px;
     height: 20px;
     display: inline-block;
-}
-
-.dialog #favoriteCurrentLocationButton button {
-    background-color:#549488;
-    color: #ededed;
 }
 
 .dialog .error-message {
