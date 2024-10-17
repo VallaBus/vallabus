@@ -1280,9 +1280,9 @@ function socialBrowserWarning() {
         // Verificar si el origen del referrer está en la lista de orígenes permitidos
         if (allowedOrigins.includes(referrerUrl.origin)) {
             const tipsBannerElement = document.getElementById('tips-banner');
-            const instagramWarning = document.createElement('p');
+            const instagramWarning = document.createElement('div');
             instagramWarning.id = 'instagram-warning';
-            instagramWarning.innerHTML = '<strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente';
+            instagramWarning.innerHTML = '<p><strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente</p>';
             tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
         }
     } catch (error) {
