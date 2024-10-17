@@ -597,7 +597,7 @@ button#installIosButton {
 
 #addFavoriteButton, #configFavoritesButton {
     flex-shrink: 0;
-    margin-left: 10px;
+    margin-left: 12px;
     background-image: url("/img/gear.png");
     background-size: 15px;
     background-repeat: no-repeat;
@@ -2783,8 +2783,8 @@ button.remove-stop {
 
 .dark-mode .global-alerts-box {
     background-color: #333;
-    border: 1px solid #333;
     color: hsl(0, 0%, 86.3%);
+    border-left: 6px solid hsl(58.7, 70.1%, 39.9%);
 }
 
 .global-alerts-box ul {
