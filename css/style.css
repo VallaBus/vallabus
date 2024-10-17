@@ -2475,7 +2475,7 @@ button.remove-stop {
     transition: opacity 0.5s ease-in-out;
 }
 
-#tips-banner {
+#tips-banner, #instagram-warning {
     font-size: 0.8em;
     box-shadow: 0 1px 9px rgba(0, 0, 0, 0.2); 
     text-align: center;
@@ -2484,11 +2484,11 @@ button.remove-stop {
     box-sizing: border-box;
 }
 
-.dark-mode #tips-banner {
+.dark-mode #tips-banner, .dark-mode #instagram-warning {
     color: #CCC;
 }
 
-#tips-banner p {
+#tips-banner p, #instagram-warning p {
     display: none; /* Ocultos por defecto */
     margin: 0;
     padding: 5px 0;
@@ -2503,24 +2503,34 @@ button.remove-stop {
     line-height: 1.5em;
 }
 
-.dark-mode #tips-banner p {
+.dark-mode #tips-banner p, .dark-mode #instagram-warning p {
     background-color: #333;
     color: #CCC;
 }
 
-#tips-banner p a {
+#tips-banner p a, #instagram-warning p a {
     color: hsl(168.8, 23.2%, 19.5%); 
     text-decoration: none; 
     font-weight: bold;
 }
 
-.dark-mode #tips-banner p a {
+.dark-mode #tips-banner p a, .dark-mode #instagram-warning p a {
     color: hsl(168.8, 23.2%, 93%);
 }
 
-#tips-banner p img {
-    height: 12px;
-} 
+#instagram-warning p {
+    display: block !important;
+    padding: 7px 7px 7px 10px;
+    text-align: left;
+    border-left: 6px solid HSL(339.7, 74.7%, 53.5%);
+    color: HSL(339.7, 25.7%, 19.5%);
+    background-color: HSL(339.7, 12.2%, 92.5%);
+}
+
+#instagram-warning p strong {
+    margin-bottom: 4px;
+    display: inline-block;
+}
 
 .close-tip {
     position: absolute;
@@ -2654,13 +2664,6 @@ button.remove-stop {
     background-position: 13px center;
 }
 
-#instagram-warning {
-    color: #FFF;
-    background-color: #2b7b6c;
-    padding: 1em 5px;
-    font-size: 0.9em;
-}
-
 #tips-banner .ruta-pucela {
     margin: 0;
     color: hsl(282, 100%, 98%);
@@ -2768,14 +2771,14 @@ button.remove-stop {
     background-image: url('../img/bell-gray.png');
     background-repeat: no-repeat;
     background-size: 12px;
-    background-color: hsl(54.5, 70.2%, 90.8%);
+    background-color: hsl(54.5, 12.2%, 93%);
     color: hsl(54.5, 70.2%, 24.8%);
-    border: 1px solid hsl(58.7, 70.1%, 86.9%);
-    padding: 6px 5px 6px 34px;
+    border-left: 6px solid hsl(58.7, 70.1%, 53.9%);
+    padding: 6px 5px 6px 25px;
     margin-bottom: 10px;
     display: none;
     font-size: 0.8em;
-    background-position: 15px center;
+    background-position: 8px center;
 }
 
 .dark-mode .global-alerts-box {
@@ -2821,18 +2824,19 @@ button.remove-stop {
 }
 
 .global-alerts-box .alert-text-container.expanded {
-    padding: 0px 2px;
+    padding: 0px 11px;
     white-space: wrap;
     text-overflow: none;
     max-height: auto;
     height: auto;
+    line-height: 1.4em;
 }
 
 .global-alerts-box .alert-text-container .read-more-button {
     position: absolute;
-    top: -7px;
+    top: -11px;
     right: 0px;
-    background-color: #f8f5d7;
+    background-color: transparent;
     padding: 8px 10px;
     cursor: pointer;
     display: inline-block;
