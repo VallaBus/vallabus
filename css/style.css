@@ -2772,6 +2772,8 @@ button.remove-stop {
     border-left: 6px solid HSL(339.7, 74.7%, 53.5%);
     color: HSL(339.7, 25.7%, 19.5%);
     background-color: HSL(339.7, 12.2%, 92.5%);
+    padding-left: 8px;
+    padding-right: 35px;
 }
 
 #tips-banner #denuncia-1024 a {
