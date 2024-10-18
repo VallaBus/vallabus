@@ -1,10 +1,10 @@
 // Definir la URL base del API, no incluir la / al final
 // API Endpoint principal del API
-const apiEndPoint = 'https://api.vallabus.com';
+const apiEndPoint = 'https://gtfs.vallabus.com';
 
 // Fallback API endpoint
 // const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
-const fallbackApiEndPoint = 'https://gtfs.vallabus.com';
+const fallbackApiEndPoint = 'https://api.vallabus.com';
 
 // Function to handle API calls with fallback logic
 async function fetchApi(url) {
