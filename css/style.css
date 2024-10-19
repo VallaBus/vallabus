@@ -2781,6 +2781,15 @@ button.remove-stop {
     font-weight: normal;
 }
 
+.dark-mode #tips-banner #denuncia-1024 {
+    background-color: hsl(339.7, 12.2%, 16.5%);
+    color: hsl(339.7, 25.7%, 93%);
+}
+
+.dark-mode #tips-banner #denuncia-1024 a {
+    color: hsl(339.7, 25.7%, 93%);
+}
+
 /* Fin de los banners individuales */
 
 
