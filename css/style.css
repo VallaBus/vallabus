@@ -2566,9 +2566,18 @@ button.remove-stop {
     font-weight: bold;
 }
 
+.dark-mode #status-banner {
+    background-color: hsl(41.7, 60.3%, 15.3%) !important;
+    color: hsl(41.7, 60.3%, 55.3%) !important;
+}
+
 #status-banner a {
     margin-left: 10px;
     color: hsl(41.7, 60.3%, 25.3%) !important;
+}
+
+.dark-mode #status-banner a {
+    color: hsl(41.7, 60.3%, 55.3%) !important;
 }
 
 #status-banner.all-inactive {
