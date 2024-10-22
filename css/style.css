@@ -2211,15 +2211,17 @@ button.remove-stop {
     align-items: center;
     margin: 2px 0px 16px 0;
     font-size: 0.9em;
+    opacity: 0.7;
 }
 
 .line-info .diferencia {
     font-size: 0.8em;
-    color: #868686;
+    color: hsl(0, 0%, 43.5%);
 }
 
 .dark-mode .line-info .diferencia {
-    color: #bebebe;
+    color: hsl(0, 0%, 43.5%);
+    opacity: 0.8;
 }
 
 
@@ -2228,19 +2230,19 @@ button.remove-stop {
 }
 
 .line-info.retrasado .diferencia {
-    color: rgb(167, 60, 60);
+    color: hsl(0, 47.1%, 44.5%);
 }
 
 .dark-mode .line-info.retrasado .diferencia {
-    color: rgb(255, 168, 168);
+    color: hsl(0, 47.1%, 80.5%);
 }
 
 .line-info.adelantado .diferencia {
-    color: rgb(60, 167, 60);
+    color: hsl(120, 45.5%, 23.7%);
 }
 
 .dark-mode .line-info.adelantado .diferencia {
-    color: rgb(127, 222, 127);
+    color: hsl(120, 45.5%, 70.7%);
 }
 
 .line-info .ocupacion {
@@ -2329,7 +2331,8 @@ button.remove-stop {
 }
 
 .line-info .linea, .line-info .tiempo.futuro {
-    font-size: 1em;
+    font-size: 0.8em;
+    opacity: 0.8;
 }
 
 .line-info .trip-info {
@@ -2350,11 +2353,11 @@ button.remove-stop {
     font-size: 0.85em; 
     font-weight: bold;
     margin: 0;
-    color: #646464;
+    color: hsl(0, 0%, 37.2%);
 }
 
 .dark-mode .line-info .trip-info .destino {
-    color: #bebebe;
+    color: hsl(0, 0%, 81.5%);
 }
 
 .line-info .tiempo {
@@ -2373,6 +2376,7 @@ button.remove-stop {
     font-size: 0.5em;
     display: inline-block;
     margin: 0 0 0 4px;
+    opacity: 0.8;
 }
 
 .bell-button {
