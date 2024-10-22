@@ -151,15 +151,11 @@ button#addButton:active {
 }
 
 button#removeAllButton {
-    background: url('/img/trash-gray.png') no-repeat #EAEAEA;
-    background-size: 10px;
-    background-position: 15px center;
-    color: #686868;
-    padding: 12px 1px 9px 34px;
-    width: 148px;
-    margin: 0;
+    color: hsl(0, 6%, 48.8%);
     font-size: 0.9em;
     text-align: center;
+    background-color: transparent;
+    text-decoration: underline;
 }
 
 button#installButton {
@@ -932,7 +928,7 @@ html.ios .ios-only {
 
 .stop-block h2 {
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.8em;
     max-width: 260px;
 }
 
@@ -2952,7 +2948,7 @@ button.remove-stop {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    margin: 2em 0;
+    margin: 3em 0;
 }
 
 .foot-note #created-by {
@@ -3019,19 +3015,23 @@ button.remove-stop {
 }
 
 .foot-note #legend {
-    color: #333;
+    color: hsl(0, 0%, 38%);
     text-align: center;
     margin-top: 0;
     display: none;
 }
 
 .dark-mode .foot-note #legend {
-    color: #CCC;
+    color: HSL(0, 0%, 60%);
+}
+
+.foot-note #legend span {
+    margin-right: 10px;
 }
 
 .foot-note #legend img {
-    height: 12px;
-    margin-left: 4px;
+    height: 11px;
+    margin: 0px;
 }
 
 .foot-note a#facebook-share-button {
@@ -3432,13 +3432,6 @@ html.dark-mode body {
 .dark-mode .stop-block .mapIcon, .dark-mode .stopResult .mapIcon {
     background-image: url("/img/directions.png");
 }  
-
-.dark-mode button#removeAllButton {
-    background: url('/img/trash-white.png') no-repeat #323232;
-    background-size: 10px;
-    background-position: 15px center;
-    color: #b1b1b1;
-}
 
 .dialog {
     display: none;
