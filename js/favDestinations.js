@@ -169,6 +169,14 @@ document.addEventListener('DOMContentLoaded', function() {
             favList.appendChild(li);
         });
 
+        // Mostrar el tip de reordenar si hay al menos 2 destinos
+        const reorderTip = document.getElementById('reorder-tip');
+        if (favorites.length >= 2) {
+            reorderTip.style.display = 'block';
+        } else {
+            reorderTip.style.display = 'none'; // Ocultarlo si hay menos de 2
+        }
+
         updateFavBarVisibility();
     }
 
@@ -195,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <p class="map-instruction">Usa dos dedos para moverte por el mapa</p>
             <button id="${dialogId}CurrentLocationButton" class="current-location-button">
                 <span class="location-icon"></span>
-                Usar tu ubicación
+                Usar ubicación actual
             </button>
             <div id="${dialogId}ErrorMessage" class="error-message"></div>
             <div class="dialog-buttons">

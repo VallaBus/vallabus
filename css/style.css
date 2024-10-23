@@ -700,6 +700,7 @@ button#installIosButton {
     margin-top: 15px;
     padding: 10px 0;
     border-top: 1px solid #ccc;
+    clear: both;
 }
 
 .dark-mode .toggle-container {
@@ -750,19 +751,18 @@ button#installIosButton {
 }
 
 .add-favorite-button {
-    border-radius: 20px !important;
-    margin: 0 auto !important;
-    font-size: 0.7em;
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-    height: 14px;
+    margin: 10px auto !important;
+    font-size: 0.8em;
+    height: 20px;
     background-image: url("/img/add-light.png");
     background-size: 14px;
     background-repeat: no-repeat;
     background-position: left;
     background-color: transparent;
-    color: gray;
-    padding: 1px 0 0 19px !important;
+    color: hsl(0, 0%, 50.2%);
+    padding: 0 0 0 16px !important;
+    width: 60px;
+    float: right;
 }
 
 .add-favorite-button:hover {
@@ -3621,6 +3621,7 @@ body.dialog-open {
     border: none;
     background-color: transparent !important;
     padding: 0 !important;
+    border: none !important;
 }
 
 .favorite-item.dragging {
@@ -3633,6 +3634,7 @@ body.dialog-open {
 #reorder-tip {
     opacity: 0.6;
     text-align: center;
+    display: none;
 }
 
 .route-favorite-icon {
@@ -3648,6 +3650,7 @@ body.dialog-open {
     margin-right: 12px;
     margin-left: 0 !important;
     padding-left: 0 !important;
+    border: none !important;
 }
 
 .search-container {
@@ -3686,7 +3689,7 @@ body.dialog-open {
 
 #homeCurrentLocationButton, #favoriteCurrentLocationButton {
     font-size: 0.8em;
-    padding: 8px;
+    padding: 10px;
 }
 
 .location-icon {
@@ -3709,7 +3712,7 @@ body.dialog-open {
 .current-location-button {
     display: flex;
     align-items: center;
-    margin: 10px auto !important;
+    margin: 15px auto 30px auto !important;
 }
 
 .dialog-buttons {
