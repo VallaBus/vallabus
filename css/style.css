@@ -116,7 +116,7 @@ input#stopNumber, input#lineNumber {
     font-size: 0.9em;
 }
 
-button {
+button, .dialog button:last-child {
     padding: 10px 20px;
     background-color: hsl(168.8, 48.2%, 32.5%);
     border: none;
@@ -125,6 +125,29 @@ button {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+button.secondary, .dialog-content button:first-child {
+    color: hsl(168.8, 48.2%, 32.5%);
+    border: 1px solid hsl(168.8, 48.2%, 32.5%);
+    background-color: white;
+}
+
+button.terciary {
+    color: hsl(168.8, 48.2%, 32.5%);
+    text-decoration: underline;
+}
+
+button:disabled, .dialog-content button:last-child:disabled {
+    background-color: hsl(168.8, 18.2%, 32.5%);
+    opacity: 0.5;
+}
+
+.dark-mode .dialog-content button:first-child {
+    color: hsl(0, 0%, 92.9%);
+    border: 1px solid hsl(0, 0%, 92.9%);
+    background-color: hsl(0, 0%, 20%);
 }
 
 button#addButton {
@@ -677,6 +700,7 @@ button#installIosButton {
     margin-top: 15px;
     padding: 10px 0;
     border-top: 1px solid #ccc;
+    clear: both;
 }
 
 .dark-mode .toggle-container {
@@ -727,19 +751,18 @@ button#installIosButton {
 }
 
 .add-favorite-button {
-    border-radius: 20px !important;
-    margin: 0 auto !important;
-    font-size: 0.7em;
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-    height: 14px;
+    margin: 10px auto !important;
+    font-size: 0.8em;
+    height: 20px;
     background-image: url("/img/add-light.png");
     background-size: 14px;
     background-repeat: no-repeat;
     background-position: left;
     background-color: transparent;
-    color: gray;
-    padding: 1px 0 0 19px !important;
+    color: hsl(0, 0%, 50.2%);
+    padding: 0 0 0 16px !important;
+    width: 60px;
+    float: right;
 }
 
 .add-favorite-button:hover {
@@ -820,7 +843,6 @@ button#installIosButton {
     background-repeat: no-repeat;
     background-position: center 10px;
     background-size: 20px;
-    background-color: #2b7b6cc9;
     border: none;
     border-radius: 5px;
     font-size: 0.8em;
@@ -834,7 +856,7 @@ button#installIosButton {
     display: block;
     width: 100%;
     height: 100%;
-    padding: 40px 0px 12px 5px;
+    padding: 40px 0px 12px 0px;
 }
 
 #welcome-box #viewCercanasButton {
@@ -1308,9 +1330,9 @@ button.remove-stop {
 
 .dialog-close {
     position: absolute;
-    right: 14px;
-    top: 52px;
-    padding: 12px !important;
+    right: 10px;
+    top: 54px;
+    border: none;
 }
 
 #horarios-box #stopDateInput {
@@ -3497,32 +3519,7 @@ body.dialog-open {
 }
 
 .dialog button {
-    padding: 10px 20px;
     margin-left: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-
-.dialog button:first-child {
-    background-color: transparent;
-    color: #333;
-}
-
-.dark-mode .dialog button:first-child {
-    color: #ededed;
-    background-color: #333;
-}
-
-.dialog button:last-child {
-    background-color: hsl(169.3, 48.3%, 88.6%);
-    color: hsl(169.3, 48.3%, 12.6%);
-}
-
-.dark-mode .dialog button:last-child {
-    background-color: hsl(169.3, 53.3%, 21.6%);
-    color: hsl(169.3, 48.3%, 100%);
 }
 
 .dark-mode .dialog-content {
@@ -3624,6 +3621,7 @@ body.dialog-open {
     border: none;
     background-color: transparent !important;
     padding: 0 !important;
+    border: none !important;
 }
 
 .favorite-item.dragging {
@@ -3636,6 +3634,7 @@ body.dialog-open {
 #reorder-tip {
     opacity: 0.6;
     text-align: center;
+    display: none;
 }
 
 .route-favorite-icon {
@@ -3651,6 +3650,7 @@ body.dialog-open {
     margin-right: 12px;
     margin-left: 0 !important;
     padding-left: 0 !important;
+    border: none !important;
 }
 
 .search-container {
@@ -3689,7 +3689,7 @@ body.dialog-open {
 
 #homeCurrentLocationButton, #favoriteCurrentLocationButton {
     font-size: 0.8em;
-    padding: 8px;
+    padding: 10px;
 }
 
 .location-icon {
@@ -3712,7 +3712,7 @@ body.dialog-open {
 .current-location-button {
     display: flex;
     align-items: center;
-    margin: 10px auto !important;
+    margin: 15px auto 30px auto !important;
 }
 
 .dialog-buttons {
@@ -3806,16 +3806,6 @@ body.dialog-open {
 
 #lineSelectionDialog #addSelectedLines, #lineSelectionDialog #addAllLines {
     letter-spacing: -0.5px;
-}
-
-#lineSelectionDialog #addSelectedLines {
-    font-weight: bold;
-}
-
-#lineSelectionDialog #addSelectedLines:disabled {
-    background-color: #ededed2b;
-    opacity: 0.5;
-    font-weight: normal;
 }
 
 /* Estilos para pantallas pequeñas */
