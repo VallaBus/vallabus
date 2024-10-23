@@ -1118,7 +1118,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
         busLineAlerts.forEach(alert => {
             alertHTML += `<li>${alert.descripcion}</li>`;
         });
-        alertHTML += '</ul><button class="alerts-close">Cerrar</button></div>';
+        alertHTML += '</ul><button class="alerts-close secondary">Cerrar</button></div>';
         alertIcon = '⚠️';
     }
 
