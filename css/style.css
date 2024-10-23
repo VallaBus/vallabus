@@ -174,11 +174,15 @@ button#addButton:active {
 }
 
 button#removeAllButton {
-    color: hsl(0, 6%, 48.8%);
+    color: hsl(0, 0%, 44%);
     font-size: 0.9em;
     text-align: center;
     background-color: transparent;
     text-decoration: underline;
+}
+
+.dark-mode button#removeAllButton {
+    color: hsl(0, 0%, 55%);
 }
 
 button#installButton {
@@ -1206,11 +1210,16 @@ button.mostrar-horarios {
     background: url('/img/calendar-clock.png') no-repeat;
     background-size: 15px;
     background-position: 0px;
-    color: #CCC;
+    color: HSL(0, 0%, 45%);
     font-size: 0.8em;
     display: block;
     margin: auto;
     padding: 10px 0px 10px 20px;
+    font-weight: normal;
+}
+
+.dark-mode button.mostrar-horarios {
+    color: HSL(0, 0%, 61%);
 }
 
 button.remove-stop {
@@ -1245,6 +1254,29 @@ button.remove-stop {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.line-info .alert-box {
+    box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
+    border: 1px solid hsl(0, 0%, 80%);
+    font-size: 0.9em;
+}
+
+.dark-mode .line-info .alert-box {
+    box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
+    border: 1px solid hsl(0, 0%, 17%);
+}
+
+.line-info .alert-box ul {
+    padding: 0 20px;
+}
+
+.line-info .alert-box ul li {
+    margin-bottom: 10px;
+}
+
+.line-info .alert-box h2, #horarios-box h2 {
+    padding: 0;
 }
 
 /* Skeleton placeholder */
@@ -1379,10 +1411,6 @@ button.remove-stop {
     font-weight: bold;
 }
 
-.line-info .alert-box h2, #horarios-box h2 {
-    padding: 0;
-}
-
 #horarios-box h2 {
     font-size: 1.1em;
     margin-top: 0;
@@ -1402,7 +1430,7 @@ button.remove-stop {
     padding: 0 5px;
 }
 
-.line-info .alert-box .notice, #horarios-box .notice {
+#horarios-box .notice {
     font-size: 0.9em;
     font-style: italic;
 }
