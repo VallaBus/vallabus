@@ -413,7 +413,7 @@ function createMostrarHorarios(stopId, stopElement, horariosBox) {
     let mostrarHorarios = document.createElement('button');
     mostrarHorarios.classList.add('mostrar-horarios');
     mostrarHorarios.id = `mostrar-horarios-${stopId}`;
-    mostrarHorarios.innerHTML = 'Mostrar todos los horarios';
+    mostrarHorarios.innerHTML = 'Más horarios';
     stopElement.appendChild(mostrarHorarios);
     
     mostrarHorarios.addEventListener('click', async function() {

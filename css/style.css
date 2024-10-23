@@ -858,7 +858,7 @@ button#installIosButton {
 
 /* en iOS mostramos la clase */
 html.ios .ios-only {
-    display: block;
+    display: inline-block;
 }
 
 .center {
@@ -3804,9 +3804,18 @@ body.dialog-open {
     max-width: 150px;
 }
 
+#lineSelectionDialog #addSelectedLines, #lineSelectionDialog #addAllLines {
+    letter-spacing: -0.5px;
+}
+
+#lineSelectionDialog #addSelectedLines {
+    font-weight: bold;
+}
+
 #lineSelectionDialog #addSelectedLines:disabled {
     background-color: #ededed2b;
     opacity: 0.5;
+    font-weight: normal;
 }
 
 /* Estilos para pantallas pequeñas */
