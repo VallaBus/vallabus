@@ -2356,8 +2356,15 @@ button.remove-stop {
     text-align: left;
 }
 
+.dark-mode .line-info .linea {
+    opacity: 0.8;
+}
+
 .line-info .linea, .line-info .tiempo.futuro {
     font-size: 0.8em;
+}
+
+.line-info .tiempo.futuro {
     opacity: 0.8;
 }
 
