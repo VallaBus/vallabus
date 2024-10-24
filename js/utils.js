@@ -1496,9 +1496,8 @@ async function showStatusDialog() {
         statusContent.innerHTML = `
             <div class="status-summary ${allActive ? 'all-active' : allInactive ? 'all-inactive' : 'some-inactive'}">
                 <div class="status-icon"></div>
-                <h2 class="status-message">${allActive ? 'Todos los servicios funcionan correctamente' : allInactive ? 'Todos los servicios están inactivos' : 'Algunos servicios presentan problemas'}</h2>
-                <p class="status-submessage">Estado de los servicios que usa VallaBus</p>
-                <p class="status-submessage">Si algún servicio externo no está operativo es posible que VallaBus no pueda mostrar algunos datos, o no de forma actualizada</p>
+                <h2 class="status-message">${allActive ? 'Todos funcionan correctamente' : allInactive ? 'Todos están inactivos' : 'Algunos presentan problemas'}</h2>
+                <p class="status-submessage">Si algún servicio externo que usamos no está operativo es posible que no podamos mostrar algunos datos, o no de forma actualizada</p>
             </div>
             <div class="status-grid">
                 ${agencyStatusHtml}
@@ -1759,8 +1758,8 @@ function showDataDialog() {
             <li>Paradas fijadas: ${uniqueFixedStops}</li>
             <li>Destinos rápidos: ${uniqueFavoriteDestinations}</li>
         </ul>
-        <button id="exportDataBtn">Exportar datos</button>
-        <button id="importDataBtn">Importar datos</button>
+        <button id="exportDataBtn" class="primary">Exportar datos</button>
+        <button id="importDataBtn" class="secondary">Importar datos</button>
     `;
 
     dialog.innerHTML = dialogContent;

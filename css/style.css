@@ -137,6 +137,7 @@ button.secondary, .dialog-content button:first-child {
 button.terciary {
     color: hsl(168.8, 48.2%, 32.5%);
     text-decoration: underline;
+    background-color: transparent;
 }
 
 button:disabled, .dialog-content button:last-child:disabled {
@@ -176,9 +177,7 @@ button#addButton:active {
 button#removeAllButton {
     color: hsl(0, 0%, 44%);
     font-size: 0.9em;
-    text-align: center;
-    background-color: transparent;
-    text-decoration: underline;
+    font-weight: normal;
 }
 
 .dark-mode button#removeAllButton {
@@ -1558,8 +1557,6 @@ button.remove-stop {
     width: 100%;
     margin: 10px 0;
     padding: 12px;
-    color: white;
-    border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
@@ -1568,38 +1565,6 @@ button.remove-stop {
 
 .dialog-data a {
     color: #828282;
-}
-
-.dialog-data button#exportDataBtn {
-    background-color: #4CAF50; /* Verde para exportar */
-}
-
-.dialog-data button#exportDataBtn:hover {
-    background-color: #45a049;
-}
-
-.dialog-data button#importDataBtn {
-    background-color: #2196F3; /* Azul para importar */
-}
-
-.dialog-data button#importDataBtn:hover {
-    background-color: #1e87db;
-}
-
-.dark-mode .dialog-data button#exportDataBtn {
-    background-color: #45a049;
-}
-
-.dark-mode .dialog-data button#exportDataBtn:hover {
-    background-color: #4CAF50;
-}
-
-.dark-mode .dialog-data button#importDataBtn {
-    background-color: #1e87db;
-}
-
-.dark-mode .dialog-data button#importDataBtn:hover {
-    background-color: #2196F3;
 }
 
 .dark-mode .dialog-data .closeDialogBtn {
