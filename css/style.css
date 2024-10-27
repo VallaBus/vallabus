@@ -768,10 +768,6 @@ button#installIosButton {
     float: right;
 }
 
-.add-favorite-button:hover {
-    background-color: #e0e0e0;
-}
-
 .dark-mode .add-favorite-button {
     color: #eeeeee;
 }
