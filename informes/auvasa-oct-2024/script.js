@@ -173,7 +173,7 @@ new Chart(monthlyTrendCtx, {
 });
 
 function shareReport() {
-    const text = 'El análisis de VallaBus revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\nMás detalles:\n\n';
+    const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\nMás detalles:\n\n';
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
@@ -184,14 +184,14 @@ function shareReport() {
         navigator.share({
             title: 'Informe sobre calidad del servicio de AUVASA - Octubre 2024',
             text: text,
-            url: window.location.href + '?mtm_campaign=informeShareButton'
+            url: window.location.href + '?mtm_campaign=informeshare'
         })
         .catch((error) => console.log('Error compartiendo:', error));
     } else {
         // Fallback para navegadores que no soportan Web Share API
         const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
-        dummy.value = text + window.location.href + '?mtm_campaign=informeShareButton';
+        dummy.value = text + window.location.href + '?mtm_campaign=informeshare';
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
