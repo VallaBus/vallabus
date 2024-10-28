@@ -53,10 +53,10 @@ lucide.createIcons();
 // Gráfica de Puntualidad (Pie Chart)
 const punctualityCtx = document.getElementById('punctualityChart').getContext('2d');
 const punctualityData = {
-    labels: ['Retrasados', 'Puntuales', 'Adelantados'],
+    labels: ['Retrasados', 'Adelantados', 'Puntuales'],
     datasets: [{
-        data: [48, 33, 19],
-        backgroundColor: [COLORS.error, COLORS.successLight, COLORS.redLight],
+        data: [48, 19, 33],
+        backgroundColor: [COLORS.error, COLORS.redLight, COLORS.successLight],
         borderColor: 'white',
         borderWidth: 2
     }]
@@ -146,7 +146,7 @@ new Chart(monthlyTrendCtx, {
             data: [33, 35, 37, 33, 32],
             borderColor: COLORS.error,
             tension: 0.3,
-            fill: false
+            fill: true
         }]
     },
     options: {
