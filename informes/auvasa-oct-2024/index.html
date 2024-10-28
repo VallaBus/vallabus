@@ -104,7 +104,7 @@
             <div class="bg-white p-8 sm:p-12 flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                 <i data-lucide="chart-column" class="h-16 w-16 sm:h-32 sm:w-32 text-secondary"></i>
                 <div class="text-left">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-secondary mb-2">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-secondary mb-2">
                         Análisis de calidad servicio AUVASA
                     </h2>
                     <h3 class="text-lg font-medium text-primary mb-3">
@@ -206,7 +206,7 @@
                             <i data-lucide="lightbulb" class="h-5 w-5 text-indigo-900"></i>
                             Propuestas de mejora
                         </h3>
-                        <ul class="text-sm text-indigo-700 space-y-2">
+                        <ul class="text-sm text-indigo-800 space-y-2">
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Actualización urgente de horarios reflejando condiciones reales
@@ -240,9 +240,9 @@
         <!-- Metodología -->
         <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="flex items-start gap-3">
-                <i data-lucide="clipboard-list" class="h-6 w-6 mt-1 flex-shrink-0 card-icon"></i>
                 <div>
-                    <h2 class="text-xl font-semibold text-primary mb-2">
+                    <h2 class="text-xl font-semibold text-primary mb-4">
+                        <i data-lucide="clipboard-list" class="h-6 w-6 inline-block align-middle mr-2 card-icon"></i>
                         Metodología
                     </h2>
                     <p class="text-primary text-sm leading-relaxed mb-4">
@@ -250,8 +250,8 @@
                     </p>
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
-                                <i data-lucide="clock" class="h-5 w-5 text-primary"></i>
+                            <h3 class="font-medium text-primary mb-2">
+                                <i data-lucide="clock" class="h-5 w-5 inline-block align-middle mr-2 text-primary"></i>
                                 Criterios de puntualidad
                             </h3>
                             <p class="text-sm text-primary">
@@ -259,8 +259,8 @@
                             </p>
                         </div>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
-                                <i data-lucide="timer" class="h-5 w-5 text-primary"></i>
+                            <h3 class="font-medium text-primary mb-2">
+                                <i data-lucide="timer" class="h-5 w-5 inline-block align-middle mr-2 text-primary"></i>
                                 Análisis de frecuencias
                             </h3>
                             <p class="text-sm text-primary">
@@ -355,34 +355,40 @@
                     Mantente al día de nuevos informes e innovaciones
                 </p>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <!-- Instagram -->
                     <a href="https://www.instagram.com/vallabusapp/" target="_blank" 
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="instagram" class="h-5 w-5 text-pink-600 sm:h-10 sm:w-10"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="instagram" class="h-8 w-8 sm:h-12 sm:w-12 text-pink-600"></i>
                         <span class="text-sm font-medium">Instagram</span>
                     </a>
+                    <!-- Twitter -->
                     <a href="https://x.com/vallabusapp" target="_blank"
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="twitter" class="h-5 w-5 text-blue-500 sm:h-10 sm:w-10"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="twitter" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
                         <span class="text-sm font-medium">Twitter</span>
                     </a>
+                    <!-- WhatsApp -->
                     <a href="https://whatsapp.com/channel/0029VacJrldIHphBU41MLM25" target="_blank"
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="message-circle" class="h-5 w-5 text-green-600 sm:h-8 sm:w-8"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="message-circle" class="h-8 w-8 sm:h-12 sm:w-12 text-green-600"></i>
                         <span class="text-sm font-medium">WhatsApp</span>
                     </a>
+                    <!-- TikTok -->
                     <a href="https://www.tiktok.com/@vallabusapp" target="_blank"
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="play" class="h-5 w-5 text-gray-900 sm:h-8 sm:w-8"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="play" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-900"></i>
                         <span class="text-sm font-medium">TikTok</span>
                     </a>
+                    <!-- Facebook -->
                     <a href="https://www.facebook.com/profile.php?id=61561026144737" target="_blank"
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="facebook" class="h-5 w-5 text-blue-600 sm:h-8 sm:w-8"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="facebook" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-600"></i>
                         <span class="text-sm font-medium">Facebook</span>
                     </a>
+                    <!-- Telegram -->
                     <a href="https://t.me/vallabusapp" target="_blank"
-                       class="flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i data-lucide="send" class="h-5 w-5 text-blue-500 sm:h-8 sm:w-8"></i>
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="send" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
                         <span class="text-sm font-medium">Telegram</span>
                     </a>
                 </div>
