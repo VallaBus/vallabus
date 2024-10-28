@@ -173,6 +173,12 @@ new Chart(monthlyTrendCtx, {
 
 function shareReport() {
     const text = 'El análisis de VallaBus revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\n Más detalles:\n\n';
+    
+    // Registrar el evento en Matomo
+    if (typeof _paq !== 'undefined') {
+        _paq.push(['trackEvent', 'Compartir', 'Informe', 'AUVASA Octubre 2024']);
+    }
+
     if (navigator.share) {
         navigator.share({
             title: 'Informe sobre calidad del servicio de AUVASA - Octubre 2024',
