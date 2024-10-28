@@ -183,14 +183,14 @@ function shareReport() {
         navigator.share({
             title: 'Informe sobre calidad del servicio de AUVASA - Octubre 2024',
             text: text,
-            url: window.location.href
+            url: window.location.href + '?mtm_campaign=informeShareButton'
         })
         .catch((error) => console.log('Error compartiendo:', error));
     } else {
         // Fallback para navegadores que no soportan Web Share API
         const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
-        dummy.value = text + ' ' + window.location.href;
+        dummy.value = text + ' ' + window.location.href + '?mtm_campaign=informeShareButton';
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
