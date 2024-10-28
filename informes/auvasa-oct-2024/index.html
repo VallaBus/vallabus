@@ -133,41 +133,6 @@
             </ul>
         </div>
 
-        <!-- Después del header principal y antes de las tarjetas de estadísticas -->
-        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
-            <div class="flex items-start gap-3">
-                <i data-lucide="clipboard-list" class="h-6 w-6 mt-1 flex-shrink-0 card-icon"></i>
-                <div>
-                    <h2 class="text-xl font-semibold text-primary mb-2">
-                        Metodología
-                    </h2>
-                    <p class="text-primary text-sm leading-relaxed mb-4">
-                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" target="_blank">datos abiertos GTFS de AUVASA</a>, en todas las líneas de la red de transporte
-                    </p>
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
-                                <i data-lucide="clock" class="h-5 w-5 text-primary"></i>
-                                Criterios de puntualidad
-                            </h3>
-                            <p class="text-sm text-primary">
-                                Un bus se considera puntual si no presenta un desfase mayor a 2 minutos respecto a su horario programado
-                            </p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
-                                <i data-lucide="timer" class="h-5 w-5 text-primary"></i>
-                                Análisis de frecuencias
-                            </h3>
-                            <p class="text-sm text-primary">
-                                Evaluación de frecuencias máximas en líneas principales (1, 2 y C2) según últimos estándares publicados por AUVASA en 2020
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
             <!-- Gráfica de Puntualidad -->
             <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
@@ -228,7 +193,7 @@
                         <ul class="text-sm text-indigo-700 space-y-2">
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                                Actualización de horarios según condiciones reales
+                                Actualización urgente de horarios según condiciones reales
                             </li>
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
@@ -244,7 +209,7 @@
             </div>
         </div>
 
-        <!-- Agregar después de las gráficas existentes -->
+        <!-- Evolución mensual de puntualidad -->
         <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="flex items-center gap-2 mb-1">
                 <i data-lucide="trending-up" class="h-5 w-5 card-icon"></i>
@@ -253,6 +218,41 @@
             <p class="text-sm text-primary mb-4">Tendencia de puntualidad durante el periodo analizado</p>
             <div class="chart-container">
                 <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Metodología -->
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-start gap-3">
+                <i data-lucide="clipboard-list" class="h-6 w-6 mt-1 flex-shrink-0 card-icon"></i>
+                <div>
+                    <h2 class="text-xl font-semibold text-primary mb-2">
+                        Metodología
+                    </h2>
+                    <p class="text-primary text-sm leading-relaxed mb-4">
+                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" target="_blank">datos abiertos GTFS de AUVASA</a>, en todas las líneas de la red de transporte
+                    </p>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
+                                <i data-lucide="clock" class="h-5 w-5 text-primary"></i>
+                                Criterios de puntualidad
+                            </h3>
+                            <p class="text-sm text-primary">
+                                Un bus se considera puntual si no presenta un desfase mayor a 2 minutos respecto a su horario programado
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
+                                <i data-lucide="timer" class="h-5 w-5 text-primary"></i>
+                                Análisis de frecuencias
+                            </h3>
+                            <p class="text-sm text-primary">
+                                Evaluación de frecuencias máximas en líneas principales (1, 2 y C2) según últimos estándares publicados por AUVASA en 2020
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
