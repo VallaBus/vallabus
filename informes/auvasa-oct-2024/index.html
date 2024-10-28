@@ -53,7 +53,7 @@
 
         a {
             color: hsl(168.8, 23.2%, 30.5%);
-            text-decoration: underline !important;
+            text-decoration: underline;
             font-weight: bold;
         }
 
@@ -114,7 +114,7 @@
                         El transporte público de Valladolid enfrenta desafíos significativos en puntualidad y frecuencias
                     </p>
                     <p class="text-primary text-base sm:text-lg leading-relaxed mt-2">
-                        El análisis de <a href="https://vallabus.com" target="_blank">VallaBus</a> revela datos preocupantes para los usuarios que dependen de este servicio
+                        El análisis de <a href="https://vallabus.com" class="underline" target="_blank">VallaBus</a> revela datos preocupantes para los usuarios que dependen de este servicio
                     </p>
                 </div>
             </div>
@@ -132,11 +132,11 @@
             <ul class="text-base text-vallabus space-y-2">
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
-                    Aprox. el 70% de todas las llegadas no cumplen con su horario programado
+                    <span>Aprox. el <strong>70%</strong> de todas las llegadas <a class="underline decoration-red-500" href="#punctuality-chart">no cumplen</a> con su <strong>horario programado</strong></span>
                 </li>
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
-                    1 de cada 3 buses no cumplen con la frecuencia máxima de espera
+                    <span><strong>1 de cada 3</strong> buses  <a class="underline decoration-red-500" href="#frequency-chart">no cumple</a> con la <strong>frecuencia de espera máxima</strong></span>
                 </li>
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
@@ -145,13 +145,13 @@
             </ul>
             <button onclick="shareReport()" class="text-base bg-vallabus text-white py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
                 <i data-lucide="share-2" class="h-5 w-5"></i>
-                Compartir informe
+                Ayuda compartiendo el informe
             </button>
         </div>
 
         <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
             <!-- Gráfica de Puntualidad -->
-            <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div id="punctuality-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
                 <div class="flex items-center gap-2 mb-1">
                     <i data-lucide="clock" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Cumplimiento de horarios</h3>
@@ -163,12 +163,12 @@
             </div>
 
             <!-- Gráfica de Frecuencias -->
-            <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div id="frequency-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
                 <div class="flex items-center gap-2 mb-1">
                     <i data-lucide="bus" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Frecuencias en líneas principales</h3>
                 </div>
-                <p class="text-sm text-primary mb-6">1 de cada 3 buses exceden la frecuencia máxima en días laborables</p>
+                <p class="text-sm text-primary mb-6">1 de cada 3 buses supera la frecuencia máxima en días laborables</p>
                 <div class="chart-container">
                     <canvas id="frequencyChart"></canvas>
                 </div>
@@ -275,16 +275,16 @@
         <!-- Bloque de compartir -->
         <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="text-center max-w-2xl mx-auto">
-                <h2 class="text-xl font-semibold text-primary mb-2">
+                <h2 class="text-xl font-semibold text-primary mb-5">
                     Tú puedes ayudar
                 </h2>
-                <p class="text-primary text-sm mb-6">
-                    Compartiendo ahora este informe en redes y grupos para dar visibilidad y reclamar soluciones
-                </p>
-                <button id="share-button" onclick="shareReport()" class="bg-primary text-base py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto">
+                <button id="share-button" onclick="shareReport()" class="bg-primary text-base py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mb-5">
                     <i data-lucide="share-2" class="h-5 w-5"></i>
                     Compartir informe
                 </button>
+                <p class="text-primary text-sm">
+                    En redes sociales y grupos de chat para dar visibilidad y reclamar que se solucione
+                </p>
             </div>
         </div>
 
@@ -300,7 +300,7 @@
                             VallaBus: Navega la incertidumbre
                         </h2>
                         <p class="text-primary text-sm leading-relaxed mb-4">
-                            Publicada por voluntarios y usuarios del bus a inicios de 2024, proporciona información precisa en Valladolid y alrededores
+                            App creada por voluntarios y usuarios del bus a inicios de 2024, proporciona información precisa en Valladolid y alrededores
                         </p>
                         <div class="grid sm:grid-cols-3 gap-4">
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -335,7 +335,7 @@
                             <i data-lucide="bus" class="h-32 w-32 text-primary"></i>
                             <div>
                                 <p class="text-sm text-primary">
-                                    Miles de usuarios en Valladolid consideran <a href="https://vallabus.com" target="_blank">VallaBus</a> la única solución a la falta de previsibilidad
+                                    Miles de usuarios consideran ya <a href="https://vallabus.com" target="_blank">VallaBus</a> la única solución a la falta de claridad en horarios y frecuencias
                                 </p>
                                 <a id="cta-button" href="https://vallabus.com" target="_blank" class="mt-4 inline-block bg-vallabus text-white text-base py-2 px-4 rounded hover:bg-vallabus transition duration-300 text-center">Probar ahora</a>
                             </div>
