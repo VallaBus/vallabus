@@ -125,21 +125,21 @@
 
         <!-- Actualizar el panel informativo -->
         <div class="p-4 bg-vallabus-light rounded-lg border border-vallabus-light">
-            <h3 class="font-medium text-vallabus mb-2 flex items-center gap-2 text-lg">
+            <h3 class="font-medium text-vallabus mb-4 flex items-center gap-2 text-lg">
                 <i data-lucide="clipboard-check" class="h-5 w-5 text-vallabus"></i>
                 Conclusiones principales
             </h3>
             <ul class="text-base text-vallabus space-y-2">
                 <li class="flex items-start gap-2">
-                    <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
                     Aprox. el 70% de todas las llegadas no cumplen con su horario programado
                 </li>
                 <li class="flex items-start gap-2">
-                    <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                    1 de cada 3 buses incumple la frecuencia máxima de espera
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
+                    1 de cada 3 buses no cumplen con la frecuencia máxima de espera
                 </li>
                 <li class="flex items-start gap-2">
-                    <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
                     Tendencia constante en los últimos meses
                 </li>
             </ul>
@@ -156,7 +156,7 @@
                     <i data-lucide="clock" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Cumplimiento de horarios</h3>
                 </div>
-                <p class="text-sm text-primary mb-4">7 de cada 10 buses no cumplen con su horario programado</p>
+                <p class="text-sm text-primary mb-6">7 de cada 10 buses no cumplen con su horario programado</p>
                 <div class="chart-container">
                     <canvas id="punctualityChart"></canvas>
                 </div>
@@ -168,11 +168,11 @@
                     <i data-lucide="bus" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Frecuencias en líneas principales</h3>
                 </div>
-                <p class="text-sm text-primary mb-4">1 de cada 3 buses exceden la frecuencia máxima en días laborables</p>
+                <p class="text-sm text-primary mb-6">1 de cada 3 buses exceden la frecuencia máxima en días laborables</p>
                 <div class="chart-container">
                     <canvas id="frequencyChart"></canvas>
                 </div>
-                <div class="flex items-center gap-2 mb-1 mt-3">
+                <div class="flex items-center gap-2 mb-1 mt-5">
                     <i data-lucide="map-pin" class="h-5 w-5 text-gray-500"></i>
                     <h3 class="text-xs font-medium text-gray-500">Plaza España Bola del Mundo y Av. Segovia frente Plaza del Carmen</h3>
                 </div>
@@ -182,41 +182,41 @@
             <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div class="p-4 bg-rose-50 rounded-lg border border-rose-100">
-                        <h3 class="font-medium text-rose-900 mb-2 flex items-center gap-2">
+                        <h3 class="font-medium text-rose-900 mb-4 flex items-center gap-2">
                             <i data-lucide="users" class="h-5 w-5 text-rose-900"></i>
                             Impacto en usuarios
                         </h3>
                         <ul class="text-sm text-rose-700 space-y-2">
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Falta de confianza en horarios programados
                             </li>
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Tiempos de espera prolongados en paradas clave
                             </li>
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Incertidumbre para planificar viajes
                             </li>
                         </ul>
                     </div>
                     <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                        <h3 class="font-medium text-indigo-900 mb-2 flex items-center gap-2">
+                        <h3 class="font-medium text-indigo-900 mb-4 flex items-center gap-2">
                             <i data-lucide="lightbulb" class="h-5 w-5 text-indigo-900"></i>
                             Propuestas de mejora
                         </h3>
                         <ul class="text-sm text-indigo-800 space-y-2">
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Actualización urgente de horarios reflejando condiciones reales
                             </li>
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Optimización de frecuencias en horas punta
                             </li>
                             <li class="flex items-start gap-2">
-                                <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                                 Información más precisa y oportuna a los usuarios
                             </li>
                         </ul>
@@ -231,7 +231,7 @@
                 <i data-lucide="trending-up" class="h-5 w-5 card-icon"></i>
                 <h3 class="text-lg font-medium text-primary">Evolución de puntualidad</h3>
             </div>
-            <p class="text-sm text-primary mb-4">Durante el periodo analizado</p>
+            <p class="text-sm text-primary mb-5">Durante el periodo analizado</p>
             <div class="chart-container">
                 <canvas id="monthlyTrendChart"></canvas>
             </div>
