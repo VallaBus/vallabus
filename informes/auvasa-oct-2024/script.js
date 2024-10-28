@@ -6,9 +6,10 @@ const COLORS = {
     primary: 'hsl(238, 84%, 67%)',    // Indigo más suave
     secondary: 'hsl(270, 76%, 65%)',   // Púrpura más suave
     warning: 'hsl(38, 92%, 60%)',      // Naranja más suave
-    error: 'hsl(0, 84%, 65%)',         // Rojo más suave
+    error: 'hsl(0, 74%, 65%)',         // Rojo más suave
     redLight: 'hsl(0, 74%, 75%)',     // Rojo más suave
     success: 'hsl(160, 64%, 55%)',     // Verde más suave
+    successLight: 'hsl(160, 20%, 85%)', // Verde más suave
     neutral: 'hsl(214, 20%, 65%)'      // Gris más suave
 };
 
@@ -55,7 +56,7 @@ const punctualityData = {
     labels: ['Retrasados', 'Puntuales', 'Adelantados'],
     datasets: [{
         data: [48, 33, 19],
-        backgroundColor: [COLORS.error, COLORS.success, COLORS.redLight],
+        backgroundColor: [COLORS.error, COLORS.successLight, COLORS.redLight],
         borderColor: 'white',
         borderWidth: 2
     }]
@@ -83,14 +84,14 @@ new Chart(frequencyCtx, {
         labels: ['Línea 1', 'Línea 2', 'Línea C2'],
         datasets: [
             {
-                label: 'En frecuencia',
+                label: 'Menor de 12-13 min',
                 data: [71, 67, 65],
-                backgroundColor: COLORS.success,
+                backgroundColor: COLORS.successLight,
                 borderColor: 'white',
                 borderWidth: 1
             },
             {
-                label: 'Exceden frecuencia',
+                label: 'Mayor de 12-13 min',
                 data: [29, 33, 35],
                 backgroundColor: COLORS.error,
                 borderColor: 'white',
@@ -172,7 +173,7 @@ new Chart(monthlyTrendCtx, {
 });
 
 function shareReport() {
-    const text = 'El análisis de VallaBus revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\n Más detalles:\n\n';
+    const text = 'El análisis de VallaBus revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\nMás detalles:\n\n';
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
