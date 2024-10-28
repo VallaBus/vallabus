@@ -102,7 +102,7 @@
                         El transporte público de Valladolid enfrenta desafíos significativos en puntualidad y frecuencias
                     </p>
                     <p class="text-primary text-sm leading-relaxed mt-2">
-                        El análisis exhaustivo de <a href="https://vallabus.com" target="_blank">VallaBus</a> revela datos preocupantes para los usuarios que dependen de este servicio
+                        El análisis de <a href="https://vallabus.com" target="_blank">VallaBus</a> revela datos preocupantes para los usuarios que dependen de este servicio
                     </p>
                 </div>
             </div>
@@ -113,11 +113,11 @@
 
         <!-- Actualizar el panel informativo -->
         <div class="p-4 bg-amber-50 rounded-lg border border-amber-100">
-            <h3 class="font-medium text-amber-900 mb-2 flex items-center gap-2">
-                <i data-lucide="info" class="h-5 w-5 text-amber-500"></i>
+            <h3 class="font-medium text-amber-900 mb-2 flex items-center gap-2 text-lg">
+                <i data-lucide="clipboard-check" class="h-5 w-5 text-amber-900"></i>
                 Conclusiones principales
             </h3>
-            <ul class="text-sm text-amber-700 space-y-2">
+            <ul class="text-base text-amber-700 space-y-2">
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                     Aprox. el 70% de todas las llegadas no cumplen con su horario programado
@@ -128,9 +128,13 @@
                 </li>
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                    Tendencia constante en los últimos 5 meses
+                    Tendencia constante en los últimos meses
                 </li>
             </ul>
+            <button onclick="shareReport()" class="text-base bg-amber-700 text-amber-50 py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
+                <i data-lucide="share-2" class="h-5 w-5"></i>
+                Compartir informe
+            </button>
         </div>
 
         <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
@@ -152,7 +156,7 @@
                     <i data-lucide="bus" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Frecuencias en líneas principales</h3>
                 </div>
-                <p class="text-sm text-primary mb-4">1 de cada 3 buses incumplen la frecuencia máxima (12-13 min) en días laborables</p>
+                <p class="text-sm text-primary mb-4">1 de cada 3 buses exceden la frecuencia máxima (12-13 min) en días laborables</p>
                 <div class="chart-container">
                     <canvas id="frequencyChart"></canvas>
                 </div>
@@ -173,7 +177,7 @@
                         <ul class="text-sm text-rose-700 space-y-2">
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                                Falta de confiabilidad en horarios programados
+                                Falta de confianza en horarios programados
                             </li>
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
@@ -181,7 +185,7 @@
                             </li>
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                                Incertidumbre en la planificación de viajes
+                                Incertidumbre para la planificación de viajes
                             </li>
                         </ul>
                     </div>
@@ -193,7 +197,7 @@
                         <ul class="text-sm text-indigo-700 space-y-2">
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                                Actualización urgente de horarios según condiciones reales
+                                Actualización urgente de horarios reflejando condiciones reales
                             </li>
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
@@ -201,7 +205,7 @@
                             </li>
                             <li class="flex items-start gap-2">
                                 <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
-                                Mejora de la comunicación con usuarios
+                                Información más precisa y oportuna a los usuarios
                             </li>
                         </ul>
                     </div>
@@ -215,7 +219,7 @@
                 <i data-lucide="trending-up" class="h-5 w-5 card-icon"></i>
                 <h3 class="text-lg font-medium text-primary">Evolución mensual de puntualidad</h3>
             </div>
-            <p class="text-sm text-primary mb-4">Tendencia de puntualidad durante el periodo analizado</p>
+            <p class="text-sm text-primary mb-4">Durante el periodo analizado</p>
             <div class="chart-container">
                 <canvas id="monthlyTrendChart"></canvas>
             </div>
@@ -230,7 +234,7 @@
                         Metodología
                     </h2>
                     <p class="text-primary text-sm leading-relaxed mb-4">
-                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" target="_blank">datos abiertos GTFS de AUVASA</a>, en todas las líneas de la red de transporte
+                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" target="_blank">datos abiertos GTFS de AUVASA</a>, en todas las líneas y paradas su red
                     </p>
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 p-4 rounded-lg">
@@ -248,7 +252,7 @@
                                 Análisis de frecuencias
                             </h3>
                             <p class="text-sm text-primary">
-                                Evaluación de frecuencias máximas en líneas principales (1, 2 y C2) según últimos estándares publicados por AUVASA en 2020
+                                Evaluación de frecuencias máximas en líneas principales (1, 2 y C2) según últimos estándares publicados por AUVASA (2020)
                             </p>
                         </div>
                     </div>
@@ -284,7 +288,7 @@
                             VallaBus: Navega la incertidumbre
                         </h2>
                         <p class="text-primary text-sm leading-relaxed mb-4">
-                            Lanzada por voluntarios y usuarios del bus a inicios de 2024, proporciona información precisa sobre Valladolid y alrededores
+                            Publicada por voluntarios y usuarios del bus a inicios de 2024, proporciona información precisa en Valladolid y alrededores
                         </p>
                         <div class="grid sm:grid-cols-3 gap-4">
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -293,7 +297,7 @@
                                     Seguimiento en tiempo real
                                 </h3>
                                 <p class="text-sm text-primary">
-                                    Visualización en mapa de la ubicación exacta de cada bus y su estado de puntualidad
+                                    Visualización en mapa de la ubicación exacta de cada bus y su puntualidad
                                 </p>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -311,7 +315,7 @@
                                     Planificación inteligente
                                 </h3>
                                 <p class="text-sm text-primary">
-                                    Rutas multimodales (bus + BIKI) basada en datos reales de la red de transporte
+                                    Rutas multimodales (bus + BIKI) basada en tiempos actualizados
                                 </p>
                             </div>
                         </div>
@@ -319,7 +323,7 @@
                             <i data-lucide="bus" class="h-32 w-32 text-primary"></i>
                             <div>
                                 <p class="text-sm text-primary">
-                                    <a href="https://vallabus.com" target="_blank">VallaBus</a> se ha convertido ya para miles de usuarios en Valladolid en la solución práctica a la falta de previsibilidad
+                                    Miles de usuarios en Valladolid consideran <a href="https://vallabus.com" target="_blank">VallaBus</a> la única solución a la falta de previsibilidad
                                 </p>
                                 <a id="cta-button" href="https://vallabus.com" target="_blank" class="mt-4 inline-block bg-vallabus text-white text-base py-2 px-4 rounded hover:bg-vallabus transition duration-300 text-center">Probar ahora</a>
                             </div>
