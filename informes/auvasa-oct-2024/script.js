@@ -191,7 +191,7 @@ function shareReport() {
         // Fallback para navegadores que no soportan Web Share API
         const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
-        dummy.value = text + ' ' + window.location.href + '?mtm_campaign=informeShareButton';
+        dummy.value = text + window.location.href + '?mtm_campaign=informeShareButton';
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
