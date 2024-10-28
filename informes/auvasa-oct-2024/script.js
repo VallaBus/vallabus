@@ -6,8 +6,8 @@ const COLORS = {
     primary: 'hsl(238, 84%, 67%)',    // Indigo más suave
     secondary: 'hsl(270, 76%, 65%)',   // Púrpura más suave
     warning: 'hsl(38, 92%, 60%)',      // Naranja más suave
-    error: 'hsl(0, 74%, 65%)',         // Rojo más suave
-    redLight: 'hsl(0, 74%, 75%)',     // Rojo más suave
+    error: 'hsl(0, 90%, 65%)',         // Rojo más suave
+    redLight: 'hsl(0, 60%, 75%)',     // Rojo más suave
     success: 'hsl(160, 64%, 55%)',     // Verde más suave
     successLight: 'hsl(160, 20%, 85%)', // Verde más suave
     neutral: 'hsl(214, 20%, 65%)'      // Gris más suave

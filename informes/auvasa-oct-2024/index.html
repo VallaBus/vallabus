@@ -6,7 +6,7 @@
     
     <!-- SEO Meta Tags -->
     <title>Informe Vallabus sobre calidad del servicio de AUVASA - Octubre 2024</title>
-    <meta name="description" content="Análisis detallado sobre la calidad del servicio de buses AUVASA en Valladolid: puntualidad, frecuencias y propuestas de mejora basadas en datos reales">
+    <meta name="description" content="Análisis sobre la calidad del servicio de AUVASA en Valladolid: puntualidad, frecuencias y propuestas de mejora basadas en datos reales">
     <meta name="keywords" content="AUVASA, Valladolid, transporte público, bus, VallaBus, puntualidad, frecuencias, informe, calidad servicio">
     <meta name="author" content="VallaBus">
     
@@ -14,14 +14,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vallabus.com/informes/auvasa-oct-2024">
     <meta property="og:title" content="Informe Vallabus sobre calidad del servicio de AUVASA - Octubre 2024">
-    <meta property="og:description" content="Análisis detallado sobre la calidad del servicio de buses AUVASA en Valladolid: puntualidad, frecuencias y propuestas de mejora">
+    <meta property="og:description" content="Análisis sobre la calidad del servicio de AUVASA en Valladolid: puntualidad, frecuencias y propuestas de mejora">
     <meta property="og:image" content="https://vallabus.com/informes/auvasa-oct-2024/social-preview.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://vallabus.com/informes/auvasa-oct-2024">
     <meta property="twitter:title" content="Informe Vallabus sobre calidad del servicio de AUVASA - Octubre 2024">
-    <meta property="twitter:description" content="Análisis detallado sobre la calidad del servicio de buses AUVASA en Valladolid">
+    <meta property="twitter:description" content="Análisis sobre la calidad del servicio de AUVASA en Valladolid">
     <meta property="twitter:image" content="https://vallabus.com/informes/auvasa-oct-2024/social-preview.png">
 
     <!-- Favicon -->
@@ -43,7 +43,7 @@
             width: 100%;
         }
         
-        .card-icon, .text-primary {
+        .card-icon, .text-primary, .text-vallabus {
             color: hsl(168.8, 23.2%, 30.5%);
         }
 
@@ -66,8 +66,16 @@
             background-color: hsl(168.8, 48.2%, 32.5%);
         }
 
+        .bg-vallabus-light {
+            background-color: hsl(168.8, 48.2%, 95%);
+        }
+
         .border-vallabus {
             border-color: hsl(168.8, 48.2%, 32.5%);
+        }
+
+        .border-vallabus-light {
+            border-color: hsl(168.8, 48.2%, 90%);
         }
     </style>
 
@@ -112,12 +120,12 @@
         <div class="grid md:grid-cols-3 gap-4 sm:gap-6" id="statsCards"></div>
 
         <!-- Actualizar el panel informativo -->
-        <div class="p-4 bg-amber-50 rounded-lg border border-amber-100">
-            <h3 class="font-medium text-amber-900 mb-2 flex items-center gap-2 text-lg">
-                <i data-lucide="clipboard-check" class="h-5 w-5 text-amber-900"></i>
+        <div class="p-4 bg-vallabus-light rounded-lg border border-vallabus-light">
+            <h3 class="font-medium text-vallabus mb-2 flex items-center gap-2 text-lg">
+                <i data-lucide="clipboard-check" class="h-5 w-5 text-vallabus"></i>
                 Conclusiones principales
             </h3>
-            <ul class="text-base text-amber-700 space-y-2">
+            <ul class="text-base text-vallabus space-y-2">
                 <li class="flex items-start gap-2">
                     <i data-lucide="arrow-up-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
                     Aprox. el 70% de todas las llegadas no cumplen con su horario programado
@@ -131,7 +139,7 @@
                     Tendencia constante en los últimos meses
                 </li>
             </ul>
-            <button onclick="shareReport()" class="text-base bg-amber-700 text-amber-50 py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
+            <button onclick="shareReport()" class="text-base bg-vallabus text-white py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
                 <i data-lucide="share-2" class="h-5 w-5"></i>
                 Compartir informe
             </button>
