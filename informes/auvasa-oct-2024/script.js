@@ -17,15 +17,21 @@ const COLORS = {
 const statsCards = [
     {
         icon: 'calendar',
-        title: "Periodo analizado",
+        title: "Periodo",
         value: "5 meses",
         subtitle: "junio a octubre 2024"
     },
     {
         icon: 'file-bar-chart',
-        title: "Registros analizados",
+        title: "Registros",
         value: "+6 millones",
         subtitle: "de llegadas"
+    },
+    {
+        icon: 'map-pin',
+        title: "Ubicaciones",
+        value: "571",
+        subtitle: "paradas"
     }
 ];
 
