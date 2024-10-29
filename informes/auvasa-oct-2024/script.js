@@ -50,17 +50,64 @@ statsCards.forEach(stat => {
 });
 lucide.createIcons();
 
-// Gráfica de Puntualidad (Pie Chart)
+// Gráfica de Puntualidad (Horizontal Bar Chart)
 const punctualityCtx = document.getElementById('punctualityChart').getContext('2d');
 const punctualityData = {
-    labels: ['Retrasados', 'Adelantados', 'Puntuales'],
+    labels: ['Retrasados', 'Puntuales', 'Adelantados'],
     datasets: [{
-        data: [48, 19, 33],
-        backgroundColor: [COLORS.error, COLORS.redLight, COLORS.successLight],
+        data: [48, 33, 19],
+        backgroundColor: [COLORS.error, COLORS.successLight, COLORS.redLight],
         borderColor: 'white',
-        borderWidth: 2
+        borderWidth: 1
     }]
 };
+
+new Chart(punctualityCtx, {
+    type: 'bar',
+    data: punctualityData,
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw + '%';
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                },
+                padding: {
+                    right: 10
+                }
+            },
+            y: {
+                ticks: {
+                    padding: 5
+                }
+            }
+        },
+        layout: {
+            padding: {
+                right: 20,
+                left: 10
+            }
+        }
+    }
+});
 
 // Crear el contenedor para los iconos de bus
 const busIconsContainer = document.createElement('div');
@@ -78,20 +125,6 @@ busIconsContainer.innerHTML = `
 // Insertar los iconos antes del contenedor del gráfico
 const chartContainer = document.querySelector('#punctuality-chart-description');
 chartContainer.parentNode.insertBefore(busIconsContainer, chartContainer);
-
-new Chart(punctualityCtx, {
-    type: 'doughnut',
-    data: punctualityData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
 
 // Inicializar los nuevos iconos
 lucide.createIcons();
