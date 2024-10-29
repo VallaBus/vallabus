@@ -90,6 +90,13 @@
         .border-vallabus-light {
             border-color: hsl(168.8, 48.2%, 90%);
         }
+
+        .linea-1 {
+            color: #FFF;
+            background-color: hsl(117.6, 42.9%, 54.7%);
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
     </style>
 
     <script>
@@ -241,13 +248,37 @@
 
         <!-- Evolución mensual de puntualidad -->
         <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
-            <div class="flex items-center gap-2 mb-1">
-                <i data-lucide="trending-up" class="h-5 w-5 card-icon"></i>
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="trending-up-down" class="h-5 w-5 card-icon"></i>
                 <h3 class="text-lg font-medium text-primary">Evolución de puntualidad</h3>
             </div>
-            <p class="text-sm text-primary mb-5">Durante el periodo analizado</p>
+            <p class="text-sm text-primary mb-5">Sin grandes variaciones durante el periodo analizado</p>
             <div class="chart-container">
                 <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfica de evolución del retraso -->
+        <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="trending-down" class="h-5 w-5 card-icon"></i>
+                <h3 class="text-lg font-medium text-primary">Evolución de puntualidad en un servicio</h3>
+            </div>
+            <p class="text-sm text-primary mb-5">Observamos una tendencia en la que los retrasos empeoran a medida avanza el trayecto</p>
+            <div class="chart-container">
+                <canvas id="delayEvolutionChart"></canvas>
+            </div>
+            <div class="flex items-center gap-2 mb-1 mt-5">
+                <i data-lucide="route" class="h-5 w-5 text-gray-400"></i>
+                <h3 class="text-xs text-gray-500"><strong class="linea-1 mr-1">1</strong> Barrio España → Covaresa</h3>
+            </div>
+            <div class="flex items-center gap-2 mb-1 mt-5">
+                <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                <h3 class="text-xs text-gray-500">24 octubre 2024 - 08:17</h3>
+            </div>
+            <div class="flex items-center gap-2 mb-1 mt-5">
+                <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
+                <h3 class="text-xs text-gray-500">957 - Cardenal Torquemada frente 16<br />813 - Plaza España Bola del Mundo</h3>
             </div>
         </div>
 

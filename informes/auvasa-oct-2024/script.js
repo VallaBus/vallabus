@@ -275,3 +275,59 @@ function shareReport() {
         alert('Texto y URL copiados al portapapeles');
     }
 }
+
+// Gráfica de evolución del retraso
+const delayEvolutionCtx = document.getElementById('delayEvolutionChart').getContext('2d');
+
+const tripData = {
+    labels: ['1204', '1205', '1206', '1073', '752', '751', '957', '1371', '558', '828', '813', '832', 
+             '1003', '991', '998', '990', '1000', '1001', '1039', '1044', '1389', '1370', '858'],
+    datasets: [
+        {
+            label: 'Minutos de retraso',
+            data: [-4, -4, -4, -4, -5, -7, -7, -9, -10, -11, -12, -13, -13, -13, -14, -14, -12, -13, -14, -15, -14, -13, -15],
+            borderColor: COLORS.error,
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.3,
+            fill: true
+        }
+    ]
+};
+
+new Chart(delayEvolutionCtx, {
+    type: 'line',
+    data: tripData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `Retraso: ${context.raw} minutos`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                title: {
+                    display: true,
+                    text: 'Minutos de retraso'
+                },
+                suggestedMin: -16,
+                suggestedMax: 0
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Parada'
+                },
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 45
+                }
+            }
+        }
+    }
+});
