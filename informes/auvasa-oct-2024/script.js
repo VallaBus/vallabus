@@ -152,16 +152,16 @@ new Chart(frequencyCtx, {
         labels: ['Línea 1', 'Línea 2', 'Línea C2'],
         datasets: [
             {
-                label: 'Menor de 12-13 min',
-                data: [71, 67, 65],
-                backgroundColor: COLORS.successLight,
+                label: 'Mayor de 12-13 min',
+                data: [29, 33, 35],
+                backgroundColor: COLORS.error,
                 borderColor: 'white',
                 borderWidth: 1
             },
             {
-                label: 'Mayor de 12-13 min',
-                data: [29, 33, 35],
-                backgroundColor: COLORS.error,
+                label: 'Menor de 12-13 min',
+                data: [71, 67, 65],
+                backgroundColor: COLORS.successLight,
                 borderColor: 'white',
                 borderWidth: 1
             }
@@ -244,7 +244,7 @@ new Chart(monthlyTrendCtx, {
 });
 
 function shareReport() {
-    const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\nMás detalles:\n\n';
+    const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\n';
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
