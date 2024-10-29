@@ -66,10 +66,12 @@ const punctualityData = {
 const busIconsContainer = document.createElement('div');
 busIconsContainer.className = 'flex flex-wrap justify-center gap-1 mb-4 pl-1 pr-1';
 busIconsContainer.innerHTML = `
-    <div class="flex flex-wrap justify-center gap-1">
-        ${Array(5).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.error}"></i>`).join('')}
-        ${Array(2).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.redLight}"></i>`).join('')}
-        ${Array(3).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.successLight}"></i>`).join('')}
+    <div class="w-full flex justify-center gap-1 mb-1">
+        ${Array(5).fill(`<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`).join('')}
+    </div>
+    <div class="w-full flex justify-center gap-1">
+        ${Array(2).fill(`<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.redLight}"></i>`).join('')}
+        ${Array(3).fill(`<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`).join('')}
     </div>
 `;
 
