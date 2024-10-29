@@ -244,7 +244,7 @@ new Chart(monthlyTrendCtx, {
 });
 
 function shareReport() {
-    const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\nMás detalles:\n\n';
+    const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\n';
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
