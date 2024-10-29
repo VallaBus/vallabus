@@ -62,6 +62,21 @@ const punctualityData = {
     }]
 };
 
+// Crear el contenedor para los iconos de bus
+const busIconsContainer = document.createElement('div');
+busIconsContainer.className = 'flex flex-wrap justify-center gap-1 mb-4 pl-1 pr-1';
+busIconsContainer.innerHTML = `
+    <div class="flex flex-wrap justify-center gap-1">
+        ${Array(5).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.error}"></i>`).join('')}
+        ${Array(2).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.redLight}"></i>`).join('')}
+        ${Array(3).fill(`<i data-lucide="bus" class="h-7 w-7" style="color: ${COLORS.successLight}"></i>`).join('')}
+    </div>
+`;
+
+// Insertar los iconos antes del contenedor del gráfico
+const chartContainer = document.querySelector('#punctuality-chart-description');
+chartContainer.parentNode.insertBefore(busIconsContainer, chartContainer);
+
 new Chart(punctualityCtx, {
     type: 'doughnut',
     data: punctualityData,
@@ -76,8 +91,26 @@ new Chart(punctualityCtx, {
     }
 });
 
+// Inicializar los nuevos iconos
+lucide.createIcons();
+
 // Gráfica de Frecuencias (Stacked Bar Chart)
 const frequencyCtx = document.getElementById('frequencyChart').getContext('2d');
+
+// Crear el contenedor para los iconos de bus de frecuencias
+const frequencyBusIconsContainer = document.createElement('div');
+frequencyBusIconsContainer.className = 'flex flex-wrap justify-center gap-1 mb-4';
+frequencyBusIconsContainer.innerHTML = `
+    <div class="flex flex-wrap justify-center gap-1">
+        ${Array(1).fill(`<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`).join('')}
+        ${Array(2).fill(`<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`).join('')}
+    </div>
+`;
+
+// Insertar los iconos antes del contenedor del gráfico
+const frequencyChartContainer = document.querySelector('#frequency-chart-description');
+frequencyChartContainer.parentNode.insertBefore(frequencyBusIconsContainer, frequencyChartContainer);
+
 new Chart(frequencyCtx, {
     type: 'bar',
     data: {
@@ -134,6 +167,9 @@ new Chart(frequencyCtx, {
         }
     }
 });
+
+// Inicializar los nuevos iconos
+lucide.createIcons();
 
 // Gráfico de tendencia mensual
 const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
