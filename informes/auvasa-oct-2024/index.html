@@ -151,11 +151,11 @@
         <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
             <!-- Gráfica de Puntualidad -->
             <div id="punctuality-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-2 mb-4">
                     <i data-lucide="clock" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Cumplimiento de horarios</h3>
                 </div>
-                <p class="text-sm text-primary mb-6">7 de cada 10 buses no cumplen con su horario programado</p>
+                <p id="punctuality-chart-description" class="text-sm text-primary mb-6 text-center">7 de cada 10 buses no cumplen su horario programado</p>
                 <div class="chart-container">
                     <canvas id="punctualityChart"></canvas>
                 </div>
@@ -163,17 +163,21 @@
 
             <!-- Gráfica de Frecuencias -->
             <div id="frequency-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-2 mb-4">
                     <i data-lucide="bus" class="h-5 w-5 card-icon"></i>
                     <h3 class="text-lg font-medium text-primary">Frecuencias en líneas principales</h3>
                 </div>
-                <p class="text-sm text-primary mb-6">1 de cada 3 buses supera la frecuencia máxima en días laborables</p>
+                <p id="frequency-chart-description" class="text-sm text-primary mb-6 text-center">1 de cada 3 buses supera la frecuencia máxima</p>
                 <div class="chart-container">
                     <canvas id="frequencyChart"></canvas>
                 </div>
                 <div class="flex items-center gap-2 mb-1 mt-5">
-                    <i data-lucide="map-pin" class="h-5 w-5 text-gray-500"></i>
-                    <h3 class="text-xs font-medium text-gray-500">Plaza España Bola del Mundo y Av. Segovia frente Plaza del Carmen</h3>
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Días laborables</h3>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Plaza España Bola del Mundo<br />Av. Segovia frente Plaza del Carmen</h3>
                 </div>
             </div>
 
