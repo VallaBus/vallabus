@@ -316,7 +316,13 @@ new Chart(delayEvolutionCtx, {
                     text: 'Minutos de retraso'
                 },
                 suggestedMin: -16,
-                suggestedMax: 0
+                suggestedMax: 0,
+                ticks: {
+                    maxTicksLimit: 5,
+                    callback: function(value) {
+                        return value;
+                    }
+                }
             },
             x: {
                 title: {
