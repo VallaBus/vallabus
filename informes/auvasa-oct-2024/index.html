@@ -134,6 +134,25 @@
             cursor: pointer;
             transition: background-color 0.3s ease-in-out;
         }
+
+        #floating-buttons {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #floating-buttons button {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        #floating-buttons button:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        @media (max-width: 640px) {
+            #floating-buttons {
+                bottom: 1.2rem;
+                right: 1.2rem;
+            }
+        }
     </style>
 
     <script>
@@ -150,6 +169,17 @@
     </script>
 </head>
 <body class="bg-gray-100 sm:p-8 p-2">
+    <div id="floating-buttons" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 translate-y-[200%]">
+        <button onclick="scrollToTop()" class="bg-gray-400 text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300 flex items-center gap-2">
+            <i data-lucide="arrow-up" class="h-7 w-7"></i>
+            <span class="hidden sm:inline">Volver arriba</span>
+        </button>
+        <button onclick="shareReport()" class="bg-vallabus text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300 flex items-center gap-2">
+            <i data-lucide="share-2" class="h-7 w-7"></i>
+            <span class="hidden sm:inline">Compartir informe</span>
+        </button>
+    </div>
+
     <div class="max-w-5xl mx-auto space-y-6 sm:p-6 p-0 bg-gray-50/50 rounded-xl">
         <!-- Header principal -->
         <div class="bg-white rounded-none sm:rounded-lg shadow-sm border-x-0 border-t-0 sm:border border-gray-100 overflow-hidden">
@@ -174,6 +204,54 @@
 
         <!-- Tarjetas de estadísticas -->
         <div class="grid md:grid-cols-3 gap-4 sm:gap-6" id="statsCards"></div>
+
+        <!-- Índice de contenidos -->
+        <div id="index" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="list" class="h-5 w-5 card-icon"></i>
+                <h3 class="text-lg font-medium text-primary">Índice</h3>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#punctuality-chart" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Cumplimiento de horarios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#frequency-chart" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Frecuencias en líneas principales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#monthly-trend" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Evolución de puntualidad
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#delay-evolution" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Evolución de puntualidad en un trayecto
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#methodology" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Metodología
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#vallabus" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Sobre VallaBus
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <!-- Actualizar el panel informativo -->
         <div class="p-4 bg-vallabus-light rounded-lg border border-vallabus-light">
@@ -284,7 +362,7 @@
         </div>
 
         <!-- Evolución mensual de puntualidad -->
-        <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+        <div id="monthly-trend" class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="flex items-center gap-2 mb-4">
                 <i data-lucide="trending-up-down" class="h-5 w-5 card-icon"></i>
                 <h3 class="text-lg font-medium text-primary">Evolución de puntualidad</h3>
@@ -296,17 +374,17 @@
         </div>
 
         <!-- Gráfica de evolución del retraso -->
-        <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+        <div id="delay-evolution" class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="flex items-center gap-2 mb-4">
                 <i data-lucide="trending-down" class="h-5 w-5 card-icon"></i>
-                <h3 class="text-lg font-medium text-primary">Evolución de puntualidad en un servicio</h3>
+                <h3 class="text-lg font-medium text-primary">Evolución de puntualidad en un trayecto</h3>
             </div>
             <p class="text-sm text-primary mb-5">Observamos una tendencia en la que los retrasos empeoran a medida avanza el trayecto</p>
             <div id="delay-evolution-chart"></div>
         </div>
 
         <!-- Metodología -->
-        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+        <div id="methodology" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
             <div class="flex items-start gap-3">
                 <div>
                     <h2 class="text-xl font-semibold text-primary mb-4">
@@ -357,7 +435,7 @@
         </div>
 
         <!-- Sección VallaBus -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div id="vallabus" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <!-- Imagen cover -->
             <img src="../../img/screenshot.jpg" alt="VallaBus Screenshot" class="w-full h-48 sm:h-64 md:h-72 lg:h-96 object-cover object-top">
             
