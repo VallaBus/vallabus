@@ -276,58 +276,239 @@ function shareReport() {
     }
 }
 
-// Gráfica de evolución del retraso
-const delayEvolutionCtx = document.getElementById('delayEvolutionChart').getContext('2d');
-
-const tripData = {
-    labels: ['1204', '1205', '1206', '1073', '752', '751', '957', '1371', '558', '828', '813', '832', 
-             '1003', '991', '998', '990', '1000', '1001', '1039', '1044', '1389', '1370', '858'],
-    datasets: [
-        {
-            label: 'Minutos de retraso',
-            data: [-4, -4, -4, -4, -5, -7, -7, -9, -10, -11, -12, -13, -13, -13, -14, -14, -12, -13, -14, -15, -14, -13, -15],
-            borderColor: COLORS.error,
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            tension: 0.3,
-            fill: true
+// Datos para múltiples gráficas
+const delayEvolutionData = [
+    {
+        title: "Barrio España → Covaresa",
+        date: "24 octubre 2024 - 08:17",
+        stops: "957 - Cardenal Torquemada frente 16<br />813 - Plaza España Bola del Mundo",
+        line: "1",
+        lineColor: "hsl(117.6, 42.9%, 54.7%)",
+        data: {
+            labels: ['1204', '1205', '1206', '1073', '752', '751', '957', '1371', '558', '828', '813', '832', 
+                     '1003', '991', '998', '990', '1000', '1001', '1039', '1044', '1389', '1370', '858'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [-4, -4, -4, -4, -5, -7, -7, -9, -10, -11, -12, -13, -13, -13, -14, -14, -12, -13, -14, -15, -14, -13, -15],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
         }
-    ]
-};
+    },
+    {
+        title: "San Pedro Regalado → Covaresa",
+        date: "24 octubre 2024 - 08:25",
+        stops: "876 - Avenida Santander Poblado Endasa<br />813 - Plaza España Bola del Mundo",
+        line: "2",
+        lineColor: "hsl(47.6, 82.9%, 54.7%)",
+        data: {
+            labels: ['816', '878', '879', '876', '779', '1155', '1158', '558', '828', '813', 
+                    '1156', '844', '651', '653', '991', '998', '990', '865', '854', '1150', 
+                    '868', '861', '1082', '1087', '1055', '663', '607'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [6, 0, -2, 0, -2, -4, -3, -4, -5, -6, -8, -8, -8, -8, -9, -8, -8, 
+                      -6, -7, -3, -7, -7, -7, -7, -5, -4, -4],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        }
+    },
+    {
+        title: "Circular",
+        date: "24 octubre 2024 - 07:32",
+        stops: "1390 - Calle Enseñanza Centro Educación Especial<br />625 - Paseo del Cauce frente Centro Salud Pilarica<br />995 - Paseo Zorrilla 101 LAVA",
+        line: "C2",
+        lineColor: "hsl(207.6, 42.9%, 54.7%)",
+        data: {
+            labels: ['742', '1239', '1237', '1249', '1247', '744', '633', '657', '1390', '696', 
+                    '694', '805', '973', '1141', '960', '642', '629', '840', '799', '624', 
+                    '625', '869', '640', '634', '636', '671', '885', '883', '668', '673', 
+                    '882', '560', '12227', '12228', '993', '999', '995', '992', '803', '985', 
+                    '553', '552', '700', '950'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [1, 0, 1, 3, 3, 3, 3, 2, 0, -2, 0, -4, -5, -7, -6, -6, -7, -7, -6, -6, 
+                       -6, -7, -5, -7, -6, -6, -6, -6, -7, -7, -6, -6, -6, -4, -4, 0, 0, 0, 
+                       0, 0, 0, 0, 5, 0],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        }
+    }
+];
 
-new Chart(delayEvolutionCtx, {
-    type: 'line',
-    data: tripData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return `Retraso: ${context.raw} minutos`;
+// Crear el carrusel de gráficas
+const delayEvolutionChart = document.querySelector('#delay-evolution-chart');
+let currentChart = 0;
+let charts = [];
+
+function createDelayEvolutionChart(container, data, index) {
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = `chart-wrapper ${index === 0 ? '' : 'hidden'}`;
+    chartWrapper.innerHTML = `
+        <div class="chart-container">
+            <canvas id="delayEvolutionChart${index}"></canvas>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="route" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500"><strong class="linea linea-${data.line} mr-1">${data.line}</strong> ${data.title}</h3>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500">${data.date}</h3>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500">${data.stops}</h3>
+        </div>
+    `;
+    container.appendChild(chartWrapper);
+
+    const ctx = document.getElementById(`delayEvolutionChart${index}`).getContext('2d');
+
+    // Encontrar los valores mínimo y máximo para esta gráfica
+    const values = data.data.datasets[0].data;
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const padding = 2; // Padding para que los valores no toquen los bordes
+
+    console.log(`Gráfica ${data.line}:`);
+    console.log('Valores:', values);
+    console.log('Mínimo:', minValue);
+    console.log('Máximo:', maxValue);
+    console.log('Escala sugerida:', Math.floor(minValue) - padding, 'a', Math.ceil(maxValue) + padding);
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: data.data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Desfase: ${context.raw} minutos`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: {
+                        color: (context) => context.tick.value === 0 ? '#666' : '#ddd',
+                        lineWidth: (context) => context.tick.value === 0 ? 1 : 1,
+                        borderDash: (context) => context.tick.value === 0 ? [5, 5] : [], // patrón punteado
+                    },
+                    title: {
+                        display: true,
+                        text: 'Minutos de desfase'
+                    },
+                    min: Math.min(Math.floor(minValue) - padding, 0),
+                    max: Math.max(Math.ceil(maxValue) + padding, 0),
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Parada'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                title: {
-                    display: true,
-                    text: 'Minutos de retraso'
-                },
-                suggestedMin: -16,
-                suggestedMax: 0
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Parada'
-                },
-                ticks: {
-                    maxRotation: 45,
-                    minRotation: 45
-                }
-            }
         }
-    }
+    });
+    charts.push(chart);
+    return chartWrapper;
+}
+// Agregar controles de navegación
+const navigationControls = document.createElement('div');
+navigationControls.className = 'flex justify-center items-center gap-4 mt-4';
+navigationControls.innerHTML = `
+    <button type="button" class="prev-chart p-2 rounded-full hover:bg-gray-100" aria-label="Anterior">
+        <i data-lucide="chevron-left" class="h-6 w-6 text-gray-600"></i>
+    </button>
+    <div class="chart-indicator text-sm font-medium text-gray-600">
+        1/${delayEvolutionData.length}
+    </div>
+    <button type="button" class="next-chart p-2 rounded-full hover:bg-gray-100" aria-label="Siguiente">
+        <i data-lucide="chevron-right" class="h-6 w-6 text-gray-600"></i>
+    </button>
+`;
+
+// Crear los gráficos y agregar navegación
+const chartsContainer = document.createElement('div');
+chartsContainer.className = 'charts-container';
+delayEvolutionChart.appendChild(chartsContainer);
+
+delayEvolutionData.forEach((data, index) => {
+    createDelayEvolutionChart(chartsContainer, data, index);
 });
+
+delayEvolutionChart.appendChild(navigationControls);
+lucide.createIcons();
+
+// Funciones de navegación
+function updateChartVisibility() {
+    document.querySelectorAll('.chart-wrapper').forEach((wrapper, index) => {
+        wrapper.className = `chart-wrapper ${index === currentChart ? '' : 'hidden'}`;
+    });
+    
+    // Actualizar el indicador de página
+    const indicator = document.querySelector('.chart-indicator');
+    indicator.textContent = `${currentChart + 1}/${delayEvolutionData.length}`;
+}
+
+document.querySelector('.prev-chart').addEventListener('click', (e) => {
+    e.preventDefault();
+    currentChart = (currentChart - 1 + delayEvolutionData.length) % delayEvolutionData.length;
+    updateChartVisibility();
+});
+
+document.querySelector('.next-chart').addEventListener('click', (e) => {
+    e.preventDefault();
+    currentChart = (currentChart + 1) % delayEvolutionData.length;
+    updateChartVisibility();
+});
+
+// Soporte para gestos táctiles
+let touchStartX = 0;
+let touchEndX = 0;
+
+chartsContainer.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+chartsContainer.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe izquierda
+            currentChart = (currentChart + 1) % delayEvolutionData.length;
+        } else {
+            // Swipe derecha
+            currentChart = (currentChart - 1 + delayEvolutionData.length) % delayEvolutionData.length;
+        }
+        updateChartVisibility();
+    }
+}
+
