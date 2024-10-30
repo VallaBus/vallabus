@@ -58,6 +58,9 @@ lucide.createIcons();
 
 // Gráfica de Puntualidad (Horizontal Bar Chart)
 const punctualityCtx = document.getElementById('punctualityChart').getContext('2d');
+let punctualityChart;
+let lineData = null;
+
 const punctualityData = {
     labels: ['Retrasados', 'Puntuales', 'Adelantados'],
     datasets: [{
@@ -68,7 +71,133 @@ const punctualityData = {
     }]
 };
 
-new Chart(punctualityCtx, {
+// Modificar la función loadLineData para cargar desde JSON
+async function loadLineData() {
+    try {
+        const response = await fetch('./data/puntualidad-lineas.json');
+        if (!response.ok) {
+            throw new Error('Error al cargar los datos');
+        }
+        lineData = await response.json();
+        
+        // Ordenar las líneas: primero numéricas y luego alfanuméricas
+        const sortedLines = [...lineData].sort((a, b) => {
+            const numA = parseInt(a['Numero Linea']);
+            const numB = parseInt(b['Numero Linea']);
+            
+            // Si ambos son números, ordenar numéricamente
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return numA - numB;
+            }
+            // Si solo uno es número, los números van primero
+            if (!isNaN(numA)) return -1;
+            if (!isNaN(numB)) return 1;
+            // Si ambos son alfanuméricos, ordenar alfabéticamente
+            return a['Numero Linea'].localeCompare(b['Numero Linea']);
+        });
+
+        // Crear selector de líneas con el nuevo orden
+        const lineSelector = document.createElement('div');
+        lineSelector.className = 'mt-6 border-t border-gray-100 pt-4';
+        lineSelector.innerHTML = `
+            <div class="flex items-center gap-2">
+                <i data-lucide="filter" class="h-5 w-5 text-gray-400"></i>
+                <select id="lineFilter" class="w-full p-2 border border-gray-200 rounded-lg text-sm">
+                    <option value="total">Todas las líneas</option>
+                    ${sortedLines.map(line => `
+                        <option value="${line['Numero Linea']}">Línea ${line['Numero Linea']}</option>
+                    `).join('')}
+                </select>
+            </div>
+        `;
+        
+        // Añadir el selector al final de la card
+        const punctualityCard = document.getElementById('punctuality-chart');
+        punctualityCard.appendChild(lineSelector);
+        
+        // Evento para cambio de línea
+        document.getElementById('lineFilter').addEventListener('change', updatePunctualityData);
+        
+        // Inicializar los iconos del filtro
+        lucide.createIcons();
+    } catch (error) {
+        console.error('Error cargando datos:', error);
+        // Opcional: Mostrar mensaje de error al usuario
+        alert('Error al cargar los datos de puntualidad. Por favor, intente más tarde.');
+    }
+}
+
+function updatePunctualityData(event) {
+    const selectedLine = event.target.value;
+    let newData;
+    
+    if (selectedLine === 'total') {
+        newData = [48, 33, 19]; // Datos totales originales
+        updateDescriptionText(7, "no cumplen su horario programado");
+    } else {
+        const lineInfo = lineData.find(l => l['Numero Linea'] === selectedLine);
+        const total = parseInt(lineInfo['Total']);
+        newData = [
+            Math.round((parseInt(lineInfo['Retrasos']) / total) * 100),
+            Math.round((parseInt(lineInfo['Puntual']) / total) * 100),
+            Math.round((parseInt(lineInfo['Adelantos']) / total) * 100)
+        ];
+        const retrasados = Math.round(newData[0] / 10);
+        const adelantados = Math.round(newData[2] / 10);
+        const incumplimiento = retrasados + adelantados;
+        
+        updateDescriptionText(incumplimiento, `no cumplen su horario programado`);
+    }
+    
+    // Actualizar datos del gráfico
+    punctualityChart.data.datasets[0].data = newData;
+    punctualityChart.update();
+    
+    // Actualizar iconos de bus
+    updateBusIcons(newData);
+}
+
+function updateDescriptionText(number, text) {
+    const descriptionElement = document.getElementById('punctuality-chart-description');
+    descriptionElement.textContent = `${number} de cada 10`;
+    descriptionElement.nextElementSibling.textContent = text;
+}
+
+function updateBusIcons(data) {
+    const totalBuses = 10;
+    const retrasados = Math.round(data[0] / 10);
+    const adelantados = Math.round(data[2] / 10);
+    const puntuales = totalBuses - retrasados - adelantados;
+    
+    busIconsContainer.innerHTML = `
+        <div class="w-full flex justify-center gap-1 mb-1">
+            ${Array(5).fill().map((_, i) => {
+                if (i < retrasados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`;
+                } else if (i < retrasados + adelantados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.redLight}"></i>`;
+                } else {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`;
+                }
+            }).join('')}
+        </div>
+        <div class="w-full flex justify-center gap-1">
+            ${Array(5).fill().map((_, i) => {
+                const pos = i + 5;
+                if (pos < retrasados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`;
+                } else if (pos < retrasados + adelantados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.redLight}"></i>`;
+                } else {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`;
+                }
+            }).join('')}
+        </div>
+    `;
+    lucide.createIcons();
+}
+// Modificar la creación del gráfico original
+punctualityChart = new Chart(punctualityCtx, {
     type: 'bar',
     data: punctualityData,
     options: {
@@ -134,6 +263,9 @@ chartContainer.parentNode.insertBefore(busIconsContainer, chartContainer);
 
 // Inicializar los nuevos iconos
 lucide.createIcons();
+
+// Cargar datos de líneas al iniciar
+loadLineData();
 
 // Gráfica de Frecuencias (Stacked Bar Chart)
 const frequencyCtx = document.getElementById('frequencyChart').getContext('2d');
@@ -379,12 +511,6 @@ function createDelayEvolutionChart(container, data, index) {
     const maxValue = Math.max(...values);
     const padding = 2; // Padding para que los valores no toquen los bordes
 
-    console.log(`Gráfica ${data.line}:`);
-    console.log('Valores:', values);
-    console.log('Mínimo:', minValue);
-    console.log('Máximo:', maxValue);
-    console.log('Escala sugerida:', Math.floor(minValue) - padding, 'a', Math.ceil(maxValue) + padding);
-
     const chart = new Chart(ctx, {
         type: 'line',
         data: data.data,
@@ -511,4 +637,3 @@ function handleSwipe() {
         updateChartVisibility();
     }
 }
-
