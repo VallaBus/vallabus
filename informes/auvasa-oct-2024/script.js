@@ -637,3 +637,28 @@ function handleSwipe() {
         updateChartVisibility();
     }
 }
+
+// Control de los botones flotantes
+const floatingButtons = document.getElementById('floating-buttons');
+let lastScrollPosition = 0;
+const scrollThreshold = 1100; // Píxeles de scroll necesarios para mostrar los botones
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Mostrar/ocultar basado en la posición del scroll
+    if (currentScroll > scrollThreshold) {
+        floatingButtons.style.transform = 'translateY(0)';
+    } else {
+        floatingButtons.style.transform = 'translateY(200%)';
+    }
+    
+    lastScrollPosition = currentScroll;
+});
+
+// Función para volver arriba suavemente
+function scrollToTop() {
+    document.getElementById('index').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
