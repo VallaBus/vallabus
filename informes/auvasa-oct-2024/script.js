@@ -609,35 +609,6 @@ document.querySelector('.next-chart').addEventListener('click', (e) => {
     updateChartVisibility();
 });
 
-// Soporte para gestos táctiles
-let touchStartX = 0;
-let touchEndX = 0;
-
-chartsContainer.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].screenX;
-});
-
-chartsContainer.addEventListener('touchend', e => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
-
-function handleSwipe() {
-    const swipeThreshold = 50;
-    const diff = touchStartX - touchEndX;
-    
-    if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-            // Swipe izquierda
-            currentChart = (currentChart + 1) % delayEvolutionData.length;
-        } else {
-            // Swipe derecha
-            currentChart = (currentChart - 1 + delayEvolutionData.length) % delayEvolutionData.length;
-        }
-        updateChartVisibility();
-    }
-}
-
 // Control de los botones flotantes
 const floatingButtons = document.getElementById('floating-buttons');
 let lastScrollPosition = 0;
