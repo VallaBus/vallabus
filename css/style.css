@@ -4006,6 +4006,7 @@ body.dialog-open {
     color: #FFF;
 }
 
+/* Lanzadera */
 .bus-icon.linea-SL, .linea-SL h3, #busMap .linea-SL, span.linea-SL {
     background-color: #000;
     stroke: #000;
@@ -4014,6 +4015,20 @@ body.dialog-open {
 
 /* En dark mode debemos aclarar el color de la linea en el mapa */
 .dark-mode #busMap .linea-SL {
+    stroke: #505050;
+}
+
+/* Lanzaderas cementerio */
+.bus-icon.linea-SC, .linea-SC h3, #busMap .linea-SC, span.linea-SC,
+.bus-icon.linea-CC, .linea-CC h3, #busMap .linea-CC, span.linea-CC {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-SC,
+.dark-mode #busMap .linea-CC  {
     stroke: #505050;
 }
 
