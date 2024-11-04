@@ -1647,37 +1647,48 @@ function combineBusData(scheduledData) {
             combined[linea] = {};
         }
 
-        bus.horarios.forEach(schedule => {
-            if (!combined[linea][schedule.trip_id]) {
-                combined[linea][schedule.trip_id] = { scheduled: null, realTime: null };
-            }
-            combined[linea][schedule.trip_id].scheduled = {
-                llegada: schedule.llegada,
-                fechaHoraLlegada: schedule.fechaHoraLlegada,
-                tripId: schedule.trip_id ? schedule.trip_id.toString() : undefined,
-                destino: schedule.destino
-            };
-        });
+        // Procesar datos programados si existen
+        if (bus.horarios && bus.horarios.length > 0) {
+            bus.horarios.forEach(schedule => {
+                if (!combined[linea][schedule.trip_id]) {
+                    combined[linea][schedule.trip_id] = { scheduled: null, realTime: null };
+                }
+                combined[linea][schedule.trip_id].scheduled = {
+                    llegada: schedule.llegada,
+                    fechaHoraLlegada: schedule.fechaHoraLlegada,
+                    tripId: schedule.trip_id ? schedule.trip_id.toString() : undefined,
+                    destino: schedule.destino
+                };
+            });
+        }
 
-        bus.realtime.forEach(realtime => {
-            if (!combined[linea][realtime.trip_id]) {
-                combined[linea][realtime.trip_id] = { scheduled: null, realTime: null };
-            }
+        // Procesar datos en tiempo real
+        if (bus.realtime && bus.realtime.length > 0) {
+            bus.realtime.forEach(realtime => {
+                // Si no existe la entrada para este trip_id, crearla
+                if (!combined[linea][realtime.trip_id]) {
+                    combined[linea][realtime.trip_id] = { 
+                        scheduled: {
+                            destino: bus.destino // Usar el destino general de la línea
+                        }, 
+                        realTime: null 
+                    };
+                }
 
-            combined[linea][realtime.trip_id].realTime = {
-                llegada: realtime.llegada,
-                fechaHoraLlegada: realtime.fechaHoraLlegada,
-                tripId: realtime.trip_id ? realtime.trip_id.toString() : undefined,
-                vehicleId: realtime.vehicleId ? realtime.vehicleId.toString() : undefined,
-                matricula: realtime.matricula ? realtime.matricula.toString() : undefined,
-                latitud: realtime.latitud ? realtime.latitud.toString() : undefined,
-                longitud: realtime.longitud ? realtime.longitud.toString() : undefined,
-                velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined,
-                estado: realtime.estado ? realtime.estado.toString() : undefined,
-                propagated_delay: realtime.propagated_delay ? realtime.propagated_delay : null,
-            };
-        });
-
+                combined[linea][realtime.trip_id].realTime = {
+                    llegada: realtime.llegada,
+                    fechaHoraLlegada: realtime.fechaHoraLlegada,
+                    tripId: realtime.trip_id ? realtime.trip_id.toString() : undefined,
+                    vehicleId: realtime.vehicleId ? realtime.vehicleId.toString() : undefined,
+                    matricula: realtime.matricula ? realtime.matricula.toString() : undefined,
+                    latitud: realtime.latitud ? realtime.latitud.toString() : undefined,
+                    longitud: realtime.longitud ? realtime.longitud.toString() : undefined,
+                    velocidad: realtime.velocidad ? realtime.velocidad.toString() : undefined,
+                    estado: realtime.estado ? realtime.estado.toString() : undefined,
+                    propagated_delay: realtime.propagated_delay ? realtime.propagated_delay : null,
+                };
+            });
+        }
     });
     return combined;
 }
