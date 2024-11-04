@@ -293,6 +293,23 @@
                 </div>
             </div>
 
+            <!-- Gráfica de Puntualidad por Barrios -->
+            <div id="punctuality-neighborhoods-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="building-2" class="h-5 w-5 card-icon"></i>
+                    <h3 class="text-lg font-medium text-primary">Cumplimiento por barrios</h3>
+                </div>
+                <p id="punctuality-neighborhoods-description" class="text-lg text-primary mb-0 text-center">7 de cada 10</p>
+                <p class="text-sm text-primary mb-6 text-center">no cumplen su horario programado</p>
+                <div class="chart-container">
+                    <canvas id="punctualityNeighborhoodsChart"></canvas>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Octubre 2024</h3>
+                </div>
+            </div>
+
             <!-- Gráfica de Frecuencias -->
             <div id="frequency-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
                 <div class="flex items-center gap-2 mb-4">
@@ -396,7 +413,7 @@
                         Metodología
                     </h2>
                     <p class="text-primary text-sm leading-relaxed mb-4">
-                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" class="underline" target="_blank">datos oficiales compartidos en tiempo real por AUVASA</a> (GTFS), en todas las líneas y paradas su red
+                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" class="underline" target="_blank">datos oficiales compartidos en tiempo real por AUVASA</a> (GTFS), en todas las líneas y paradas de su red
                     </p>
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 p-4 rounded-lg">
