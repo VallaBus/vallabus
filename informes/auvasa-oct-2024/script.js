@@ -71,7 +71,18 @@ const punctualityData = {
     }]
 };
 
-// Modificar la función loadLineData para cargar desde JSON
+// Variables globales para los totales (añadir al inicio del archivo)
+let totalLineData = {
+    porcentajes: [0, 0, 0],
+    incumplimiento: 0
+};
+
+let totalNeighborhoodData = {
+    porcentajes: [0, 0, 0],
+    incumplimiento: 0
+};
+
+// Modificar la función loadLineData
 async function loadLineData() {
     try {
         const response = await fetch('./data/puntualidad-lineas.json');
@@ -80,6 +91,33 @@ async function loadLineData() {
         }
         lineData = await response.json();
         
+        // Calcular totales
+        let totalRetrasos = 0;
+        let totalPuntuales = 0;
+        let totalAdelantos = 0;
+        let granTotal = 0;
+        
+        lineData.forEach(line => {
+            totalRetrasos += parseInt(line['Retrasos']);
+            totalPuntuales += parseInt(line['Puntual']);
+            totalAdelantos += parseInt(line['Adelantos']);
+            granTotal += parseInt(line['Total']);
+        });
+        
+        // Guardar porcentajes totales
+        totalLineData.porcentajes = [
+            Math.round((totalRetrasos / granTotal) * 100),
+            Math.round((totalPuntuales / granTotal) * 100),
+            Math.round((totalAdelantos / granTotal) * 100)
+        ];
+        totalLineData.incumplimiento = Math.round(((totalRetrasos + totalAdelantos) / granTotal) * 10);
+
+        // Actualizar datos iniciales
+        punctualityChart.data.datasets[0].data = totalLineData.porcentajes;
+        punctualityChart.update();
+        updateDescriptionText(totalLineData.incumplimiento, "no cumplen su horario programado");
+        updateBusIcons(totalLineData.porcentajes);
+
         // Ordenar las líneas: primero numéricas y luego alfanuméricas
         const sortedLines = [...lineData].sort((a, b) => {
             const numA = parseInt(a['Numero Linea']);
@@ -132,8 +170,8 @@ function updatePunctualityData(event) {
     let newData;
     
     if (selectedLine === 'total') {
-        newData = [48, 33, 19]; // Datos totales originales
-        updateDescriptionText(7, "no cumplen su horario programado");
+        newData = totalLineData.porcentajes;
+        updateDescriptionText(totalLineData.incumplimiento, "no cumplen su horario programado");
     } else {
         const lineInfo = lineData.find(l => l['Numero Linea'] === selectedLine);
         const total = parseInt(lineInfo['Total']);
@@ -633,3 +671,224 @@ function scrollToTop() {
         behavior: 'smooth'
     });
 }
+
+// Variables para el gráfico de barrios
+let neighborhoodData = null;
+const punctualityNeighborhoodsCtx = document.getElementById('punctualityNeighborhoodsChart').getContext('2d');
+const punctualityNeighborhoodsChart = new Chart(punctualityNeighborhoodsCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Retrasados', 'Puntuales', 'Adelantados'],
+        datasets: [{
+            data: [51, 31, 18],
+            backgroundColor: [COLORS.error, COLORS.successLight, COLORS.redLight],
+            borderColor: 'white',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw + '%';
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                },
+                padding: {
+                    right: 10
+                }
+            },
+            y: {
+                ticks: {
+                    padding: 5
+                }
+            }
+        },
+        layout: {
+            padding: {
+                right: 20,
+                left: 10
+            }
+        }
+    }
+});
+
+// Función para cargar datos de barrios
+async function loadNeighborhoodData() {
+    try {
+        const response = await fetch('./data/puntualidad-barrios.json');
+        if (!response.ok) {
+            throw new Error('Error al cargar los datos');
+        }
+        neighborhoodData = await response.json();
+        
+        // Calcular totales
+        let totalRetrasos = 0;
+        let totalPuntuales = 0;
+        let totalAdelantos = 0;
+        let granTotal = 0;
+        
+        neighborhoodData.forEach(neighborhood => {
+            totalRetrasos += parseInt(neighborhood['Retrasado'].replace(/,/g, ''));
+            totalPuntuales += parseInt(neighborhood['Puntual'].replace(/,/g, ''));
+            totalAdelantos += parseInt(neighborhood['Adelantado'].replace(/,/g, ''));
+            granTotal += parseInt(neighborhood['Total'].replace(/,/g, ''));
+        });
+        
+        // Guardar porcentajes totales
+        totalNeighborhoodData.porcentajes = [
+            Math.round((totalRetrasos / granTotal) * 100),
+            Math.round((totalPuntuales / granTotal) * 100),
+            Math.round((totalAdelantos / granTotal) * 100)
+        ];
+        totalNeighborhoodData.incumplimiento = Math.round(((totalRetrasos + totalAdelantos) / granTotal) * 10);
+
+        // Actualizar datos iniciales
+        punctualityNeighborhoodsChart.data.datasets[0].data = totalNeighborhoodData.porcentajes;
+        punctualityNeighborhoodsChart.update();
+        updateNeighborhoodDescriptionText(totalNeighborhoodData.incumplimiento, "no cumplen su horario programado");
+        updateNeighborhoodBusIcons(totalNeighborhoodData.porcentajes);
+
+        // Ordenar barrios alfabéticamente
+        const sortedNeighborhoods = [...neighborhoodData]
+            .filter(n => n.Barrio !== "") // Excluir barrios sin nombre
+            .sort((a, b) => a.Barrio.localeCompare(b.Barrio));
+
+        // Crear selector de barrios
+        const neighborhoodSelector = document.createElement('div');
+        neighborhoodSelector.className = 'mt-6 border-t border-gray-100 pt-4';
+        neighborhoodSelector.innerHTML = `
+            <div class="flex items-center gap-2">
+                <i data-lucide="filter" class="h-5 w-5 text-gray-400"></i>
+                <select id="neighborhoodFilter" class="w-full p-2 border border-gray-200 rounded-lg text-sm">
+                    <option value="total">Todos los barrios</option>
+                    ${sortedNeighborhoods.map(neighborhood => `
+                        <option value="${neighborhood.Barrio}">${neighborhood.Barrio}</option>
+                    `).join('')}
+                </select>
+            </div>
+        `;
+        
+        // Añadir el selector al final de la card
+        const punctualityNeighborhoodsCard = document.getElementById('punctuality-neighborhoods-chart');
+        punctualityNeighborhoodsCard.appendChild(neighborhoodSelector);
+        
+        // Crear el contenedor para los iconos de bus
+        const busNeighborhoodIconsContainer = document.createElement('div');
+        busNeighborhoodIconsContainer.className = 'flex flex-wrap justify-center gap-1 mb-4 pl-1 pr-1';
+        
+        // Insertar los iconos antes del contenedor del gráfico
+        const chartDescription = document.querySelector('#punctuality-neighborhoods-description');
+        chartDescription.parentNode.insertBefore(busNeighborhoodIconsContainer, chartDescription);
+        
+        // Inicializar con los datos totales
+        updateNeighborhoodBusIcons([48, 33, 19]);
+        
+        // Evento para cambio de barrio
+        document.getElementById('neighborhoodFilter').addEventListener('change', updateNeighborhoodData);
+        
+        // Inicializar los iconos del filtro
+        lucide.createIcons();
+
+    } catch (error) {
+        console.error('Error cargando datos:', error);
+        alert('Error al cargar los datos de puntualidad por barrios. Por favor, intente más tarde.');
+    }
+}
+
+function updateNeighborhoodData(event) {
+    const selectedNeighborhood = event.target.value;
+    let newData;
+    
+    if (selectedNeighborhood === 'total') {
+        newData = totalNeighborhoodData.porcentajes;
+        updateNeighborhoodDescriptionText(totalNeighborhoodData.incumplimiento, "no cumplen su horario programado");
+    } else {
+        const neighborhoodInfo = neighborhoodData.find(n => n.Barrio === selectedNeighborhood);
+        // Corregir el parsing de números eliminando las comas y convirtiendo a enteros
+        const total = parseInt(neighborhoodInfo['Total'].replace(/,/g, ''));
+        const puntuales = parseInt(neighborhoodInfo['Puntual'].replace(/,/g, ''));
+        const adelantados = parseInt(neighborhoodInfo['Adelantado'].replace(/,/g, ''));
+        const retrasados = parseInt(neighborhoodInfo['Retrasado'].replace(/,/g, ''));
+        
+        newData = [
+            Math.round((retrasados / total) * 100),
+            Math.round((puntuales / total) * 100),
+            Math.round((adelantados / total) * 100)
+        ];
+        
+        const incumplimiento = Math.round(((retrasados + adelantados) / total) * 10);
+        updateNeighborhoodDescriptionText(incumplimiento, `no cumplen su horario programado`);
+    }
+    
+    // Actualizar datos del gráfico
+    punctualityNeighborhoodsChart.data.datasets[0].data = newData;
+    punctualityNeighborhoodsChart.update();
+    
+    // Actualizar iconos de bus
+    updateNeighborhoodBusIcons(newData);
+}
+
+function updateNeighborhoodDescriptionText(number, text) {
+    const descriptionElement = document.getElementById('punctuality-neighborhoods-description');
+    descriptionElement.textContent = `${number} de cada 10`;
+    descriptionElement.nextElementSibling.textContent = text;
+}
+
+function updateNeighborhoodBusIcons(data) {
+    const container = document.querySelector('#punctuality-neighborhoods-chart .flex.flex-wrap.justify-center');
+    if (!container) return; // Añadir verificación
+    
+    const totalBuses = 10;
+    const retrasados = Math.round(data[0] / 10);
+    const adelantados = Math.round(data[2] / 10);
+    const puntuales = totalBuses - retrasados - adelantados;
+    
+    container.innerHTML = `
+        <div class="w-full flex justify-center gap-1 mb-1">
+            ${Array(5).fill().map((_, i) => {
+                if (i < retrasados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`;
+                } else if (i < retrasados + adelantados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.redLight}"></i>`;
+                } else {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`;
+                }
+            }).join('')}
+        </div>
+        <div class="w-full flex justify-center gap-1">
+            ${Array(5).fill().map((_, i) => {
+                const pos = i + 5;
+                if (pos < retrasados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.error}"></i>`;
+                } else if (pos < retrasados + adelantados) {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.redLight}"></i>`;
+                } else {
+                    return `<i data-lucide="bus" class="h-8 w-8" style="color: ${COLORS.successLight}"></i>`;
+                }
+            }).join('')}
+        </div>
+    `;
+    lucide.createIcons();
+}
+
+// Llamar a la función al cargar la página
+loadNeighborhoodData();
+

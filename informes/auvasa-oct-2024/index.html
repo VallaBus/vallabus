@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Meta Tags -->
-    <title>Informe sobre calidad del servicio de AUVASA - Octubre 2024 - VallaBus</title>
+    <title>Informe sobre calidad del servicio de AUVASA - Noviembre 2024 - VallaBus</title>
     <meta name="description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
     <meta name="keywords" content="AUVASA, Valladolid, transporte público, bus, VallaBus, puntualidad, frecuencias, informe, calidad servicio">
     <meta name="author" content="VallaBus">
@@ -13,14 +13,14 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vallabus.com/informes/auvasa-oct-2024">
-    <meta property="og:title" content="Informe sobre calidad del servicio de AUVASA - Octubre 2024 - VallaBus">
+    <meta property="og:title" content="Informe sobre calidad del servicio de AUVASA - Noviembre 2024 - VallaBus">
     <meta property="og:description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
     <meta property="og:image" content="https://vallabus.com/informes/auvasa-oct-2024/social-preview.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://vallabus.com/informes/auvasa-oct-2024">
-    <meta property="twitter:title" content="Informe sobre calidad del servicio de AUVASA - Octubre 2024 - VallaBus">
+    <meta property="twitter:title" content="Informe sobre calidad del servicio de AUVASA - Noviembre 2024 - VallaBus">
     <meta property="twitter:description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
     <meta property="twitter:image" content="https://vallabus.com/informes/auvasa-oct-2024/social-preview.png">
 
@@ -190,7 +190,7 @@
                         Análisis de calidad servicio AUVASA
                     </h2>
                     <h3 class="text-lg font-medium text-primary mb-3">
-                        Octubre 2024
+                        Noviembre 2024
                     </h3>
                     <p class="text-primary text-base sm:text-lg leading-relaxed">
                         El transporte público de Valladolid enfrenta desafíos significativos en puntualidad y frecuencias
@@ -290,6 +290,23 @@
                 <p class="text-sm text-primary mb-6 text-center">no cumplen su horario programado</p>
                 <div class="chart-container">
                     <canvas id="punctualityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfica de Puntualidad por Barrios -->
+            <div id="punctuality-neighborhoods-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="building-2" class="h-5 w-5 card-icon"></i>
+                    <h3 class="text-lg font-medium text-primary">Cumplimiento por barrios</h3>
+                </div>
+                <p id="punctuality-neighborhoods-description" class="text-lg text-primary mb-0 text-center">7 de cada 10</p>
+                <p class="text-sm text-primary mb-6 text-center">no cumplen su horario programado</p>
+                <div class="chart-container">
+                    <canvas id="punctualityNeighborhoodsChart"></canvas>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Octubre 2024</h3>
                 </div>
             </div>
 
@@ -396,7 +413,7 @@
                         Metodología
                     </h2>
                     <p class="text-primary text-sm leading-relaxed mb-4">
-                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" class="underline" target="_blank">datos oficiales compartidos en tiempo real por AUVASA</a> (GTFS), en todas las líneas y paradas su red
+                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" class="underline" target="_blank">datos oficiales compartidos en tiempo real por AUVASA</a> (GTFS), en todas las líneas y paradas de su red
                     </p>
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div class="bg-gray-50 p-4 rounded-lg">
