@@ -1369,10 +1369,21 @@ function sanitizeString(str) {
 
 // Manejo de estado de URLs y acciones en cada ruta
 async function handleRoute() {
-    const hash = window.location.hash.replace(/\/$/, ''); // Elimina la barra final si existe
+    // Si la ruta es un path (no un hash) y no es la raíz, permitimos la navegación normal
+    if (window.location.pathname !== '/' && !window.location.hash) {
+        return; // No interceptamos la navegación
+    }
+
+    // Obtener el hash o pathname según corresponda
+    let route = window.location.hash.replace(/\/$/, ''); // Elimina la barra final si existe
+    
+    // Si no hay hash, usar el pathname
+    if (!route && window.location.pathname !== '/') {
+        route = '#' + window.location.pathname;
+    }
 
     // No cerramos el sidebar ni los diálogos para los enlaces #linea-X
-    if (!hash.startsWith('#linea-')) {
+    if (!route.startsWith('#linea-')) {
         // Cerrar el sidebar antes de procesar la ruta
         toogleSidebar(true);
 
@@ -1380,21 +1391,25 @@ async function handleRoute() {
         closeAllDialogs(dialogIds);
     }
 
-    switch(hash) {
+    switch(route) {
         case '':
         case '#':
         case '#/':
+        case '/':
             // No hacemos nada con el historial aquí
             break;
         case '#/lineas':
+        case '/lineas':
             displayLoadingSpinner();
             showIframe('https://rutas.vallabus.com/#/route');
             break;
         case '#/rutas':
+        case '/rutas':
             displayLoadingSpinner();
             showIframe('https://rutas.vallabus.com');
             break;
         case '#/cercanas':
+        case '/cercanas':
             if (navigator.geolocation) {
                 displayLoadingSpinner();
                 navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
@@ -1403,14 +1418,18 @@ async function handleRoute() {
             }
             break;
         case '#/datos':
+        case '/datos':
             showDataDialog();
             break;
         case '#/estado':
+        case '/estado':
             showStatusDialog();
             break;
         default:
-            if (hash.startsWith('#/horarios/')) {
-                const stopNumber = sanitizeString(hash.split('/')[2]);
+            // Manejar rutas con o sin hash
+            const pathMatch = route.match(/#?\/horarios\/(.+)/);
+            if (pathMatch) {
+                const stopNumber = sanitizeString(pathMatch[1]);
                 if (stopNumber) {
                     displayLoadingSpinner();
                     const busStops = await loadBusStops();
@@ -1432,10 +1451,10 @@ async function handleRoute() {
                         });
                     }
                 }
-            } else if (hash.startsWith('#linea-')) {
+            } else if (route.startsWith('#linea-') || route.startsWith('/linea-')) {
                 // No hacemos nada especial aquí, permitimos que funcione normalmente
                 // Sanitizar el número de línea si es necesario
-                const lineNumber = sanitizeString(hash.split('-')[1]);
+                const lineNumber = sanitizeString(route.split('-')[1]);
             } else {
                 // Si no coincide con ningún deeplink conocido, volver a la página principal
                 history.replaceState({ dialogType: 'home' }, document.title, '#/');
@@ -1605,13 +1624,20 @@ function routersEvents() {
     // Manejar clics en enlaces internos
     document.body.addEventListener('click', function(e) {
         if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
-            const newHash = new URL(e.target.href).hash;
-            if (newHash.startsWith('#linea-')) {
-                // Permitir el comportamiento por defecto para enlaces #linea-X
+            const url = new URL(e.target.href);
+            
+            // Si la ruta tiene un path (no es la raíz) y no tiene hash, permitimos la navegación normal
+            if (url.pathname !== '/' && !url.hash) {
+                return; // Permitir la navegación normal
+            }
+
+            // Si es un enlace #linea-X, permitimos el comportamiento normal
+            if (url.hash.startsWith('#linea-')) {
                 return;
             }
+            
             e.preventDefault();
-            const newUrl = e.target.href.replace(/\/$/, ''); // Elimina la barra final si existe
+            const newUrl = e.target.href.replace(/\/$/, '');
             if (newUrl !== window.location.href) {
                 history.pushState(null, '', newUrl);
                 handleRoute();
