@@ -422,9 +422,10 @@ new Chart(monthlyTrendCtx, {
 function shareReport() {
     const text = 'El análisis de @VallaBusApp revela que el 70% de los buses de AUVASA no cumplen con su horario programado\n\n';
     
-    // Obtener la URL base sin el anchor
-    const baseUrl = window.location.href.split('#')[0];
-    const shareUrl = baseUrl + '?mtm_campaign=informeshare';
+    // Crear un objeto URL y modificarlo
+    const url = new URL(window.location.href);
+    url.hash = ''; // Eliminar anchor
+    url.search = '?mtm_campaign=informeshare'; // Reemplazar todos los parámetros
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
@@ -435,14 +436,14 @@ function shareReport() {
         navigator.share({
             title: 'Informe sobre calidad del servicio de AUVASA - Noviembre 2024',
             text: text,
-            url: shareUrl
+            url: url.toString()
         })
         .catch((error) => console.log('Error compartiendo:', error));
     } else {
         // Fallback para navegadores que no soportan Web Share API
         const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
-        dummy.value = text + shareUrl;
+        dummy.value = text + url.toString();
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
