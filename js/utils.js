@@ -798,12 +798,14 @@ function toogleSidebar(forceClose = false) {
         // Cerrar el sidebar
         sidebar.classList.remove('sidebar-open'); 
         menuButton.classList.remove('menu-button-open');
-        menuButton.innerHTML = '☰';
+        menuButton.classList.remove('icon-close');
+        menuButton.classList.add('icon-menu');
     } else {
         // Abrir el sidebar
         sidebar.classList.add('sidebar-open');
         menuButton.classList.add('menu-button-open');
-        menuButton.innerHTML = '✖';
+        menuButton.classList.remove('icon-menu');
+        menuButton.classList.add('icon-close');
     }
 }
 
@@ -1279,11 +1281,11 @@ function socialBrowserWarning() {
         
         // Verificar si el origen del referrer está en la lista de orígenes permitidos
         if (allowedOrigins.includes(referrerUrl.origin)) {
-            const tipsBannerElement = document.getElementById('tips-banner');
+            const tipsBanner = document.getElementById('tips-banner');
             const instagramWarning = document.createElement('div');
             instagramWarning.id = 'instagram-warning';
             instagramWarning.innerHTML = '<p><strong>Si accedes desde Instagram o Facebook</strong><br />- Pulsa en el menú superior derecho con tres puntos<br> - Selecciona "Abrir en Chrome/Navegador externo"<br>- Podrás usar e instalarla correctamente</p>';
-            tipsBannerElement.parentNode.insertBefore(instagramWarning, tipsBannerElement);
+            tipsBanner.parentNode.insertBefore(instagramWarning, tipsBanner);
         }
     } catch (error) {
         // Si hay un error al parsear la URL, no hacemos nada

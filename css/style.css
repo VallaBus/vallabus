@@ -456,21 +456,29 @@ button#installIosButton {
 }
 
 /* Estilos para el botón del menú hamburguesa */
-.menu-button {
-    font-size: 32px;
-    background: none;
-    border: none;
+#menuButton {
+    width: 32px;
+    height: 32px;
+    background-size: 28px;
+    background-position: center;
+    background-repeat: no-repeat;
     cursor: pointer;
-    position: absolute;
-    top: 3px;
-    right: 5px;
-    z-index: 1000;
+    border: none;
     padding: 0;
-    width: 50px;
+    position: absolute;
+    right: 16px;
+    top: 25px;
+    transform: translateY(-50%);
+    background-color: transparent;
+    z-index: 1000;
 }
 
-.menu-button-open {
-    top: -2px;
+#menuButton.icon-menu {
+    background-image: url('/img/menu.svg');
+}
+
+#menuButton.icon-close {
+    background-image: url('/img/close.svg');
 }
 
 /* Estilos para el panel lateral */
