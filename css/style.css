@@ -3025,7 +3025,7 @@ button.remove-stop {
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    width: 145px;
+    width: 135px;
 }
 
 .foot-note a#twitter-share-button {
@@ -3058,7 +3058,7 @@ button.remove-stop {
 
 .foot-note a#bluesky-button {
     background-color: #0d8bf2;
-    background-image: url('../img/bluesky.png');
+    background-image: url('../img/share-white.png');
     background-repeat: no-repeat;
     background-size: 12px;
     background-position: 20px center;
