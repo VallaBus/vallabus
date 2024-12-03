@@ -2525,14 +2525,13 @@ button.remove-stop {
 #tips-banner p, #instagram-warning p {
     display: none; /* Ocultos por defecto */
     margin: 0;
-    padding: 5px 0;
+    padding: 5px 30px 5px 10px;
     color: hsl(168.8, 23.2%, 19.5%);
     background-color: hsl(168.8, 9.2%, 92.5%);
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 15px center;
     position: relative;
-    padding-right: 25px;
     border-left: 6px solid hsl(168.8, 23.2%, 30.5%);
     line-height: 1.5em;
 }
