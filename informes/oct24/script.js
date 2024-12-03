@@ -18,19 +18,19 @@ const statsCards = [
     {
         icon: 'calendar',
         title: "Periodo",
-        value: "30 días",
-        subtitle: "1 al 30 de noviembre 2024"
+        value: "5 meses",
+        subtitle: "junio a octubre 2024"
     },
     {
         icon: 'file-bar-chart',
         title: "Registros",
-        value: "1,3 millones",
+        value: "+6 millones",
         subtitle: "de llegadas"
     },
     {
         icon: 'map-pin',
         title: "Ubicaciones",
-        value: "568",
+        value: "571",
         subtitle: "paradas"
     }
 ];
@@ -81,235 +81,6 @@ let totalNeighborhoodData = {
     porcentajes: [0, 0, 0],
     incumplimiento: 0
 };
-
-// Variable global para los datos de evolución
-let delayEvolutionData = [];
-let currentChart = 0;
-let charts = [];
-
-function createDelayEvolutionChart(container, data, index) {
-    const chartWrapper = document.createElement('div');
-    chartWrapper.className = `chart-wrapper ${index === 0 ? '' : 'hidden'}`;
-    chartWrapper.innerHTML = `
-        <div class="chart-container">
-            <canvas id="delayEvolutionChart${index}"></canvas>
-        </div>
-        <div class="flex items-center gap-2 mb-1 mt-5">
-            <i data-lucide="route" class="h-5 w-5 text-gray-400"></i>
-            <h3 class="text-xs text-gray-500"><strong class="linea linea-${data.line} mr-1">${data.line}</strong> ${data.title}</h3>
-        </div>
-        <div class="flex items-center gap-2 mb-1 mt-5">
-            <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
-            <h3 class="text-xs text-gray-500">${data.date}</h3>
-        </div>
-        <div class="flex items-center gap-2 mb-1 mt-5">
-            <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
-            <h3 class="text-xs text-gray-500">${data.stops}</h3>
-        </div>
-    `;
-    container.appendChild(chartWrapper);
-
-    const ctx = document.getElementById(`delayEvolutionChart${index}`).getContext('2d');
-
-    // Encontrar los valores mínimo y máximo para esta gráfica
-    const values = data.data.datasets[0].data;
-    const minValue = Math.min(...values);
-    const maxValue = Math.max(...values);
-    const padding = 2; // Padding para que los valores no toquen los bordes
-
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: data.data,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Desfase: ${context.raw} minutos`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    grid: {
-                        color: (context) => context.tick.value === 0 ? '#666' : '#ddd',
-                        lineWidth: (context) => context.tick.value === 0 ? 1 : 1,
-                        borderDash: (context) => context.tick.value === 0 ? [5, 5] : [],
-                    },
-                    title: {
-                        display: true,
-                        text: 'Minutos de desfase'
-                    },
-                    min: Math.min(Math.floor(minValue) - padding, 0),
-                    max: Math.max(Math.ceil(maxValue) + padding, 0),
-                    ticks: {
-                        maxTicksLimit: 5
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Parada'
-                    },
-                    ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
-                    }
-                }
-            }
-        }
-    });
-    charts.push(chart);
-    return chartWrapper;
-}
-
-function updateChartVisibility() {
-    document.querySelectorAll('.chart-wrapper').forEach((wrapper, index) => {
-        wrapper.className = `chart-wrapper ${index === currentChart ? '' : 'hidden'}`;
-    });
-    
-    // Actualizar el indicador de página
-    const indicator = document.querySelector('.chart-indicator');
-    if (indicator) {
-        indicator.textContent = `${currentChart + 1}/${delayEvolutionData.length}`;
-    }
-}
-
-// Función para cargar y procesar datos de los archivos JSON
-async function loadDelayData() {
-    try {
-        const [line1Data, line2Data, lineC2Data] = await Promise.all([
-            fetch('data/puntualidad-1-ejemplo.json').then(response => response.json()),
-            fetch('data/puntualidad-2-ejemplo.json').then(response => response.json()),
-            fetch('data/puntualidad-c2-ejemplo.json').then(response => response.json())
-        ]);
-
-        // Función auxiliar para procesar los datos de cada línea
-        function processLineData(jsonData, title, line, lineColor) {
-            // Ordenar por Stop Sequence
-            const sortedData = jsonData.sort((a, b) => parseInt(a['Stop Sequence']) - parseInt(b['Stop Sequence']));
-            
-            // Extraer la fecha de la primera parada
-            const firstStop = sortedData[0];
-            const date = firstStop['Fechahorallegada Programada'];
-            
-            // Paradas fijas para cada línea
-            let stops;
-            switch (line) {
-                case "1":
-                    stops = "957 - Cardenal Torquemada frente 16<br />813 - Plaza España Bola del Mundo";
-                    break;
-                case "2":
-                    stops = "876 - Avenida Santander Poblado Endasa<br />813 - Plaza España Bola del Mundo";
-                    break;
-                case "C2":
-                    stops = "1390 - Calle Enseñanza Centro Educación Especial<br />625 - Paseo del Cauce frente Centro Salud Pilarica<br />995 - Paseo Zorrilla 101 LAVA";
-                    break;
-                default:
-                    // Si por alguna razón no tenemos paradas fijas definidas, usar las dinámicas
-                    const firstStopName = firstStop['Paradas 2024 - Numero Parada → Nombre Parada'];
-                    const lastStopName = sortedData[sortedData.length - 1]['Paradas 2024 - Numero Parada → Nombre Parada'];
-                    stops = `${firstStopName}<br />${lastStopName}`;
-            }
-            
-            // Extraer labels y datos de desfase
-            const labels = sortedData.map(stop => stop['Paradas 2024 - Numero Parada → Numero Parada']);
-            const desfases = sortedData.map(stop => parseInt(stop['Desfase']));
-
-            return {
-                title,
-                date,
-                stops,
-                line,
-                lineColor,
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Minutos de desfase',
-                        data: desfases,
-                        borderColor: COLORS.error,
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                }
-            };
-        }
-
-        // Procesar datos para cada línea
-        delayEvolutionData = [
-            processLineData(line1Data, "Barrio España → Covaresa", "1", "hsl(117.6, 42.9%, 54.7%)"),
-            processLineData(line2Data, "San Pedro Regalado → Covaresa", "2", "hsl(47.6, 82.9%, 54.7%)"),
-            processLineData(lineC2Data, "Circular", "C2", "hsl(207.6, 42.9%, 54.7%)")
-        ];
-
-        // Crear el carrusel de gráficas
-        const delayEvolutionChart = document.querySelector('#delay-evolution-chart');
-        if (!delayEvolutionChart) {
-            console.error('No se encontró el elemento #delay-evolution-chart');
-            return;
-        }
-
-        // Limpiar el contenedor antes de agregar nuevos elementos
-        delayEvolutionChart.innerHTML = '';
-        
-        // Agregar controles de navegación
-        const navigationControls = document.createElement('div');
-        navigationControls.className = 'flex justify-center items-center gap-4 mt-4';
-        navigationControls.innerHTML = `
-            <button type="button" class="prev-chart p-2 rounded-full hover:bg-gray-100" aria-label="Anterior">
-                <i data-lucide="chevron-left" class="h-6 w-6 text-gray-600"></i>
-            </button>
-            <div class="chart-indicator text-sm font-medium text-gray-600">
-                1/${delayEvolutionData.length}
-            </div>
-            <button type="button" class="next-chart p-2 rounded-full hover:bg-gray-100" aria-label="Siguiente">
-                <i data-lucide="chevron-right" class="h-6 w-6 text-gray-600"></i>
-            </button>
-        `;
-
-        // Crear los gráficos y agregar navegación
-        const chartsContainer = document.createElement('div');
-        chartsContainer.className = 'charts-container';
-        delayEvolutionChart.appendChild(chartsContainer);
-
-        // Crear los gráficos
-        delayEvolutionData.forEach((data, index) => {
-            createDelayEvolutionChart(chartsContainer, data, index);
-        });
-
-        delayEvolutionChart.appendChild(navigationControls);
-        
-        // Actualizar iconos
-        lucide.createIcons();
-
-        // Configurar navegación
-        document.querySelector('.prev-chart').addEventListener('click', (e) => {
-            e.preventDefault();
-            currentChart = (currentChart - 1 + delayEvolutionData.length) % delayEvolutionData.length;
-            updateChartVisibility();
-        });
-
-        document.querySelector('.next-chart').addEventListener('click', (e) => {
-            e.preventDefault();
-            currentChart = (currentChart + 1) % delayEvolutionData.length;
-            updateChartVisibility();
-        });
-
-        // Mostrar el primer gráfico
-        currentChart = 0;
-        updateChartVisibility();
-
-    } catch (error) {
-        console.error('Error al cargar los datos:', error);
-    }
-}
-
-// Llamar a la función al cargar la página
-loadDelayData();
 
 // Modificar la función loadLineData
 async function loadLineData() {
@@ -558,14 +329,14 @@ new Chart(frequencyCtx, {
         datasets: [
             {
                 label: 'Mayor de 12-13 min',
-                data: [31, 38, 40],
+                data: [29, 33, 35],
                 backgroundColor: COLORS.error,
                 borderColor: 'white',
                 borderWidth: 1
             },
             {
                 label: 'Menor de 12-13 min',
-                data: [69, 62, 60],
+                data: [71, 67, 65],
                 backgroundColor: COLORS.successLight,
                 borderColor: 'white',
                 borderWidth: 1
@@ -683,6 +454,232 @@ function shareReport() {
         document.body.removeChild(dummy);
         alert('Texto y URL copiados al portapapeles');
     }
+}
+
+// Datos para múltiples gráficas
+const delayEvolutionData = [
+    {
+        title: "Barrio España → Covaresa",
+        date: "24 octubre 2024 - 08:17",
+        stops: "957 - Cardenal Torquemada frente 16<br />813 - Plaza España Bola del Mundo",
+        line: "1",
+        lineColor: "hsl(117.6, 42.9%, 54.7%)",
+        data: {
+            labels: ['1204', '1205', '1206', '1073', '752', '751', '957', '1371', '558', '828', '813', '832', 
+                     '1003', '991', '998', '990', '1000', '1001', '1039', '1044', '1389', '1370', '858'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [-4, -4, -4, -4, -5, -7, -7, -9, -10, -11, -12, -13, -13, -13, -14, -14, -12, -13, -14, -15, -14, -13, -15],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        }
+    },
+    {
+        title: "San Pedro Regalado → Covaresa",
+        date: "24 octubre 2024 - 08:25",
+        stops: "876 - Avenida Santander Poblado Endasa<br />813 - Plaza España Bola del Mundo",
+        line: "2",
+        lineColor: "hsl(47.6, 82.9%, 54.7%)",
+        data: {
+            labels: ['816', '878', '879', '876', '779', '1155', '1158', '558', '828', '813', 
+                    '1156', '844', '651', '653', '991', '998', '990', '865', '854', '1150', 
+                    '868', '861', '1082', '1087', '1055', '663', '607'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [6, 0, -2, 0, -2, -4, -3, -4, -5, -6, -8, -8, -8, -8, -9, -8, -8, 
+                      -6, -7, -3, -7, -7, -7, -7, -5, -4, -4],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        }
+    },
+    {
+        title: "Circular",
+        date: "24 octubre 2024 - 07:32",
+        stops: "1390 - Calle Enseñanza Centro Educación Especial<br />625 - Paseo del Cauce frente Centro Salud Pilarica<br />995 - Paseo Zorrilla 101 LAVA",
+        line: "C2",
+        lineColor: "hsl(207.6, 42.9%, 54.7%)",
+        data: {
+            labels: ['742', '1239', '1237', '1249', '1247', '744', '633', '657', '1390', '696', 
+                    '694', '805', '973', '1141', '960', '642', '629', '840', '799', '624', 
+                    '625', '869', '640', '634', '636', '671', '885', '883', '668', '673', 
+                    '882', '560', '12227', '12228', '993', '999', '995', '992', '803', '985', 
+                    '553', '552', '700', '950'],
+            datasets: [{
+                label: 'Minutos de desfase',
+                data: [1, 0, 1, 3, 3, 3, 3, 2, 0, -2, 0, -4, -5, -7, -6, -6, -7, -7, -6, -6, 
+                       -6, -7, -5, -7, -6, -6, -6, -6, -7, -7, -6, -6, -6, -4, -4, 0, 0, 0, 
+                       0, 0, 0, 0, 5, 0],
+                borderColor: COLORS.error,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        }
+    }
+];
+
+// Crear el carrusel de gráficas
+const delayEvolutionChart = document.querySelector('#delay-evolution-chart');
+let currentChart = 0;
+let charts = [];
+
+function createDelayEvolutionChart(container, data, index) {
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = `chart-wrapper ${index === 0 ? '' : 'hidden'}`;
+    chartWrapper.innerHTML = `
+        <div class="chart-container">
+            <canvas id="delayEvolutionChart${index}"></canvas>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="route" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500"><strong class="linea linea-${data.line} mr-1">${data.line}</strong> ${data.title}</h3>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500">${data.date}</h3>
+        </div>
+        <div class="flex items-center gap-2 mb-1 mt-5">
+            <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
+            <h3 class="text-xs text-gray-500">${data.stops}</h3>
+        </div>
+    `;
+    container.appendChild(chartWrapper);
+
+    const ctx = document.getElementById(`delayEvolutionChart${index}`).getContext('2d');
+
+    // Encontrar los valores mínimo y máximo para esta gráfica
+    const values = data.data.datasets[0].data;
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const padding = 2; // Padding para que los valores no toquen los bordes
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: data.data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Desfase: ${context.raw} minutos`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: {
+                        color: (context) => context.tick.value === 0 ? '#666' : '#ddd',
+                        lineWidth: (context) => context.tick.value === 0 ? 1 : 1,
+                        borderDash: (context) => context.tick.value === 0 ? [5, 5] : [], // patrón punteado
+                    },
+                    title: {
+                        display: true,
+                        text: 'Minutos de desfase'
+                    },
+                    min: Math.min(Math.floor(minValue) - padding, 0),
+                    max: Math.max(Math.ceil(maxValue) + padding, 0),
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Parada'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+    charts.push(chart);
+    return chartWrapper;
+}
+// Agregar controles de navegación
+const navigationControls = document.createElement('div');
+navigationControls.className = 'flex justify-center items-center gap-4 mt-4';
+navigationControls.innerHTML = `
+    <button type="button" class="prev-chart p-2 rounded-full hover:bg-gray-100" aria-label="Anterior">
+        <i data-lucide="chevron-left" class="h-6 w-6 text-gray-600"></i>
+    </button>
+    <div class="chart-indicator text-sm font-medium text-gray-600">
+        1/${delayEvolutionData.length}
+    </div>
+    <button type="button" class="next-chart p-2 rounded-full hover:bg-gray-100" aria-label="Siguiente">
+        <i data-lucide="chevron-right" class="h-6 w-6 text-gray-600"></i>
+    </button>
+`;
+
+// Crear los gráficos y agregar navegación
+const chartsContainer = document.createElement('div');
+chartsContainer.className = 'charts-container';
+delayEvolutionChart.appendChild(chartsContainer);
+
+delayEvolutionData.forEach((data, index) => {
+    createDelayEvolutionChart(chartsContainer, data, index);
+});
+
+delayEvolutionChart.appendChild(navigationControls);
+lucide.createIcons();
+
+// Funciones de navegación
+function updateChartVisibility() {
+    document.querySelectorAll('.chart-wrapper').forEach((wrapper, index) => {
+        wrapper.className = `chart-wrapper ${index === currentChart ? '' : 'hidden'}`;
+    });
+    
+    // Actualizar el indicador de página
+    const indicator = document.querySelector('.chart-indicator');
+    indicator.textContent = `${currentChart + 1}/${delayEvolutionData.length}`;
+}
+
+document.querySelector('.prev-chart').addEventListener('click', (e) => {
+    e.preventDefault();
+    currentChart = (currentChart - 1 + delayEvolutionData.length) % delayEvolutionData.length;
+    updateChartVisibility();
+});
+
+document.querySelector('.next-chart').addEventListener('click', (e) => {
+    e.preventDefault();
+    currentChart = (currentChart + 1) % delayEvolutionData.length;
+    updateChartVisibility();
+});
+
+// Control de los botones flotantes
+const floatingButtons = document.getElementById('floating-buttons');
+let lastScrollPosition = 0;
+const scrollThreshold = 1100; // Píxeles de scroll necesarios para mostrar los botones
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Mostrar/ocultar basado en la posición del scroll
+    if (currentScroll > scrollThreshold) {
+        floatingButtons.style.transform = 'translateY(0)';
+    } else {
+        floatingButtons.style.transform = 'translateY(200%)';
+    }
+    
+    lastScrollPosition = currentScroll;
+});
+
+// Función para volver arriba suavemente
+function scrollToTop() {
+    document.getElementById('index').scrollIntoView({
+        behavior: 'smooth'
+    });
 }
 
 // Variables para el gráfico de barrios
@@ -905,27 +902,3 @@ function updateNeighborhoodBusIcons(data) {
 // Llamar a la función al cargar la página
 loadNeighborhoodData();
 
-// Control de los botones flotantes
-const floatingButtons = document.getElementById('floating-buttons');
-let lastScrollPosition = 0;
-const scrollThreshold = 1100; // Píxeles de scroll necesarios para mostrar los botones
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Mostrar/ocultar basado en la posición del scroll
-    if (currentScroll > scrollThreshold) {
-        floatingButtons.style.transform = 'translateY(0)';
-    } else {
-        floatingButtons.style.transform = 'translateY(200%)';
-    }
-    
-    lastScrollPosition = currentScroll;
-});
-
-// Función para volver arriba suavemente
-function scrollToTop() {
-    document.getElementById('index').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
