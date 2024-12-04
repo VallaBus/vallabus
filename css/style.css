@@ -2645,6 +2645,20 @@ button.remove-stop {
 
 /* Banners con tips personalizados */
 
+#tips-banner .warning {
+    background-color: hsl(54.5, 12.2%, 93%);
+    color: hsl(54.5, 70.2%, 24.8%);
+    border-left-color: hsl(58.7, 70.1%, 53.9%);
+}
+
+#tips-banner .warning a {
+    color: hsl(54.5, 70.2%, 24.8%);
+}
+
+#tips-banner .close-tip {
+    color: hsl(54.5, 70.2%, 24.8%);
+}
+
 #tips-banner #share-whatsapp {
     margin: 0; 
     color: #0e4f0b; 
@@ -2774,58 +2788,6 @@ button.remove-stop {
 
 #tips-banner #basuracero-0924 .close-tip {
     color: hsl(168.8, 23.2%, 93%);
-}
-
-#tips-banner .paradasparatodas {
-    margin: 0; 
-    color: #fcf5ff; 
-    background-color: #8b3575;
-    background-image: url('/img/info-gray.png');
-    background-size: 20px;
-    background-repeat: no-repeat;
-    background-position: 11px center;
-}
-
-.dark-mode #tips-banner .paradasparatodas {
-    background-color: #8b3575;
-}
-
-#tips-banner .paradasparatodas a {
-    color: #fcf5ff; 
-    text-decoration: none; 
-    display: inline-block; 
-    padding: 5px 5px 5px 26px;
-    font-weight: normal;
-}
-
-.dark-mode #tips-banner .paradasparatodas a {
-    color: #efefef;
-}
-
-#tips-banner .paradasparatodas a span{
-    font-weight: bold;
-}
-
-#tips-banner #denuncia-1024 {
-    border-left: 6px solid HSL(339.7, 74.7%, 53.5%);
-    color: HSL(339.7, 25.7%, 19.5%);
-    background-color: HSL(339.7, 12.2%, 92.5%);
-    padding-left: 8px;
-    padding-right: 35px;
-}
-
-#tips-banner #denuncia-1024 a {
-    color: HSL(339.7, 25.7%, 19.5%);
-    font-weight: normal;
-}
-
-.dark-mode #tips-banner #denuncia-1024 {
-    background-color: hsl(339.7, 12.2%, 16.5%);
-    color: hsl(339.7, 25.7%, 93%);
-}
-
-.dark-mode #tips-banner #denuncia-1024 a {
-    color: hsl(339.7, 25.7%, 93%);
 }
 
 #tips-banner .informe a {
