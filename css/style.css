@@ -2646,9 +2646,9 @@ button.remove-stop {
 /* Banners con tips personalizados */
 
 #tips-banner .warning {
-    background-color: hsl(54.5, 12.2%, 93%);
+    background-color: HSL(41.7, 83.3%, 90.3%);
     color: hsl(54.5, 70.2%, 24.8%);
-    border-left-color: hsl(58.7, 70.1%, 53.9%);
+    border-left-color: HSL(41.7, 83.3%, 55.3%);
 }
 
 #tips-banner .warning a {
