@@ -1154,6 +1154,13 @@ function clickEvents() {
         });
     }
 
+    // Elementos compartibles
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('.share-app')) {
+            shareApp(event);
+        }
+    });
+
     // Cualquier elemento con clase routeTo enlaza a rutas
     // data-arrive-date y data-arrive-time son opcionales
     // data-bike es opcional y si está, añade el modo bici
@@ -1959,5 +1966,24 @@ function showSkeletonLoader() {
 
         // Eliminar el placeholder inicial después de crear los elementos skeleton
         initialPlaceholder.remove();
+    }
+}
+
+function shareApp(event) {
+    event.preventDefault();
+    const shareData = {
+        title: 'VallaBus - La forma más rápida de saber los horarios de tu bus en Valladolid',
+        text: '¿Conoces VallaBus? Es la forma más rápida de saber los horarios de tu bus en Valladolid, La Cistérniga, Laguna o Arroyo',
+        url: 'https://vallabus.com/?mtm_source=share-banner',
+    };
+
+    if (navigator.share) {
+        navigator.share(shareData)
+            .catch((error) => console.error('Error al compartir:', error));
+    } else {
+        // Fallback: copiar al portapapeles y mostrar mensaje
+        navigator.clipboard.writeText(`${shareData.text}\n\n${shareData.url}`)
+            .then(() => alert('¡Enlace copiado! Pégalo en donde quieras'))
+            .catch(() => alert('No se pudo copiar el enlace. Por favor, cópialo manualmente: ' + shareData.url));
     }
 }

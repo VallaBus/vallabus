@@ -2687,6 +2687,31 @@ button.remove-stop {
     color: #efefef;
 }
 
+#tips-banner .share-app {
+    cursor: pointer;
+    background-image: url('/img/share.png');
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    padding-left: 30px;
+    background-color: HSL(8.8, 58.3%, 98%);
+    color: hsl(8.8, 81.6%, 14.9%);
+    border-left-color: HSL(8.8, 58.3%, 73.3%);
+}
+
+.dark-mode #tips-banner .share-app {
+    background-image: url('/img/share-gray.png');
+    border-left-color: HSL(8.8, 58.3%, 27.3%);
+}
+
+#tips-banner .share-app .close-tip {
+    color: hsl(8.8, 81.6%, 14.9%);
+}
+
+.dark-mode #tips-banner .share-app .close-tip {
+    color: hsl(281.5, 21.3%, 90%);
+}
+
 #tips-banner #community-banner {
     background-image: url('/img/comments-gray.png');
     background-size: 22px;
