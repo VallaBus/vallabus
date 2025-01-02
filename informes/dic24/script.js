@@ -666,12 +666,12 @@ function shareReport() {
     
     // Registrar el evento en Matomo
     if (typeof _paq !== 'undefined') {
-        _paq.push(['trackEvent', 'Compartir', 'Informe', 'AUVASA Noviembre 2024']);
+        _paq.push(['trackEvent', 'Compartir', 'Informe', 'AUVASA Diciembre 2024']);
     }
 
     if (navigator.share) {
         navigator.share({
-            title: 'Informe sobre calidad del servicio de AUVASA - Noviembre 2024',
+            title: 'Informe sobre calidad del servicio de AUVASA - Diciembre 2024',
             text: text,
             url: url.toString()
         })
