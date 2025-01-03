@@ -2728,6 +2728,9 @@ button.remove-stop {
     border-left: none;
 }
 
+#tips-banner .blog-banner a {
+    font-weight: normal;
+}
 
 #tips-banner #map-tip {
     background-image: url('/img/bus-location-white.png');
