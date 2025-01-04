@@ -1977,6 +1977,8 @@ function shareApp(event) {
         url: 'https://vallabus.com/?mtm_source=share-banner',
     };
 
+    _paq.push(['trackEvent', 'tips-banner', 'click', 'share-app']);
+
     if (navigator.share) {
         navigator.share(shareData)
             .catch((error) => console.error('Error al compartir:', error));
