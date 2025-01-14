@@ -1929,7 +1929,7 @@ button.remove-stop {
 }
 
 /* Enlaces en el sidebar */
-#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton, #communityButton {
+#routesButton, #viewLinesButton, #nearestStopsButton, #quickDestinationsButton, #communityButton, #informesButton {
     color: #818181;
     font-size: 0.9em;
     text-align: center;
@@ -1975,6 +1975,14 @@ button.remove-stop {
     background-size: 20px;
     background-repeat: no-repeat;
     background-position: 0px 2px;
+}
+
+#informesButton {
+    background-color: transparent;
+    background-image: url('/img/file-gray.png');
+    background-size: 13px;
+    background-repeat: no-repeat;
+    background-position: 3px 2px
 }
 
 .closeRoutesButton {
