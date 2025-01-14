@@ -2830,6 +2830,10 @@ button.remove-stop {
     font-weight: normal;
 }
 
+#tips-banner .peticion a span {
+    font-weight: normal;
+}
+
 /* Fin de los banners individuales */
 
 
