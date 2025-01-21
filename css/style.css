@@ -2555,6 +2555,10 @@ button.remove-stop {
     font-weight: bold;
 }
 
+#tips-banner img {
+    width: 90%;
+}
+
 .dark-mode #tips-banner p a, .dark-mode #instagram-warning p a {
     color: hsl(168.8, 23.2%, 93%);
 }
@@ -2829,6 +2833,51 @@ button.remove-stop {
 #tips-banner .informe a {
     font-weight: normal;
 }
+
+/* Banner de petición */
+
+#tips-banner .peticion {
+    padding: 0;
+}
+
+#tips-banner .peticion a {
+    position: relative;
+    display: block;
+    padding: 15px;
+    background: white;
+    text-decoration: none;
+    color: #333;
+}
+
+.dark-mode #tips-banner .peticion a {
+    background: #333333;
+}
+
+#tips-banner .peticion a::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.dark-mode #tips-banner .peticion a::after {
+    background: #3b3d3d;
+}
+
+#tips-banner .peticion a::before {
+    content: '';
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: 80%;
+    height: 8px;
+    background: #f3047a;
+    border-radius: 4px;
+    z-index: 1;
+} 
 
 #tips-banner .peticion a span {
     font-weight: normal;
