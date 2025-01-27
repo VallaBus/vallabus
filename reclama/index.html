@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Queja AUVASA</title>
+    <title>Asistente de reclamaciones a AUVASA - VallaBus</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" rel="stylesheet">
@@ -23,10 +23,25 @@
 
         body {
             min-height: 100vh;
-            padding: 2rem 1rem;
+            padding: 1rem 1rem;
             background: var(--background);
             display: grid;
             place-items: center;
+            color: rgb(55, 65, 81);
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            color: #616061; 
+            margin: 0;
+            padding: 0 0 1rem 0;
+        }
+
+        .container a {
+            color: #616061; 
+            text-decoration: none; 
         }
 
         .form-container {
@@ -165,6 +180,12 @@
     </style>
 </head>
 <body>
+    <div class="container">
+        <a href="/?mtncampaing=reclamaback">
+            <i class="mdi mdi-arrow-left"></i>
+            vallabus.com
+        </a>
+    </div>
     <div class="form-container">
         <h1><i class="mdi mdi-bus-alert"></i>Asistente de reclamaciones</h1>
         <p class="info-block">
@@ -442,15 +463,19 @@
             const lineas = Array.from(document.getElementById('lineas').selectedOptions)
                                .map(option => option.value).join(', ');
             
-            let mensaje = `Hola mi nombre es ${nombreInput.value.trim()},\n\n`;
+            let mensaje = `Hola, mi nombre es ${nombreInput.value.trim()}`;
 
             if(barrio) {
-                mensaje += `Vivo en ${barrio} `;
+                mensaje += `, vivo en ${barrio}`;
+            }
+
+            if (lineas) {
+                mensaje += `, utilizo las lineas ${lineas}`;
             }
             
-            mensaje += `y uso la línea de bus ${lineas || 'N/A'} y me gustaría registrar una reclamación formal `;
+            mensaje += `\n\nMe gustaría registrar una reclamación formal `;
             mensaje += `sobre baja calidad del servicio de AUVASA y en concreto su falta de cumplimiento `;
-            mensaje += `de horarios y frecuencias, que afecta a mis desplazamientos.\n\nPor favor inviertan en nuevos vehiculos y persona para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
+            mensaje += `de horarios y frecuencias que afecta a mis desplazamientos.\n\nSolicito que inviertan en nuevos vehículos y personal para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
 
             try {
                 // Copiar al portapapeles
