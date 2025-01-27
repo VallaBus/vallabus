@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Queja AUVASA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: hsl(168.8, 48.2%, 32.5%);
+            --primary-hover: hsl(168.8, 48.2%, 22.5%);
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --error: #d32f2f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            background: var(--background);
+            display: grid;
+            place-items: center;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #616161;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+        }
+
+        input.invalid {
+            border-color: var(--error);
+            background-color: #ffebee;
+        }
+
+        select[multiple] {
+            min-height: 120px;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        select[multiple] option {
+            padding: 0.75rem 1rem;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        select[multiple] option:hover {
+            background: #e3f2fd;
+        }
+
+        select[multiple] option:checked {
+            background: var(--primary);
+            color: white;
+        }
+
+        select[multiple] option:checked::after {
+            content: '✓';
+            position: absolute;
+            right: 1rem;
+            font-weight: bold;
+        }
+
+        .info-block {
+            background: hsl(168.8, 48.2%, 92.5%);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .info-block ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-block li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .mdi {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1><i class="mdi mdi-bus-alert"></i>Asistente de reclamaciones</h1>
+        <p class="info-block">
+            Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento usando su servicio en WhatsApp 
+        </p>
+        <form id="complaintForm">
+            <div class="form-group">
+                <label>¿Cómo te llamas? *</label>
+                <input type="text" id="nombre" required placeholder="Ej: María">
+                <div class="error-message" id="nombre-error">Este campo es obligatorio</div>
+            </div>
+            
+            <div class="form-group">
+                <label>¿En qué barrio resides? (opcional)</label>
+                <select id="barrio">
+                    <option value="">Selecciona uno</option>
+                    <option value="Arturo Eyries">Arturo Eyries</option>
+                    
+                        <option value="Barrio España">Barrio España</option>
+                    
+                        <option value="Batallas">Batallas</option>
+                    
+                        <option value="Belén - Pilarica">Belén - Pilarica</option>
+                    
+                        <option value="Campo Grande">Campo Grande</option>
+                    
+                        <option value="Caño Argales">Caño Argales</option>
+                    
+                        <option value="Circular">Circular</option>
+                    
+                        <option value="Coto de Simancas">Coto de Simancas</option>
+                    
+                        <option value="Covaresa">Covaresa</option>
+                    
+                        <option value="Cuatro de Marzo">Cuatro de Marzo</option>
+                    
+                        <option value="Delicias - Arco de Ladrillo">Delicias - Arco de Ladrillo</option>
+                    
+                        <option value="Delicias - Canterac">Delicias - Canterac</option>
+                    
+                        <option value="El Berrocal">El Berrocal</option>
+                    
+                        <option value="El Peral">El Peral</option>
+                    
+                        <option value="El Pinar">El Pinar</option>
+                    
+                        <option value="Girón">Girón</option>
+                    
+                        <option value="Hospital">Hospital</option>
+                    
+                        <option value="Huerta del Rey">Huerta del Rey</option>
+                    
+                        <option value="La Antigua - Santa Cruz">La Antigua - Santa Cruz</option>
+                    
+                        <option value="La Farola">La Farola</option>
+                    
+                        <option value="La Overuela">La Overuela</option>
+                    
+                        <option value="La Rubia">La Rubia</option>
+                    
+                        <option value="La Victoria">La Victoria</option>
+                    
+                        <option value="Las Flores">Las Flores</option>
+                    
+                        <option value="Las Villas - Valparaíso">Las Villas - Valparaíso</option>
+                    
+                        <option value="Pajarillos Altos">Pajarillos Altos</option>
+                    
+                        <option value="Pajarillos Bajos">Pajarillos Bajos</option>
+                    
+                        <option value="Parque Alameda - Paula López">Parque Alameda - Paula López</option>
+                    
+                        <option value="Parquesol">Parquesol</option>
+                    
+                        <option value="Pilarica - Los Santos">Pilarica - Los Santos</option>
+                    
+                        <option value="Plaza de Toros">Plaza de Toros</option>
+                    
+                        <option value="Plaza España">Plaza España</option>
+                    
+                        <option value="Plaza Mayor">Plaza Mayor</option>
+                    
+                        <option value="Polígono Argales">Polígono Argales</option>
+                    
+                        <option value="Polígono Industrial la Mora">Polígono Industrial la Mora</option>
+                    
+                        <option value="Polígono San Cristóbal">Polígono San Cristóbal</option>
+                    
+                        <option value="Puente Duero">Puente Duero</option>
+                    
+                        <option value="Rondilla">Rondilla</option>
+                    
+                        <option value="San Isidro">San Isidro</option>
+                    
+                        <option value="San Pablo - San Nicolás">San Pablo - San Nicolás</option>
+                    
+                        <option value="San Pedro Regalado">San Pedro Regalado</option>
+                    
+                        <option value="Soto de Medinilla">Soto de Medinilla</option>
+                    
+                        <option value="Urbanización El Pichón">Urbanización El Pichón</option>
+                    
+                        <option value="Urbanización El Plantío">Urbanización El Plantío</option>
+                    
+                        <option value="Urbanización Entrepinos">Urbanización Entrepinos</option>
+                    
+                        <option value="Urbanización Las Aceñas">Urbanización Las Aceñas</option>
+                    
+                        <option value="Vadillos">Vadillos</option>
+                    
+                        <option value="Villa del Prado">Villa del Prado</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>¿Qué líneas utilizas? (opcional)</label>
+                <select id="lineas" multiple>
+                    <option value="1">1</option>
+                    
+                    <option value="2">2</option>
+                
+                    <option value="3">3</option>
+                
+                    <option value="4">4</option>
+                
+                    <option value="5">5</option>
+                
+                    <option value="6">6</option>
+                
+                    <option value="7">7</option>
+                
+                    <option value="8">8</option>
+                
+                    <option value="9">9</option>
+                
+                    <option value="10">10</option>
+                
+                    <option value="13">13</option>
+                
+                    <option value="14">14</option>
+                
+                    <option value="16">16</option>
+                
+                    <option value="17">17</option>
+                
+                    <option value="18">18</option>
+                
+                    <option value="19">19</option>
+                
+                    <option value="23">23</option>
+                
+                    <option value="24">24</option>
+                
+                    <option value="26">26</option>
+                
+                    <option value="B1">B1</option>
+                
+                    <option value="B2">B2</option>
+                
+                    <option value="B3">B3</option>
+                
+                    <option value="B4">B4</option>
+                
+                    <option value="B5">B5</option>
+                
+                    <option value="C1">C1</option>
+                
+                    <option value="C2">C2</option>
+                
+                    <option value="CC">CC</option>
+                
+                    <option value="F1">F1</option>
+                
+                    <option value="F2">F2</option>
+                
+                    <option value="F3">F3</option>
+                
+                    <option value="F4">F4</option>
+                
+                    <option value="F5">F5</option>
+                
+                    <option value="F6">F6</option>
+                
+                    <option value="H">H</option>
+                
+                    <option value="LC">LC</option>
+                
+                    <option value="LD">LD</option>
+                
+                    <option value="LP">LP</option>
+                
+                    <option value="M1">M1</option>
+                
+                    <option value="M2">M2</option>
+                
+                    <option value="M3">M3</option>
+                
+                    <option value="M4">M4</option>
+                
+                    <option value="M5">M5</option>
+                
+                    <option value="M6">M6</option>
+                
+                    <option value="M7">M7</option>
+                
+                    <option value="P1">P1</option>
+                
+                    <option value="P13">P13</option>
+                
+                    <option value="P2">P2</option>
+                
+                    <option value="P3">P3</option>
+                
+                    <option value="P6">P6</option>
+                
+                    <option value="P7">P7</option>
+                
+                    <option value="PSC1">PSC1</option>
+                
+                    <option value="PSC2">PSC2</option>
+                
+                    <option value="PSC3">PSC3</option>
+                
+                    <option value="SC">SC</option>
+                
+                    <option value="U1">U1</option>
+                
+                    <option value="U8">U8</option>
+                </select>
+            </div>
+
+            <div class="info-block">
+                <ul>
+                    <li>Al hacer clic en enviar:</li>
+                    <li><i class="mdi mdi-whatsapp"></i>1. Se abrirá el WhatsApp del ayuntamiento</li>
+                    <li><i class="mdi mdi-message-text-outline"></i>2. Deberás iniciar el chat con "Hola"</li>
+                    <li><i class="mdi mdi-content-copy"></i>3. Puedes usar "Pegar" para introducir el texto en el chat</li>
+                    <li><i class="mdi mdi-email-outline"></i>4. Edita el texto y pulsa en ✉️ Finalizar Petición</li>
+                </ul>
+            </div>
+            
+            <button type="button" onclick="generarQueja()">
+                <i class="mdi mdi-send"></i>Enviar reclamación
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Multiselect funcional
+        document.getElementById('lineas').addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            const option = e.target;
+            if (option.tagName === 'OPTION') {
+                option.selected = !option.selected;
+                this.dispatchEvent(new Event('change'));
+            }
+        });
+
+        async function generarQueja() {
+            const nombreInput = document.getElementById('nombre');
+            const errorMessage = document.getElementById('nombre-error');
+            
+            // Validación del nombre
+            if (!nombreInput.value.trim()) {
+                nombreInput.classList.add('invalid');
+                errorMessage.style.display = 'block';
+                nombreInput.focus();
+                return;
+            } else {
+                nombreInput.classList.remove('invalid');
+                errorMessage.style.display = 'none';
+            }
+
+            const barrio = document.getElementById('barrio').value;
+            const lineas = Array.from(document.getElementById('lineas').selectedOptions)
+                               .map(option => option.value).join(', ');
+            
+            let mensaje = `Hola mi nombre es ${nombreInput.value.trim()},\n\n`;
+
+            if(barrio) {
+                mensaje += `Vivo en ${barrio} `;
+            }
+            
+            mensaje += `y uso la línea de bus ${lineas || 'N/A'} y me gustaría registrar una reclamación formal `;
+            mensaje += `sobre baja calidad del servicio de AUVASA y en concreto su falta de cumplimiento `;
+            mensaje += `de horarios y frecuencias, que afecta a mis desplazamientos.\n\nPor favor inviertan en nuevos vehiculos y persona para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
+
+            try {
+                // Copiar al portapapeles
+                await navigator.clipboard.writeText(mensaje);
+                
+                // Abrir WhatsApp
+                const numeroWhatsApp = '34660010010';
+                const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+                window.open(url, '_blank');
+            } catch (err) {
+                // Fallback para navegadores antiguos
+                const textarea = document.createElement('textarea');
+                textarea.value = mensaje;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                const numeroWhatsApp = '34660010010';
+                const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+                window.open(url, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
