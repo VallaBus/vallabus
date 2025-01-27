@@ -178,6 +178,18 @@
             font-size: 1.2em;
         }
     </style>
+    <script>
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://stats.vallabus.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
 </head>
 <body>
     <div class="container">
@@ -470,7 +482,7 @@
             }
 
             if (lineas) {
-                mensaje += `, utilizo las lineas ${lineas}`;
+                mensaje += `, utilizo la línea ${lineas}`;
             }
             
             mensaje += `\n\nMe gustaría registrar una reclamación formal `;
