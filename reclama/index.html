@@ -447,6 +447,24 @@
             mensaje += `de horarios y frecuencias que afecta a mis desplazamientos.\n\nSolicito que inviertan en nuevos vehículos y personal para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
 
             try {
+                // Registrar el evento en Matomo
+                if (typeof _paq !== 'undefined') {
+                    // Registrar el barrio si está seleccionado
+                    if (barrio) {
+                        _paq.push(['trackEvent', 'Reclamacion', 'Barrio', barrio]);
+                    }
+                    
+                    // Registrar cada línea seleccionada
+                    if (lineas) {
+                        lineas.split(', ').forEach(linea => {
+                            _paq.push(['trackEvent', 'Reclamacion', 'Linea', linea]);
+                        });
+                    }
+                    
+                    // Registrar la reclamación general
+                    _paq.push(['trackEvent', 'Reclamacion', 'Enviada', 'WhatsApp']);
+                }
+
                 // Copiar al portapapeles
                 await navigator.clipboard.writeText(mensaje);
                 
@@ -479,7 +497,7 @@
             
             // Registrar el evento en Matomo
             if (typeof _paq !== 'undefined') {
-                _paq.push(['trackEvent', 'Compartir', 'Reclama', 'Formulario']);
+                _paq.push(['trackEvent', 'Reclamacion', 'Compartido', 'True']);
             }
 
             if (navigator.share) {
