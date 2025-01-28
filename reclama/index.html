@@ -84,7 +84,7 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 space-y-6">
             <div class="flex items-center gap-2 mb-4">
                 <i data-lucide="message-circle-warning" class="h-6 w-6 text-vallabus"></i>
-                <h1 class="text-2xl font-semibold text-vallabus">Asistente de reclamaciones</h1>
+                <h1 class="text-xl font-semibold text-vallabus">Asistente de reclamaciones</h1>
             </div>
             
             <p class="text-gray-600 bg-vallabus-light p-4 rounded-lg">
@@ -451,18 +451,18 @@
                 if (typeof _paq !== 'undefined') {
                     // Registrar el barrio si está seleccionado
                     if (barrio) {
-                        _paq.push(['trackEvent', 'Reclamacion', 'Barrio', barrio]);
+                        _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionBarrio', barrio]);
                     }
                     
                     // Registrar cada línea seleccionada
                     if (lineas) {
                         lineas.split(', ').forEach(linea => {
-                            _paq.push(['trackEvent', 'Reclamacion', 'Linea', linea]);
+                            _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionLinea', linea]);
                         });
                     }
                     
                     // Registrar la reclamación general
-                    _paq.push(['trackEvent', 'Reclamacion', 'Enviada', 'WhatsApp']);
+                    _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionEnviada', 'WhatsApp']);
                 }
 
                 // Copiar al portapapeles
