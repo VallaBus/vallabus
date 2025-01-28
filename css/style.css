@@ -2853,6 +2853,7 @@ button.remove-stop {
     background: #333333;
 }
 
+/*
 #tips-banner .peticion a::after {
     content: '';
     display: block;
@@ -2862,6 +2863,7 @@ button.remove-stop {
     border-radius: 4px;
     margin-top: 10px;
 }
+
 
 .dark-mode #tips-banner .peticion a::after {
     background: #3b3d3d;
@@ -2878,6 +2880,7 @@ button.remove-stop {
     border-radius: 4px;
     z-index: 1;
 } 
+*/
 
 #tips-banner .peticion a span {
     font-weight: normal;
