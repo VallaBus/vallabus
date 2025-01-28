@@ -1,448 +1,415 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Asistente de reclamaciones a AUVASA - VallaBus</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" rel="stylesheet">
+    
+    <!-- SEO Meta Tags -->
+    <title>Asistente de reclamaciones a AUVASA - VallaBus</title>
+    <meta name="description" content="Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento">
+    <meta name="keywords" content="AUVASA, Valladolid, transporte público, bus, VallaBus, reclamaciones, quejas">
+    <meta name="author" content="VallaBus">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vallabus.com/reclama">
+    <meta property="og:title" content="Asistente de reclamaciones a AUVASA - VallaBus">
+    <meta property="og:description" content="Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vallabus.com/reclama">
+    <meta property="twitter:title" content="Asistente de reclamaciones a AUVASA - VallaBus">
+    <meta property="twitter:description" content="Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="apple-touch-icon" href="../favicon.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        :root {
-            --primary: hsl(168.8, 48.2%, 32.5%);
-            --primary-hover: hsl(168.8, 48.2%, 22.5%);
-            --background: #f5f5f5;
-            --card-bg: #ffffff;
-            --error: #d32f2f;
+        .card-icon, .text-primary, .text-vallabus {
+            color: hsl(168.8, 23.2%, 30.5%);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
+        .text-secondary {
+            color: #2b7b6c;
         }
 
-        body {
-            min-height: 100vh;
-            padding: 1rem 1rem;
-            background: var(--background);
-            display: grid;
-            place-items: center;
-            color: rgb(55, 65, 81);
-        }
-
-        .container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; 
-            color: #616061; 
-            margin: 0;
-            padding: 0 0 1rem 0;
-        }
-
-        .container a {
-            color: #616061; 
-            text-decoration: none; 
-        }
-
-        .form-container {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 500px;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-        }
-
-        h1 {
-            color: #333;
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #616161;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-        }
-
-        input.invalid {
-            border-color: var(--error);
-            background-color: #ffebee;
-        }
-
-        select[multiple] {
-            min-height: 120px;
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-
-        select[multiple] option {
-            padding: 0.75rem 1rem;
-            margin: 2px 0;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        select[multiple] option:hover {
-            background: #e3f2fd;
-        }
-
-        select[multiple] option:checked {
-            background: var(--primary);
-            color: white;
-        }
-
-        select[multiple] option:checked::after {
-            content: '✓';
-            position: absolute;
-            right: 1rem;
+        a {
+            color: hsl(168.8, 23.2%, 30.5%);
+            text-decoration: underline;
             font-weight: bold;
         }
 
-        .info-block {
-            background: hsl(168.8, 48.2%, 92.5%);
-            padding: 1rem;
-            border-radius: 4px;
-            margin: 1.5rem 0;
-            font-size: 0.9rem;
+        #share-button {
+            background-color: hsl(168.8, 48.2%, 95%);
         }
 
-        .info-block ul {
-            list-style: none;
-            padding-left: 0;
+        .bg-vallabus {
+            background-color: hsl(168.8, 48.2%, 32.5%);
         }
 
-        .info-block li {
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .bg-vallabus-light {
+            background-color: hsl(168.8, 48.2%, 95%);
         }
 
-        button {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .border-vallabus {
+            border-color: hsl(168.8, 48.2%, 32.5%);
         }
 
-        button:hover {
-            background: var(--primary-hover);
-            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        .border-vallabus-light {
+            border-color: hsl(168.8, 48.2%, 90%);
         }
-
-        .error-message {
-            color: var(--error);
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        .mdi {
-            font-size: 1.2em;
+        
+        #bluesky-icon {
+            background-image: url('../img/bluesky-square.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
     </style>
-    <script>
-        var _paq = window._paq = window._paq || [];
-        _paq.push(['trackPageView']);
-        _paq.push(['enableLinkTracking']);
-        (function() {
-            var u="https://stats.vallabus.com/";
-            _paq.push(['setTrackerUrl', u+'matomo.php']);
-            _paq.push(['setSiteId', '6']);
-            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-        })();
-    </script>
 </head>
-<body>
-    <div class="container">
-        <a href="/?mtncampaing=reclamaback">
-            <i class="mdi mdi-arrow-left"></i>
+<body class="bg-gray-100 min-h-screen sm:p-8 p-2">
+    <div class="max-w-2xl mx-auto space-y-2">
+        <a href="/?mtncampaing=reclamaback" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i>
             vallabus.com
         </a>
-    </div>
-    <div class="form-container">
-        <h1><i class="mdi mdi-bus-alert"></i>Asistente de reclamaciones</h1>
-        <p class="info-block">
-            Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento usando su servicio en WhatsApp 
-        </p>
-        <form id="complaintForm">
-            <div class="form-group">
-                <label>¿Cómo te llamas? *</label>
-                <input type="text" id="nombre" required placeholder="Ej: María">
-                <div class="error-message" id="nombre-error">Este campo es obligatorio</div>
+        
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 space-y-6">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="message-circle-warning" class="h-6 w-6 text-vallabus"></i>
+                <h1 class="text-2xl font-semibold text-vallabus">Asistente de reclamaciones</h1>
             </div>
             
-            <div class="form-group">
-                <label>¿En qué barrio resides? (opcional)</label>
-                <select id="barrio">
-                    <option value="">Selecciona uno</option>
-                    <option value="Arturo Eyries">Arturo Eyries</option>
-                    
+            <p class="text-gray-600 bg-vallabus-light p-4 rounded-lg">
+                Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento usando su servicio en WhatsApp 
+            </p>
+            
+            <form id="complaintForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">¿Cómo te llamas? *</label>
+                    <input type="text" id="nombre" required placeholder="Ej: María" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-vallabus focus:border-vallabus">
+                    <div class="error-message hidden text-red-600 text-sm" id="nombre-error">Este campo es obligatorio</div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">¿En qué barrio resides? (opcional)</label>
+                    <select id="barrio" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-vallabus focus:border-vallabus">
+                        <option value="">Selecciona uno</option>
+                        <option value="Arturo Eyries">Arturo Eyries</option>
+                        
                         <option value="Barrio España">Barrio España</option>
-                    
+                        
                         <option value="Batallas">Batallas</option>
-                    
+                        
                         <option value="Belén - Pilarica">Belén - Pilarica</option>
-                    
+                        
                         <option value="Campo Grande">Campo Grande</option>
-                    
+                        
                         <option value="Caño Argales">Caño Argales</option>
-                    
+                        
                         <option value="Circular">Circular</option>
-                    
+                        
                         <option value="Coto de Simancas">Coto de Simancas</option>
-                    
+                        
                         <option value="Covaresa">Covaresa</option>
-                    
+                        
                         <option value="Cuatro de Marzo">Cuatro de Marzo</option>
-                    
+                        
                         <option value="Delicias - Arco de Ladrillo">Delicias - Arco de Ladrillo</option>
-                    
+                        
                         <option value="Delicias - Canterac">Delicias - Canterac</option>
-                    
+                        
                         <option value="El Berrocal">El Berrocal</option>
-                    
+                        
                         <option value="El Peral">El Peral</option>
-                    
+                        
                         <option value="El Pinar">El Pinar</option>
-                    
+                        
                         <option value="Girón">Girón</option>
-                    
+                        
                         <option value="Hospital">Hospital</option>
-                    
+                        
                         <option value="Huerta del Rey">Huerta del Rey</option>
-                    
+                        
                         <option value="La Antigua - Santa Cruz">La Antigua - Santa Cruz</option>
-                    
+                        
                         <option value="La Farola">La Farola</option>
-                    
+                        
                         <option value="La Overuela">La Overuela</option>
-                    
+                        
                         <option value="La Rubia">La Rubia</option>
-                    
+                        
                         <option value="La Victoria">La Victoria</option>
-                    
+                        
                         <option value="Las Flores">Las Flores</option>
-                    
+                        
                         <option value="Las Villas - Valparaíso">Las Villas - Valparaíso</option>
-                    
+                        
                         <option value="Pajarillos Altos">Pajarillos Altos</option>
-                    
+                        
                         <option value="Pajarillos Bajos">Pajarillos Bajos</option>
-                    
+                        
                         <option value="Parque Alameda - Paula López">Parque Alameda - Paula López</option>
-                    
+                        
                         <option value="Parquesol">Parquesol</option>
-                    
+                        
                         <option value="Pilarica - Los Santos">Pilarica - Los Santos</option>
-                    
+                        
                         <option value="Plaza de Toros">Plaza de Toros</option>
-                    
+                        
                         <option value="Plaza España">Plaza España</option>
-                    
+                        
                         <option value="Plaza Mayor">Plaza Mayor</option>
-                    
+                        
                         <option value="Polígono Argales">Polígono Argales</option>
-                    
+                        
                         <option value="Polígono Industrial la Mora">Polígono Industrial la Mora</option>
-                    
+                        
                         <option value="Polígono San Cristóbal">Polígono San Cristóbal</option>
-                    
+                        
                         <option value="Puente Duero">Puente Duero</option>
-                    
+                        
                         <option value="Rondilla">Rondilla</option>
-                    
+                        
                         <option value="San Isidro">San Isidro</option>
-                    
+                        
                         <option value="San Pablo - San Nicolás">San Pablo - San Nicolás</option>
-                    
+                        
                         <option value="San Pedro Regalado">San Pedro Regalado</option>
-                    
+                        
                         <option value="Soto de Medinilla">Soto de Medinilla</option>
-                    
+                        
                         <option value="Urbanización El Pichón">Urbanización El Pichón</option>
-                    
+                        
                         <option value="Urbanización El Plantío">Urbanización El Plantío</option>
-                    
+                        
                         <option value="Urbanización Entrepinos">Urbanización Entrepinos</option>
-                    
+                        
                         <option value="Urbanización Las Aceñas">Urbanización Las Aceñas</option>
-                    
+                        
                         <option value="Vadillos">Vadillos</option>
-                    
+                        
                         <option value="Villa del Prado">Villa del Prado</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>¿Qué líneas utilizas? (opcional)</label>
-                <select id="lineas" multiple>
-                    <option value="1">1</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">¿Qué líneas utilizas? (opcional)</label>
+                    <select id="lineas" multiple class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-vallabus focus:border-vallabus min-h-[120px]">
+                        <option value="1">1</option>
+                        
+                        <option value="2">2</option>
                     
-                    <option value="2">2</option>
-                
-                    <option value="3">3</option>
-                
-                    <option value="4">4</option>
-                
-                    <option value="5">5</option>
-                
-                    <option value="6">6</option>
-                
-                    <option value="7">7</option>
-                
-                    <option value="8">8</option>
-                
-                    <option value="9">9</option>
-                
-                    <option value="10">10</option>
-                
-                    <option value="13">13</option>
-                
-                    <option value="14">14</option>
-                
-                    <option value="16">16</option>
-                
-                    <option value="17">17</option>
-                
-                    <option value="18">18</option>
-                
-                    <option value="19">19</option>
-                
-                    <option value="23">23</option>
-                
-                    <option value="24">24</option>
-                
-                    <option value="26">26</option>
-                
-                    <option value="B1">B1</option>
-                
-                    <option value="B2">B2</option>
-                
-                    <option value="B3">B3</option>
-                
-                    <option value="B4">B4</option>
-                
-                    <option value="B5">B5</option>
-                
-                    <option value="C1">C1</option>
-                
-                    <option value="C2">C2</option>
-                
-                    <option value="CC">CC</option>
-                
-                    <option value="F1">F1</option>
-                
-                    <option value="F2">F2</option>
-                
-                    <option value="F3">F3</option>
-                
-                    <option value="F4">F4</option>
-                
-                    <option value="F5">F5</option>
-                
-                    <option value="F6">F6</option>
-                
-                    <option value="H">H</option>
-                
-                    <option value="LC">LC</option>
-                
-                    <option value="LD">LD</option>
-                
-                    <option value="LP">LP</option>
-                
-                    <option value="M1">M1</option>
-                
-                    <option value="M2">M2</option>
-                
-                    <option value="M3">M3</option>
-                
-                    <option value="M4">M4</option>
-                
-                    <option value="M5">M5</option>
-                
-                    <option value="M6">M6</option>
-                
-                    <option value="M7">M7</option>
-                
-                    <option value="P1">P1</option>
-                
-                    <option value="P13">P13</option>
-                
-                    <option value="P2">P2</option>
-                
-                    <option value="P3">P3</option>
-                
-                    <option value="P6">P6</option>
-                
-                    <option value="P7">P7</option>
-                
-                    <option value="PSC1">PSC1</option>
-                
-                    <option value="PSC2">PSC2</option>
-                
-                    <option value="PSC3">PSC3</option>
-                
-                    <option value="SC">SC</option>
-                
-                    <option value="U1">U1</option>
-                
-                    <option value="U8">U8</option>
-                </select>
-            </div>
+                        <option value="3">3</option>
+                    
+                        <option value="4">4</option>
+                    
+                        <option value="5">5</option>
+                    
+                        <option value="6">6</option>
+                    
+                        <option value="7">7</option>
+                    
+                        <option value="8">8</option>
+                    
+                        <option value="9">9</option>
+                    
+                        <option value="10">10</option>
+                    
+                        <option value="13">13</option>
+                    
+                        <option value="14">14</option>
+                    
+                        <option value="16">16</option>
+                    
+                        <option value="17">17</option>
+                    
+                        <option value="18">18</option>
+                    
+                        <option value="19">19</option>
+                    
+                        <option value="23">23</option>
+                    
+                        <option value="24">24</option>
+                    
+                        <option value="26">26</option>
+                    
+                        <option value="B1">B1</option>
+                    
+                        <option value="B2">B2</option>
+                    
+                        <option value="B3">B3</option>
+                    
+                        <option value="B4">B4</option>
+                    
+                        <option value="B5">B5</option>
+                    
+                        <option value="C1">C1</option>
+                    
+                        <option value="C2">C2</option>
+                    
+                        <option value="CC">CC</option>
+                    
+                        <option value="F1">F1</option>
+                    
+                        <option value="F2">F2</option>
+                    
+                        <option value="F3">F3</option>
+                    
+                        <option value="F4">F4</option>
+                    
+                        <option value="F5">F5</option>
+                    
+                        <option value="F6">F6</option>
+                    
+                        <option value="H">H</option>
+                    
+                        <option value="LC">LC</option>
+                    
+                        <option value="LD">LD</option>
+                    
+                        <option value="LP">LP</option>
+                    
+                        <option value="M1">M1</option>
+                    
+                        <option value="M2">M2</option>
+                    
+                        <option value="M3">M3</option>
+                    
+                        <option value="M4">M4</option>
+                    
+                        <option value="M5">M5</option>
+                    
+                        <option value="M6">M6</option>
+                    
+                        <option value="M7">M7</option>
+                    
+                        <option value="P1">P1</option>
+                    
+                        <option value="P13">P13</option>
+                    
+                        <option value="P2">P2</option>
+                    
+                        <option value="P3">P3</option>
+                    
+                        <option value="P6">P6</option>
+                    
+                        <option value="P7">P7</option>
+                    
+                        <option value="PSC1">PSC1</option>
+                    
+                        <option value="PSC2">PSC2</option>
+                    
+                        <option value="PSC3">PSC3</option>
+                    
+                        <option value="SC">SC</option>
+                    
+                        <option value="U1">U1</option>
+                    
+                        <option value="U8">U8</option>
+                    </select>
+                </div>
 
-            <div class="info-block">
-                <ul>
-                    <li>Al hacer clic en enviar:</li>
-                    <li><i class="mdi mdi-whatsapp"></i>1. Se abrirá el WhatsApp del ayuntamiento</li>
-                    <li><i class="mdi mdi-message-text-outline"></i>2. Deberás iniciar el chat con "Hola"</li>
-                    <li><i class="mdi mdi-content-copy"></i>3. Puedes usar "Pegar" para introducir el texto en el chat</li>
-                    <li><i class="mdi mdi-email-outline"></i>4. Edita el texto y pulsa en ✉️ Finalizar Petición</li>
-                </ul>
+                <div class="bg-vallabus-light p-4 rounded-lg space-y-3">
+                    <p class="text-sm text-gray-700">Al hacer clic en enviar:</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="message-circle" class="h-4 w-4"></i>
+                            Se abrirá el WhatsApp del ayuntamiento
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="message-square" class="h-4 w-4"></i>
+                            Deberás iniciar el chat con "Hola"
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="copy" class="h-4 w-4"></i>
+                            Usa "Pegar" para introducir el texto en el chat
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="send" class="h-4 w-4"></i>
+                            Edita, envia y pulsa en ✉️ Finalizar Petición
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="h-4 w-4"></i>
+                            Recibiras código de referencia al terminar
+                        </li>
+                    </ul>
+                </div>
+                
+                <button type="button" onclick="generarQueja()" 
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-vallabus text-white rounded-md hover:bg-opacity-90 transition-colors">
+                    <i data-lucide="send" class="h-4 w-4"></i>
+                    Enviar reclamación
+                </button>
+            </form>
+        </div>
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="text-xl font-semibold text-primary mb-5">
+                    Tú puedes ayudar
+                </h2>
+                <button id="share-button" onclick="sharePage()" class="bg-primary text-base py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mb-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="share-2" class="lucide lucide-share-2 h-5 w-5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>
+                    Compartir este asistente
+                </button>
+                <p class="text-primary text-sm">
+                    En redes sociales y grupos de chat para que otros puedan reclamar soluciones
+                </p>
             </div>
-            
-            <button type="button" onclick="generarQueja()">
-                <i class="mdi mdi-send"></i>Enviar reclamación
-            </button>
-        </form>
+        </div>
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100 mt-4">
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="text-xl font-semibold text-primary mb-4">Síguenos para más novedades</h2>
+                <p class="text-primary text-sm mb-6">Mantente al día de iniciativas e informes de calidad</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <a href="https://www.instagram.com/vallabusapp/" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="instagram" class="h-8 w-8 sm:h-12 sm:w-12 text-pink-600"></i>
+                        <span class="text-sm font-medium">Instagram</span>
+                    </a>
+                    <a href="https://bsky.app/profile/vallabus.com" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i id="bluesky-icon" data-lucide="bluesky" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
+                        <span class="text-sm font-medium">BlueSky</span>
+                    </a>
+                    <a href="https://whatsapp.com/channel/0029VacJrldIHphBU41MLM25" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="message-circle" class="h-8 w-8 sm:h-12 sm:w-12 text-green-600"></i>
+                        <span class="text-sm font-medium">WhatsApp</span>
+                    </a>
+                    <a href="https://www.tiktok.com/@vallabusapp" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="play" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-900"></i>
+                        <span class="text-sm font-medium">TikTok</span>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=61561026144737" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="facebook" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-600"></i>
+                        <span class="text-sm font-medium">Facebook</span>
+                    </a>
+                    <a href="https://t.me/vallabusapp" target="_blank" class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="send" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
+                        <span class="text-sm font-medium">Telegram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque de licencia -->
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <i data-lucide="copyright" class="h-8 w-8"></i>
+                <p>
+                    Esta web está bajo licencia 
+                    <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank">
+                        Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+                    </a>
+                </p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -480,6 +447,24 @@
             mensaje += `de horarios y frecuencias que afecta a mis desplazamientos.\n\nSolicito que inviertan en nuevos vehículos y personal para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
 
             try {
+                // Registrar el evento en Matomo
+                if (typeof _paq !== 'undefined') {
+                    // Registrar el barrio si está seleccionado
+                    if (barrio) {
+                        _paq.push(['trackEvent', 'Reclamacion', 'Barrio', barrio]);
+                    }
+                    
+                    // Registrar cada línea seleccionada
+                    if (lineas) {
+                        lineas.split(', ').forEach(linea => {
+                            _paq.push(['trackEvent', 'Reclamacion', 'Linea', linea]);
+                        });
+                    }
+                    
+                    // Registrar la reclamación general
+                    _paq.push(['trackEvent', 'Reclamacion', 'Enviada', 'WhatsApp']);
+                }
+
                 // Copiar al portapapeles
                 await navigator.clipboard.writeText(mensaje);
                 
@@ -501,6 +486,55 @@
                 window.open(url, '_blank');
             }
         }
+
+        function sharePage() {
+            const text = 'Pon una reclamación a AUVASA en segundos gracias al asistente de VallaBus\n\n';
+            
+            // Crear un objeto URL y modificarlo
+            const url = new URL(window.location.href);
+            url.hash = ''; // Eliminar anchor
+            url.search = '?mtm_campaign=reclamashare'; // Reemplazar todos los parámetros
+            
+            // Registrar el evento en Matomo
+            if (typeof _paq !== 'undefined') {
+                _paq.push(['trackEvent', 'Reclamacion', 'Compartido', 'True']);
+            }
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Asistente de reclamaciones a AUVASA',
+                    text: text,
+                    url: url.toString()
+                })
+                .catch((error) => console.log('Error compartiendo:', error));
+            } else {
+                // Fallback para navegadores que no soportan Web Share API
+                const dummy = document.createElement('textarea');
+                document.body.appendChild(dummy);
+                dummy.value = text + url.toString();
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                alert('Texto y URL copiados al portapapeles');
+            }
+        }
+    </script>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Matomo tracking
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://stats.vallabus.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
     </script>
 </body>
 </html>
