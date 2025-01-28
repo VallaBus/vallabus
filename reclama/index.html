@@ -446,16 +446,6 @@
     </div>
 
     <script>
-        // Multiselect funcional
-        document.getElementById('lineas').addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            const option = e.target;
-            if (option.tagName === 'OPTION') {
-                option.selected = !option.selected;
-                this.dispatchEvent(new Event('change'));
-            }
-        });
-
         async function generarQueja() {
             const nombreInput = document.getElementById('nombre');
             const errorMessage = document.getElementById('nombre-error');
