@@ -86,9 +86,22 @@
                 <i data-lucide="message-circle-warning" class="h-6 w-6 text-vallabus"></i>
                 <h1 class="text-xl font-semibold text-vallabus">Asistente de reclamaciones</h1>
             </div>
+
+            <div class="flex justify-center gap-8 pt-2">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="users" class="h-5 w-5 text-vallabus"></i>
+                    <span id="total-reclamaciones" class="font-bold text-vallabus">0</span> reclamaciones
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="building-2" class="h-5 w-5 text-vallabus"></i>
+                    <span id="total-barrios" class="font-bold text-vallabus">0</span> barrios
+                </div>
+            </div>
             
-            <p class="text-gray-600 bg-vallabus-light p-4 rounded-lg">
-                Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento usando su servicio en WhatsApp 
+            <p class="text-gray-600 bg-vallabus-light p-6 rounded-lg space-y-4">
+                <span class="flex items-center gap-2 mb-2">
+                    Genera en segundos una reclamación a AUVASA que se registrará oficialmente con el ayuntamiento usando su servicio en WhatsApp
+                </span>
             </p>
             
             <form id="complaintForm" class="space-y-6">
@@ -523,6 +536,23 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Fetch and display statistics
+        async function fetchStats() {
+            try {
+                const response = await fetch('https://datos.vallabus.com/reclamaciones/stats_reclamaciones.json');
+                const data = await response.json();
+                
+                // Update the stats in the page
+                document.getElementById('total-reclamaciones').textContent = data.totales.total_reclamaciones;
+                document.getElementById('total-barrios').textContent = Object.keys(data.totales.barrios).length;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        // Load stats when page loads
+        fetchStats();
 
         // Matomo tracking
         var _paq = window._paq = window._paq || [];
