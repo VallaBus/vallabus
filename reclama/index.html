@@ -364,6 +364,13 @@
                             <span>Recibiras código de referencia al terminar<br /><strong>Vuelve a pegar el texto si no te dieron el código</strong></span>
                         </li>
                     </ul>
+
+                    <div class="mt-0">
+                        <a href="#" class="text-sm text-gray-600 underline flex items-center gap-2 font-normal" onclick="openVideoModal()">
+                            <i data-lucide="play-circle" class="h-5 w-5"></i>
+                            Ver vídeo con instrucciones
+                        </a>
+                    </div>
                 </div>
                 
                 <button type="button" onclick="generarQueja()" 
@@ -572,6 +579,19 @@
         </div>
     </div>
 
+    <div id="videoModal" class="mt-0 pt-0 fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-4 rounded-lg max-w-3xl w-full">
+            <div class="flex justify-end mb-2">
+                <button onclick="closeVideoModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
+            </div>
+            <div id="videoContainer" class="aspect-w-16 aspect-h-9">
+                <!-- El video se cargará aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+
     <script>
         async function generarQueja() {
             const nombreInput = document.getElementById('nombre');
@@ -674,6 +694,24 @@
                 document.body.removeChild(dummy);
                 alert('Texto y URL copiados al portapapeles');
             }
+        }
+
+        function openVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const videoContainer = document.getElementById('videoContainer');
+            modal.classList.remove('hidden');
+            videoContainer.innerHTML = `
+                <video src="./video/instrucciones.mp4" controls class="w-full h-full object-cover">
+                    Tu navegador no soporta el elemento de video.
+                </video>
+            `;
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const videoContainer = document.getElementById('videoContainer');
+            modal.classList.add('hidden');
+            videoContainer.innerHTML = ''; // Elimina el video al cerrar el modal
         }
     </script>
 
