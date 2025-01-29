@@ -592,6 +592,7 @@
                                .map(option => option.value).join(', ');
             
             let mensaje = `Hola, mi nombre es ${nombreInput.value.trim()}`;
+            let mensajeInit = 'Manda este mensaje para iniciar. Importante: Luego deja pulsado y elige Pegar para autocompletar tu reclamación';
 
             if(barrio) {
                 mensaje += `, vivo en ${barrio}`;
@@ -625,7 +626,7 @@
                 
                 // Abrir WhatsApp
                 const numeroWhatsApp = '34660010010';
-                const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+                const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensajeInit)}`;
                 window.open(url, '_blank');
             } catch (err) {
                 // Fallback para navegadores antiguos
