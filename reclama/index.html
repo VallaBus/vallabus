@@ -659,13 +659,18 @@
         // Initialize Lucide icons
         lucide.createIcons();
 
+        // Funciones de estadísticas
+
+        // Guardar datos globalmente
+        let statsData = null;
+
         function renderList(data, containerId, showAll = false) {
             const sortedData = Object.entries(data)
                 .sort(([,a], [,b]) => b - a)
                 .slice(0, showAll ? undefined : 10);
 
             const container = document.getElementById(containerId);
-            container.innerHTML = sortedData.map(([name, count], index) => `
+            container.innerHTML = sortedData.map(([name, count]) => `
                 <li class="py-2 flex justify-between items-center">
                     <span class="text-gray-700">${name}</span>
                     <span class="bg-vallabus-light px-2 py-1 rounded text-sm">${count}</span>
@@ -673,59 +678,62 @@
             `).join('');
         }
 
+        // Desplegar las listas completas
         function toggleFullList(type) {
+            if (!statsData) {
+                console.error('Stats data not loaded yet');
+                return;
+            }
+
             const containerId = `${type}List`;
-            const showAll = document.getElementById(containerId).dataset.full;
+            const container = document.getElementById(containerId);
+            const showAll = container.dataset.full !== 'true';
             const buttonId = `toggle-${type}`;
             
-            if(showAll) {
-                renderList(statsData.totales[type], containerId);
-                document.getElementById(containerId).setAttribute('data-full', 'false');
-                document.getElementById(buttonId).innerText = type === 'barrios' ? 'Ver todos' : 'Ver todas';
-            } else {
-                renderList(statsData.totales[type], containerId, true);
-                document.getElementById(containerId).setAttribute('data-full', 'true');
-                document.getElementById(buttonId).innerText = type === 'barrios' ? 'Mostrar menos' : 'Mostrar menos';
-            }
+            renderList(statsData.totales[type], containerId, showAll);
+            container.dataset.full = showAll.toString();
+            document.getElementById(buttonId).innerText = showAll ? 
+                (type === 'barrios' ? 'Mostrar menos' : 'Mostrar menos') : 
+                (type === 'barrios' ? 'Ver todos' : 'Ver todas');
         }
 
+        // Cargar y renderizar datos
         async function fetchStats() {
             try {
-                // Obtener datos de estadísticas y histórico
                 const response = await fetch('https://datos.vallabus.com/reclamaciones/stats_reclamaciones.json');
-                const data = await response.json();
+                statsData = await response.json();
 
-                // Actualizar el DOM con los datos de estadísticas
-                document.getElementById('total-reclamaciones').textContent = data.totales.total_reclamaciones;
-                document.getElementById('total-barrios').textContent = Object.keys(data.totales.barrios).length;
+                // Actualizar el DOM con los datos
+                document.getElementById('total-reclamaciones').textContent = statsData.totales.total_reclamaciones;
+                document.getElementById('total-barrios').textContent = Object.keys(statsData.totales.barrios).length;
 
-                // Renderizar listas iniciales
-                renderList(data.totales.barrios, 'barriosList');
-                renderList(data.totales.lineas, 'lineasList');
+                // Renderizar listas
+                renderList(statsData.totales.barrios, 'barriosList');
+                renderList(statsData.totales.lineas, 'lineasList');
 
                 // Preparar los datos para el gráfico
                 const complaintsData = {
-                    labels: [], // Fechas
+                    labels: [],
                     datasets: [{
                         label: 'Reclamaciones totales',
-                        data: [], // Número de reclamaciones por fecha
+                        data: [],
                         backgroundColor: '#ecf8f6',
                         borderColor: '#2b7b6c',
                         borderWidth: 1
                     }]
                 };
 
-                // Rellenar los datos del gráfico con el histórico
-                for (const fecha in data.historico) {
+                // Llenar los datos del gráfico desde el historial
+                for (const fecha in statsData.historico) {
                     const [year, month, day] = fecha.split('-');
-                    const formattedDate = `${day}/${month}`; // Transformar la fecha a DD/MM
-                    complaintsData.labels.push(formattedDate); // Añadir la fecha formateada
-                    complaintsData.datasets[0].data.push(data.historico[fecha].total_reclamaciones); // Añadir el total de reclamaciones
+                    const formattedDate = `${day}/${month}`;
+                    complaintsData.labels.push(formattedDate);
+                    complaintsData.datasets[0].data.push(statsData.historico[fecha].total_reclamaciones);
                 }
 
                 // Dibujar el gráfico
                 const ctx = document.getElementById('complaintsChart').getContext('2d');
-                const complaintsChart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'line',
                     data: complaintsData,
                     options: {
@@ -736,12 +744,12 @@
                         },
                         plugins: {
                             legend: {
-                                display: true, // Asegúrate de que la leyenda esté visible
-                                position: 'bottom', // Coloca la leyenda en la parte inferior
+                                display: true,
+                                position: 'bottom',
                                 labels: {
-                                    color: '#333', // Color del texto de la leyenda (opcional)
+                                    color: '#333',
                                     font: {
-                                        size: 12 // Tamaño de la fuente (opcional)
+                                        size: 12
                                     }
                                 }
                             }
