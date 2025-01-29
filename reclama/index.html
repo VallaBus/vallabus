@@ -340,27 +340,28 @@
                 </div>
 
                 <div class="bg-vallabus-light p-4 rounded-lg space-y-3">
-                    <p class="text-sm text-gray-700">Al hacer clic en enviar:</p>
+                    <p class="text-sm text-gray-700"><strong>Importante:</strong> Leer antes de hacer clic a enviar</p>
                     <ul class="space-y-2 text-sm text-gray-600">
                         <li class="flex items-center gap-2">
-                            <i data-lucide="message-circle" class="h-4 w-4"></i>
+                            <i data-lucide="message-circle" class="h-6 w-6"></i>
                             Se abrirá el WhatsApp del ayuntamiento
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="message-square" class="h-4 w-4"></i>
-                            Importante: Manda un primer mensaje "Hola"
+                            <i data-lucide="message-square" class="h-6 w-6"></i>
+                            Manda el mensaje que aparece para iniciar el bot
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="copy" class="h-4 w-4"></i>
-                            Usa "Pegar" para enviar el texto de nuevo
+                            <i data-lucide="copy" class="h-6 w-6"></i>
+                            Pulsa "Pegar" en el cuadro de escritura
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="send" class="h-4 w-4"></i>
-                            Edita, envía y pulsa en ✉️ Finalizar Petición
+                            <i data-lucide="send" class="h-6 w-6"></i>
+                            Se rellenará el texto de la reclamación
+                            <br /> Envía y pulsa en ✉️ Finalizar Petición
                         </li>
                         <li class="flex items-center gap-2">
-                            <i data-lucide="circle-check" class="h-4 w-4"></i>
-                            Recibiras código de referencia al terminar<br />Vuelve a pegar el texto si no te dieron el código
+                            <i data-lucide="circle-check" class="h-6 w-6"></i>
+                            <span>Recibiras código de referencia al terminar<br /><strong>Vuelve a pegar el texto si no te dieron el código</strong></span>
                         </li>
                     </ul>
                 </div>
@@ -592,7 +593,7 @@
                                .map(option => option.value).join(', ');
             
             let mensaje = `Hola, mi nombre es ${nombreInput.value.trim()}`;
-            let mensajeInit = 'Importante: Manda este mensaje para iniciar. Luego deja pulsado el cuadro de texto y elige Pegar para autocompletar y mandar tu reclamación';
+            let mensajeInit = 'Importante: 1. Manda este mensaje para iniciar. 2. Deja pulsado el cuadro de escritura y elige Pegar 3. Envía tu reclamación';
 
             if(barrio) {
                 mensaje += `, vivo en ${barrio}`;
