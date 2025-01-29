@@ -601,26 +601,22 @@
             mensaje += `sobre baja calidad del servicio de AUVASA y en concreto su falta de cumplimiento `;
             mensaje += `de horarios y frecuencias que afecta a mis desplazamientos.\n\nSolicito que inviertan en nuevos vehículos y personal para garantizar el cumplimiento de horarios y frecuencias.\n\nUn saludo.`;
 
-            try {
-                // Registrar el evento en Matomo
-                if (typeof _paq !== 'undefined') {
-                    // Registrar el barrio si está seleccionado
-                    if (barrio) {
-                        _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionBarrio', barrio]);
-                    }
-                    
-                    // Registrar cada línea seleccionada
-                    if (lineas) {
-                        lineas.split(', ').forEach(linea => {
-                            _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionLinea', linea]);
-                        });
-                    }
-                    
-                    // Registrar la reclamación general
-                    _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionEnviada', 'WhatsApp']);
-                }
+            // Enviamos evento de reclamación y guardamos fecha
+            // Solo enviamos un evento por dia y usuario
+            const hoy = new Date().toDateString();
+            const ultimaReclamacion = localStorage.getItem('ultimaReclamacionFecha');
 
-                // Copiar al portapapeles
+            if (typeof _paq !== 'undefined' && ultimaReclamacion !== hoy) {
+                if (barrio) _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionBarrio', barrio]);
+                if (lineas) lineas.split(', ').forEach(linea => _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionLinea', linea]));
+                    _paq.push(['trackEvent', 'Reclamacion', 'ReclamacionEnviada', 'WhatsApp']);
+                localStorage.setItem('ultimaReclamacionFecha', hoy);
+                console.log('Se guardó evento de reclamación');
+            } else {
+                console.log('Ya mandaste una reclamación hoy, no guardamos evento');
+            }
+
+            try {
                 await navigator.clipboard.writeText(mensaje);
                 
                 // Abrir WhatsApp
