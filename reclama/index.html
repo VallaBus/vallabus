@@ -653,7 +653,8 @@
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensajeInit)}`;
                 window.open(url, '_blank');
                 // Crear y mostrar el diálogo flotante
-                showConfirmationDialog(document.createTextNode(nombreInput.value.trim()).textContent);
+                const nombreLimpio = nombreInput.value.trim().split(' ')[0].replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/gi, '');
+                showConfirmationDialog(nombreLimpio);
 
             } catch (err) {
                 // Fallback para navegadores antiguos
@@ -668,7 +669,8 @@
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
                 window.open(url, '_blank');
                 // Crear y mostrar el diálogo flotante
-                showConfirmationDialog(document.createTextNode(nombreInput.value.trim()).textContent);
+                const nombreLimpio = nombreInput.value.trim().split(' ')[0].replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/gi, '');
+                showConfirmationDialog(nombreLimpio);
             }
         }
 
