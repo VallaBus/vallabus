@@ -652,6 +652,9 @@
                 const numeroWhatsApp = '34660010010';
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensajeInit)}`;
                 window.open(url, '_blank');
+                // Crear y mostrar el diálogo flotante
+                showConfirmationDialog(nombreInput.value.trim());
+
             } catch (err) {
                 // Fallback para navegadores antiguos
                 const textarea = document.createElement('textarea');
@@ -665,6 +668,33 @@
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
                 window.open(url, '_blank');
             }
+        }
+
+        function showConfirmationDialog(nombre) {
+            const dialog = document.createElement('div');
+                dialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                dialog.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md relative">
+                        <button onclick="this.closest('.fixed').remove()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                            <i data-lucide="x" class="h-6 w-6"></i>
+                        </button>
+                        <div class="flex flex-col items-center mb-4 text-center">
+                            <i data-lucide="check-circle" class="h-10 w-10 text-vallabus mb-2"></i>
+                            <h3 class="text-lg font-semibold">${nombre}, ¡muchas gracias!</h3>
+                        </div>
+                        <p class="text-sm mb-3">Verifica que has recibido <strong>un código al finalizar</strong>. Si no, vuelve a WhatsApp y pega el mensaje de nuevo.</p>
+                        <p class="text-sm mb-4">Y sólo una última cosa...</p>
+                        <button onclick="sharePage()" class="w-full bg-vallabus text-white py-2 px-4 rounded text-sm hover:bg-opacity-90 transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="share-2" class="h-4 w-4"></i>
+                            Comparte este asistente
+                        </button>
+                        <p class="text-sm mt-3">En redes sociales y grupos de chat para que otros puedan reclamar soluciones</p>
+                    </div>
+                `;
+                document.body.appendChild(dialog);
+
+                // Inicializar Lucide icons
+                lucide.createIcons();
         }
 
         function sharePage() {
