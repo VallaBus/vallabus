@@ -653,7 +653,7 @@
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensajeInit)}`;
                 window.open(url, '_blank');
                 // Crear y mostrar el diálogo flotante
-                showConfirmationDialog(nombreInput.value.trim());
+                showConfirmationDialog(document.createTextNode(nombreInput.value.trim()).textContent);
 
             } catch (err) {
                 // Fallback para navegadores antiguos
@@ -667,6 +667,8 @@
                 const numeroWhatsApp = '34660010010';
                 const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
                 window.open(url, '_blank');
+                // Crear y mostrar el diálogo flotante
+                showConfirmationDialog(document.createTextNode(nombreInput.value.trim()).textContent);
             }
         }
 
