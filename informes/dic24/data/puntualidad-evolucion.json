@@ -1,8 +1,8 @@
 [
-{"Fecha":"jul., 2024","Puntual":"332,046","Retrasado":"386,125","Adelantado":"223,537","Contar":"1,091,634","Puntuales (%)":"30"},
-{"Fecha":"ago., 2024","Puntual":"372,375","Retrasado":"372,216","Adelantado":"271,366","Contar":"1,113,230","Puntuales (%)":"33"},
-{"Fecha":"sept., 2024","Puntual":"368,472","Retrasado":"541,502","Adelantado":"217,752","Contar":"1,290,281","Puntuales (%)":"29"},
-{"Fecha":"oct., 2024","Puntual":"359,257","Retrasado":"583,579","Adelantado":"200,517","Contar":"1,292,090","Puntuales (%)":"28"},
-{"Fecha":"nov., 2024","Puntual":"368,824","Retrasado":"589,902","Adelantado":"200,265","Contar":"1,270,842","Puntuales (%)":"29"},
-{"Fecha":"dic., 2024","Puntual":"379,963","Retrasado":"533,505","Adelantado":"221,649","Contar":"1,223,473","Puntuales (%)":"31"}
+{"Fecha":"jul 2024","Puntual":"332,046","Retrasado":"386,125","Adelantado":"223,537","count":"941,708","Puntuales (%)":"35"},
+{"Fecha":"ago 2024","Puntual":"372,375","Retrasado":"372,216","Adelantado":"271,366","count":"1,015,957","Puntuales (%)":"37"},
+{"Fecha":"sept 2024","Puntual":"368,472","Retrasado":"541,502","Adelantado":"217,752","count":"1,127,726","Puntuales (%)":"33"},
+{"Fecha":"oct 2024","Puntual":"359,257","Retrasado":"583,579","Adelantado":"200,517","count":"1,143,353","Puntuales (%)":"31"},
+{"Fecha":"nov 2024","Puntual":"368,824","Retrasado":"589,902","Adelantado":"200,265","count":"1,158,991","Puntuales (%)":"32"},
+{"Fecha":"dic 2024","Puntual":"379,963","Retrasado":"533,505","Adelantado":"221,649","count":"1,135,117","Puntuales (%)":"33"}
 ]
