@@ -444,11 +444,11 @@
                         </button>
                     </div>
                     
-                    <!-- Evolución por día -->
+                    <!-- Evolución por semana -->
                     <div class="bg-gray-50 p-4 rounded-lg sm:col-span-2">
                         <h3 class="font-semibold mb-3 text-vallabus">
                             <i data-lucide="calendar" class="inline mr-2"></i>
-                            Evolución por día
+                            Evolución por semana
                         </h3>
                         <canvas id="complaintsChart"></canvas>
                     </div>
@@ -798,7 +798,7 @@
         async function fetchStats() {
             try {
                 const response = await fetch('https://datos.vallabus.com/reclamaciones/stats_reclamaciones.json');
-                statsData = await response.json();
+                const statsData = await response.json();
 
                 // Actualizar el DOM con los datos
                 document.getElementById('total-reclamaciones').textContent = statsData.totales.total_reclamaciones;
@@ -808,7 +808,7 @@
                 renderList(statsData.totales.barrios, 'barriosList');
                 renderList(statsData.totales.lineas, 'lineasList');
 
-                // Preparar los datos para el gráfico
+                // Preparar datos para el gráfico
                 const complaintsData = {
                     labels: [],
                     datasets: [{
@@ -820,12 +820,60 @@
                     }]
                 };
 
-                // Llenar los datos del gráfico desde el historial
-                for (const fecha in statsData.historico) {
-                    const [year, month, day] = fecha.split('-');
-                    const formattedDate = `${day}/${month}`;
-                    complaintsData.labels.push(formattedDate);
-                    complaintsData.datasets[0].data.push(statsData.historico[fecha].total_reclamaciones);
+                // Funciones auxiliares
+                function getISOWeek(date) {
+                    const d = new Date(date);
+                    d.setHours(0, 0, 0, 0);
+                    d.setDate(d.getDate() + 4 - (d.getDay() || 7)); // Ajustar al jueves
+                    const yearStart = new Date(d.getFullYear(), 0, 1);
+                    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                    return { isoYear: d.getFullYear(), isoWeek: weekNo };
+                }
+
+                function getWeekRange(date) {
+                    const d = new Date(date);
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Lunes anterior
+                    const start = new Date(d.setDate(diff));
+                    const end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    return { start, end };
+                }
+
+                function formatWeekLabel(start, end) {
+                    const format = (date) => `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    return `${format(start)} - ${format(end)}`;
+                }
+
+                // Procesar fechas ordenadas
+                const historicoDates = Object.keys(statsData.historico).sort();
+                let currentWeekKey = null;
+                let currentWeekTotal = 0;
+                let currentLabel = '';
+
+                for (const fecha of historicoDates) {
+                    const date = new Date(fecha);
+                    const { isoYear, isoWeek } = getISOWeek(date);
+                    const weekKey = `${isoYear}-${isoWeek}`;
+
+                    if (weekKey !== currentWeekKey) {
+                        if (currentWeekKey !== null) {
+                            complaintsData.labels.push(currentLabel);
+                            complaintsData.datasets[0].data.push(currentWeekTotal);
+                        }
+                        currentWeekKey = weekKey;
+                        const weekRange = getWeekRange(date);
+                        currentLabel = formatWeekLabel(weekRange.start, weekRange.end);
+                        currentWeekTotal = statsData.historico[fecha].total_reclamaciones;
+                    } else {
+                        currentWeekTotal = statsData.historico[fecha].total_reclamaciones;
+                    }
+                }
+
+                // Añadir la última semana
+                if (currentWeekKey !== null) {
+                    complaintsData.labels.push(currentLabel);
+                    complaintsData.datasets[0].data.push(currentWeekTotal);
                 }
 
                 // Dibujar el gráfico
@@ -834,25 +882,17 @@
                     type: 'line',
                     data: complaintsData,
                     options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
+                        scales: { y: { beginAtZero: true } },
                         plugins: {
                             legend: {
                                 display: true,
                                 position: 'bottom',
-                                labels: {
-                                    color: '#333',
-                                    font: {
-                                        size: 12
-                                    }
-                                }
+                                labels: { color: '#333', font: { size: 12 } }
                             }
                         }
                     }
                 });
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
