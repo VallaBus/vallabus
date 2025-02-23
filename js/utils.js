@@ -1540,7 +1540,7 @@ async function showStatusDialog() {
                 </div>
             </div>
             <div>
-                <p class="status-submessage">Si crees que alguna información presenta algún error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a>, <a href="https://bsky.app/profile/vallabus.com">BlueSky</a> o <a href="https://twitter.com/vallabusapp">Twitter</a></p>
+                <p class="status-submessage">Si crees que alguna información presenta algún error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a>, <a href="https://bsky.app/profile/vallabus.com">BlueSky</a></p>
             </div>
         `;
     } else {
@@ -1549,7 +1549,7 @@ async function showStatusDialog() {
                 <div class="status-icon"></div>
                 <h2 class="status-message">El API de VallaBus está inactiva</h2>
                 <p class="status-submessage">No se puede obtener el estado actual de los servicios</p>
-                <p class="status-submessage">Si crees que esto es un error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a>, <a href="https://bsky.app/profile/vallabus.com">BlueSky</a> o <a href="https://twitter.com/vallabusapp">Twitter</a></p>
+                <p class="status-submessage">Si crees que esto es un error, contacta con nosotros en <a href="https://t.me/vallabusapp">Telegram</a>, <a href="https://bsky.app/profile/vallabus.com">BlueSky</a></p>
             </div>
         `;
     }
