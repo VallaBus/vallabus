@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Informe sobre calidad del servicio de AUVASA - Abril 2025 - VallaBus</title>
+    <meta name="description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
+    <meta name="keywords" content="AUVASA, Valladolid, transporte público, bus, VallaBus, puntualidad, frecuencias, informe, calidad servicio">
+    <meta name="author" content="VallaBus">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vallabus.com/informes/feb24/">
+    <meta property="og:title" content="Informe sobre calidad del servicio de AUVASA - Abril 2025 - VallaBus">
+    <meta property="og:description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
+    <meta property="og:image" content="https://vallabus.com/informes/feb25/social-preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vallabus.com/informes/feb25">
+    <meta property="twitter:title" content="Informe sobre calidad del servicio de AUVASA - Abril 2025 - VallaBus">
+    <meta property="twitter:description" content="Descubre los datos preocupantes en puntualidad y frecuencias">
+    <meta property="twitter:image" content="https://vallabus.com/informes/feb25/social-preview.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../../favicon.png">
+    <link rel="apple-touch-icon" href="../../favicon.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.482.0/dist/umd/lucide.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 100%;
+            min-height: 250px;
+        }
+        
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 250px;
+                margin: 0 -10px;
+            }
+        }
+        
+        .card-icon, .text-primary, .text-vallabus {
+            color: hsl(168.8, 23.2%, 30.5%);
+        }
+
+        .text-secondary {
+            color: #2b7b6c;
+        }
+
+        a {
+            color: hsl(168.8, 23.2%, 30.5%);
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        #cta-button {
+            text-decoration: none !important;
+        }
+
+        #share-button {
+            background-color: hsl(168.8, 48.2%, 32.5%);
+            color: hsl(0, 0%, 100%);
+        }
+
+        .bg-vallabus {
+            background-color: hsl(168.8, 48.2%, 32.5%);
+        }
+
+        .bg-vallabus-light {
+            background-color: hsl(168.8, 48.2%, 95%);
+        }
+
+        .border-vallabus {
+            border-color: hsl(168.8, 48.2%, 32.5%);
+        }
+
+        .border-vallabus-light {
+            border-color: hsl(168.8, 48.2%, 90%);
+        }
+
+        .linea {
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+
+        .linea-1 {
+            background-color: hsl(117.6, 42.9%, 54.7%);
+            color: #FFF;
+        }
+
+        .linea-2 {
+            background-color: hsl(45.4, 87.9%, 57.8%);
+            color: #000;
+        }
+
+        .linea-C2 {
+            background-color: hsl(60, 1.2%, 32.9%);
+            color: #FFF;
+        }
+
+        .chart-wrapper {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .chart-wrapper.hidden {
+            display: none;
+        }
+        
+        .charts-container {
+            position: relative;
+            touch-action: pan-y pinch-zoom;
+        }
+        
+        .chart-dot {
+            transition: background-color 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        
+        .prev-chart,
+        .next-chart {
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        #floating-buttons {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #floating-buttons button {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        #floating-buttons button:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        @media (max-width: 640px) {
+            #floating-buttons {
+                bottom: 1.2rem;
+                right: 1.2rem;
+            }
+        }
+
+        #bluesky-icon {
+            background-image: url('../../img/bluesky-square.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+
+    <script>
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://stats.vallabus.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+</head>
+<body class="bg-gray-100 sm:p-8 p-2">
+    <div id="floating-buttons" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 translate-y-[200%]">
+        <button onclick="scrollToTop()" class="bg-gray-400 text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300 flex items-center gap-2">
+            <i data-lucide="arrow-up" class="h-7 w-7"></i>
+        </button>
+        <button onclick="shareReport()" class="bg-vallabus text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300 flex items-center gap-2">
+            <i data-lucide="share-2" class="h-7 w-7"></i>
+        </button>
+    </div>
+
+    <div class="max-w-5xl mx-auto space-y-2 sm:p-6 p-0 bg-gray-50/50 rounded-xl">
+        <a href="/?mtm_campaign=informeback" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 underline transition-colors mt-2">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+            vallabus.com
+        </a>
+        <!-- Header principal -->
+        <div class="bg-white rounded-none sm:rounded-lg shadow-sm border-x-0 border-t-0 sm:border border-gray-100 overflow-hidden">
+            <div class="bg-white p-8 sm:p-12 flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                <i data-lucide="chart-column" class="h-16 w-16 sm:h-32 sm:w-32 text-secondary"></i>
+                <div class="text-left">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-secondary mb-2">
+                        Análisis de calidad servicio AUVASA
+                    </h2>
+                    <h3 class="text-lg font-medium text-primary mb-3">
+                        Abril 2025
+                    </h3>
+                    <p class="text-primary text-base sm:text-lg leading-relaxed">
+                        El transporte público de Valladolid enfrenta desafíos significativos en puntualidad y frecuencias
+                    </p>
+                    <p class="text-primary text-base sm:text-lg leading-relaxed mt-2">
+                        El análisis de <a href="https://vallabus.com" class="underline" target="_blank">VallaBus</a> continua revelando datos preocupantes para los usuarios que dependen de este servicio
+                    </p>
+                    <p class="mt-4"><a href="/informes/" class="text-gray-400 text-sm sm:text-lg underline">Ver todos los informes</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjetas de estadísticas -->
+        <div class="grid md:grid-cols-3 gap-4 sm:gap-6" id="statsCards"></div>
+
+        <!-- Índice de contenidos -->
+        <div id="index" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="list" class="h-5 w-5 card-icon"></i>
+                <h3 class="text-lg font-medium text-primary">Índice</h3>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#punctuality-chart" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Cumplimiento de horarios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#punctuality-neighborhoods-chart" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Cumplimiento por barrios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#frequency-chart" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Frecuencias en líneas principales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#monthly-trend" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Evolución de puntualidad
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#delay-evolution" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Evolución de puntualidad en trayectos
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#methodology" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Metodología
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#vallabus" class="flex items-center gap-2 text-primary hover:opacity-75 transition-opacity">
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            Sobre VallaBus
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Actualizar el panel informativo -->
+        <div class="p-4 bg-vallabus-light rounded-lg border border-vallabus-light">
+            <h3 class="font-medium text-vallabus mb-4 flex items-center gap-2 text-lg">
+                <i data-lucide="clipboard-check" class="h-5 w-5 text-vallabus"></i>
+                Conclusiones principales
+            </h3>
+            <ul class="text-base text-vallabus space-y-2">
+                <li class="flex items-start gap-2">
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
+                    <span><strong>6 de cada 10</strong> llegadas <a class="underline decoration-red-500" href="#punctuality-chart">no cumplen</a> con su <strong>horario programado</strong></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
+                    <span><strong>3 de cada 10</strong> buses  <a class="underline decoration-red-500" href="#frequency-chart">supera</a> la <strong>frecuencia de paso máxima</strong></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i data-lucide="arrow-right" class="h-4 w-4 mt-1 flex-shrink-0"></i>
+                    Leve mejora en los últimos meses
+                </li>
+            </ul>
+            <button onclick="shareReport()" class="text-base bg-vallabus text-white py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
+                <i data-lucide="share-2" class="h-5 w-5"></i>
+                Comparte el informe
+            </button>
+            <button class="text-base bg-yellow-600 text-white py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
+                <i data-lucide="message-circle-warning" class="h-5 w-5"></i>
+                <a href="/reclama/?mtm_campaign=informebutton">Registra una queja</a>
+            </button>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+            <!-- Gráfica de Puntualidad -->
+            <div id="punctuality-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="clock" class="h-5 w-5 card-icon"></i>
+                    <h3 class="text-lg font-medium text-primary">Cumplimiento de horarios</h3>
+                </div>
+                <p id="punctuality-chart-description" class="text-lg text-primary mb-0 text-center">7 de cada 10</p>
+                <p class="text-sm text-primary mb-6 text-center">no cumplen su horario programado</p>
+                <div class="chart-container">
+                    <canvas id="punctualityChart"></canvas>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Abril 2025</h3>
+                </div>
+            </div>
+
+            <!-- Gráfica de Puntualidad por Barrios -->
+            <div id="punctuality-neighborhoods-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="building-2" class="h-5 w-5 card-icon"></i>
+                    <h3 class="text-lg font-medium text-primary">Cumplimiento por barrios</h3>
+                </div>
+                <p id="punctuality-neighborhoods-description" class="text-lg text-primary mb-0 text-center">7 de cada 10</p>
+                <p class="text-sm text-primary mb-6 text-center">no cumplen su horario programado</p>
+                <div class="chart-container">
+                    <canvas id="punctualityNeighborhoodsChart"></canvas>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Abril 2025</h3>
+                </div>
+            </div>
+
+            <!-- Gráfica de Frecuencias -->
+            <div id="frequency-chart" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="bus" class="h-5 w-5 card-icon"></i>
+                    <h3 class="text-lg font-medium text-primary">Frecuencias en líneas principales</h3>
+                </div>
+                <p id="frequency-chart-description" class="text-lg text-primary mb-0 text-center">3 de cada 10</p>
+                <p class="text-sm text-primary mb-6 text-center">supera la frecuencia máxima</p>
+                <div class="chart-container">
+                    <canvas id="frequencyChart"></canvas>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="calendar-days" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Días laborables</h3>
+                </div>
+                <div class="flex items-center gap-2 mb-1 mt-5">
+                    <i data-lucide="map-pin" class="h-5 w-5 text-gray-400"></i>
+                    <h3 class="text-xs text-gray-500">Plaza España Bola del Mundo<br />Av. Segovia frente Plaza del Carmen</h3>
+                </div>
+            </div>
+
+            <!-- Paneles Informativos -->
+            <div class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-rose-50 rounded-lg border border-rose-100">
+                        <h3 class="font-medium text-rose-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="users" class="h-5 w-5 text-rose-900"></i>
+                            Impacto en usuarios
+                        </h3>
+                        <ul class="text-sm text-rose-700 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Falta de confianza en horarios programados
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Tiempos de espera prolongados en paradas clave
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Incertidumbre para planificar viajes
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <h3 class="font-medium text-indigo-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="lightbulb" class="h-5 w-5 text-indigo-900"></i>
+                            Propuestas de mejora
+                        </h3>
+                        <ul class="text-sm text-indigo-800 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Adecuación e inversión en el servicio para cumplir los horarios comprometidos
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Cumplimiento de frecuencias máximas en todos los tramos horarios
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="arrow-right" class="h-4 w-4 mt-0.5 flex-shrink-0"></i>
+                                Publicación de un sistema sencillo y transparente para medir la calidad del servicio
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evolución mensual de puntualidad -->
+        <div id="monthly-trend" class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="trending-up-down" class="h-5 w-5 card-icon"></i>
+                <h3 class="text-lg font-medium text-primary">Evolución de puntualidad</h3>
+            </div>
+            <p class="text-sm text-primary mb-5">Leve mejora en los últimos meses</p>
+            <div class="chart-container">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+            <div class="flex items-center gap-2 mb-1 mt-5">
+                <i data-lucide="bus" class="h-5 w-5 text-gray-400"></i>
+                <h3 class="text-xs text-gray-500">Datos de todas las líneas y paradas</h3>
+            </div>
+        </div>
+
+        <!-- Gráfica de evolución del retraso -->
+        <div id="delay-evolution" class="md:col-span-2 bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="trending-down" class="h-5 w-5 card-icon"></i>
+                <h3 class="text-lg font-medium text-primary">Evolución de puntualidad en trayectos</h3>
+            </div>
+            <p class="text-sm text-primary mb-5">Observamos una tendencia en la que los retrasos empeoran a medida avanzan los trayectos</p>
+            <div id="delay-evolution-chart"></div>
+        </div>
+
+        <!-- Metodología -->
+        <div id="methodology" class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-start gap-3">
+                <div>
+                    <h2 class="text-xl font-semibold text-primary mb-4">
+                        <i data-lucide="clipboard-list" class="h-6 w-6 inline-block align-middle mr-2 card-icon"></i>
+                        Metodología
+                    </h2>
+                    <p class="text-primary text-sm leading-relaxed mb-4">
+                        Análisis basado en <a href="https://www.auvasa.es/datos-abiertos/" class="underline" target="_blank">datos oficiales compartidos en tiempo real por AUVASA</a> (GTFS), en todas las líneas y paradas de su red
+                    </p>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-primary mb-2">
+                                <i data-lucide="clock" class="h-5 w-5 inline-block align-middle mr-2 text-primary"></i>
+                                Criterios de puntualidad
+                            </h3>
+                            <p class="text-sm text-primary">
+                                Un bus se considera puntual si presenta menos de 2 minutos de desfase respecto a su horario programado
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-primary mb-2">
+                                <i data-lucide="timer" class="h-5 w-5 inline-block align-middle mr-2 text-primary"></i>
+                                Análisis de frecuencias
+                            </h3>
+                            <p class="text-sm text-primary">
+                                Evaluación de líneas principales (1, 2 y C2) usando las últimas frecuencias oficiales publicadas por AUVASA (2020)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque de compartir -->
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="text-xl font-semibold text-primary mb-5">
+                    Tú puedes ayudar
+                </h2>
+                <button id="share-button" onclick="shareReport()" class="bg-primary text-base py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mb-5">
+                    <i data-lucide="share-2" class="h-5 w-5"></i>
+                    Compartir informe
+                </button>
+                <p class="text-primary text-sm">
+                    En redes sociales y grupos de chat para dar visibilidad y reclamar soluciones
+                </p>
+                <button class="text-base bg-yellow-600 text-white py-3 px-6 rounded-lg hover:opacity-90 transition duration-300 flex items-center gap-2 mx-auto mt-4">
+                    <i data-lucide="message-circle-warning" class="h-5 w-5"></i>
+                    <a href="/reclama/?mtm_campaign=informebutton">Registra una queja</a>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sección VallaBus -->
+        <div id="vallabus" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Imagen cover -->
+            <img src="../../img/screenshot.jpg" alt="VallaBus Screenshot" class="w-full h-48 sm:h-64 md:h-72 lg:h-96 object-cover object-top">
+            
+            <div class="sm:p-6 p-4">
+                <div class="flex items-start gap-3">
+                    <div>
+                        <h2 class="text-xl font-semibold text-primary mb-2">
+                            VallaBus: Navega la incertidumbre
+                        </h2>
+                        <p class="text-primary text-sm leading-relaxed mb-4">
+                            App creada por voluntarios y usuarios del bus a inicios de 2025, proporciona información precisa en Valladolid y alrededores
+                        </p>
+                        <div class="grid sm:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
+                                    <i data-lucide="map-pin" class="h-5 w-5 text-primary"></i>
+                                    Seguimiento en tiempo real
+                                </h3>
+                                <p class="text-sm text-primary">
+                                    Visualiza en mapa la ubicación exacta de cada bus y su puntualidad
+                                </p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
+                                    <i data-lucide="bell" class="h-5 w-5 text-primary"></i>
+                                    Llegadas precisas
+                                </h3>
+                                <p class="text-sm text-primary">
+                                    Notificaciones en tiempo real sobre retrasos y adelantos
+                                </p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-primary mb-2 flex items-center gap-2">
+                                    <i data-lucide="route" class="h-5 w-5 text-primary"></i>
+                                    Planificación inteligente
+                                </h3>
+                                <p class="text-sm text-primary">
+                                    Rutas multimodales (bus + BIKI) basada en tiempos actualizados
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-gray-50 p-4 rounded-lg border border-vallabus flex items-center gap-4">
+                            <i data-lucide="bus" class="h-32 w-32 text-primary"></i>
+                            <div>
+                                <p class="text-sm text-primary">
+                                    Miles de usuarios consideran ya <a href="https://vallabus.com" target="_blank">VallaBus</a> la única solución a la falta de claridad en horarios y frecuencias
+                                </p>
+                                <a id="cta-button" href="https://vallabus.com" target="_blank" class="mt-4 inline-block bg-vallabus text-white text-base py-2 px-4 rounded hover:bg-vallabus transition duration-300 text-center">Probar ahora</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de redes sociales -->
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="text-xl font-semibold text-primary mb-4">
+                    Síguenos para más novedades
+                </h2>
+                <p class="text-primary text-sm mb-6">
+                    Mantente al día de nuevos informes e innovaciones
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/vallabusapp/" target="_blank" 
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="instagram" class="h-8 w-8 sm:h-12 sm:w-12 text-pink-600"></i>
+                        <span class="text-sm font-medium">Instagram</span>
+                    </a>
+                    <!-- BlueSky -->
+                    <a href="https://bsky.app/profile/vallabus.com" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i id="bluesky-icon" data-lucide="bluesky" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
+                        <span class="text-sm font-medium">BlueSky</span>
+                    </a>
+                    <!-- WhatsApp -->
+                    <a href="https://whatsapp.com/channel/0029VacJrldIHphBU41MLM25" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="message-circle" class="h-8 w-8 sm:h-12 sm:w-12 text-green-600"></i>
+                        <span class="text-sm font-medium">WhatsApp</span>
+                    </a>
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com/@vallabusapp" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="play" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-900"></i>
+                        <span class="text-sm font-medium">TikTok</span>
+                    </a>
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/profile.php?id=61561026144737" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="facebook" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-600"></i>
+                        <span class="text-sm font-medium">Facebook</span>
+                    </a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/vallabusapp" target="_blank"
+                       class="flex flex-col items-center justify-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i data-lucide="send" class="h-8 w-8 sm:h-12 sm:w-12 text-blue-500"></i>
+                        <span class="text-sm font-medium">Telegram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque de licencia -->
+        <div class="bg-white sm:p-6 p-4 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <i data-lucide="copyright" class="h-8 w-8"></i>
+                <p>
+                    Este informe está bajo licencia 
+                    <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank">
+                        Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
