@@ -2744,6 +2744,31 @@ button.remove-stop {
     font-weight: normal;
 }
 
+#tips-banner .guia-banner {
+    background-image: url('/img/sparkles-green.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    border-left: none;
+    padding-left: 20px;
+}
+
+.dark-mode #tips-banner .guia-banner {
+    background-image: url('/img/sparkles.png');
+}
+
+#tips-banner .guia-banner a {
+    font-weight: normal;
+}
+
+#tips-banner .guia-banner .close-tip {
+    color: hsl(168.8, 23.2%, 30.5%);
+}
+
+.dark-mode #tips-banner .guia-banner .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
+}
+
 #tips-banner #map-tip {
     background-image: url('/img/bus-location-white.png');
     background-size: 22px;
