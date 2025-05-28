@@ -489,22 +489,43 @@ async function displayScheduledBuses(stopNumber, date) {
     dateInput.setAttribute('value', date);
     dateInput.dispatchEvent(new Event('change'));
     
+    // Botón para añadir parada a la lista
+    const addStopButton = document.createElement('button');
+    addStopButton.className = 'add-stop-to-list';
+    addStopButton.innerHTML = `<span class="addLineButton" data-stop-number="${stopNumber}"> Añadir a tu lista</span>`;
+    addStopButton.type = 'button';
+
+    // Nuevo: contenedor para acciones (botón + input + explicación)
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'horarios-actions';
+
+    // Primera línea: botón a la izquierda, input a la derecha
+    const actionsRow = document.createElement('div');
+    actionsRow.className = 'horarios-actions-row';
+    actionsRow.appendChild(addStopButton);
+    actionsRow.appendChild(dateInput);
+    actionsDiv.appendChild(actionsRow);
+
+    // Segunda línea: explicación alineada a la derecha
+    const explanationDiv = document.createElement('div');
+    explanationDiv.className = 'horarios-actions-explanation';
+    explanationDiv.innerHTML = '<p id="stopDateExplanation">Toca para ver otros días</p>';
+    actionsDiv.appendChild(explanationDiv);
+
     if (horariosBuses && horariosBuses.parada && horariosBuses.parada[0]) {
         horariosElement.innerHTML += `
             <button class="horarios-close">X</button>
             <h2>${horariosBuses.parada[0].parada}</h2>
             <p>Horarios programados de <strong>llegada a esta parada.</strong></p>
         `;
-        horariosElement.appendChild(dateInput);
-        horariosElement.innerHTML += '<p id="stopDateExplanation">Modifique para ver otros días</p>';
+        horariosElement.appendChild(actionsDiv);
     } else {
         horariosElement.innerHTML += `
             <button class="horarios-close">X</button>
             <h2>Parada${stopNumber}</h2>
             <p>Horarios programados de <strong>llegada a esta parada.</strong></p>
         `;
-        horariosElement.appendChild(dateInput);
-        horariosElement.innerHTML += '<p id="stopDateExplanation">Modifique para ver otros días</p>';
+        horariosElement.appendChild(actionsDiv);
     }
 
     // Ordenar líneas, primer numéricas
