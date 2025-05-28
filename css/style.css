@@ -1354,7 +1354,7 @@ button.remove-stop {
 
 .horarios-actions-row #stopDateInput {
     margin-left: auto;
-    font-size: 1em;
+    font-size: 0.8em;
 }
 
 .horarios-actions-explanation {
@@ -1365,7 +1365,6 @@ button.remove-stop {
 }
 
 .horarios-actions-explanation #stopDateExplanation {
-    font-size: 0.9em;
     color: #CCC;
     margin: 0 !important;
     text-align: right;
@@ -1376,13 +1375,12 @@ button.remove-stop {
 #horarios-box .add-stop-to-list {
     display: inline-flex;
     align-items: center;
-    font-size: 0.80em;
+    font-size: 0.75em;
     color: #696969;
     background: #f7f7f7;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 5px 10px 5px 30px;
-    margin: 8px 0 4px 0;
     font-weight: 500;
     cursor: pointer;
     background-image: url('../img/add-light.png');
@@ -1396,6 +1394,10 @@ button.remove-stop {
     color: #eee;
     border: 1px solid #505050;
     background-image: url('../img/add-light.png');
+}
+
+#horarios-box .subheader {
+    font-size: 0.9em;
 }
 
 /* Botón de cierre de diálogos */
