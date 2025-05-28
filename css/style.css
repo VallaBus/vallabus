@@ -1335,6 +1335,69 @@ button.remove-stop {
     clear: both;
 }
 
+.horarios-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 0 !important;
+}
+
+.horarios-actions-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 !important;
+}
+
+.horarios-actions-row #stopDateInput {
+    margin-left: auto;
+    font-size: 1em;
+}
+
+.horarios-actions-explanation {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 0 0 1em 0 !important;
+}
+
+.horarios-actions-explanation #stopDateExplanation {
+    font-size: 0.9em;
+    color: #CCC;
+    margin: 0 !important;
+    text-align: right;
+    font-size: 0.7em;
+    color: #CCC;
+}
+
+#horarios-box .add-stop-to-list {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.80em;
+    color: #696969;
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 5px 10px 5px 30px;
+    margin: 8px 0 4px 0;
+    font-weight: 500;
+    cursor: pointer;
+    background-image: url('../img/add-light.png');
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    background-position: 7px center;
+}
+
+.dark #horarios-box .add-stop-to-list {
+    background: #404040;
+    color: #eee;
+    border: 1px solid #505050;
+    background-image: url('../img/add-light.png');
+}
+
 /* Botón de cierre de diálogos */
 #horarios-box .horarios-close, #nearestStopsResults #close-nearest-stops, .dialog-data .closeDialogBtn, .dialog-close {
     background-image: url("/img/close.png");
@@ -1368,18 +1431,6 @@ button.remove-stop {
     right: 10px;
     top: 54px;
     border: none;
-}
-
-#horarios-box #stopDateInput {
-    float: right;
-    font-size: 1em;
-}
-
-#horarios-box #stopDateExplanation {
-    float: right;
-    font-size: 0.7em;
-    color: #CCC;
-    clear: both;
 }
 
 #horarios-box #indice-lineas {
