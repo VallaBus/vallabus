@@ -1048,7 +1048,7 @@ async function updateBusList() {
             });
 
             // Creamos todas las líneas añadidas en esa parada, mostrando primero las numéricas y luego las que tienen una letra
-            stops[stopId].sort((a, b) => {
+            const sortedLines = stops[stopId].sort((a, b) => {
                 const aNumber = parseInt(a.lineNumber, 10);
                 const bNumber = parseInt(b.lineNumber, 10);
                 const aIsNumber = !isNaN(aNumber);
@@ -1067,17 +1067,31 @@ async function updateBusList() {
                     // Si ambos no son números, compararlos alfabéticamente
                     return a.lineNumber.localeCompare(b.lineNumber);
                 }
-            }).forEach((line, index) => {
+            });
+
+            // OPTIMIZACIÓN 1: Crear elementos y preparar promesas para paralelización
+            const busTimePromises = sortedLines.map((line, index) => {
                 const busId = stopId + '-' + line.lineNumber;
                 let busElement = document.getElementById(busId);
                 // Solo creamos las líneas que no estaban creadas previamente
                 if (!busElement) {
                     busElement = createBusElement(busId, line, index, stopElement);
                 }
-                // Llamar a fetchBusTime y quitar las clases skeleton cuando se complete
-                fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts).then(() => {
-                    busElement.classList.remove('skeleton', 'skeleton-text');
-                });
+                
+                // Devolver la promesa de fetchBusTime junto con el elemento
+                return fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts)
+                    .then(() => {
+                        busElement.classList.remove('skeleton', 'skeleton-text');
+                    })
+                    .catch(error => {
+                        console.error(`Error fetching bus time for ${stopId}-${line.lineNumber}:`, error);
+                        busElement.classList.remove('skeleton', 'skeleton-text');
+                    });
+            });
+
+            // OPTIMIZACIÓN 1: Ejecutar todas las consultas en paralelo
+            Promise.all(busTimePromises).catch(error => {
+                console.error(`Error processing lines for stop ${stopId}:`, error);
             });
 
             createRemoveStopButton(stopId, stopElement);
