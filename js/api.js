@@ -110,6 +110,16 @@ function groupByStops(busLines) {
 
 // Función para obtener el nombre de la parada del JSON
 async function getStopName(stopId) {
+    const cacheKey = `stopName_${stopId}`;
+    
+    // Intentar obtener del caché
+    if (window.cacheManager) {
+        const cached = window.cacheManager.get(cacheKey, 'stopNames');
+        if (cached) {
+            return cached;
+        }
+    }
+    
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -119,7 +129,14 @@ async function getStopName(stopId) {
             throw new Error(`No se encontró la parada con el ID: ${stopId}`);
         }
 
-        return stop.parada.nombre;
+        const stopName = stop.parada.nombre;
+        
+        // Guardar en caché
+        if (window.cacheManager && stopName) {
+            window.cacheManager.set(cacheKey, stopName, 'stopNames');
+        }
+        
+        return stopName;
     } catch (error) {
         console.error('Error al obtener datos del JSON:', error);
         return null;
@@ -128,6 +145,16 @@ async function getStopName(stopId) {
 
 // Función para obtener la ubicación de la parada del JSON
 async function getStopGeo(stopId) {
+    const cacheKey = `stopGeo_${stopId}`;
+    
+    // Intentar obtener del caché
+    if (window.cacheManager) {
+        const cached = window.cacheManager.get(cacheKey, 'stopGeo');
+        if (cached) {
+            return cached;
+        }
+    }
+    
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -137,7 +164,14 @@ async function getStopGeo(stopId) {
             throw new Error(`No se encontró la parada con el ID: ${stopId}`);
         }
 
-        return stop.ubicacion;
+        const stopGeo = stop.ubicacion;
+        
+        // Guardar en caché
+        if (window.cacheManager && stopGeo) {
+            window.cacheManager.set(cacheKey, stopGeo, 'stopGeo');
+        }
+        
+        return stopGeo;
     } catch (error) {
         console.error('Error al obtener datos del JSON:', error);
         return null;
@@ -199,6 +233,16 @@ async function fetchBusInfo(tripId) {
 
 // Obtener todas los avisos y alertas
 async function fetchAllBusAlerts() {
+    const cacheKey = 'allBusAlerts';
+    
+    // Intentar obtener del caché
+    if (window.cacheManager) {
+        const cached = window.cacheManager.get(cacheKey, 'alerts');
+        if (cached) {
+            return cached;
+        }
+    }
+    
     try {
         const response = await fetchApi('/alertas/');
 
@@ -211,7 +255,14 @@ async function fetchAllBusAlerts() {
 
         try {
             // Intenta parsear el texto a JSON
-            return JSON.parse(data);
+            const alerts = JSON.parse(data);
+            
+            // Guardar en caché
+            if (window.cacheManager) {
+                window.cacheManager.set(cacheKey, alerts, 'alerts');
+            }
+            
+            return alerts;
         } catch (error) {
             // Si el parseo falla (por ejemplo, si está vacío o no es JSON válido), devuelve un array vacío
             console.log('Error al recuperar alertas:', error);
@@ -263,6 +314,16 @@ function filterAlertsByStop(alerts, stopNumber) {
 
 // Obtener el listado de paradas suprimidas
 async function fetchSuppressedStops() {
+    const cacheKey = 'suppressedStops';
+    
+    // Intentar obtener del caché
+    if (window.cacheManager) {
+        const cached = window.cacheManager.get(cacheKey, 'suppressedStops');
+        if (cached) {
+            return cached;
+        }
+    }
+    
     try {
         const response = await fetchApi('/paradas/suprimidas/');
 
@@ -275,7 +336,14 @@ async function fetchSuppressedStops() {
 
         try {
             // Intenta parsear el texto a JSON
-            return JSON.parse(data);
+            const suppressed = JSON.parse(data);
+            
+            // Guardar en caché
+            if (window.cacheManager) {
+                window.cacheManager.set(cacheKey, suppressed, 'suppressedStops');
+            }
+            
+            return suppressed;
         } catch (error) {
             // Si el parseo falla (por ejemplo, si está vacío o no es JSON válido), devuelve un array vacío
             console.log('Error al recuperar alertas:', error);
@@ -296,11 +364,12 @@ async function fetchScheduledBuses(stopNumber, lineNumber, date) {
     let cacheKey = lineNumber ? `${baseCacheKey}_${lineNumber}` : baseCacheKey;
     cacheKey += date ? `_${date}` : '';
 
-    const cachedData = getCachedData(cacheKey);
-
-    // Comprueba si los datos en caché son válidos
-    if (cachedData) {
-        return cachedData;
+    // Usar caché inteligente si está disponible
+    if (window.cacheManager) {
+        const cachedData = window.cacheManager.get(cacheKey, 'busSchedule');
+        if (cachedData) {
+            return cachedData;
+        }
     }
 
     // Si no hay datos en caché o están desactualizados, realiza una llamada a la API
@@ -319,7 +388,9 @@ async function fetchScheduledBuses(stopNumber, lineNumber, date) {
         const data = await response.json();
 
         // Almacena los nuevos datos en el caché
-        setCacheData(cacheKey, data);
+        if (window.cacheManager) {
+            window.cacheManager.set(cacheKey, data, 'busSchedule');
+        }
         return data;
     } catch (error) {
         console.error('Error al recuperar y cachear la información sobre los buses:', error);
@@ -974,6 +1045,9 @@ async function updateBusList() {
     // Crea un nuevo array con los objetos ordenados
     let sortedStopsArray = sortedStops.map(key => ({ stopId: key, lines: stops[key] }));
 
+    // OPTIMIZACIÓN: Usar DocumentFragment para batch DOM updates
+    const fragment = document.createDocumentFragment();
+    
     // Creamos las paradas una a una
     (async () => {
         for (let stop of sortedStopsArray) {
@@ -981,7 +1055,7 @@ async function updateBusList() {
 
             let stopElement = document.getElementById(stopId);
             if (!stopElement) {
-                stopElement = createStopElement(stopId, busList, false); // No crear como skeleton
+                stopElement = createStopElement(stopId, fragment, false); // Crear en el fragment
             }
 
             // OPTIMIZACIÓN: Obtener nombre y ubicación en paralelo
@@ -1008,7 +1082,7 @@ async function updateBusList() {
                     suppressedStopAlert.innerHTML = "Parada posiblemente suprimida en este momento, consulta las alertas en las líneas para más información";
                     
                     // Seleccionar el elemento stop-header dentro de stopElement
-                    const stopHeaderElement = stopElement.querySelector('stop-header');
+                    const stopHeaderElement = stopElement.querySelector('.stop-header');
                     if (stopHeaderElement) {
                         // Insertar suppressedStopAlert justo después del stopHeaderElement
                         stopHeaderElement.insertAdjacentElement('afterend', suppressedStopAlert);
@@ -1025,31 +1099,8 @@ async function updateBusList() {
                 }
             }
 
-            // Actualizamos el listado en el sidebar
+            // Acumular HTML del sidebar sin actualizar el DOM
             stopsListHTML += `<li><a class="sidebar-stop-link" data-stopid="${stopId}" href="#${stopId}">${stopName}</a></li>`;
-            sidebarStops.innerHTML = `
-                <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
-                <p class="sidebar-footer">fijará una parada arriba en la lista</p>
-            `;
-            // Agregar event listener a los enlaces del sidebar
-            const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
-            stopLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
-                    toogleSidebar(); // Cerrar el sidebar
-                    closeAllDialogs(dialogIds);
-                    // Regresamos al home
-                    const dialogState = {
-                        dialogType: 'home'
-                    };
-                    history.replaceState(dialogState, document.title, '#/');
-                    const linkStopId = link.getAttribute('data-stopid');
-                    const stopElement = document.getElementById(linkStopId);
-                    if (stopElement) {
-                        scrollToElement(stopElement);
-                    }
-                });
-            });
 
             // Creamos todas las líneas añadidas en esa parada, mostrando primero las numéricas y luego las que tienen una letra
             const sortedLines = stops[stopId].sort((a, b) => {
@@ -1113,6 +1164,36 @@ async function updateBusList() {
                 el.classList.remove('skeleton', 'skeleton-text');
             });
         }
+        
+        // OPTIMIZACIÓN: Actualizar el sidebar una sola vez al final
+        if (fragment.hasChildNodes()) {
+            busList.appendChild(fragment);
+        }
+        
+        // Actualizar el sidebar HTML una sola vez
+        sidebarStops.innerHTML = `
+            <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
+            <p class="sidebar-footer">fijará una parada arriba en la lista</p>
+        `;
+        
+        // Añadir event listeners una sola vez
+        const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
+        stopLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                toogleSidebar();
+                closeAllDialogs(dialogIds);
+                const dialogState = {
+                    dialogType: 'home'
+                };
+                history.replaceState(dialogState, document.title, '#/');
+                const linkStopId = link.getAttribute('data-stopid');
+                const stopElement = document.getElementById(linkStopId);
+                if (stopElement) {
+                    scrollToElement(stopElement);
+                }
+            });
+        });
     })().catch(error => {
         console.error('Error processing stops:', error);
     });
@@ -2124,12 +2205,14 @@ function removeAllBusLines() {
 // Función para guardar un JSON con todas las paradas
 async function loadBusStops() {
     const cacheKey = 'busStops';
-    const cachedData = getCachedData(cacheKey);
-
-    // Si hay datos en caché, usarlos
-    if (cachedData) {
-        busStops = cachedData;
-        return busStops;
+    
+    // Usar caché inteligente
+    if (window.cacheManager) {
+        const cachedData = window.cacheManager.get(cacheKey, 'busStops');
+        if (cachedData) {
+            busStops = cachedData;
+            return busStops;
+        }
     }
 
     // Si no hay datos en caché o están desactualizados, realiza una llamada al API
@@ -2143,7 +2226,9 @@ async function loadBusStops() {
         busStops = data;
 
         // Guardar datos nuevos en el cache
-        setCacheData(cacheKey, data);
+        if (window.cacheManager) {
+            window.cacheManager.set(cacheKey, data, 'busStops');
+        }
         return busStops;
     } catch (error) {
         console.error('Error al recuperar y cachear los datos de paradas:', error);

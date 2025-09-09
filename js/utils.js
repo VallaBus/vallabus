@@ -339,7 +339,7 @@ async function toggleFixedStop(event) {
     localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
 }
 
-function createStopElement(stopId, busList, isSkeleton = false) {
+function createStopElement(stopId, container, isSkeleton = false) {
     let welcomeBox = document.getElementById('welcome-box');
     if (welcomeBox) {
         welcomeBox.style.display = 'none';
@@ -376,7 +376,8 @@ function createStopElement(stopId, busList, isSkeleton = false) {
     headerElement.appendChild(nameElement);
     stopElement.appendChild(headerElement);
 
-    busList.appendChild(stopElement);
+    // Usar el container que puede ser busList o fragment
+    container.appendChild(stopElement);
     return stopElement;
 }
 
@@ -483,62 +484,19 @@ function removeObsoleteElements(stops) {
     });
 }
 
-function getCachedData(cacheKey) {
-    const cached = localStorage.getItem(cacheKey);
-    if (!cached) {
-        return null;
-    }
-
-    const { data, timestamp } = JSON.parse(cached);
-    // Tiempo de expiración en milisegundos
-    const expTime = 1 * 60 * 60 * 1000; // 1 hora
-    const timestampExp = new Date() - new Date(timestamp);
-
-    // Verifica si los datos del caché tienen menos del tiempo de expiración
-    if ( timestampExp < expTime) {
-        return data;
-    }
-
-    // Si los datos del caché son antiguos, limpia el caché
-    localStorage.removeItem(cacheKey);
-    return null;
-}
-
-function setCacheData(cacheKey, data) {
-    const cacheEntry = JSON.stringify({
-        data: data,
-        timestamp: new Date().toISOString()
-    });
-    localStorage.setItem(cacheKey, cacheEntry);
-}
+// Las funciones getCachedData y setCacheData han sido reemplazadas por el sistema de caché inteligente
+// Ver js/cache.js para el nuevo sistema: window.cacheManager
 
 // Borra las claves obsoletas del caché
 function cleanObsoleteCache() {
-    let counter = 0;
-    // Iteramos de forma inversa porque al borrar un elemento el índice cambia
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key.startsWith('busSchedule') || key.startsWith('busStops')) {
-            const cached = localStorage.getItem(key);
-            if (!cached) {
-                continue;
-            }
-
-            const { data, timestamp } = JSON.parse(cached);
-            // Tiempo de expiración en milisegundos
-            const expTime = 3600000; // 1 hora
-            const timestampExp = new Date().getTime() - new Date(timestamp).getTime();
-
-            // Verifica si los datos del caché tienen menos del tiempo de expiración
-            if (timestampExp > expTime) {
-                // Si los datos del caché son antiguos, limpia el caché
-                localStorage.removeItem(key);
-                //console.log(`Limpiando el caché obsoleto de ${key}`);
-                counter += 1;
-            }
-        }
+    // Usar el sistema de caché inteligente
+    if (window.cacheManager) {
+        return window.cacheManager.clean();
     }
-    //console.log(`${counter} elementos obsoletos del caché borrados`);
+    
+    // Si no hay sistema de caché inteligente, no hacer nada
+    console.warn('Sistema de caché inteligente no disponible');
+    return 0;
 }
 
 function updateLastUpdatedTime() {
