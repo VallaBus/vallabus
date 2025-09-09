@@ -13,10 +13,10 @@ function main() {
     const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
     const hasStops = busLines.length > 0;
 
-    // Mostrar mensaje de bienvenida o mostrar placeholder inmediato si hay paradas
+    // Mostrar mensaje de bienvenida o mostrar skeleton loader directamente si hay paradas
     if (hasStops) {
         document.getElementById('welcome-box').style.display = 'none';
-        document.getElementById('initial-placeholder').style.display = 'block';
+        // Mostrar skeleton loader directamente sin placeholder intermedio
         showSkeletonLoader();
     } else {
         showWelcomeMessage();

@@ -931,14 +931,15 @@ async function updateBusList() {
     let removeAllButton = document.getElementById('removeAllButton');
     removeAllButton.style.display = busLines.length > 0 ? 'flex' : 'none';
 
-    // Recuperamos todas las alertas vigentes
-    const allAlerts = await fetchAllBusAlerts();
+    // OPTIMIZACIÓN: Recuperar alertas y paradas suprimidas en paralelo
+    const [allAlerts, suppressedStops] = await Promise.all([
+        fetchAllBusAlerts(),
+        fetchSuppressedStops()
+    ]);
+    
     // Verificar si hay alertas globales y mostrar el banner si es necesario
     const globalAlerts = filterBusAlerts(allAlerts, null);
     displayGlobalAlertsBanner(globalAlerts);
-
-    // Obtener la lista de paradas suprimidas
-    const suppressedStops = await fetchSuppressedStops();
 
     let horariosBox = document.getElementById('horarios-box');
     let busList = document.getElementById('busList');
@@ -983,8 +984,11 @@ async function updateBusList() {
                 stopElement = createStopElement(stopId, busList, false); // No crear como skeleton
             }
 
-            const stopName = await getStopName(stopId);
-            const stopGeo = await getStopGeo(stopId);
+            // OPTIMIZACIÓN: Obtener nombre y ubicación en paralelo
+            const [stopName, stopGeo] = await Promise.all([
+                getStopName(stopId),
+                getStopGeo(stopId)
+            ]);
 
             if (stopName) {
                 let updatedName = `<span class="stop-name">${stopName} <span class="stopId">(${stopId})</span></span>`;

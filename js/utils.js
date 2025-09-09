@@ -1917,9 +1917,13 @@ function showWelcomeMessage() {
 function showSkeletonLoader() {
     const busList = document.getElementById('busList');
     const initialPlaceholder = document.getElementById('initial-placeholder');
-    if (busList && initialPlaceholder) {
-        // Ocultar el placeholder inicial de inmediato
+    
+    // Ocultar el placeholder inicial si existe
+    if (initialPlaceholder) {
         initialPlaceholder.style.display = 'none';
+    }
+    
+    if (busList) {
 
         // Obtener las paradas guardadas
         const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
@@ -1964,8 +1968,10 @@ function showSkeletonLoader() {
             });
         });
 
-        // Eliminar el placeholder inicial después de crear los elementos skeleton
-        initialPlaceholder.remove();
+        // Eliminar el placeholder inicial después de crear los elementos skeleton si aún existe
+        if (initialPlaceholder) {
+            initialPlaceholder.remove();
+        }
     }
 }
 
