@@ -396,15 +396,29 @@ function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
         lineNumber = line.linenumber;
     }
 
-    // Elemento con placeholders HTML
-    busElement.innerHTML = `
-        <div class="linea" data-trip-id="">
-            <h3>${lineNumber}</h3>
-        </div>
-        <div class="ocupacion"></div>
-        <div class="trip-info"><a class="alert-icon"></div>
-        <div class="hora-tiempo"></div>
-    `;
+    // Elemento con skeleton loading inicial
+    if (isSkeleton) {
+        busElement.innerHTML = `
+            <div class="linea skeleton-text" data-trip-id="">
+                <h3>${lineNumber}</h3>
+            </div>
+            <div class="ocupacion skeleton"></div>
+            <div class="trip-info skeleton"><a class="alert-icon"></a></div>
+            <div class="hora-tiempo skeleton"></div>
+        `;
+    } else {
+        // Para elementos existentes, mostrar estado de carga
+        busElement.innerHTML = `
+            <div class="linea loading-state" data-trip-id="">
+                <h3>${lineNumber}</h3>
+            </div>
+            <div class="ocupacion"></div>
+            <div class="trip-info"><a class="alert-icon"></a></div>
+            <div class="hora-tiempo">
+                <div class="tiempo loading">Actualizando...</div>
+            </div>
+        `;
+    }
 
     stopElement.appendChild(busElement);
     return busElement;

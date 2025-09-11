@@ -1225,9 +1225,10 @@ const globalEventListeners = {
  * 
  * @throws {Error} Si no se puede recuperar los datos del API.
  */
-async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
+async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount = 0) {
     // URL del API con estáticos y tiempo real
     const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
+    const maxRetries = 2; // Máximo 2 reintentos
 
     // Recuperamos si hay alertas para esa linea
     const busLineAlerts = filterBusAlerts(allAlerts, lineNumber);
@@ -1573,15 +1574,63 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
             lineItem.appendChild(infoPanel);
 
         } catch (error) {
-            console.error('Error en fetchBusTime:', error);
-            lineItem.innerHTML = `
-                <div class="linea">
+            console.error(`Error en fetchBusTime (intento ${retryCount + 1}/${maxRetries + 1}):`, error);
+            
+            // Intentar reintentar si no hemos alcanzado el máximo
+            if (retryCount < maxRetries) {
+                console.log(`Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
+                
+                // Mostrar estado de reintento
+                lineItem.innerHTML = `
+                    <div class="linea">
                         <h3>${lineNumber}</h3>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo sin-servicio">Sin datos en este momento</div>
+                        <div class="tiempo loading">Reintentando...</div>
                     </div>
+                `;
+                
+                // Reintentar después de 2 segundos
+                setTimeout(() => {
+                    fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount + 1);
+                }, 2000);
+                return;
+            }
+            
+            // Si ya agotamos los reintentos, mostrar error pero más amigable
+            lineItem.innerHTML = `
+                <div class="linea">
+                    <h3>${lineNumber}</h3>
+                </div>
+                <div class="hora-tiempo">
+                    <div class="tiempo error-state">No disponible ahora</div>
+                    <div class="error-subtitle">Toca para reintentar</div>
+                </div>
             `;
+            
+            // Añadir evento para reintentar manualmente
+            const retryElement = lineItem.querySelector('.hora-tiempo');
+            if (retryElement) {
+                retryElement.style.cursor = 'pointer';
+                retryElement.addEventListener('click', function retryFetch() {
+                    // Remover el event listener para evitar duplicados
+                    retryElement.removeEventListener('click', retryFetch);
+                    
+                    // Mostrar estado de carga y reintentar
+                    lineItem.innerHTML = `
+                        <div class="linea">
+                            <h3>${lineNumber}</h3>
+                        </div>
+                        <div class="hora-tiempo">
+                            <div class="tiempo loading">Cargando...</div>
+                        </div>
+                    `;
+                    
+                    // Reintentar desde el principio
+                    fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, 0);
+                });
+            }
+            
             const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
             lineItem.appendChild(infoPanel);
         };
