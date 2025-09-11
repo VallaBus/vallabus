@@ -100,12 +100,14 @@ function setupVisibilityHandlers() {
             // Al volver a ser visible, siempre mostrar estado de carga
             // porque los datos pueden estar obsoletos
             updateBusList(true);
+            // NO verificar status aquí para evitar falsos positivos por problemas de conectividad temporal
         }
     });
     
     // También detectar cuando la ventana vuelve a tener foco
     window.addEventListener('focus', () => {
         updateBusList(true);
+        // NO verificar status aquí para evitar falsos positivos por problemas de conectividad temporal
     });
 }
 

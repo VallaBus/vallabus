@@ -1537,11 +1537,18 @@ async function showStatusDialog() {
     });
 }
 
+// Contador de fallos consecutivos para el banner de estado
+window.globalState = window.globalState || {};
+window.globalState.statusCheckFailures = window.globalState.statusCheckFailures || 0;
+
 async function checkAndShowStatusBanner() {
     try {
         const statusData = await fetchApiStatus();
         const tipsBanner = document.getElementById('tips-banner');
         let statusBanner = document.getElementById('status-banner');
+        
+        // Si la petición tuvo éxito, resetear contador de fallos
+        window.globalState.statusCheckFailures = 0;
 
         if (!statusData) {
             throw new Error('No se pudo obtener el estado de los servicios');
@@ -1571,26 +1578,36 @@ async function checkAndShowStatusBanner() {
             `;
             statusBanner.style.display = 'block';
         } else if (statusBanner) {
+            // Remover banner si todo está bien
             statusBanner.remove();
         }
     } catch (error) {
         console.error('Error al obtener el estado de los servicios:', error);
         
-        const tipsBanner = document.getElementById('tips-banner');
-        let statusBanner = document.getElementById('status-banner');
+        // Incrementar contador de fallos
+        window.globalState.statusCheckFailures = (window.globalState.statusCheckFailures || 0) + 1;
         
-        if (!statusBanner) {
-            statusBanner = document.createElement('p');
-            statusBanner.id = 'status-banner';
-            statusBanner.className = 'sticky status-error';
-            tipsBanner.insertBefore(statusBanner, tipsBanner.firstChild);
-        }
+        // Solo mostrar banner después de 3 fallos consecutivos (15 minutos)
+        // Esto evita falsos positivos por problemas temporales de conectividad
+        if (window.globalState.statusCheckFailures >= 3) {
+            const tipsBanner = document.getElementById('tips-banner');
+            let statusBanner = document.getElementById('status-banner');
+            
+            if (!statusBanner) {
+                statusBanner = document.createElement('p');
+                statusBanner.id = 'status-banner';
+                statusBanner.className = 'sticky status-error';
+                tipsBanner.insertBefore(statusBanner, tipsBanner.firstChild);
+            }
 
-        statusBanner.innerHTML = `
-            <div class="status-icon all-inactive"></div>
-            <a href="#/estado">Todos los servicios están caídos</a>
-        `;
-        statusBanner.style.display = 'block';
+            statusBanner.innerHTML = `
+                <div class="status-icon all-inactive"></div>
+                <a href="#/estado">Problema de conectividad</a>
+            `;
+            statusBanner.style.display = 'block';
+        } else {
+            console.log(`Verificación de estado fallida (${window.globalState.statusCheckFailures}/3), esperando antes de mostrar banner`);
+        }
     }
 }
 
