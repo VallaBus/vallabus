@@ -28,15 +28,15 @@ function main() {
     // Eventos al banner con tips
     tipsBannerEvents();
 
-    // Actualizar y pintar lista de paradas
-    updateBusList();
-    // Actualizar la lista de forma recurrente
-    iniciarIntervalo(updateBusList);
+    // Actualizar y pintar lista de paradas (carga inicial)
+    updateBusList(true);
+    // Actualizar la lista de forma recurrente (actualizaciones automáticas)
+    iniciarIntervalo(() => updateBusList(false));
 
     // HOTFIX iOS: Ejecuta updateBusList 1 segundo después de abrir la página en iOS porque los recursos localstorage no está disponibles inmediatamente en iOS 17.4 :-( 
     if (isIOS()) {
         showIosInstallButton();
-        setTimeout(updateBusList, 1000);
+        setTimeout(() => updateBusList(true), 1000);
     }
 
     // Eventos para el manejo de URLs

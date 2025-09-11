@@ -306,12 +306,12 @@ async function toggleFixedStop(event) {
         showSuccessPopUp("Parada desfijada");
         stopElement.parentNode.removeChild(stopElement);
 
-        await updateBusList();
+        await updateBusList(true);
         // Delay para que de tiempo a recrear el elemento
         setTimeout(async () => {
             const newStopElement = document.getElementById(`pin-icon-${stopId}`);
             newStopElement.classList.remove('fixed'); // Actualiza el icono
-            await updateBusList(); // Volvemos a actualizar
+            await updateBusList(false); // Volvemos a actualizar
         }, 2000);
     } else {
         // Si la parada no está en fixedStops, la añadimos
@@ -325,13 +325,13 @@ async function toggleFixedStop(event) {
             busList.insertBefore(stopElement, busList.firstChild);
         }
         // Actualiza la lista de paradas para reflejar el cambio
-        await updateBusList();
+        await updateBusList(false);
 
         // Delay para que de tiempo a mover el elemento
         setTimeout(async () => {
             // Hacemos scroll al elemento
             scrollToElement(stopElement);
-            await updateBusList(); // Volvemos a actualizar
+            await updateBusList(false); // Volvemos a actualizar
         }, 700);
     }
 
@@ -415,7 +415,7 @@ function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
             <div class="ocupacion"></div>
             <div class="trip-info"><a class="alert-icon"></a></div>
             <div class="hora-tiempo">
-                <div class="tiempo loading">Actualizando</div>
+                <div class="tiempo loading"></div>
                 <div class="horaLlegada"></div>
             </div>
         `;
@@ -1070,8 +1070,8 @@ function scheduledBusesEvents() {
                 dialogType: 'home'
             };
             history.replaceState(dialogState, document.title, '#/');
-            iniciarIntervalo(updateBusList);
-            updateBusList();
+            iniciarIntervalo(() => updateBusList(false));
+            updateBusList(false);
         }
     });
 }
@@ -1845,7 +1845,7 @@ function importData() {
                     }
 
                     alert('Datos importados correctamente');
-                    updateBusList(); // Actualizar la lista de paradas y líneas
+                    updateBusList(true); // Actualizar la lista de paradas y líneas
                     closeAllDialogs(dialogIds); // Cerrar todos los diálogos
                     
                     // Recargar la página en la ruta raíz

@@ -1333,26 +1333,21 @@ button.remove-stop {
 }
 
 .tiempo.loading::after {
-    content: '';
+    content: '.';
+    animation: dots 1.5s steps(4, end) infinite;
     display: inline-block;
-    width: 10px;
-    height: 10px;
-    border: 1.5px solid #666;
-    border-top: 1.5px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-left: 6px;
-    vertical-align: middle;
+    width: 1em;
 }
 
 .dark-mode .tiempo.loading::after {
-    border-color: #999;
-    border-top-color: transparent;
+    /* Heredar el color del texto padre */
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    90%, 100% { content: ''; }
 }
 
 .tiempo.error-state {

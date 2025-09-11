@@ -3,8 +3,12 @@ let centerControl;
 let paradaMarker;
 let marcadorAutobus;
 
-// Eventos al mapa
-mapEvents();
+// Eventos al mapa - se ejecutarán cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mapEvents);
+} else {
+    mapEvents();
+}
 
 function crearIconoBus(numeroBus) {
     return L.divIcon({

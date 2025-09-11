@@ -731,7 +731,7 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
             if (!exists) {
                 busLines.push({ stopNumber: stopNumber, lineNumber: lineNumber });
                 saveBusLines(busLines);
-                updateBusList();
+                updateBusList(false);
 
                 const elementId = `${stopNumber}-${lineNumber}`;
                 showSuccessPopUp('Línea añadida al final de tu lista', elementId);
@@ -880,7 +880,7 @@ function addAllLinesForStop(stopData) {
     closeAllDialogs(dialogIds);
 
     saveBusLines(busLines);
-    updateBusList();
+    updateBusList(false);
     showSuccessPopUp('Todas las líneas de la parada añadidas');
 
     // Limpiar el contenido del input stopNumber
@@ -912,7 +912,7 @@ function addSelectedLinesForStop(stopData, selectedLines) {
     });
 
     saveBusLines(busLines);
-    updateBusList();
+    updateBusList(false);
     showSuccessPopUp(`${selectedLines.length} línea${selectedLines.length > 1 ? 's' : ''} añadida${selectedLines.length > 1 ? 's' : ''} a la parada`);
 
     // Limpiamos sugerencias de lineas
@@ -985,7 +985,7 @@ function saveBusLines(busLines) {
  * 
  * @throws {Error} Si no se puede recuperar las paradas o líneas desde Localstorage.
  */
-async function updateBusList() {
+async function updateBusList(isInitialLoad = false) {
     const legend = document.getElementById('legend');
 
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
@@ -1131,14 +1131,28 @@ async function updateBusList() {
                 // Solo creamos las líneas que no estaban creadas previamente
                 if (!busElement) {
                     busElement = createBusElement(busId, line, index, stopElement);
-                } else {
-                    // Si el elemento ya existe, mostrar estado de actualización
+                } else if (isInitialLoad) {
+                    // Solo mostrar estado de actualización en la carga inicial, no en actualizaciones automáticas
                     const horaTime = busElement.querySelector('.hora-tiempo');
+                    const tripInfo = busElement.querySelector('.trip-info');
+                    
                     if (horaTime) {
+                        // Texto más corto para que quepa mejor
                         horaTime.innerHTML = `
-                            <div class="tiempo loading">Actualizando</div>
+                            <div class="tiempo loading"></div>
                             <div class="horaLlegada"></div>
                         `;
+                    }
+                    
+                    // Limpiar datos antiguos que pueden ser obsoletos
+                    if (tripInfo) {
+                        const ocupacion = tripInfo.querySelector('.ocupacion');
+                        const destino = tripInfo.querySelector('.destino');
+                        const diferencia = tripInfo.querySelector('.diferencia');
+                        
+                        if (ocupacion) ocupacion.textContent = '';
+                        if (destino) destino.textContent = '';
+                        if (diferencia) diferencia.textContent = '';
                     }
                 }
                 
@@ -1603,7 +1617,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="alerta"><a class="alert-icon"></a></div>
                     </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo loading">Actualizando</div>
+                        <div class="tiempo loading"></div>
                         <div class="horaLlegada"></div>
                     </div>
                 `;
@@ -1656,7 +1670,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                             <div class="alerta"><a class="alert-icon"></a></div>
                         </div>
                         <div class="hora-tiempo">
-                            <div class="tiempo loading">Actualizando</div>
+                            <div class="tiempo loading"></div>
                             <div class="horaLlegada"></div>
                         </div>
                     `;
@@ -2184,7 +2198,7 @@ function removeBusLine(stopNumber, lineNumber) {
         }
 
         saveBusLines(busLines);
-        updateBusList();
+        updateBusList(false);
         updateNotifications(null, stopNumber, lineNumber);
     } else {
         // El usuario eligió no eliminar las líneas de autobús
@@ -2235,7 +2249,7 @@ function removeStop(stopId) {
         }
 
         saveBusLines(busLines);
-        updateBusList();
+        updateBusList(false);
         updateNotifications(null, stopNumber, null);
     }
 }
@@ -2255,7 +2269,7 @@ function removeAllBusLines() {
     if (confirm("¿Seguro que quieres borrar todas las líneas y paradas en seguimiento?")) {
         let busLines = [];
         saveBusLines(busLines);
-        updateBusList();
+        updateBusList(false);
 
         // Borramos todas las notifiaciones
         updateNotifications(null, null, null);
