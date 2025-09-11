@@ -1322,22 +1322,32 @@ button.remove-stop {
 
 /* Estados de carga y error */
 .tiempo.loading {
-    color: #2196F3;
-    font-style: italic;
+    color: #666;
+    font-size: 0.85em;
+    font-weight: normal;
     position: relative;
+}
+
+.dark-mode .tiempo.loading {
+    color: #999;
 }
 
 .tiempo.loading::after {
     content: '';
     display: inline-block;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #2196F3;
-    border-top: 2px solid transparent;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid #666;
+    border-top: 1.5px solid transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-left: 8px;
+    margin-left: 6px;
     vertical-align: middle;
+}
+
+.dark-mode .tiempo.loading::after {
+    border-color: #999;
+    border-top-color: transparent;
 }
 
 @keyframes spin {
@@ -1347,14 +1357,16 @@ button.remove-stop {
 
 .tiempo.error-state {
     color: #FF9800;
-    font-weight: 500;
+    font-size: 0.85em;
+    font-weight: normal;
 }
 
 .error-subtitle {
     font-size: 0.7em;
     color: #666;
-    margin-top: 2px;
+    margin-top: 3px;
     opacity: 0.8;
+    font-style: italic;
 }
 
 .dark-mode .error-subtitle {

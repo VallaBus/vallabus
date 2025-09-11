@@ -415,7 +415,8 @@ function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
             <div class="ocupacion"></div>
             <div class="trip-info"><a class="alert-icon"></a></div>
             <div class="hora-tiempo">
-                <div class="tiempo loading">Actualizando...</div>
+                <div class="tiempo loading">Actualizando</div>
+                <div class="horaLlegada"></div>
             </div>
         `;
     }

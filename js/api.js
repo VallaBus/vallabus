@@ -1580,13 +1580,22 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
             if (retryCount < maxRetries) {
                 console.log(`Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
                 
-                // Mostrar estado de reintento
+                // Mostrar estado de reintento con estructura completa
                 lineItem.innerHTML = `
                     <div class="linea">
                         <h3>${lineNumber}</h3>
                     </div>
+                    <div class="trip-info">
+                        <div class="ocupacion"></div>
+                        <div class="ruta">
+                            <p class="destino"></p>
+                            <span class="diferencia"></span>
+                        </div>
+                        <div class="alerta"><a class="alert-icon"></a></div>
+                    </div>
                     <div class="hora-tiempo">
-                        <div class="tiempo loading">Reintentando...</div>
+                        <div class="tiempo loading">Actualizando</div>
+                        <div class="horaLlegada"></div>
                     </div>
                 `;
                 
@@ -1597,10 +1606,18 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                 return;
             }
             
-            // Si ya agotamos los reintentos, mostrar error pero más amigable
+            // Si ya agotamos los reintentos, mostrar error con estructura completa
             lineItem.innerHTML = `
                 <div class="linea">
                     <h3>${lineNumber}</h3>
+                </div>
+                <div class="trip-info">
+                    <div class="ocupacion"></div>
+                    <div class="ruta">
+                        <p class="destino"></p>
+                        <span class="diferencia"></span>
+                    </div>
+                    <div class="alerta"><a class="alert-icon"></a></div>
                 </div>
                 <div class="hora-tiempo">
                     <div class="tiempo error-state">No disponible ahora</div>
@@ -1616,13 +1633,22 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     // Remover el event listener para evitar duplicados
                     retryElement.removeEventListener('click', retryFetch);
                     
-                    // Mostrar estado de carga y reintentar
+                    // Mostrar estado de carga con estructura completa
                     lineItem.innerHTML = `
                         <div class="linea">
                             <h3>${lineNumber}</h3>
                         </div>
+                        <div class="trip-info">
+                            <div class="ocupacion"></div>
+                            <div class="ruta">
+                                <p class="destino"></p>
+                                <span class="diferencia"></span>
+                            </div>
+                            <div class="alerta"><a class="alert-icon"></a></div>
+                        </div>
                         <div class="hora-tiempo">
-                            <div class="tiempo loading">Cargando...</div>
+                            <div class="tiempo loading">Actualizando</div>
+                            <div class="horaLlegada"></div>
                         </div>
                     `;
                     
