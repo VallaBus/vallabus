@@ -85,10 +85,29 @@ function main() {
 
     // Configurar un intervalo para verificar el estado periódicamente
     setInterval(checkAndShowStatusBanner, 5 * 60 * 1000); // Cada 5 minutos
+    
+    // Detectar cuando la app vuelve a estar activa
+    setupVisibilityHandlers();
 
 }
 
 let deferredPrompt;
+
+// Configurar manejadores de visibilidad para recargar datos al volver
+function setupVisibilityHandlers() {
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            // Al volver a ser visible, siempre mostrar estado de carga
+            // porque los datos pueden estar obsoletos
+            updateBusList(true);
+        }
+    });
+    
+    // También detectar cuando la ventana vuelve a tener foco
+    window.addEventListener('focus', () => {
+        updateBusList(true);
+    });
+}
 
 // Escucha el evento 'beforeinstallprompt' para preparar la instalación de la aplicación como PWA.
 // Guarda el evento para su uso posterior y muestra el botón de instalación.

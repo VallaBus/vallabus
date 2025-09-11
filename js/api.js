@@ -1137,22 +1137,22 @@ async function updateBusList(isInitialLoad = false) {
                     const tripInfo = busElement.querySelector('.trip-info');
                     
                     if (horaTime) {
-                        // Texto más corto para que quepa mejor
+                        // Solo mostrar puntos de carga en la zona de horarios
                         horaTime.innerHTML = `
                             <div class="tiempo loading"></div>
                             <div class="horaLlegada"></div>
                         `;
                     }
                     
-                    // Limpiar datos antiguos que pueden ser obsoletos
+                    // Limpiar solo datos variables que se van a actualizar
                     if (tripInfo) {
                         const ocupacion = tripInfo.querySelector('.ocupacion');
-                        const destino = tripInfo.querySelector('.destino');
                         const diferencia = tripInfo.querySelector('.diferencia');
                         
+                        // Limpiar ocupación y diferencia, pero mantener destino
                         if (ocupacion) ocupacion.textContent = '';
-                        if (destino) destino.textContent = '';
                         if (diferencia) diferencia.textContent = '';
+                        // NO limpiar destino - se mantiene visible
                     }
                 }
                 
