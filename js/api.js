@@ -1131,6 +1131,15 @@ async function updateBusList() {
                 // Solo creamos las líneas que no estaban creadas previamente
                 if (!busElement) {
                     busElement = createBusElement(busId, line, index, stopElement);
+                } else {
+                    // Si el elemento ya existe, mostrar estado de actualización
+                    const horaTime = busElement.querySelector('.hora-tiempo');
+                    if (horaTime) {
+                        horaTime.innerHTML = `
+                            <div class="tiempo loading">Actualizando</div>
+                            <div class="horaLlegada"></div>
+                        `;
+                    }
                 }
                 
                 // Devolver la promesa de fetchBusTime junto con el elemento
