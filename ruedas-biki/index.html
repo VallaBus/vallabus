@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Usa esta web para subir una foto de las bicis que aún tienen ruedas defectuosas sin arreglar">
+    <meta name="theme-color" content="#1f2937">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../favicon.png">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Documentar ruedas defectuosas de BIKI">
+    <meta property="og:description" content="Usa esta web para subir una foto de las bicis que aún tienen ruedas defectuosas sin arreglar">
+    <meta property="og:image" content="social-preview.png">
+    <meta property="og:url" content="">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Documentar ruedas defectuosas de BIKI">
+    <meta name="twitter:description" content="Usa esta web para subir una foto de las bicis que aún tienen ruedas defectuosas sin arreglar">
+    <meta name="twitter:image" content="social-preview.png">
+    
+    <title>Documentar ruedas defectuosas de BIKI</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #ff6720;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer !important;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .fab-icon {
+            font-size: 24px;
+            color: white;
+            line-height: 1;
+            font-family: Arial, sans-serif;
+            font-weight: 300;
+            display: block;
+            text-align: center;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fab:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://proyectos.aldeapucela.org/dashboard/#/nc/gallery/fe68f2b1-be67-44b4-8695-b8903780c256" title="Documentar ruedas defectuosas de BIKI"></iframe>
+    <a href="./reportar/" class="fab" title="Reportar ruedas defectuosas">
+        <span class="fab-icon">+</span>
+    </a>
+</body>
+</html>
