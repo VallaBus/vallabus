@@ -9,6 +9,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="../favicon.png">
     
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Documentar ruedas defectuosas de BIKI">
@@ -39,13 +42,86 @@
         
         body {
             background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .description {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: white;
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.4;
         }
         
         iframe {
             width: 100%;
-            height: 100%;
+            height: 110vh;
             border: none;
             display: block;
+        }
+        
+        .footer-section {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            padding: 24px 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-complaint {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #dc2626;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        
+        .btn-complaint:hover {
+            background-color: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+        
+        .btn-complaint:active {
+            transform: translateY(0);
+        }
+        
+        .fab-share {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #059669;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            transition: all 0.3s ease;
+            z-index: 999;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .fab-share:hover {
+            background-color: #047857;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+        
+        .fab-share:active {
+            transform: scale(0.95);
         }
         
         .fab {
@@ -87,9 +163,68 @@
     </style>
 </head>
 <body>
+    <div class="description">
+        Documentamos las bicis de BIKI que tienen las ruedas en mal estado. ¡Añade tu foto!
+    </div>
+    
     <iframe src="https://proyectos.aldeapucela.org/dashboard/#/nc/gallery/fe68f2b1-be67-44b4-8695-b8903780c256" title="Documentar ruedas defectuosas de BIKI"></iframe>
+    
+    <div class="footer-section">
+        <a href="https://participa.aldeapucela.org/ruedas-biki-2025/" class="btn-complaint" target="_blank">
+            <i class="fas fa-exclamation-triangle"></i> Envía una queja al ayto.
+        </a>
+    </div>
+    
+    <button onclick="shareContent()" class="fab-share" title="Compartir página">
+        <i class="fas fa-share-alt"></i>
+    </button>
+    
     <a href="./reportar/" class="fab" title="Reportar ruedas defectuosas">
         <span class="fab-icon">+</span>
     </a>
+    
+    <script>
+        function shareContent() {
+            const shareData = {
+                title: 'Documentar ruedas defectuosas de BIKI',
+                text: 'Documenta ruedas en mal estado de BIKI y ayuda a evitar accidentes y a la seguridad de todos',
+                url: window.location.href
+            };
+            
+            if (navigator.share) {
+                navigator.share(shareData)
+                    .catch(console.error);
+            } else {
+                // Fallback: copiar URL al portapapeles
+                navigator.clipboard.writeText(window.location.href + ' - ' + shareData.text)
+                    .then(() => alert('Enlace copiado al portapapeles'))
+                    .catch(() => {
+                        // Fallback para navegadores sin clipboard API
+                        const textArea = document.createElement('textarea');
+                        textArea.value = window.location.href + ' - ' + shareData.text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Enlace copiado al portapapeles');
+                    });
+            }
+        }
+        
+        // Matomo Analytics
+        var _paq = window._paq = window._paq || [];
+        if (window.location.pathname === '/index.html' ) {
+            _paq.push(['setCustomUrl', '/']);
+        }
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://stats.vallabus.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
 </body>
 </html>
