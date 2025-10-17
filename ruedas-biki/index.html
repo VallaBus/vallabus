@@ -16,14 +16,14 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Documentar ruedas defectuosas de BIKI">
     <meta property="og:description" content="Usa esta web para subir una foto de las bicis que aún tienen ruedas defectuosas sin arreglar">
-    <meta property="og:image" content="social-preview.png">
-    <meta property="og:url" content="">
+    <meta property="og:image" content="https://vallabus.com/ruedas-biki/social-preview.png">
+    <meta property="og:url" content="https://vallabus.com/ruedas-biki/">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Documentar ruedas defectuosas de BIKI">
     <meta name="twitter:description" content="Usa esta web para subir una foto de las bicis que aún tienen ruedas defectuosas sin arreglar">
-    <meta name="twitter:image" content="social-preview.png">
+    <meta name="twitter:image" content="https://vallabus.com/ruedas-biki/social-preview.png">
     
     <title>Documentar ruedas defectuosas de BIKI</title>
     
@@ -67,8 +67,10 @@
             padding: 24px 20px;
             text-align: center;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 16px;
         }
         
         .btn-complaint {
@@ -91,6 +93,29 @@
         }
         
         .btn-complaint:active {
+            transform: translateY(0);
+        }
+        
+        .btn-vallabus {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #054a32;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(5, 74, 50, 0.3);
+        }
+        
+        .btn-vallabus:hover {
+            background-color: #043d29;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5, 74, 50, 0.4);
+        }
+        
+        .btn-vallabus:active {
             transform: translateY(0);
         }
         
@@ -172,6 +197,9 @@
     <div class="footer-section">
         <a href="https://participa.aldeapucela.org/ruedas-biki-2025/" class="btn-complaint" target="_blank">
             <i class="fas fa-exclamation-triangle"></i> Envía una queja al ayto.
+        </a>
+        <a href="https://vallabus.com/" class="btn-vallabus" target="_blank">
+            <i class="fas fa-bus"></i> Volver a VallaBus
         </a>
     </div>
     
