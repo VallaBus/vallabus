@@ -1,4 +1,5 @@
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
+let currentTileLayer;
 let centerControl;
 let paradaMarker;
 let marcadorAutobus;
@@ -28,7 +29,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
     const currentUpdateId = ++latestUpdateId;
 
     // Cancel any previous update
-    updateMapPromise = updateMapPromise.then(() => {}, () => {});
+    updateMapPromise = updateMapPromise.then(() => { }, () => { });
 
     updateMapPromise = updateMapPromise.then(async () => {
         // Check if this is still the latest update
@@ -36,7 +37,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
             //console.log('Skipping outdated update');
             return;
         }
-    
+
         try {
             // Si el html es dark-mode, usamos la capa de mapa oscura
             let savedTheme;
@@ -44,20 +45,26 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 savedTheme = 'dark';
             }
 
-            // Añadimos la nueva capa de mapa basada en el tema
+            // Añadimos la nueva capa de mapa basada en el tema si no existe o ha cambiado
             if (savedTheme === "dark") {
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    subdomains: 'abcd',
-                    maxZoom: 20,
-                    minZoom: 0
-                }).addTo(myMap);
+                if (!currentTileLayer || currentTileLayer._url.indexOf('thunderforest') !== -1) {
+                    if (currentTileLayer) myMap.removeLayer(currentTileLayer);
+                    currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        minZoom: 0
+                    }).addTo(myMap);
+                }
             } else {
-                L.tileLayer('https://{s}.tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=a1eb584c78ab43ddafe0831ad04566ae', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="http://thunderforest.com/">Thunderforest</a>',
-                    subdomains: 'abc'
-                }).addTo(myMap);
+                if (!currentTileLayer || currentTileLayer._url.indexOf('cartocdn') !== -1) {
+                    if (currentTileLayer) myMap.removeLayer(currentTileLayer);
+                    currentTileLayer = L.tileLayer('https://{s}.tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=a1eb584c78ab43ddafe0831ad04566ae', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="http://thunderforest.com/">Thunderforest</a>',
+                        subdomains: 'abc'
+                    }).addTo(myMap);
+                }
             }
 
             if (!paradaData || !paradaData.latitud || !paradaData.longitud) {
@@ -85,7 +92,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
                             myMap.panTo([paradaData.latitud, paradaData.longitud]);
                         }
                         document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
-                        if (marcadorAutobus)   {
+                        if (marcadorAutobus) {
                             marcadorAutobus.remove();
                             marcadorAutobus = null;
                         }
@@ -98,7 +105,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
                         if (centerMap) {
-                            myMap.panTo([lat, lon], {animate: true, duration: 1});
+                            myMap.panTo([lat, lon], { animate: true, duration: 1 });
                         }
                     }
 
@@ -109,9 +116,9 @@ async function updateBusMap(busData, paradaData, centerMap) {
             } catch (error) {
                 console.error('Error al actualizar el mapa de buses:', error.message);
             }
-    } catch (error) {
-        console.error('Error al actualizar el mapa de buses:', error.message);
-    }
+        } catch (error) {
+            console.error('Error al actualizar el mapa de buses:', error.message);
+        }
     });
 
     // Wait for the update to complete
@@ -142,7 +149,7 @@ function actualizarControlCentro(map, lat, lon) {
     }
 
     centerControl.getContainer().onclick = function () {
-        map.panTo([lat, lon], {animate: true, duration: 1});
+        map.panTo([lat, lon], { animate: true, duration: 1 });
     };
 }
 
@@ -153,7 +160,7 @@ let UbicacionUsuarioControl = L.Control.extend({
 
     onAdd: function (map) {
         let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-        
+
         container.style.backgroundColor = 'white';
         container.style.backgroundImage = "url('img/location.svg')";
         container.style.backgroundSize = "20px 20px";
@@ -164,7 +171,7 @@ let UbicacionUsuarioControl = L.Control.extend({
         container.style.cursor = 'pointer';
         container.title = "Mostrar mi ubicación";
 
-        container.onclick = function(){
+        container.onclick = function () {
             actualizarUbicacionUsuario(true);
         }
 
@@ -194,7 +201,7 @@ function actualizarBus(lat, lon, busData) {
 
     // Guardamos info del bus si existe
     let busInfo;
-    if (busData && busData.vehicleId !== 'undefined' && busData.matricula !== 'undefined'){
+    if (busData && busData.vehicleId !== 'undefined' && busData.matricula !== 'undefined') {
         busInfo = `<ul class="busInfo">
                         <li class="vehicle-id"><strong>${busData.vehicleId}</li>
                         <li class="matricula"><strong>${busData.matricula}</li>
@@ -207,16 +214,16 @@ function actualizarBus(lat, lon, busData) {
     if (marcadorAutobus) {
         // Si ya existe, actualizamos su posición y su icono
         // Pero solo si lat y lon ha cambiado
-        if (marcadorAutobus.getLatLng().lat!== lat || marcadorAutobus.getLatLng().lng!== lon) {
+        if (marcadorAutobus.getLatLng().lat !== lat || marcadorAutobus.getLatLng().lng !== lon) {
             marcadorAutobus.setLatLng([lat, lon]).setIcon(nuevoIconoBus);
             // Popup con info del bus
             marcadorAutobus.bindPopup(`${busInfo}`);
             // Centramos la vista en la nueva ubicación
-            myMap.panTo([lat, lon], {animate: true, duration: 1});
+            myMap.panTo([lat, lon], { animate: true, duration: 1 });
         }
     } else {
         // Si no existe, creamos uno nuevo
-        marcadorAutobus = L.marker([lat, lon], {icon: nuevoIconoBus}).addTo(myMap).bindPopup(`${busInfo}`);
+        marcadorAutobus = L.marker([lat, lon], { icon: nuevoIconoBus }).addTo(myMap).bindPopup(`${busInfo}`);
     }
 }
 
@@ -253,7 +260,7 @@ function calculateBearing(lat1, lon1, lat2, lon2) {
 
 let directionIcons = [];
 // Función para dibujar indicadores de dirección para cada segmento de línea en la ruta
-function drawDirectionIndicators(mapName, routeCoordinates, className) {   
+function drawDirectionIndicators(mapName, routeCoordinates, className) {
     if (routeCoordinates.length < 2) {
         console.log('No hay suficientes coordenadas para dibujar indicadores');
         return;
@@ -434,9 +441,9 @@ async function addStopsToMap(tripId, lineNumber) {
                     }
 
                     const busStopIcon = L.icon({
-                        iconUrl: iconUrl, 
-                        iconSize: [12, 12], 
-                        iconAnchor: [0, 0], 
+                        iconUrl: iconUrl,
+                        iconSize: [12, 12],
+                        iconAnchor: [0, 0],
                         popupAnchor: [0, -12]
                     });
                     return L.marker(latlng, { icon: busStopIcon }).bindPopup(popupContent);
@@ -485,12 +492,12 @@ function mostrarUbicacionUsuario(position, mapCenter) {
 
     if (mapCenter) {
         // Centramos el mapa en la ubicación
-        myMap.panTo([lat, lon], {animate: true, duration: 1});
+        myMap.panTo([lat, lon], { animate: true, duration: 1 });
     }
 }
 
 function mostrarErrorUbicacion(error) {
-    switch(error.code) {
+    switch (error.code) {
         case error.PERMISSION_DENIED:
             console.error("Usuario negó la solicitud de geolocalización.");
             break;
@@ -518,7 +525,7 @@ function prepararDatosParadas(paradas) {
                 // Comprueba si 'a' y 'b' contienen una letra
                 const aHasLetter = /[a-zA-Z]/.test(a);
                 const bHasLetter = /[a-zA-Z]/.test(b);
-            
+
                 // Si ambos contienen una letra, los ordena alfabéticamente
                 if (aHasLetter && bHasLetter) {
                     return a.localeCompare(b);
@@ -560,7 +567,7 @@ let biciGeoJSONLayer = null;
 
 // Mapa para paradas cercanas
 async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
-    
+
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
         // Remove the existing map instance
@@ -582,9 +589,9 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
     if (document.documentElement.classList.contains('dark-mode')) {
         savedTheme = 'dark';
     }
-    if (savedTheme === "dark"){
+    if (savedTheme === "dark") {
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
-            attribution:'&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20,
             minZoom: 0
@@ -609,13 +616,13 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
                 iconAnchor: [0, 0],
                 popupAnchor: [0, -12]
             });
-    
+
             // Crear el marcador con el icono y el popup personalizado
             const marker = L.marker(latlng, { icon: iconoParada })
-            .bindPopup(`<strong>${feature.properties.nombre}</strong> (${feature.properties.numero}) ${feature.properties.lineasHTML}`);
+                .bindPopup(`<strong>${feature.properties.nombre}</strong> (${feature.properties.numero}) ${feature.properties.lineasHTML}`);
 
-           // Agregar un evento de clic al marcador
-            marker.on('click', async function(e) {
+            // Agregar un evento de clic al marcador
+            marker.on('click', async function (e) {
                 // Obtener destino para todas las líneas de la parada
                 let lineasDestinos = await getBusDestinationsForStop(feature.properties.numero);
 
@@ -672,7 +679,7 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
         options: {
             position: 'bottomleft'
         },
-    
+
         onAdd: function (map) {
             var container = L.DomUtil.create('div', 'leaflet-control leaflet-control-custom bike-control');
             container.style.width = 'auto';
@@ -681,10 +688,10 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
             return container;
         }
     });
-    
+
     // Añadir el control al mapa
     window.myMapParadasCercanas.addControl(new ShowBikesControl());
-    
+
 }
 
 // Función auxiliar para preparar datos de paradas a GeoJSON
@@ -724,7 +731,7 @@ function prepararDatosBiciParadas(paradas) {
 }
 // Mapa para paradas cercanas BIKI
 async function mapaParadasBiciCercanas(paradas) {
-    
+
     let iconUrl = 'img/bike-stop.png';
 
     // Si el html es dark-mode, usamos la capa de mapa oscura
@@ -732,7 +739,7 @@ async function mapaParadasBiciCercanas(paradas) {
     if (document.documentElement.classList.contains('dark-mode')) {
         savedTheme = 'dark';
     }
-    if (savedTheme === "dark"){
+    if (savedTheme === "dark") {
         iconUrl = 'img/bike-stop-dark.png';
     }
 
@@ -753,7 +760,7 @@ async function mapaParadasBiciCercanas(paradas) {
                 iconAnchor: [0, 0],
                 popupAnchor: [0, -12]
             });
-    
+
             return L.marker(latlng, { icon: iconoParada })
                 .bindPopup(`<span class="bike-agency">BIKI</span> <strong class="bikestop-name">${feature.properties.nombre}</strong> ${feature.properties.stopHTML}`);
         }
