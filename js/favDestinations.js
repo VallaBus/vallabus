@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const elements = [
         'fav-destinations',
         'home-destination',
@@ -24,12 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     let currentMap = null;
+    let searchAbortController = null;
 
     // Cargar destinos favoritos del localStorage
     loadFavoriteDestinations();
 
     // Usar delegación de eventos para manejar clics en destinos favoritos
-    foundElements['fav-destinations'].addEventListener('click', function(event) {
+    foundElements['fav-destinations'].addEventListener('click', function (event) {
         const target = event.target;
         if (target.tagName === 'LI') {
             if (target.id === 'home-destination') {
@@ -82,6 +83,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentMap.remove();
                 currentMap = null;
             }
+            // Abortar el listener de document.click de búsqueda si existe
+            if (searchAbortController) {
+                searchAbortController.abort();
+                searchAbortController = null;
+            }
         }
     }
 
@@ -111,6 +117,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         openDialog(foundElements['configFavoritesDialog']);
 
+        // Eliminamos listeners anteriores para evitar duplicados
+        favoritesList.removeEventListener('dragover', handleDragOver);
+        favoritesList.removeEventListener('drop', handleDrop);
         favoritesList.addEventListener('dragover', handleDragOver);
         favoritesList.addEventListener('drop', handleDrop);
     }
@@ -118,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Evento para gestionar destinos rápidos en el sidebar
     const quickDestinationsButton = document.getElementById('quickDestinationsButton');
 
-    quickDestinationsButton.addEventListener('click', function(event) {
+    quickDestinationsButton.addEventListener('click', function (event) {
         event.preventDefault();
         trackEvent('Destinos', 'Configurar', 'Sidebar');
         showConfigFavoritesDialog();
@@ -134,27 +143,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadFavoriteDestinations() {
         const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
         const favList = foundElements['fav-destinations'].querySelector('ul');
-        
+
         // Limpiar la lista antes de cargar
         favList.innerHTML = '<li id="home-destination">Casa</li>';
-        
+
         favorites.forEach(fav => {
             const li = document.createElement('li');
-            
+
             // Comprobar si el nombre comienza con un emoticono 
             const startsWithEmoji = /^\p{Emoji}/u.test(fav.name);
-            
+
             if (startsWithEmoji) {
                 // Extraer el emoticono (primer carácter)
                 const emoji = fav.name.charAt(0);
                 const restOfName = fav.name.slice(1);
-                
+
                 // Opción 1: Usar filtro CSS
                 li.innerHTML = `<span class="gray-emoji">${emoji}</span>${restOfName}`;
-                
+
                 // Opción 2: Usar color gris
                 // li.innerHTML = `<span class="gray-text">${emoji}</span>${restOfName}`;
-                
+
                 li.style.paddingLeft = '15px';
                 li.style.backgroundImage = 'none';
             } else {
@@ -162,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 li.style.paddingLeft = '35px';
                 li.style.backgroundImage = 'url("/img/star.png")';
             }
-            
+
             li.dataset.name = fav.name;
             li.dataset.lat = fav.lat;
             li.dataset.lon = fav.lon;
@@ -230,8 +239,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isHome) {
                 const name = document.getElementById(`${dialogId}Name`).value.trim();
                 if (!name) {
-                    errorMessage.textContent = errorMessage.textContent ? 
-                        'Debes elegir una ubicación y proporcionar un nombre' : 
+                    errorMessage.textContent = errorMessage.textContent ?
+                        'Debes elegir una ubicación y proporcionar un nombre' :
                         'Debes proporcionar un nombre';
                     hasError = true;
                 }
@@ -265,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Añadir este nuevo evento después de configurar los otros eventos
         if (!isHome) {
             const nameInput = document.getElementById(`${dialogId}Name`);
-            nameInput.addEventListener('input', function() {
+            nameInput.addEventListener('input', function () {
                 if (this.value.length > 25) {
                     this.value = this.value.slice(0, 25);
                 }
@@ -277,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Coordenadas del centro del área
         const areaCenter = [41.652251, -4.724532];
         const initialZoom = 13;
-        
+
         currentMap = L.map(`${dialogId}MapContainer`, {
             center: areaCenter,
             zoom: initialZoom,
@@ -290,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: false,
             zoomControl: true
         });
-        
+
         // Usar las capas de mapa de mapa.js
         if (document.documentElement.classList.contains('dark-mode')) {
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
@@ -306,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 subdomains: 'abc'
             }).addTo(currentMap);
         }
-        
+
         // Modificar la funcionalidad de búsqueda
         const geocoder = L.Control.Geocoder.nominatim({
             geocodingQueryParams: {
@@ -315,30 +324,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 bounded: 1
             }
         });
-        
+
         let marker = null; // Inicializamos el marcador como null
-        
+
         // Añadir evento de clic al mapa
-        currentMap.on('click', function(e) {
+        currentMap.on('click', function (e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
+
             if (marker) {
                 currentMap.removeLayer(marker); // Eliminar el marcador existente si lo hay
             }
             marker = L.marker([lat, lng]).addTo(currentMap); // Crear nuevo marcador
-            
+
             document.getElementById(latInputId).value = lat;
             document.getElementById(lonInputId).value = lng;
-            
+
             // Opcional: Realizar una búsqueda inversa para obtener el nombre de la ubicación
-            geocoder.reverse(e.latlng, currentMap.options.crs.scale(currentMap.getZoom()), function(results) {
+            geocoder.reverse(e.latlng, currentMap.options.crs.scale(currentMap.getZoom()), function (results) {
                 if (results.length > 0) {
                     document.getElementById(`${dialogId}SearchInput`).value = results[0].name;
                 }
             });
         });
-        
+
         const searchInput = document.getElementById(`${dialogId}SearchInput`);
         const searchButton = document.getElementById(`${dialogId}SearchButton`);
         const searchResults = document.createElement('ul');
@@ -348,14 +357,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function performSearch() {
             if (searchInput.value.length > 2) {
-                geocoder.geocode(searchInput.value, function(results) {
+                geocoder.geocode(searchInput.value, function (results) {
                     searchResults.innerHTML = '';
                     searchResults.style.display = results.length > 0 ? 'block' : 'none';
-                    results.forEach(function(r) {
+                    results.forEach(function (r) {
                         const li = document.createElement('li');
                         li.textContent = r.name;
                         li.className = 'search-result-item';
-                        li.addEventListener('click', function() {
+                        li.addEventListener('click', function () {
                             if (marker) {
                                 currentMap.removeLayer(marker); // Eliminar el marcador existente si lo hay
                             }
@@ -372,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        searchInput.addEventListener('keydown', function(event) {
+        searchInput.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 performSearch();
@@ -382,16 +391,21 @@ document.addEventListener('DOMContentLoaded', function() {
         searchButton.addEventListener('click', performSearch);
 
         // Cerrar la lista de resultados si se hace clic fuera de ella
-        document.addEventListener('click', function(event) {
+        // Usamos AbortController para poder eliminar el listener al cerrar el diálogo
+        if (searchAbortController) {
+            searchAbortController.abort();
+        }
+        searchAbortController = new AbortController();
+        document.addEventListener('click', function (event) {
             if (!searchResults.contains(event.target) && event.target !== searchInput) {
                 searchResults.style.display = 'none';
             }
-        });
-        
+        }, { signal: searchAbortController.signal });
+
         // Modificar la funcionalidad del botón "Mi ubicación actual"
-        document.getElementById(`${dialogId}CurrentLocationButton`).addEventListener('click', function() {
+        document.getElementById(`${dialogId}CurrentLocationButton`).addEventListener('click', function () {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     if (marker) {
@@ -403,19 +417,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById(lonInputId).value = lon;
 
                     // Realizar búsqueda inversa para obtener el nombre de la ubicación
-                    geocoder.reverse({lat: lat, lng: lon}, currentMap.options.crs.scale(currentMap.getZoom()), function(results) {
+                    geocoder.reverse({ lat: lat, lng: lon }, currentMap.options.crs.scale(currentMap.getZoom()), function (results) {
                         if (results.length > 0) {
                             document.getElementById(`${dialogId}SearchInput`).value = results[0].name;
                         }
                     });
-                }, function() {
+                }, function () {
                     alert('No se pudo obtener tu ubicación actual.');
                 });
             } else {
                 alert('Tu navegador no soporta geolocalización.');
             }
         });
-        
+
         currentMap.invalidateSize();
     }
 
@@ -460,8 +474,8 @@ document.addEventListener('DOMContentLoaded', function() {
             li.addEventListener('dragstart', handleDragStart);
             li.addEventListener('dragover', handleDragOver);
             li.addEventListener('drop', handleDrop);
-            li.addEventListener('touchstart', handleTouchStart, {passive: false});
-            li.addEventListener('touchmove', handleTouchMove, {passive: false});
+            li.addEventListener('touchstart', handleTouchStart, { passive: false });
+            li.addEventListener('touchmove', handleTouchMove, { passive: false });
             li.addEventListener('touchend', handleTouchEnd);
         }
 
@@ -522,11 +536,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const casa = favorites.find(fav => fav.name === 'Casa');
         favorites = favorites.filter(fav => fav.name !== 'Casa');
         favorites.sort((a, b) => newOrder.indexOf(a.name) - newOrder.indexOf(b.name));
-        
+
         if (casa) {
             favorites.unshift(casa); // Asegurarse de que "Casa" siempre esté primero
         }
-        
+
         localStorage.setItem('favoriteDestinations', JSON.stringify(favorites));
         loadFavoriteDestinations();
     }
@@ -546,9 +560,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function saveHomeDestination() {
         const lat = document.getElementById('homeLat').value;
         const lon = document.getElementById('homeLon').value;
-        
+
         if (lat && lon) {
-            localStorage.setItem('homeDestination', JSON.stringify({name: 'Casa', lat, lon}));
+            localStorage.setItem('homeDestination', JSON.stringify({ name: 'Casa', lat, lon }));
             loadFavoriteDestinations(); // Actualizar la lista de favoritos y la visibilidad del botón
         }
     }
@@ -558,10 +572,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = nameInput.value.trim().slice(0, 25);
         const lat = document.getElementById('favoriteLat').value;
         const lon = document.getElementById('favoriteLon').value;
-        
+
         if (name && lat && lon) {
             const favorites = JSON.parse(localStorage.getItem('favoriteDestinations')) || [];
-            favorites.push({name, lat, lon});
+            favorites.push({ name, lat, lon });
             localStorage.setItem('favoriteDestinations', JSON.stringify(favorites));
             loadFavoriteDestinations(); // Actualizar la lista de favoritos y la visibilidad del botón
         }
@@ -574,10 +588,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Evento para ocultar/mostrar la barra de destinos
-    document.getElementById('hideFavBar').addEventListener('change', function() {
+    document.getElementById('hideFavBar').addEventListener('change', function () {
         const newValue = this.checked;
         const oldValue = localStorage.getItem('hideFavBar') === 'true';
-        
+
         if (newValue !== oldValue) {
             localStorage.setItem('hideFavBar', newValue);
             updateFavBarVisibility();
@@ -595,7 +609,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFavBarVisibility();
 
     // Evento para añadir un nuevo destino rápido
-    document.getElementById('addNewFavoriteButton').addEventListener('click', function() {
+    document.getElementById('addNewFavoriteButton').addEventListener('click', function () {
         trackEvent('Destinos', 'Añadir', 'Diálogo');
         closeDialog(foundElements['configFavoritesDialog']);
         showAddFavoriteDialog();
@@ -619,19 +633,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTouchMove(e) {
         if (!touchedElement || touchedElement.dataset.name === 'Casa') return;
         e.preventDefault();
-        
+
         const touch = e.touches[0];
         const currentY = touch.clientY;
         const deltaY = currentY - touchStartY;
-        
+
         const currentTime = new Date().getTime();
         if (currentTime - lastMoveTime < moveDelay) return;
-        
+
         if (Math.abs(deltaY) >= moveThreshold) {
             const list = touchedElement.parentNode;
             const items = Array.from(list.children);
             const currentIndex = items.indexOf(touchedElement);
-            
+
             if (deltaY < 0 && currentIndex > 1) {
                 // Mover hacia arriba, pero no antes de "Casa"
                 list.insertBefore(touchedElement, items[currentIndex - 1]);
