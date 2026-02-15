@@ -1274,18 +1274,14 @@ function socialBrowserWarning() {
 
 // Eventos a controlar en elementos del mapa
 function mapEvents() {
-
-    // Mediante delegación de eventos controlamos clics
-    document.addEventListener('DOMContentLoaded', function() {
-        // Agrega el eventListener a cualquier elemento con clase addLineButton
-        document.addEventListener('click', async function(event) {
-            // Verifica si el evento se originó en un elemento addLineButton y añadimos la línea a la lista
-            if (event.target.matches('.addLineButton')) {
-                let stopNumber = event.target.getAttribute('data-stop-number');
-                let lineNumber = event.target.getAttribute('data-line-number');
-                await addBusLine(stopNumber, lineNumber, true);
-            }
-        });
+    // Agrega el eventListener a cualquier elemento con clase addLineButton
+    document.addEventListener('click', async function(event) {
+        // Verifica si el evento se originó en un elemento addLineButton y añadimos la línea a la lista
+        if (event.target.matches('.addLineButton')) {
+            let stopNumber = event.target.getAttribute('data-stop-number');
+            let lineNumber = event.target.getAttribute('data-line-number');
+            await addBusLine(stopNumber, lineNumber, true);
+        }
     });
 }
 
