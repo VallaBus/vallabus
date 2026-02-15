@@ -84,11 +84,11 @@ async function stopAndLineExist(stopNumber, lineNumber) {
 
     // Revisar si la línea proporcionada existe en alguna de las categorías de líneas para esa parada
     const allLines = [
-        ...(stopData.lineas.ordinarias || []), 
-        ...(stopData.lineas.poligonos || []), 
-        ...(stopData.lineas.matinales || []), 
-        ...(stopData.lineas.futbol || []), 
-        ...(stopData.lineas.buho || []), 
+        ...(stopData.lineas.ordinarias || []),
+        ...(stopData.lineas.poligonos || []),
+        ...(stopData.lineas.matinales || []),
+        ...(stopData.lineas.futbol || []),
+        ...(stopData.lineas.buho || []),
         ...(stopData.lineas.universidad || [])
     ];
 
@@ -99,7 +99,7 @@ async function stopAndLineExist(stopNumber, lineNumber) {
 
 // Agrupar conjunto de paradas por su número de parada
 function groupByStops(busLines) {
-    return busLines.reduce(function(acc, line) {
+    return busLines.reduce(function (acc, line) {
         if (!acc[line.stopNumber]) {
             acc[line.stopNumber] = [];
         }
@@ -111,7 +111,7 @@ function groupByStops(busLines) {
 // Función para obtener el nombre de la parada del JSON
 async function getStopName(stopId) {
     const cacheKey = `stopName_${stopId}`;
-    
+
     // Intentar obtener del caché
     if (window.cacheManager) {
         const cached = window.cacheManager.get(cacheKey, 'stopNames');
@@ -119,7 +119,7 @@ async function getStopName(stopId) {
             return cached;
         }
     }
-    
+
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -130,12 +130,12 @@ async function getStopName(stopId) {
         }
 
         const stopName = stop.parada.nombre;
-        
+
         // Guardar en caché
         if (window.cacheManager && stopName) {
             window.cacheManager.set(cacheKey, stopName, 'stopNames');
         }
-        
+
         return stopName;
     } catch (error) {
         console.error('Error al obtener datos del JSON:', error);
@@ -146,7 +146,7 @@ async function getStopName(stopId) {
 // Función para obtener la ubicación de la parada del JSON
 async function getStopGeo(stopId) {
     const cacheKey = `stopGeo_${stopId}`;
-    
+
     // Intentar obtener del caché
     if (window.cacheManager) {
         const cached = window.cacheManager.get(cacheKey, 'stopGeo');
@@ -154,7 +154,7 @@ async function getStopGeo(stopId) {
             return cached;
         }
     }
-    
+
     try {
         // Buscar la parada por su número
         const busStops = await loadBusStops();
@@ -165,12 +165,12 @@ async function getStopGeo(stopId) {
         }
 
         const stopGeo = stop.ubicacion;
-        
+
         // Guardar en caché
         if (window.cacheManager && stopGeo) {
             window.cacheManager.set(cacheKey, stopGeo, 'stopGeo');
         }
-        
+
         return stopGeo;
     } catch (error) {
         console.error('Error al obtener datos del JSON:', error);
@@ -234,7 +234,7 @@ async function fetchBusInfo(tripId) {
 // Obtener todas los avisos y alertas
 async function fetchAllBusAlerts() {
     const cacheKey = 'allBusAlerts';
-    
+
     // Intentar obtener del caché
     if (window.cacheManager) {
         const cached = window.cacheManager.get(cacheKey, 'alerts');
@@ -242,7 +242,7 @@ async function fetchAllBusAlerts() {
             return cached;
         }
     }
-    
+
     try {
         const response = await fetchApi('/alertas/');
 
@@ -256,12 +256,12 @@ async function fetchAllBusAlerts() {
         try {
             // Intenta parsear el texto a JSON
             const alerts = JSON.parse(data);
-            
+
             // Guardar en caché
             if (window.cacheManager) {
                 window.cacheManager.set(cacheKey, alerts, 'alerts');
             }
-            
+
             return alerts;
         } catch (error) {
             // Si el parseo falla (por ejemplo, si está vacío o no es JSON válido), devuelve un array vacío
@@ -315,7 +315,7 @@ function filterAlertsByStop(alerts, stopNumber) {
 // Obtener el listado de paradas suprimidas
 async function fetchSuppressedStops() {
     const cacheKey = 'suppressedStops';
-    
+
     // Intentar obtener del caché
     if (window.cacheManager) {
         const cached = window.cacheManager.get(cacheKey, 'suppressedStops');
@@ -323,7 +323,7 @@ async function fetchSuppressedStops() {
             return cached;
         }
     }
-    
+
     try {
         const response = await fetchApi('/paradas/suprimidas/');
 
@@ -337,12 +337,12 @@ async function fetchSuppressedStops() {
         try {
             // Intenta parsear el texto a JSON
             const suppressed = JSON.parse(data);
-            
+
             // Guardar en caché
             if (window.cacheManager) {
                 window.cacheManager.set(cacheKey, suppressed, 'suppressedStops');
             }
-            
+
             return suppressed;
         } catch (error) {
             // Si el parseo falla (por ejemplo, si está vacío o no es JSON válido), devuelve un array vacío
@@ -359,7 +359,7 @@ async function fetchSuppressedStops() {
 // Podemos perdirselos de sólo una parada
 // O podemos especificar también línea y fecha
 async function fetchScheduledBuses(stopNumber, lineNumber, date) {
-    
+
     const baseCacheKey = `busSchedule_${stopNumber}`;
     let cacheKey = lineNumber ? `${baseCacheKey}_${lineNumber}` : baseCacheKey;
     cacheKey += date ? `_${date}` : '';
@@ -437,7 +437,7 @@ async function getBusDestinationsForStop(stopNumber) {
                             destinations[linea.linea].add(horario.destino);
                         }
                     });
-                } else { 
+                } else {
                     // Si no hay datos la tomamos del general
                     if (!destinations[linea.linea]) {
                         destinations[linea.linea] = new Set();
@@ -490,11 +490,11 @@ async function displayScheduledBuses(stopNumber, date) {
         const busStops = await loadBusStops();
         const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
         const allLines = [
-            ...(stopData.lineas.ordinarias || []), 
-            ...(stopData.lineas.poligonos || []), 
-            ...(stopData.lineas.matinales || []), 
-            ...(stopData.lineas.futbol || []), 
-            ...(stopData.lineas.buho || []), 
+            ...(stopData.lineas.ordinarias || []),
+            ...(stopData.lineas.poligonos || []),
+            ...(stopData.lineas.matinales || []),
+            ...(stopData.lineas.futbol || []),
+            ...(stopData.lineas.buho || []),
             ...(stopData.lineas.universidad || [])
         ];
 
@@ -517,7 +517,7 @@ async function displayScheduledBuses(stopNumber, date) {
                         }
                         groupedHorarios[key].horarios.push(horario);
                     });
-                    
+
                     // Si no hay horarios para esta línea, al menos se crea una entrada con un array vacío
                     if (bus.horarios.length === 0 && !groupedHorarios[`${bus.linea}-${bus.destino}`]) {
                         groupedHorarios[`${bus.linea}-${bus.destino}`] = {
@@ -529,7 +529,7 @@ async function displayScheduledBuses(stopNumber, date) {
                 });
             }
         }
-        horariosBuses = { parada: [ { parada: stopData.parada.nombre } ] }; // Asumiendo que queremos mostrar el nombre de la parada
+        horariosBuses = { parada: [{ parada: stopData.parada.nombre }] }; // Asumiendo que queremos mostrar el nombre de la parada
     } else {
         // Si no se proporciona una fecha, simplemente obtener los horarios de la parada sin especificar una línea
         horariosBuses = await fetchScheduledBuses(stopNumber);
@@ -559,7 +559,7 @@ async function displayScheduledBuses(stopNumber, date) {
     dateInput.id = 'stopDateInput';
     dateInput.setAttribute('value', date);
     dateInput.dispatchEvent(new Event('change'));
-    
+
     // Botón para añadir parada a la lista
     const addStopButton = document.createElement('button');
     addStopButton.className = 'add-stop-to-list';
@@ -621,10 +621,10 @@ async function displayScheduledBuses(stopNumber, date) {
     })
 
     // Mostramos las líneas disponibles en la cabecera a modo de índice
-    Object.values(orderedHorarios).forEach (linea => {
+    Object.values(orderedHorarios).forEach(linea => {
         horariosElement.innerHTML += `<a href="#linea-${linea.linea}"><span class="indice-linea linea-${linea.linea}" data-stop-number="${stopNumber}" data-line-number="${linea.linea}">${linea.linea}</span></a>`;
     });
-    
+
     // Mostrar los horarios agrupados
     orderedHorarios.forEach(group => {
         horariosElement.innerHTML += `
@@ -637,7 +637,7 @@ async function displayScheduledBuses(stopNumber, date) {
         } else {
             group.horarios.forEach(horario => {
                 // Eliminamos los segundos de la hora de llegada
-                let timeParts = horario.llegada.split(':'); 
+                let timeParts = horario.llegada.split(':');
                 // Si las horas son 24:00 o más, fix visual
                 if (timeParts[0] > 23) {
                     timeParts[0] = timeParts[0] - 24;
@@ -648,7 +648,7 @@ async function displayScheduledBuses(stopNumber, date) {
         }
         horariosElement.innerHTML += '</div>';
     });
-    
+
     // Agregar líneas sin horarios
     if (horariosBuses && horariosBuses.lineas) {
         horariosBuses.lineas.forEach(bus => {
@@ -663,7 +663,7 @@ async function displayScheduledBuses(stopNumber, date) {
             }
         });
     }
-    
+
     horariosElement.innerHTML += '<p class="notice">Nota: Las actualizaciones de tiempos están pausadas hasta que cierre esta ventana</p>';
 
     return horariosElement;
@@ -683,7 +683,7 @@ async function displayScheduledBuses(stopNumber, date) {
  * Si se proporciona tanto la parada como la línea, se añade la línea específica.
  * 
  * @throws {Error} Si no se proporciona una parada o línea válida.
- */ 
+ */
 async function addBusLine(stopNumber, lineNumber, confirm = false) {
 
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
@@ -706,7 +706,7 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
 
     // Si se ha proporcionado tanto la parada como la línea
     if (stopNumber && lineNumber) {
-        
+
         // Si se ha llamado a la función con confirm, preguntamos antes de añadir
         if (confirm) {
             if (!window.confirm(`¿Desea añadir la línea ${lineNumber} de la parada ${stopNumber} a su lista?`)) {
@@ -722,9 +722,9 @@ async function addBusLine(stopNumber, lineNumber, confirm = false) {
             showErrorPopUp('Error: Actualmente no hay información para esa línea en esa parada');
             return;
         }
-    
+
         if (stopNumber && lineNumber) {
-            const exists = busLines.some(function(line) {
+            const exists = busLines.some(function (line) {
                 return line.stopNumber === stopNumber && line.lineNumber === lineNumber;
             });
             // Si no la tenemos ya guardada, la guardamos y creamos
@@ -760,18 +760,18 @@ async function showLineSelectionDialog(stopData) {
     dialog.id = 'lineSelectionDialog';
     dialog.className = 'dialog';
     dialog.style.display = 'block';
-    
+
     const allLines = [
-        ...(stopData.lineas.ordinarias || []), 
-        ...(stopData.lineas.poligonos || []), 
-        ...(stopData.lineas.matinales || []), 
-        ...(stopData.lineas.futbol || []), 
-        ...(stopData.lineas.buho || []), 
+        ...(stopData.lineas.ordinarias || []),
+        ...(stopData.lineas.poligonos || []),
+        ...(stopData.lineas.matinales || []),
+        ...(stopData.lineas.futbol || []),
+        ...(stopData.lineas.buho || []),
         ...(stopData.lineas.universidad || [])
     ].sort((a, b) => {
         const aIsNumeric = /^\d+$/.test(a);
         const bIsNumeric = /^\d+$/.test(b);
-        
+
         if (aIsNumeric && bIsNumeric) {
             return parseInt(a) - parseInt(b);
         } else if (aIsNumeric) {
@@ -860,11 +860,11 @@ async function showLineSelectionDialog(stopData) {
 function addAllLinesForStop(stopData) {
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
     const allLines = [
-        ...(stopData.lineas.ordinarias || []), 
-        ...(stopData.lineas.poligonos || []), 
-        ...(stopData.lineas.matinales || []), 
-        ...(stopData.lineas.futbol || []), 
-        ...(stopData.lineas.buho || []), 
+        ...(stopData.lineas.ordinarias || []),
+        ...(stopData.lineas.poligonos || []),
+        ...(stopData.lineas.matinales || []),
+        ...(stopData.lineas.futbol || []),
+        ...(stopData.lineas.buho || []),
         ...(stopData.lineas.universidad || [])
     ];
 
@@ -954,7 +954,7 @@ function scrollToStop(stopNumber) {
             // Configurar el observador para observar cambios en los hijos del contenedor
             observer.observe(paradasContainer, { childList: true });
         }
-    } 
+    }
 }
 
 /**
@@ -1007,14 +1007,14 @@ async function updateBusList(isInitialLoad = false) {
         fetchAllBusAlerts(),
         fetchSuppressedStops()
     ]);
-    
+
     // Verificar si hay alertas globales y mostrar el banner si es necesario
     const globalAlerts = filterBusAlerts(allAlerts, null);
     displayGlobalAlertsBanner(globalAlerts);
 
     let horariosBox = document.getElementById('horarios-box');
     let busList = document.getElementById('busList');
-    
+
     // Elementos para listar las paradas en el sidebar
     const sidebarStops = document.getElementById('sidebar-stops');
     // Limpiamos contenido por defecto por si hemos borrado las paradas
@@ -1023,12 +1023,12 @@ async function updateBusList(isInitialLoad = false) {
 
     // Obtén la lista de paradas "Fijas" del almacenamiento local
     let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
-    
+
     // Ordena las paradas: primero las fijadas (con las más recientes arriba), luego el resto
     let sortedStops = Object.keys(stops).sort((a, b) => {
         const aFixed = fixedStops.includes(a);
         const bFixed = fixedStops.includes(b);
-        
+
         if (aFixed && bFixed) {
             // Si ambas están fijadas, ordenar por su índice en fixedStops (orden inverso)
             return fixedStops.indexOf(b) - fixedStops.indexOf(a);
@@ -1041,13 +1041,13 @@ async function updateBusList(isInitialLoad = false) {
             return a.localeCompare(b);
         }
     });
-    
+
     // Crea un nuevo array con los objetos ordenados
     let sortedStopsArray = sortedStops.map(key => ({ stopId: key, lines: stops[key] }));
 
     // OPTIMIZACIÓN: Usar DocumentFragment para batch DOM updates
     const fragment = document.createDocumentFragment();
-    
+
     // Creamos las paradas una a una
     (async () => {
         for (let stop of sortedStopsArray) {
@@ -1080,7 +1080,7 @@ async function updateBusList(isInitialLoad = false) {
                     let suppressedStopAlert = document.createElement('div');
                     suppressedStopAlert.className = 'suppressedStopAlert';
                     suppressedStopAlert.innerHTML = "Parada posiblemente suprimida en este momento, consulta las alertas en las líneas para más información";
-                    
+
                     // Seleccionar el elemento stop-header dentro de stopElement
                     const stopHeaderElement = stopElement.querySelector('.stop-header');
                     if (stopHeaderElement) {
@@ -1135,7 +1135,7 @@ async function updateBusList(isInitialLoad = false) {
                     // Solo mostrar estado de actualización en la carga inicial, no en actualizaciones automáticas
                     const horaTime = busElement.querySelector('.hora-tiempo');
                     const tripInfo = busElement.querySelector('.trip-info');
-                    
+
                     if (horaTime) {
                         // Solo mostrar puntos de carga en la zona de horarios
                         horaTime.innerHTML = `
@@ -1143,19 +1143,19 @@ async function updateBusList(isInitialLoad = false) {
                             <div class="horaLlegada"></div>
                         `;
                     }
-                    
+
                     // Limpiar solo datos variables que se van a actualizar
                     if (tripInfo) {
                         const ocupacion = tripInfo.querySelector('.ocupacion');
                         const diferencia = tripInfo.querySelector('.diferencia');
-                        
+
                         // Limpiar ocupación y diferencia, pero mantener destino
                         if (ocupacion) ocupacion.textContent = '';
                         if (diferencia) diferencia.textContent = '';
                         // NO limpiar destino - se mantiene visible
                     }
                 }
-                
+
                 // Devolver la promesa de fetchBusTime junto con el elemento
                 return fetchBusTime(line.stopNumber, line.lineNumber, busElement, allAlerts)
                     .then(() => {
@@ -1187,22 +1187,22 @@ async function updateBusList(isInitialLoad = false) {
                 el.classList.remove('skeleton', 'skeleton-text');
             });
         }
-        
+
         // OPTIMIZACIÓN: Actualizar el sidebar una sola vez al final
         if (fragment.hasChildNodes()) {
             busList.appendChild(fragment);
         }
-        
+
         // Actualizar el sidebar HTML una sola vez
         sidebarStops.innerHTML = `
             <h2>Tus paradas</h2><ul>${stopsListHTML}</ul>
             <p class="sidebar-footer">fijará una parada arriba en la lista</p>
         `;
-        
+
         // Añadir event listeners una sola vez
         const stopLinks = sidebarStops.querySelectorAll('.sidebar-stop-link');
         stopLinks.forEach(link => {
-            link.addEventListener('click', function(event) {
+            link.addEventListener('click', function (event) {
                 event.preventDefault();
                 toogleSidebar();
                 closeAllDialogs(dialogIds);
@@ -1230,7 +1230,7 @@ const globalEventListeners = {
     alertIcon: new Set(),
     occupancy: new Set(),
     lineItem: new Set()
-  };
+};
 
 /**
  * Actualiza los datos de una línea específica.
@@ -1292,19 +1292,19 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                 let matricula;
                 let velocidad;
                 let futureDate;
-                
+
                 let tripId = busMasCercano.trip_id;
                 let ocupacion;
                 let ocupacionClass = null;
                 let ocupacionDescription = 'Sin datos de ocupación';
                 let estado;
-                
+
                 // Datos de ocupación
                 if (tripId) {
                     // Recuperamos datos del bus en este trip
                     busInfo = await fetchBusInfo(tripId);
 
-                    if(busInfo) {
+                    if (busInfo) {
                         ocupacion = busInfo.ocupacion ? busInfo.ocupacion : null;
                         // Si no es null asignamos la clase
                         if (ocupacion) {
@@ -1376,7 +1376,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
 
                     // Crear un objeto Date con la fecha y hora de llegada
                     horaLlegada = new Date(busMasCercano.scheduled.fechaHoraLlegada);
-    
+
                     // Si el horaLlegada es menor de 60 segundos, mostramos 0 minutos
                     if (Math.round((horaLlegada - new Date()) / 60000) < 1) {
                         tiempoRestante = 0;
@@ -1458,7 +1458,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     horaLlegada = horaLlegadaProgramada;
                     tiempoRestanteHTML = dayOfWeek;
                     tiempoClass = 'futuro';
-                } else if (tiempoRestante > 59 ) {
+                } else if (tiempoRestante > 59) {
                     // Si el tiempo restante es mayor de 59 minutos, lo mostramos en horas y minutos
                     let horas = Math.floor(tiempoRestante / 60);
                     let minutos = tiempoRestante % 60;
@@ -1524,11 +1524,11 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                 lineItem.classList.add('highlight-update');
 
                 // Espera 1 segundo, luego elimina 'highlight-update' y restaura 'highlight' si es necesario
-                setTimeout(function() {
-                        lineItem.classList.remove('highlight-update');
-                        if (hadHighlight) {
-                            lineItem.classList.add('highlight');
-                        }
+                setTimeout(function () {
+                    lineItem.classList.remove('highlight-update');
+                    if (hadHighlight) {
+                        lineItem.classList.add('highlight');
+                    }
                 }, 500);
 
                 // Comprobamos si hay que mandar notificaciones
@@ -1560,11 +1560,11 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                 `;
             }
         } else {
-                let destino = "";
-                if (scheduledData.lineas && scheduledData.lineas[0] && scheduledData.lineas[0].destino) {
-                    destino = scheduledData.lineas[0].destino;
-                }
-                lineItem.innerHTML = `
+            let destino = "";
+            if (scheduledData.lineas && scheduledData.lineas[0] && scheduledData.lineas[0].destino) {
+                destino = scheduledData.lineas[0].destino;
+            }
+            lineItem.innerHTML = `
                     <div class="linea">
                         <h3>${lineNumber}</h3>
                     </div>
@@ -1583,28 +1583,28 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     ${alertHTML}
                 `;
         }
-            // Cuadro de alertas
-            lineItem.innerHTML += alertHTML;
+        // Cuadro de alertas
+        lineItem.innerHTML += alertHTML;
 
-            // Borramos event listeners antes de añadir los nuevos
-            removeExistingEventListeners(lineItem);
+        // Borramos event listeners antes de añadir los nuevos
+        removeExistingEventListeners(lineItem);
 
-            // Eventos click a diferentes elementos generados dinámicamente
-            addEventListeners(lineItem, scheduledData, lineNumber);
-            
-            // Creamos el panel informativo desplegable
-            const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
-            lineItem.appendChild(infoPanel);
+        // Eventos click a diferentes elementos generados dinámicamente
+        addEventListeners(lineItem, scheduledData, lineNumber);
 
-        } catch (error) {
-            console.error(`Error en fetchBusTime (intento ${retryCount + 1}/${maxRetries + 1}):`, error);
-            
-            // Intentar reintentar si no hemos alcanzado el máximo
-            if (retryCount < maxRetries) {
-                console.log(`Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
-                
-                // Mostrar estado de reintento con estructura completa
-                lineItem.innerHTML = `
+        // Creamos el panel informativo desplegable
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        lineItem.appendChild(infoPanel);
+
+    } catch (error) {
+        console.error(`Error en fetchBusTime (intento ${retryCount + 1}/${maxRetries + 1}):`, error);
+
+        // Intentar reintentar si no hemos alcanzado el máximo
+        if (retryCount < maxRetries) {
+            console.log(`Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
+
+            // Mostrar estado de reintento con estructura completa
+            lineItem.innerHTML = `
                     <div class="linea">
                         <h3>${lineNumber}</h3>
                     </div>
@@ -1621,16 +1621,16 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="horaLlegada"></div>
                     </div>
                 `;
-                
-                // Reintentar después de 2 segundos
-                setTimeout(() => {
-                    fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount + 1);
-                }, 2000);
-                return;
-            }
-            
-            // Si ya agotamos los reintentos, mostrar error con estructura completa
-            lineItem.innerHTML = `
+
+            // Reintentar después de 2 segundos
+            setTimeout(() => {
+                fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount + 1);
+            }, 2000);
+            return;
+        }
+
+        // Si ya agotamos los reintentos, mostrar error con estructura completa
+        lineItem.innerHTML = `
                 <div class="linea">
                     <h3>${lineNumber}</h3>
                 </div>
@@ -1647,17 +1647,17 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     <div class="error-subtitle">Toca para reintentar</div>
                 </div>
             `;
-            
-            // Añadir evento para reintentar manualmente
-            const retryElement = lineItem.querySelector('.hora-tiempo');
-            if (retryElement) {
-                retryElement.style.cursor = 'pointer';
-                retryElement.addEventListener('click', function retryFetch() {
-                    // Remover el event listener para evitar duplicados
-                    retryElement.removeEventListener('click', retryFetch);
-                    
-                    // Mostrar estado de carga con estructura completa
-                    lineItem.innerHTML = `
+
+        // Añadir evento para reintentar manualmente
+        const retryElement = lineItem.querySelector('.hora-tiempo');
+        if (retryElement) {
+            retryElement.style.cursor = 'pointer';
+            retryElement.addEventListener('click', function retryFetch() {
+                // Remover el event listener para evitar duplicados
+                retryElement.removeEventListener('click', retryFetch);
+
+                // Mostrar estado de carga con estructura completa
+                lineItem.innerHTML = `
                         <div class="linea">
                             <h3>${lineNumber}</h3>
                         </div>
@@ -1674,15 +1674,15 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                             <div class="horaLlegada"></div>
                         </div>
                     `;
-                    
-                    // Reintentar desde el principio
-                    fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, 0);
-                });
-            }
-            
-            const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
-            lineItem.appendChild(infoPanel);
-        };
+
+                // Reintentar desde el principio
+                fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, 0);
+            });
+        }
+
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        lineItem.appendChild(infoPanel);
+    };
 }
 
 /**
@@ -1702,24 +1702,24 @@ function removeExistingEventListeners(lineItem) {
     // Remove alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
     if (alertIcon) {
-      globalEventListeners.alertIcon.forEach(listener => {
-        alertIcon.removeEventListener('click', listener);
-      });
-      globalEventListeners.alertIcon.clear();
+        globalEventListeners.alertIcon.forEach(listener => {
+            alertIcon.removeEventListener('click', listener);
+        });
+        globalEventListeners.alertIcon.clear();
     }
-  
+
     // Remove occupancy listener
     const occupancyElement = lineItem.querySelector('.ocupacion');
     if (occupancyElement) {
-      globalEventListeners.occupancy.forEach(listener => {
-        occupancyElement.removeEventListener('click', listener);
-      });
-      globalEventListeners.occupancy.clear();
+        globalEventListeners.occupancy.forEach(listener => {
+            occupancyElement.removeEventListener('click', listener);
+        });
+        globalEventListeners.occupancy.clear();
     }
-  
+
     // Remove lineItem listener
     globalEventListeners.lineItem.forEach(listener => {
-      lineItem.removeEventListener('click', listener);
+        lineItem.removeEventListener('click', listener);
     });
     globalEventListeners.lineItem.clear();
 }
@@ -1742,35 +1742,35 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
     // Add alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
     if (alertIcon) {
-      const alertListener = function(event) {
-        event.stopPropagation();
-        const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
-        if (alertBox) {
-          alertBox.style.display = 'flex';
-          const closeButton = alertBox.querySelector('.alerts-close');
-          closeButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            alertBox.style.display = 'none';
-          }, { once: true });
-        }
-      };
-      alertIcon.addEventListener('click', alertListener);
-      globalEventListeners.alertIcon.add(alertListener);
+        const alertListener = function (event) {
+            event.stopPropagation();
+            const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
+            if (alertBox) {
+                alertBox.style.display = 'flex';
+                const closeButton = alertBox.querySelector('.alerts-close');
+                closeButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    alertBox.style.display = 'none';
+                }, { once: true });
+            }
+        };
+        alertIcon.addEventListener('click', alertListener);
+        globalEventListeners.alertIcon.add(alertListener);
     }
-  
+
     // Add occupancy listener para mostrar la ocupación al hacer clic
     const occupancyElement = lineItem.querySelector('.ocupacion');
     if (occupancyElement) {
-      const occupancyListener = function(event) {
-        event.stopPropagation();
-        showNotice('', occupancyElement.textContent);
-      };
-      occupancyElement.addEventListener('click', occupancyListener);
-      globalEventListeners.occupancy.add(occupancyListener);
+        const occupancyListener = function (event) {
+            event.stopPropagation();
+            showNotice('', occupancyElement.textContent);
+        };
+        occupancyElement.addEventListener('click', occupancyListener);
+        globalEventListeners.occupancy.add(occupancyListener);
     }
-  
+
     // Add lineItem listener para mostrar el mapa al hacer clic
-    const lineItemListener = function(event) {
+    const lineItemListener = function (event) {
         const mapBox = document.querySelector('#mapContainer');
         // Obtenemos el tripId del elemento hermano llamado .linea
         const brotherElement = this.firstElementChild;
@@ -1819,9 +1819,13 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
             }
 
             window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
-    
+
             // Agrega un controlador de eventos de clic a alerts-close
-            mapBox.querySelector('.map-close').addEventListener('click', function() {
+            // Clonamos el botón para eliminar listeners anteriores y evitar acumulación
+            const oldCloseButton = mapBox.querySelector('.map-close');
+            const newCloseButton = oldCloseButton.cloneNode(true);
+            oldCloseButton.parentNode.replaceChild(newCloseButton, oldCloseButton);
+            newCloseButton.addEventListener('click', function () {
                 mapBox.classList.remove('show');
                 if (window.globalState.intervalMap) {
                     // Paramos las actualizaciones
@@ -1834,7 +1838,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
                 };
                 history.replaceState(dialogState, document.title, '#/');
             });
-    
+
             event.stopPropagation();
         }
 
@@ -1885,11 +1889,11 @@ function combineBusData(scheduledData) {
             bus.realtime.forEach(realtime => {
                 // Si no existe la entrada para este trip_id, crearla
                 if (!combined[linea][realtime.trip_id]) {
-                    combined[linea][realtime.trip_id] = { 
+                    combined[linea][realtime.trip_id] = {
                         scheduled: {
                             destino: bus.destino // Usar el destino general de la línea
-                        }, 
-                        realTime: null 
+                        },
+                        realTime: null
                     };
                 }
 
@@ -2131,13 +2135,13 @@ async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, n
     });
 
     let nextBuses;
-    if (futureData){
+    if (futureData) {
         // FIXME: Si el busMasCercano es realtime de hoy
         // saca como siguiente el segundo programado del día
         // siguiente
         nextBuses = busesArray.slice(1, numBuses + 1);
     } else {
-    // Encontrar el índice de busMasCercano en el array
+        // Encontrar el índice de busMasCercano en el array
         let indexBusMasCercano;
         if (busMasCercano && busMasCercano.scheduled) {
             indexBusMasCercano = busesArray.findIndex(bus => bus.scheduled && bus.scheduled.tripId === busMasCercano.scheduled.tripId);
@@ -2166,14 +2170,14 @@ async function getNextBuses(busMasCercano, busesLinea, stopNumber, lineNumber, n
  * @throws {Error} Si no se proporciona un número de parada o línea.
  */
 function removeBusLine(stopNumber, lineNumber) {
-   
+
     let avisoBorrado = `¿Seguro que quieres borrar la línea ${lineNumber} de la parada ${stopNumber}?`;
 
     let busLines = localStorage.getItem('busLines') ? JSON.parse(localStorage.getItem('busLines')) : [];
     let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
 
     if (confirm(avisoBorrado)) {
-        busLines = busLines.filter(function(line) {
+        busLines = busLines.filter(function (line) {
             return !(line.stopNumber === stopNumber && line.lineNumber === lineNumber);
         });
 
@@ -2224,7 +2228,7 @@ function removeStop(stopId) {
     let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
 
     if (confirm(avisoBorrado)) {
-        busLines = busLines.filter(function(line) {
+        busLines = busLines.filter(function (line) {
             return line.stopNumber !== stopId;
         });
 
@@ -2285,7 +2289,7 @@ function removeAllBusLines() {
         removeAllButton.style.display = 'none';
         let horariosBox = document.getElementById('horarios-box');
         horariosBox.innerHTML = '';
-        
+
         // Hacemos scroll arriba
         const headerTitle = document.getElementById('title');
         if (headerTitle) {
@@ -2303,7 +2307,7 @@ function removeAllBusLines() {
 // Función para guardar un JSON con todas las paradas
 async function loadBusStops() {
     const cacheKey = 'busStops';
-    
+
     // Usar caché inteligente
     if (window.cacheManager) {
         const cachedData = window.cacheManager.get(cacheKey, 'busStops');
@@ -2438,7 +2442,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
         <p>Estas son las paradas más cercanas a tu ubicación.</p>
         <div id="mapaParadasCercanas"></div>
         <p><strong>Pulsa sobre la linea para añadirla</strong> o sobre el botón <strong>+</strong> para añadir todas las líneas de la parada.</p>`;
-    
+
     // Restablecer el scroll arriba
     resultsDiv.scrollTo(0, 0);
 
@@ -2449,13 +2453,13 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
 
     function closeNearestStops() {
         resultsDiv.style.display = 'none';
-            // Eliminar el event listener cuando se cierra el diálogo
-            resultsDiv.removeEventListener('click', currentResultsListener);
-            currentResultsListener = null;
-            // Regresamos al home
-            const dialogState = {
-                dialogType: 'home'
-            };
+        // Eliminar el event listener cuando se cierra el diálogo
+        resultsDiv.removeEventListener('click', currentResultsListener);
+        currentResultsListener = null;
+        // Regresamos al home
+        const dialogState = {
+            dialogType: 'home'
+        };
         history.replaceState(dialogState, document.title, '#/');
     }
 
@@ -2469,7 +2473,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
         } else if (event.target.matches('#show-bikes')) {
             if (bikeStops) {
                 // Si está activado el toogle ocultamos paradas
-                if (event.target.classList.contains('enabled')){
+                if (event.target.classList.contains('enabled')) {
                     try {
                         await limpiarMapaParadasBiciCercanas();
                         event.target.classList.remove('enabled');
@@ -2479,7 +2483,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
                         // Ocultamos el botón si hubo errores
                         event.target.remove();
                     }
-                // Si no está activado el toogle mostramos paradas
+                    // Si no está activado el toogle mostramos paradas
                 } else {
                     try {
                         await mapaParadasBiciCercanas(bikeStops);
@@ -2557,7 +2561,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
 
         // Añadir el evento click al elemento mapIcon
         let mapIconElement = stopDiv.querySelector('.mapIcon');
-        mapIconElement.addEventListener('click', function(event) {
+        mapIconElement.addEventListener('click', function (event) {
             // Prevenir la acción por defecto del enlace
             event.preventDefault();
 
@@ -2565,7 +2569,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
             let plannerURL;
 
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     displayLoadingSpinner();
                     plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${stop.parada.nombre}::${stop.ubicacion.y},${stop.ubicacion.x}&arriveBy=false&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900`
                     showIframe(plannerURL);
@@ -2578,7 +2582,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
                 }, showError,
                     { maximumAge: 6000, timeout: 15000 });
             } else {
-            console.log("Geolocalización no soportada por este navegador.");
+                console.log("Geolocalización no soportada por este navegador.");
             }
         });
 
