@@ -176,6 +176,7 @@ function guiaFABEvents() {
     if (!fab) return;
 
     fab.addEventListener('click', () => {
+        _paq.push(['trackEvent', 'guia-voz', 'click', 'fab']);
         window.location.href = 'https://guia.vallabus.com/';
     });
 }
