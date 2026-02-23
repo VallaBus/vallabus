@@ -4,15 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VallaBus - La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo</title>
+    <title>VallaBus - La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga,
+        Simancas, Laguna y Arroyo</title>
 
     <!-- Descripción General -->
-    <meta name="description" content="La forma más rápida de saber los horarios de tu bus en Valladolid, La Cistérniga, Simancas, Laguna y Arroyo">
+    <meta name="description"
+        content="La forma más rápida de saber los horarios de tu bus en Valladolid, La Cistérniga, Simancas, Laguna y Arroyo">
     <meta name="theme-color" content="#054a32">
 
     <!-- Open Graph: Facebook, LinkedIn, y otros -->
     <meta property="og:title" content="VallaBus" />
-    <meta property="og:description" content="🚍 La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo" />
+    <meta property="og:description"
+        content="🚍 La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo" />
     <meta property="og:image" content="https://vallabus.com/favicon.png" />
     <meta property="og:url" content="https://vallabus.com/" />
     <meta property="og:type" content="website" />
@@ -20,7 +23,8 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="VallaBus">
-    <meta name="twitter:description" content="🚍 La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo">
+    <meta name="twitter:description"
+        content="🚍 La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo">
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <script type="module" src="js/browser.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.png">
@@ -37,7 +41,7 @@
     img-src 'self' data: https://vallabus.com https://beta.vallabus.com https://*.tile.openstreetmap.org https://*.tile.thunderforest.com https://*.basemaps.cartocdn.com;
     connect-src 'self' https://stats.vallabus.com https://beta.vallabus.com https://gtfs.vallabus.com https://gtfs2.vallabus.com https://api.vallabus.com https://push.vallabus.com https://nominatim.openstreetmap.org;
     font-src 'self';
-    frame-src 'self' https://rutas.vallabus.com;
+    frame-src 'self' https://rutas.vallabus.com https://guia.vallabus.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -49,18 +53,17 @@
 </head>
 
 <body>
-    <div id="overlay-destinos-rapidos-1024" class="overlay">
+    <div id="overlay-guia-voz-2026" class="overlay">
         <div class="overlay-content">
             <div class="arrow"></div>
-            <h2>Destinos rápidos</h2>
+            <h2>¡Nuevo Guía VallaBus!</h2>
             <ul>
-                <li>Nueva barra superior</li>
-                <li>Define tus <strong>destinos más usados</strong></li>
-                <li>Accede a <strong>cómo llegar con un clic</strong></li>
-                <li>Personaliza con <strong>emoticonos 💼 🏋️‍♂️ 📖</strong></li>
-                <li>Oculta o muestra la barra como prefieras</li>
+                <li>Busca paradas y líneas con tu voz</li>
+                <li>Consulta horarios sin escribir</li>
+                <li>Pulsa el <strong>micrófono inferior</strong></li>
+                <li>Pregunta por rutas y tiempos de llegada</li>
             </ul>
-            <button class="close-overlay">Entendido</button>
+            <button class="close-overlay">¡Probar ahora!</button>
         </div>
     </div>
 
@@ -70,7 +73,7 @@
         <button id="installButton" style="display: none;">Instalar</button>
         <button id="installIosButton" style="display: none;">Instalar</button>
     </header>
- 
+
     <div id="formulario">
         <form>
             <div id="inputs">
@@ -85,9 +88,16 @@
     <div id="lineSuggestions"></div>
 
     <div id="tips-banner">
-        <p id="share-whatsapp"><a href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20es%20la%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%20%C2%A1Dale%20un%20vistazo%21%20%0A%0A%F0%9F%93%B2%20https%3A%2F%2Fvallabus.com%2F%3Fmtm_campaign%3Dwhatsappshare%0A%0A%F0%9F%93%B0%20Canal%20con%20novedades%3A%20https%3A%2F%2Fwhatsapp.com%2Fchannel%2F0029VacJrldIHphBU41MLM25" target="_blank" rel="noopener" aria-label="Whatsapp"><strong>Comparte ahora y ayuda a llegar a tiempo</strong><br />a tus grupos favoritos de WhatsApp</a></p>
+        <p id="share-whatsapp"><a
+                href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20es%20la%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%20%C2%A1Dale%20un%20vistazo%21%20%0A%0A%F0%9F%93%B2%20https%3A%2F%2Fvallabus.com%2F%3Fmtm_campaign%3Dwhatsappshare%0A%0A%F0%9F%93%B0%20Canal%20con%20novedades%3A%20https%3A%2F%2Fwhatsapp.com%2Fchannel%2F0029VacJrldIHphBU41MLM25"
+                target="_blank" rel="noopener" aria-label="Whatsapp"><strong>Comparte ahora y ayuda a llegar a
+                    tiempo</strong><br />a tus grupos favoritos de WhatsApp</a></p>
 
-        <p id="follow-banner">Síguenos para novedades<br /><a href="https://www.instagram.com/vallabusapp/" target="_blank">Instagram</a> - <a href="https://bsky.app/profile/vallabus.com" target="_blank">BlueSky</a> - <a href="https://whatsapp.com/channel/0029VacJrldIHphBU41MLM25" target="_blank">WhatsApp</a> - <a href="https://www.facebook.com/people/VallaBus/61561026144737/" target="_blank">Facebook</a></p>
+        <p id="follow-banner">Síguenos para novedades<br /><a href="https://www.instagram.com/vallabusapp/"
+                target="_blank">Instagram</a> - <a href="https://bsky.app/profile/vallabus.com"
+                target="_blank">BlueSky</a> - <a href="https://whatsapp.com/channel/0029VacJrldIHphBU41MLM25"
+                target="_blank">WhatsApp</a> - <a href="https://www.facebook.com/people/VallaBus/61561026144737/"
+                target="_blank">Facebook</a></p>
 
         <!--<p class="ruta-pucela" class="sticky"><a href="#" class="routeTo" data-dest-name="Estadio José Zorilla" data-dest-y="41.6440028" data-dest-x="-4.7605973" data-arrive-date="2024-09-21" data-arrive-time="13:45" data-bike="true">Sábado 21: Planifica tu viaje al Estadio ya</a></p>-->
 
@@ -96,7 +106,6 @@
         <!--<p id="informe-0425" class="sticky informe"><a href="/informes/feb25"><strong>¿Cómo de puntual fue tu línea en abril?</strong><br />Haz clic para ver los datos por barrio</a></p>-->
         <!--<p id="share-app-dic24" class="share-app"><strong>Este 2025 regala VallaBus</strong><br />Compártenos con más personas y grupos</p>-->
         <!--<p id="reclama-0125" class="peticion"><a href="/reclama/">El ayuntamiento rechazó mejorar el servicio<br /><span>Clic aquí para ayudar enviándoles una reclamación</span></a></p>-->
-        <p id="guia-250526" class="guia-banner sticky"><a href="https://guia.vallabus.com/?mtm_campaign=banner"><strong>Prueba el nuevo Guía VallaBus</strong><br />Consulta por voz horarios y rutas</a></p>
     </div>
 
     <div id="fav-destinations">
@@ -119,7 +128,9 @@
                 <button id="viewCercanasButton"><a href="#/cercanas">Ver cercanas</a></button>
                 <button id="routePlannerButton"><a href="#/rutas">Planificar ruta</a></button>
             </div>
-            <p id="install-tip">Instala o <strong>Agregar a la pantalla principal</strong> desde el menú del navegador<span class="ios-only"> o desde el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> en iOS</span></p>
+            <p id="install-tip">Instala o <strong>Agregar a la pantalla principal</strong> desde el menú del
+                navegador<span class="ios-only"> o desde el icono Compartir <img src="img/ios-share.svg"
+                        alt="Icono compartir en iOS" /> en iOS</span></p>
         </div>
         <!-- Placeholder inicial -->
         <div id="initial-placeholder">
@@ -164,23 +175,31 @@
         <div id="footer-actions">
             <button id="removeAllButton" class="terciary">Borrar tus paradas</button>
             <button id="theme-toggle">
-                <span id="theme-toggle-icon" title="Cambiar a tema claro/oscuro">🌞</span> <!-- Icono de sol por defecto -->
-            </button> 
+                <span id="theme-toggle-icon" title="Cambiar a tema claro/oscuro">🌞</span>
+                <!-- Icono de sol por defecto -->
+            </button>
         </div>
-        
+
         <!--<p id="last-update">Última actualización: --</p>-->
 
-        <p id="created-by">Servicio creado por una comunidad de voluntarios y usuarios del bus como tú, independiente de cualquier organismo</p>   
+        <p id="created-by">Servicio creado por una comunidad de voluntarios y usuarios del bus como tú, independiente de
+            cualquier organismo</p>
 
-        <div id="social-share">       
-            <a id="whatsapp-share-button" href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F" target="_blank" rel="noopener" aria-label="Whatsapp">Whatsapp</a> 
-            <a id="facebook-share-button" href="https://www.facebook.com/sharer/sharer.php?u=https://vallabus.com/" target="_blank">Facebook</a>   
-            <a id="bluesky-button" href="https://bsky.app/intent/compose?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F%0A%0Avia%20%40vallabus.com" target="_blank">BlueSky</a>      
-            <a id="telegram-button" href="https://t.me/vallabusapp" target="_blank">Comunidad</a>      
+        <div id="social-share">
+            <a id="whatsapp-share-button"
+                href="whatsapp://send?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F"
+                target="_blank" rel="noopener" aria-label="Whatsapp">Whatsapp</a>
+            <a id="facebook-share-button" href="https://www.facebook.com/sharer/sharer.php?u=https://vallabus.com/"
+                target="_blank">Facebook</a>
+            <a id="bluesky-button"
+                href="https://bsky.app/intent/compose?text=%F0%9F%9A%8D%20VallaBus%20-%20La%20forma%20m%C3%A1s%20r%C3%A1pida%20de%20saber%20cu%C3%A1ndo%20llega%20tu%20bus%20en%20Valladolid%2C%20Laguna%20y%20Arroyo.%20%C2%A1Dale%20un%20vistazo%21%20https%3A%2F%2Fvallabus.com%2F%0A%0Avia%20%40vallabus.com"
+                target="_blank">BlueSky</a>
+            <a id="telegram-button" href="https://t.me/vallabusapp" target="_blank">Comunidad</a>
             <a id="instagram-button" href="https://www.instagram.com/vallabusapp/" target="_blank">Instagram</a>
-        </div> 
-          
-        <p id="data-notice">Origen de los datos: <a href="https://www.auvasa.es/empresa/datos-abiertos/">GTFS de AUVASA</a> y elaboración propia, proporcionados de forma no oficial sin ninguna garantía</p>
+        </div>
+
+        <p id="data-notice">Origen de los datos: <a href="https://www.auvasa.es/empresa/datos-abiertos/">GTFS de
+                AUVASA</a> y elaboración propia, proporcionados de forma no oficial sin ninguna garantía</p>
     </div>
 
     <footer>
@@ -239,14 +258,36 @@
         </div>
     </div>
 
+    <button id="fab-guia" aria-label="Abrir Asistente de Voz" class="fab-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-mic">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" x2="12" y1="19" y2="22" />
+        </svg>
+    </button>
+
+    <div id="guia-container" class="guia-sliding-panel">
+        <button id="close-guia" aria-label="Cerrar Asistente de Voz">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-arrow-left">
+                <path d="m12 19-7-7 7-7" />
+                <path d="M19 12H5" />
+            </svg>
+        </button>
+        <iframe id="guia-iframe" src="" allow="microphone"></iframe>
+    </div>
+
     <div id="iframe-container" style="display: none;">
         <!-- Aquí se insertará el iframe -->
     </div>
-    
+
     <div id="spinnerOverlay">
         <div class="spinner"></div>
     </div>
-    
+
     <script src="js/leaflet/leaflet.js"></script>
     <script src="js/leaflet/Control.Geocoder.js"></script>
     <script src="js/utils.js"></script>
@@ -257,7 +298,7 @@
     <script src="js/browser.js"></script>
     <script src="js/favDestinations.js"></script>
     <script src="js/script.js"></script>
-    
+
     <script src="js/serviceworker-check.js"></script>
 </body>
 

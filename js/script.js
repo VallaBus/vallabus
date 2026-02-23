@@ -89,6 +89,8 @@ function main() {
     // Detectar cuando la app vuelve a estar activa
     setupVisibilityHandlers();
 
+    // Eventos del FAB de Guía VallaBus
+    guiaFABEvents();
 }
 
 let deferredPrompt;
@@ -165,5 +167,28 @@ function showInstallButton() {
             }
             deferredPrompt = null;
         });
+    });
+}
+
+// Configurar eventos para el FAB de Guía VallaBus
+function guiaFABEvents() {
+    const fab = document.getElementById('fab-guia');
+    const container = document.getElementById('guia-container');
+    const closeBtn = document.getElementById('close-guia');
+    const iframe = document.getElementById('guia-iframe');
+
+    if (!fab || !container || !closeBtn || !iframe) return;
+
+    fab.addEventListener('click', () => {
+        if (!iframe.src || iframe.src === window.location.href) {
+            iframe.src = 'https://guia.vallabus.com/';
+        }
+        container.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Bloquear scroll
+    });
+
+    closeBtn.addEventListener('click', () => {
+        container.classList.remove('open');
+        document.body.style.overflow = ''; // Restaurar scroll
     });
 }
