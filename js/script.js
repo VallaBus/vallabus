@@ -59,14 +59,14 @@ function main() {
 
     // Eventos para dialogo horarios programados
     scheduledBusesEvents();
-    
+
     // Overlays
     // Al cerrar un overlay, guarda una preferencia en localStorage
     const overlays = document.getElementsByClassName('overlay');
     Array.from(overlays).forEach(overlay => {
         const closeButton = overlay.querySelector('.close-overlay');
         if (closeButton) {
-            closeButton.addEventListener('click', function(event) {
+            closeButton.addEventListener('click', function (event) {
                 event.stopPropagation(); // Evita que el evento se propague al overlay padre
                 closeOverlay(overlay.id);
             });
@@ -85,7 +85,7 @@ function main() {
 
     // Configurar un intervalo para verificar el estado periódicamente
     setInterval(checkAndShowStatusBanner, 5 * 60 * 1000); // Cada 5 minutos
-    
+
     // Detectar cuando la app vuelve a estar activa
     setupVisibilityHandlers();
 
@@ -105,7 +105,7 @@ function setupVisibilityHandlers() {
             // NO verificar status aquí para evitar falsos positivos por problemas de conectividad temporal
         }
     });
-    
+
     // También detectar cuando la ventana vuelve a tener foco
     window.addEventListener('focus', () => {
         updateBusList(true);
@@ -138,21 +138,21 @@ function showInstallButton() {
 
         // Muestra el prompt de instalación
         deferredPrompt.prompt();
-        
+
         // Espera a que el usuario responda al prompt
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('Usuario aceptó la instalación');
                 _paq.push(['trackEvent', 'installbutton', 'click', 'accepted']);
-                
+
                 // Cambiar el mensaje del spinner
                 displayLoadingSpinner("Instalando VallaBus...");
-                
+
                 // Mantener el spinner visible por un tiempo más largo
                 setTimeout(() => {
                     hideLoadingSpinner();
                     displayLoadingSpinner("¡Instalación completada! Puedes cerrar esta ventana.");
-                    
+
                     // Ocultar el mensaje final después de unos segundos
                     setTimeout(() => {
                         hideLoadingSpinner();
@@ -173,22 +173,9 @@ function showInstallButton() {
 // Configurar eventos para el FAB de Guía VallaBus
 function guiaFABEvents() {
     const fab = document.getElementById('fab-guia');
-    const container = document.getElementById('guia-container');
-    const closeBtn = document.getElementById('close-guia');
-    const iframe = document.getElementById('guia-iframe');
-
-    if (!fab || !container || !closeBtn || !iframe) return;
+    if (!fab) return;
 
     fab.addEventListener('click', () => {
-        if (!iframe.src || iframe.src === window.location.href) {
-            iframe.src = 'https://guia.vallabus.com/';
-        }
-        container.classList.add('open');
-        document.body.style.overflow = 'hidden'; // Bloquear scroll
-    });
-
-    closeBtn.addEventListener('click', () => {
-        container.classList.remove('open');
-        document.body.style.overflow = ''; // Restaurar scroll
+        window.location.href = 'https://guia.vallabus.com/';
     });
 }
