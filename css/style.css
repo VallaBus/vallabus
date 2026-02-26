@@ -1292,7 +1292,7 @@ button.remove-stop {
     /* Centra horizontalmente */
     transform: translate(-50%, -50%);
     /* Desplaza el elemento hacia atrás para centrarlo perfectamente */
-    z-index: 105;
+    z-index: 1100;
     display: none;
     flex-direction: column;
     align-items: center;
@@ -2218,7 +2218,7 @@ button.remove-stop {
     left: 50%;
     transform: translate(-50%, 100%);
     /* Posición inicial: fuera de la vista hacia abajo */
-    z-index: 2;
+    z-index: 1000;
     transition: transform 0.5s ease-in-out;
 }
 
@@ -2415,7 +2415,7 @@ button.remove-stop {
     width: 100%;
     height: calc(100% - 50px);
     background-color: white;
-    z-index: 1000;
+    z-index: 1100;
     display: none;
     /* Inicialmente oculto */
 }
@@ -3862,7 +3862,7 @@ html.dark-mode body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.4);
-    z-index: 105;
+    z-index: 1100;
     top: 0;
     left: 0;
     overflow-y: auto;
@@ -4768,6 +4768,15 @@ span.linea-Aerop {
     cursor: pointer;
     border: none;
     transition: transform 0.2s, background-color 0.2s;
+}
+
+/* Hide FAB when overlays are active to avoid overlap */
+.sidebar-open~#fab-guia,
+#mapContainer.show~#fab-guia,
+#iframe-container[style*="display: block"]~#fab-guia,
+#horarios-box[style*="display: block"]~#fab-guia,
+#nearestStopsResults[style*="display: block"]~#fab-guia {
+    display: none !important;
 }
 
 #fab-guia:hover {
