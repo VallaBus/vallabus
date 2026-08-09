@@ -1,0 +1,523 @@
+/* Colores de las lineas */
+.bus-icon.linea-1,
+.linea-1 h3,
+#busMap .linea-1,
+span.linea-1 {
+    background-color: #5ebd5a;
+    stroke: #5ebd5a;
+    ;
+    color: #fff;
+}
+
+.bus-icon.linea-2,
+.linea-2 h3,
+#busMap .linea-2,
+span.linea-2 {
+    background-color: #f2c435;
+    stroke: #f2c435;
+    color: #000;
+}
+
+.bus-icon.linea-3,
+.linea-3 h3,
+#busMap .linea-3,
+span.linea-3 {
+    background-color: #ee4ba4;
+    stroke: #ee4ba4;
+    color: #000;
+}
+
+.bus-icon.linea-4,
+.linea-4 h3,
+#busMap .linea-4,
+span.linea-4 {
+    background-color: #aa541a;
+    stroke: #aa541a;
+    color: #FFF;
+}
+
+.bus-icon.linea-5,
+.linea-5 h3,
+#busMap .linea-5,
+span.linea-5 {
+    background-color: #2fb7b7;
+    stroke: #2fb7b7;
+    color: #fff;
+}
+
+.bus-icon.linea-6,
+.linea-6 h3,
+#busMap .linea-6,
+span.linea-6 {
+    background-color: #f29cc2;
+    stroke: #f29cc2;
+    color: #000;
+}
+
+.bus-icon.linea-7,
+.linea-7 h3,
+#busMap .linea-7,
+span.linea-7 {
+    background-color: #7a2b37;
+    stroke: #7a2b37;
+    color: #FFF;
+}
+
+.bus-icon.linea-8,
+.linea-8 h3,
+#busMap .linea-8,
+span.linea-8 {
+    background-color: #ea5d00;
+    stroke: #ea5d00;
+    color: #FFF;
+}
+
+.bus-icon.linea-9,
+.linea-9 h3,
+#busMap .linea-9,
+span.linea-9 {
+    background-color: #009ee6;
+    stroke: #009ee6;
+    color: #FFF;
+}
+
+.bus-icon.linea-10,
+.linea-10 h3,
+#busMap .linea-10,
+span.linea-10 {
+    background-color: #a01a4a;
+    stroke: #a01a4a;
+    color: #FFF;
+}
+
+.bus-icon.linea-13,
+.linea-13 h3,
+#busMap .linea-13,
+span.linea-13 {
+    background-color: #0051a1;
+    stroke: #0051a1;
+    color: #FFF;
+}
+
+.bus-icon.linea-14,
+.linea-14 h3,
+#busMap .linea-14,
+span.linea-14 {
+    background-color: #887cb9;
+    stroke: #887cb9;
+    color: #000;
+}
+
+.bus-icon.linea-16,
+.linea-16 h3,
+#busMap .linea-16,
+span.linea-16 {
+    background-color: #84cef5;
+    stroke: #84cef5;
+    color: #000;
+}
+
+.bus-icon.linea-17,
+.linea-17 h3,
+#busMap .linea-17,
+span.linea-17 {
+    background-color: #c2d403;
+    stroke: #c2d403;
+    color: #000;
+}
+
+.bus-icon.linea-18,
+.linea-18 h3,
+#busMap .linea-18,
+span.linea-18 {
+    background-color: #b9b8b8;
+    stroke: #b9b8b8;
+    color: #000;
+}
+
+.bus-icon.linea-19,
+.linea-19 h3,
+#busMap .linea-19,
+span.linea-19 {
+    background-color: #eaa874;
+    stroke: #eaa874;
+    color: #000;
+}
+
+.bus-icon.linea-23,
+.linea-23 h3,
+#busMap .linea-23,
+span.linea-23 {
+    background-color: #FCC600;
+    stroke: #FCC600;
+    color: #000;
+}
+
+.bus-icon.linea-24,
+.linea-24 h3,
+#busMap .linea-24,
+span.linea-24 {
+    background-color: #11459f;
+    stroke: #11459f;
+    color: #FFF;
+}
+
+.bus-icon.linea-26,
+.linea-26 h3,
+#busMap .linea-26,
+span.linea-26 {
+    background-color: #80D0F7;
+    stroke: #80D0F7;
+    color: #000;
+}
+
+.bus-icon.linea-C1,
+.bus-icon.linea-C2,
+.bus-icon.linea-C0,
+.linea-C1 h3,
+.linea-C2 h3,
+.linea-C0 h3,
+#busMap .linea-C1,
+#busMap .linea-C2,
+#busMap .linea-C0,
+span.linea-C1,
+span.linea-C2,
+span.linea-C0 {
+    background-color: #555553;
+    stroke: #555553;
+    color: #FFF;
+}
+
+.bus-icon.linea-H,
+.linea-H h3,
+#busMap .linea-H,
+span.linea-H {
+    background-color: #e5232e;
+    stroke: #e5232e;
+    color: #000;
+}
+
+.bus-icon.linea-M1,
+.linea-M1 h3,
+#busMap .linea-M1,
+span.linea-M1,
+.bus-icon.linea-M2,
+.linea-M2 h3,
+#busMap .linea-M2,
+span.linea-M2,
+.bus-icon.linea-M3,
+.linea-M3 h3,
+#busMap .linea-M3,
+span.linea-M3,
+.bus-icon.linea-M5,
+.linea-M5 h3,
+#busMap .linea-M5,
+span.linea-M5,
+.bus-icon.linea-M4,
+.linea-M4 h3,
+#busMap .linea-M4,
+span.linea-M4,
+.bus-icon.linea-M6,
+.linea-M6 h3,
+#busMap .linea-M6,
+span.linea-M6,
+.bus-icon.linea-M7,
+.linea-M7 h3,
+#busMap .linea-M7,
+span.linea-M7 {
+    background-color: #532FA2;
+    stroke: #532FA2;
+    color: #fff;
+}
+
+.bus-icon.linea-P1,
+.linea-P1 h3,
+#busMap .linea-P1,
+span.linea-P1,
+.bus-icon.linea-P2,
+.linea-P2 h3,
+#busMap .linea-P2,
+span.linea-P2,
+.bus-icon.linea-P3,
+.linea-P3 h3,
+#busMap .linea-P3,
+span.linea-P3,
+.bus-icon.linea-P6,
+.linea-P6 h3,
+#busMap .linea-P6,
+span.linea-P6,
+.bus-icon.linea-P7,
+.linea-P7 h3,
+#busMap .linea-P7,
+span.linea-P7,
+.bus-icon.linea-P13,
+.linea-P13 h3,
+#busMap .linea-P13,
+span.linea-P13,
+.bus-icon.linea-PSC1,
+.linea-PSC1 h3,
+#busMap .linea-PSC1,
+span.linea-PSC1,
+.bus-icon.linea-PSC2,
+.linea-PSC2 h3,
+#busMap .linea-PSC2,
+span.linea-PSC2,
+.bus-icon.linea-PSC3,
+.linea-PSC3 h3,
+#busMap .linea-PSC3,
+span.linea-PSC3 {
+    background-color: #792B37;
+    stroke: #792B37;
+    color: #fff;
+}
+
+.bus-icon.linea-U1,
+.linea-U1 h3,
+#busMap .linea-U1,
+span.linea-U1,
+.bus-icon.linea-U8,
+.linea-U8 h3,
+#busMap .linea-U8,
+span.linea-U8 {
+    background-color: #FF3067;
+    stroke: #FF3067;
+    color: #fff;
+}
+
+.bus-icon.linea-B1,
+.linea-B1 h3,
+#busMap .linea-B1,
+span.linea-B1,
+.bus-icon.linea-B2,
+.linea-B2 h3,
+#busMap .linea-B2,
+span.linea-B2,
+.bus-icon.linea-B3,
+.linea-B3 h3,
+#busMap .linea-B3,
+span.linea-B3,
+.bus-icon.linea-B4,
+.linea-B4 h3,
+#busMap .linea-B4,
+span.linea-B4,
+.bus-icon.linea-B5,
+.linea-B5 h3,
+#busMap .linea-B5,
+span.linea-B5 {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-B1,
+.dark-mode #busMap .linea-B2,
+.dark-mode #busMap .linea-B3,
+.dark-mode #busMap .linea-B4,
+.dark-mode #busMap .linea-B5 {
+    stroke: #505050;
+}
+
+.bus-icon.linea-LP,
+.linea-LP h3,
+#busMap .linea-LP,
+span.linea-LP {
+    background-color: #2fb7b7;
+    stroke: #2fb7b7;
+    color: #FFF;
+}
+
+.bus-icon.linea-LC,
+.linea-LC h3,
+#busMap .linea-LC,
+span.linea-LC {
+    background-color: #5ebd5a;
+    stroke: #5ebd5a;
+    color: #FFF;
+}
+
+.bus-icon.linea-LD,
+.linea-LD h3,
+#busMap .linea-LD,
+span.linea-LD {
+    background-color: #ee4ba4;
+    stroke: #ee4ba4;
+    color: #FFF;
+}
+
+.bus-icon.linea-F1,
+.linea-F1 h3,
+#busMap .linea-F1,
+span.linea-F1,
+.bus-icon.linea-F2,
+.linea-F2 h3,
+#busMap .linea-F2,
+span.linea-F2,
+.bus-icon.linea-F3,
+.linea-F3 h3,
+#busMap .linea-F3,
+span.linea-F3,
+.bus-icon.linea-F4,
+.linea-F4 h3,
+#busMap .linea-F4,
+span.linea-F4,
+.bus-icon.linea-F5,
+.linea-F5 h3,
+#busMap .linea-F5,
+span.linea-F5,
+.bus-icon.linea-F6,
+.linea-F6 h3,
+#busMap .linea-F6,
+span.linea-F6 {
+    background-color: #006d38;
+    stroke: #006d38;
+    color: #FFF;
+}
+
+/* Lanzadera */
+.bus-icon.linea-SL,
+.linea-SL h3,
+#busMap .linea-SL,
+span.linea-SL {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-SL {
+    stroke: #505050;
+}
+
+/* Lanzaderas cementerio */
+.bus-icon.linea-SC,
+.linea-SC h3,
+#busMap .linea-SC,
+span.linea-SC,
+.bus-icon.linea-CC,
+.linea-CC h3,
+#busMap .linea-CC,
+span.linea-CC {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-SC,
+.dark-mode #busMap .linea-CC {
+    stroke: #505050;
+}
+
+/* Líneas R al recinto ferial */
+.bus-icon.linea-R,
+.linea-R h3,
+#busMap .linea-R,
+span.linea-R,
+.bus-icon.linea-R1,
+.linea-R1 h3,
+#busMap .linea-R1,
+span.linea-R1,
+.bus-icon.linea-R2,
+.linea-R2 h3,
+#busMap .linea-R2,
+span.linea-R2,
+.bus-icon.linea-R3,
+.linea-R3 h3,
+#busMap .linea-R3,
+span.linea-R3,
+.bus-icon.linea-R4,
+.linea-R4 h3,
+#busMap .linea-R4,
+span.linea-R4,
+.bus-icon.linea-R5,
+.linea-R5 h3,
+#busMap .linea-R5,
+span.linea-R5 {
+    background-color: #532FA2;
+    stroke: #532FA2;
+    color: #fff;
+}
+
+/* Líneas de ECSA */
+.bus-icon.linea-L01,
+.linea-L01 h3,
+#busMap .linea-L01,
+span.linea-L01 {
+    background-color: #23b4ca;
+    stroke: #23b4ca;
+    color: #FFF;
+}
+
+.bus-icon.linea-L02,
+.linea-L02 h3,
+#busMap .linea-L02,
+span.linea-L02 {
+    background-color: #40af64;
+    stroke: #40af64;
+    color: #FFF;
+}
+
+/* Lineas de La Regional */
+
+.bus-icon.linea-Roja,
+.linea-Roja h3,
+#busMap .linea-Roja,
+span.linea-Roja {
+    background-color: #eb4f4f;
+    stroke: #eb4f4f;
+    color: #FFF;
+}
+
+.bus-icon.linea-Azul,
+.linea-Azul h3,
+#busMap .linea-Azul,
+span.linea-Azul {
+    background-color: #156de7;
+    stroke: #156de7;
+    color: #FFF;
+}
+
+.bus-icon.linea-Verde,
+.linea-Verde h3,
+#busMap .linea-Verde,
+span.linea-Verde {
+    background-color: #40bd48;
+    stroke: #40bd48;
+    color: #FFF;
+}
+
+.bus-icon.linea-Buho,
+.linea-Buho h3,
+#busMap .linea-Buho,
+span.linea-Buho {
+    background-color: #000;
+    stroke: #000;
+    color: #FFF;
+}
+
+/* En dark mode debemos aclarar el color de la linea en el mapa */
+.dark-mode #busMap .linea-Buho {
+    stroke: #505050;
+}
+
+.bus-icon.linea-RioSh,
+.linea-RioSh h3,
+#busMap .linea-RioSh,
+span.linea-RioSh {
+    background-color: #e20613;
+    stroke: #e20613;
+    color: #FFF;
+}
+
+/* Lineas de Linecar */
+
+.bus-icon.linea-Aerop,
+.linea-Aerop h3,
+#busMap .linea-Aerop,
+span.linea-Aerop {
+    background-color: #006680;
+    stroke: #006680;
+    color: #FFF;
+}
+

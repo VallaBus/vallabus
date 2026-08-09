@@ -1,0 +1,366 @@
+/* Css para los banners inidividuales */
+
+#status-banner {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: hsl(41.7, 60.3%, 85.3%) !important;
+    border-left: 6px solid hsl(41.7, 60.3%, 48.3%) !important;
+    color: hsl(41.7, 60.3%, 48.3%) !important;
+    font-weight: bold;
+}
+
+.dark-mode #status-banner {
+    background-color: hsl(41.7, 60.3%, 15.3%) !important;
+    color: hsl(41.7, 60.3%, 55.3%) !important;
+}
+
+#status-banner a {
+    margin-left: 10px;
+    color: hsl(41.7, 60.3%, 25.3%) !important;
+}
+
+.dark-mode #status-banner a {
+    color: hsl(41.7, 60.3%, 55.3%) !important;
+}
+
+#status-banner.all-inactive {
+    background-color: hsl(9.7, 60.3%, 85.3%) !important;
+    border-left: 6px solid hsl(9.7, 60.3%, 48.3%) !important;
+    color: hsl(9.7, 60.3%, 48.3%) !important;
+}
+
+#status-banner.all-inactive a {
+    color: hsl(9.7, 60.3%, 48.3%) !important;
+}
+
+#status-banner .status-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#status-banner .status-icon::before {
+    content: '!';
+    font-weight: bold;
+    color: white;
+}
+
+#status-banner .status-icon.all-inactive {
+    background-color: hsl(9.7, 60.3%, 48.3%);
+}
+
+#status-banner .status-icon.some-inactive {
+    background-color: hsl(41.7, 60.3%, 48.3%);
+}
+
+/* Banners con tips personalizados */
+
+#tips-banner .warning {
+    background-color: HSL(41.7, 83.3%, 90.3%);
+    color: hsl(54.5, 70.2%, 24.8%);
+    border-left-color: HSL(41.7, 83.3%, 55.3%);
+}
+
+#tips-banner .warning a {
+    color: hsl(54.5, 70.2%, 24.8%);
+}
+
+#tips-banner .close-tip {
+    color: hsl(54.5, 70.2%, 24.8%);
+}
+
+#tips-banner #share-whatsapp {
+    margin: 0;
+    color: #0e4f0b;
+    background-color: hsl(142.1, 23.8%, 88.9%);
+    background-image: url('/img/share.png');
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    border-left: none;
+}
+
+.dark-mode #tips-banner #share-whatsapp {
+    background-image: url('/img/share-gray.png');
+    background-color: hsl(142.1, 22.8%, 16.9%);
+}
+
+#tips-banner #share-whatsapp a {
+    color: #0e4f0b;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: normal;
+    padding-left: 30px;
+}
+
+.dark-mode #tips-banner #share-whatsapp a {
+    color: #efefef;
+}
+
+#tips-banner .share-app {
+    cursor: pointer;
+    background-image: url('/img/share.png');
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    padding-left: 30px;
+    background-color: HSL(200, 58.3%, 98%);
+    color: hsl(200, 81.6%, 14.9%);
+    border-left-color: HSL(200, 58.3%, 73.3%);
+}
+
+.dark-mode #tips-banner .share-app {
+    background-image: url('/img/share-gray.png');
+    border-left-color: HSL(200, 58.3%, 27.3%);
+}
+
+#tips-banner .share-app .close-tip {
+    color: hsl(200, 81.6%, 14.9%);
+}
+
+.dark-mode #tips-banner .share-app .close-tip {
+    color: hsl(281.5, 21.3%, 90%);
+}
+
+#tips-banner #community-banner {
+    background-image: url('/img/comments-gray.png');
+    background-size: 22px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    border-left: none;
+}
+
+#tips-banner .blog-banner {
+    background-image: url('/img/file.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    border-left: none;
+}
+
+#tips-banner .blog-banner a {
+    font-weight: normal;
+}
+
+#tips-banner .guia-banner {
+    background-image: url('/img/sparkles-green.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    border-left: none;
+    padding-left: 20px;
+}
+
+.dark-mode #tips-banner .guia-banner {
+    background-image: url('/img/sparkles.png');
+}
+
+#tips-banner .guia-banner a {
+    font-weight: normal;
+}
+
+#tips-banner .guia-banner .close-tip {
+    color: hsl(168.8, 23.2%, 30.5%);
+}
+
+.dark-mode #tips-banner .guia-banner .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
+}
+
+#tips-banner #map-tip {
+    background-image: url('/img/bus-location-white.png');
+    background-size: 22px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    padding: 5px 5px 5px 22px;
+    border-left: none;
+}
+
+.dark-mode #tips-banner #map-tip {
+    background-image: url('/img/bus-location-white.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: 13px center;
+}
+
+#tips-banner .ruta-pucela {
+    margin: 0;
+    color: hsl(282, 100%, 98%);
+    background-color: hsl(281.5, 9%, 78.2%);
+    background-image: url('/img/overlays/pucela.png');
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    border-left: none;
+    border-top: 3px solid hsl(281.5, 9%, 53.2%);
+}
+
+.dark-mode #tips-banner .ruta-pucela {
+    background-color: hsl(281.5, 9%, 25.2%);
+}
+
+#tips-banner .ruta-pucela a {
+    color: hsl(281.5, 21.3%, 24%);
+    text-decoration: none;
+    display: inline-block;
+    padding: 5px 5px 5px 30px;
+}
+
+.dark-mode #tips-banner .ruta-pucela a {
+    color: hsl(281.5, 21.3%, 90%);
+}
+
+#tips-banner .ruta-pucela .close-tip {
+    color: hsl(281.5, 21.3%, 24%);
+}
+
+.dark-mode #tips-banner .ruta-pucela .close-tip {
+    color: hsl(281.5, 21.3%, 90%);
+}
+
+#tips-banner #basuracero-0924 {
+    margin: 0;
+    color: hsl(282, 100%, 98%);
+    background-color: hsl(257.1, 14.9%, 49.4%);
+    background-image: url('/img/overlays/basuracero.png');
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: 9px center;
+    border-left: none;
+}
+
+.dark-mode #tips-banner #basuracero-0924 {
+    background-color: hsl(257.1, 14.9%, 27.4%);
+}
+
+#tips-banner #basuracero-0924 a {
+    color: #fcf5ff;
+    text-decoration: none;
+    display: inline-block;
+    padding: 5px 5px 5px 26px;
+    font-weight: normal;
+}
+
+.dark-mode #tips-banner #basuracero-0924 a {
+    color: #efefef;
+}
+
+#tips-banner #basuracero-0924 a span {
+    font-weight: bold;
+}
+
+#tips-banner #basuracero-0924 .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
+}
+
+#tips-banner .informe a {
+    font-weight: normal;
+}
+
+/* Banner de petición */
+
+#tips-banner .peticion {
+    padding: 0;
+}
+
+#tips-banner .peticion a {
+    position: relative;
+    display: block;
+    padding: 15px;
+    background: white;
+    text-decoration: none;
+    color: #333;
+}
+
+.dark-mode #tips-banner .peticion a {
+    background: #333333;
+}
+
+/*
+#tips-banner .peticion a::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+
+.dark-mode #tips-banner .peticion a::after {
+    background: #3b3d3d;
+}
+
+#tips-banner .peticion a::before {
+    content: '';
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: 68%;
+    height: 8px;
+    background: #f3047a;
+    border-radius: 4px;
+    z-index: 1;
+} 
+*/
+
+#tips-banner .peticion a span {
+    font-weight: normal;
+}
+
+/* Fin de los banners individuales */
+
+
+.global-alerts-box {
+    background-image: url('../img/bell-gray.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-color: hsl(54.5, 12.2%, 93%);
+    color: hsl(54.5, 70.2%, 24.8%);
+    border-left: 6px solid hsl(58.7, 70.1%, 53.9%);
+    padding: 6px 5px 6px 25px;
+    margin-bottom: 10px;
+    display: none;
+    font-size: 0.8em;
+    background-position: 8px center;
+}
+
+.dark-mode .global-alerts-box {
+    background-color: #333;
+    color: hsl(0, 0%, 86.3%);
+    border-left: 6px solid hsl(58.7, 70.1%, 39.9%);
+}
+
+.global-alerts-box ul {
+    padding: 0;
+    margin: 0;
+}
+
+.global-alerts-box ul li {
+    list-style: none;
+    margin: 0;
+}
+
+.global-alerts-box .global-alert-title {
+    font-weight: bold;
+}
+
+.global-alerts-box .viewall-header {
+    cursor: pointer;
+    text-align: center;
+}
+
+.global-alerts-box .alert-text-container {
+    padding: 0px 26px 0px 2px;
+    height: 14px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-in;
+}
+

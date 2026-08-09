@@ -1,0 +1,59 @@
+/* =========================================
+   FAB y Modal Guía VallaBus
+   ========================================= */
+
+#fab-guia {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: hsl(168.8, 48.2%, 32.5%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+/* Hide FAB when overlays are active to avoid overlap */
+.sidebar-open~#fab-guia,
+#mapContainer.show~#fab-guia,
+#iframe-container[style*="display: block"]~#fab-guia,
+#horarios-box[style*="display: block"]~#fab-guia,
+#nearestStopsResults[style*="display: block"]~#fab-guia {
+    display: none !important;
+}
+
+#fab-guia:hover {
+    transform: scale(1.05);
+}
+
+/* Las líneas con nombre deben caber dentro del marcador circular. */
+#mapContainer #busMap .bus-icon.bus-icon-text-label {
+    font-size: .78rem;
+    letter-spacing: -.03em;
+    line-height: 1;
+}
+
+#mapContainer #busMap .bus-icon.bus-icon-long-label {
+    font-size: .62rem;
+    letter-spacing: -.03em;
+    line-height: 1;
+}
+
+#mapContainer #busMap .bus-icon.bus-icon-text-label > div,
+#mapContainer #busMap .bus-icon.bus-icon-long-label > div {
+    padding: 0 3px;
+    white-space: nowrap;
+}
+
+.dark-mode #fab-guia {
+    background-color: hsl(168.8, 48.2%, 32.5%);
+    color: #FFF;
+}

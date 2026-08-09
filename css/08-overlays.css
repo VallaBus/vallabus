@@ -1,0 +1,265 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    /* Oculto a menos que lo cambiemos desde JS*/
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay-content {
+    background-color: #629ade;
+    box-shadow: 0 2px 16px 0 rgba(12, 12, 14, .57), 0 4px 8px 0 rgba(12, 12, 14, .12);
+    border-radius: 5px;
+    position: absolute;
+    font-size: 0.9em;
+    padding: 10px 15px;
+    color: #EEE;
+}
+
+.overlay-content h2 {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 0 0 10px 0;
+    color: #FFF;
+}
+
+.overlay-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.overlay-content ul li {
+    margin: 4px 0;
+}
+
+.overlay-content a:link,
+.overlay-content a:visited,
+.overlay-content a:hover,
+.overlay-content a:active {
+    color: #48cbb2;
+}
+
+.overlay-content .close-overlay {
+    float: right;
+    font-weight: bold;
+    background-color: #2b7b6c;
+    color: #FFF;
+    font-size: 0.9em;
+    padding: 6px 15px;
+    margin-top: 5px;
+}
+
+.overlay-content .close-overlay:hover {
+    background-color: #41b7a1;
+}
+
+.arrow {
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+#overlay-installIos .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-installIos .overlay-content video {
+    max-height: 400px;
+    width: 100%;
+    margin: 0 auto 15px auto;
+    display: block;
+    background-color: #2b282b;
+}
+
+/* Posiciones específicas para diferentes overlays */
+
+#overlay-nueva-ui0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-nueva-ui0624 .overlay-content video {
+    max-height: 400px;
+    width: 100%;
+    margin: 0 auto 15px auto;
+    display: block;
+    background-color: #064a3d;
+}
+
+#overlay-guia-voz-2026 .overlay-content {
+    top: auto;
+    bottom: 110px;
+    width: 320px;
+    background-color: #054a3dfa;
+    font-size: 0.9em;
+    background-image: url('/img/logo.png');
+    padding: 85px 25px 25px 25px;
+    background-size: 50px;
+    background-repeat: no-repeat;
+    background-position: center 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 12px;
+}
+
+#overlay-guia-voz-2026 h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.25em;
+}
+
+#overlay-guia-voz-2026 ul {
+    margin-bottom: 20px;
+    padding-left: 25px;
+}
+
+#overlay-guia-voz-2026 ul li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+#overlay-guia-voz-2026 .close-overlay {
+    width: 100%;
+    margin-top: 10px;
+    float: none;
+    padding: 12px;
+}
+
+#overlay-guia-voz-2026 .arrow {
+    bottom: -10px;
+    left: 84%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #054a3dfa;
+    position: absolute;
+}
+
+#overlay-cercanas-biki0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/cercanas-biki.jpg');
+    padding-top: 380px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-estimaciones0624 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/estimados.jpg');
+    padding-top: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-estimaciones0624 .overlay-content li {
+    list-style: none;
+    padding-left: 19px;
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: 0px 3px;
+}
+
+#overlay-estimaciones0624 .overlay-content li.programado {
+    background-image: url('/img/clock.png');
+}
+
+#overlay-estimaciones0624 .overlay-content li.estimado {
+    background-image: url('/img/feed.png');
+}
+
+#overlay-estimaciones0624 .overlay-content li.actualizado {
+    background-image: url('/img/feed-green.png');
+}
+
+#overlay-arroyolaguna0524 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/overlays/lineas-laguna-arroyo.jpg');
+    padding-top: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-newnaming0424 .overlay-content {
+    top: 60px;
+    width: 308px;
+    background-color: #054a3dfa;
+    font-size: 0.85em;
+    background-image: url('/img/renaming-overlay.jpg');
+    padding-top: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: 50%;
+    /* Mueve el elemento hacia la derecha */
+    transform: translateX(-50%);
+    /* Ajusta el elemento hacia la izquierda */
+}
+
+#overlay-newmenu20240311 .arrow {
+    top: -10px;
+    left: 90%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #629ade;
+}
+
+#overlay-newmenu20240311 .overlay-content {
+    top: 55px;
+    right: 4px;
+}
+
+#overlay-fixedstops0324 .overlay-content {
+    top: 80px;
+    margin-right: 17px;
+    margin-left: 17px;
+}
+
+#overlay-fixedstops0324 .arrow {
+    top: 145px;
+    left: 10px;
+    transform: translateX(-50%);
+    border-top: 10px solid #629ade;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+

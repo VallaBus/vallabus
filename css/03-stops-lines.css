@@ -1,0 +1,842 @@
+.stop-block,
+#nearestStopsResults .stopResult {
+    background-color: #fff;
+    box-shadow: 0px 4px 10px 0px #E4E4E4;
+    border: 1px solid #CCCCCCBA;
+    border-radius: 4px;
+    margin: 15px 4px 0px 4px;
+    position: relative;
+}
+
+.dark-mode .stop-block,
+.dark-mode #nearestStopsResults .stopResult {
+    box-shadow: 0 2px 16px 0 rgba(41, 41, 48, 0.2);
+}
+
+.stop-block.suprimida .suppressedStopAlert {
+    background-color: #ffe6e6;
+    color: #721c1c;
+    border: 1px solid #ffe6e6;
+    padding: 10px;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.dark-mode .stop-block.suprimida .suppressedStopAlert {
+    border-top: 3px solid #9c2828;
+    color: rgb(238, 238, 238);
+    background-color: #333333;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+.stop-block .stop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 17px;
+}
+
+.stop-block h2 {
+    text-align: center;
+    font-size: 0.8em;
+    max-width: 260px;
+}
+
+.stop-block h2 span.stopId {
+    font-weight: normal;
+    color: #CCC;
+}
+
+.stop-block .pin-icon {
+    background-image: url("/img/pin-transparent.png");
+    background-size: 11px;
+    display: inline-block;
+    width: 11px;
+    height: 14px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+}
+
+.dark-mode .stop-block .pin-icon {
+    background-image: url("/img/pin-transparent-light.png");
+    background-size: 11px;
+}
+
+.stop-block .pin-icon.fixed {
+    background-image: url("/img/pin-solid.png");
+    background-size: cover;
+    display: inline-block;
+}
+
+.dark-mode .stop-block .pin-icon.fixed {
+    background-image: url("/img/pin-solid-light.png");
+    background-size: cover;
+}
+
+.stop-block .mapIcon,
+.stopResult .mapIcon {
+    background-image: url("/img/directions.png");
+    background-size: 22px;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    text-indent: -9999px;
+    cursor: pointer;
+}
+
+.showMapIcon {
+    background-image: url("/img/bus-location.png");
+    background-size: 18px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    font-size: 0.7em;
+    cursor: pointer;
+    margin: 0;
+    text-indent: -9999px;
+    display: inline-block;
+    padding: 0 10px;
+    width: 20px;
+    height: 20px;
+}
+
+.showMapIcon.noLocationData {
+    background-image: url("/img/bus-location-white.png");
+    font-weight: normal;
+    color: #CCC;
+}
+
+.dark-mode .showMapIcon {
+    background-image: url("/img/bus-location-white.png");
+}
+
+.line-info {
+    border-top: 1px solid #eee;
+    display: flex;
+    padding: 5px 25px 0 10px;
+    position: relative;
+    overflow: hidden;
+    min-height: 64px;
+    max-height: 64px;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+}
+
+.line-info.clicked,
+.highlight.clicked {
+    background-color: #00c3ff17 !important;
+    transform: scale(0.98);
+}
+
+.line-info .hora-programada {
+    margin-top: 12px;
+    margin-bottom: 0px;
+}
+
+.additional-info-panel {
+    width: 77%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -74%;
+    /* Inicialmente oculto a la derecha */
+    background-color: #FFF;
+    overflow-x: hidden;
+    /*Que el contenido no se desborde */
+    transition: right 0.5s ease-in-out;
+    /* Transición suave para la propiedad right */
+    z-index: 1;
+    font-size: 0.7em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px 0 0;
+    border-radius: 12px 0 0 12px;
+}
+
+.highlight .additional-info-panel {
+    background-color: #f6fbff;
+}
+
+.dark-mode .additional-info-panel {
+    background-color: #333333;
+    color: #FFF;
+    box-shadow: none;
+}
+
+.dark-mode .highlight .additional-info-panel {
+    background-color: #3b3d3d;
+}
+
+.additional-info-panel.open {
+    right: 0;
+    background-color: #FFF;
+    box-shadow: -11px 0px 72px rgba(149, 149, 149, 0.2);
+}
+
+.dark-mode .additional-info-panel.open {
+    background-color: #333;
+}
+
+.additional-info-panel p,
+.additional-info-panel h2,
+.additional-info-panel ul,
+.additional-info-panel li {
+    margin: 0 15px 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.additional-info-panel .proximos-buses {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.additional-info-panel .proximos-buses ul {
+    display: flex;
+    flex-direction: row;
+}
+
+.additional-info-panel .proximos-buses span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.additional-info-panel .proximos-buses span strong {
+    font-size: 1.3em;
+    margin-bottom: 3px;
+}
+
+.additional-info-panel .proximos-buses span.programado strong {
+    background: url('/img/clock.png') no-repeat;
+    background-size: 12px;
+    background-position: 0px 5px;
+    padding-left: 17px;
+}
+
+.additional-info-panel .proximos-buses span.realtime strong {
+    background: url('/img/feed.png') no-repeat;
+    background-size: 12px;
+    background-position: 0px 5px;
+    padding-left: 17px;
+}
+
+.additional-info-panel .proximos-buses span.ocupacion {
+    background-size: 17px;
+    margin: 0;
+    background-position: 3px 0px;
+}
+
+.additional-info-panel .actions-buttons {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.stop-block,
+.line-info {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.highlight {
+    background-color: #f0f9ff9c;
+}
+
+.highlight-update {
+    background-color: #ffff99c4;
+    transition: background-color 1s ease;
+}
+
+.dark-mode .highlight-update {
+    background-color: #ffff994c;
+}
+
+.line-info:first-child {
+    border-top: none;
+}
+
+.line-info h3 {
+    border-radius: 10px;
+    text-align: center;
+    max-width: 76px;
+    min-width: 29px;
+    box-shadow: 1px 1px 10px 0 rgba(12, 12, 14, .2), 0 4px 8px 0 rgba(6, 6, 7, 0.12);
+    font-weight: bold;
+    font-size: 1.7em;
+    display: inline-block;
+    padding: 0 6px;
+}
+
+.line-info .alert-icon {
+    font-size: 0.7em;
+    cursor: pointer;
+    background: url('/img/warning.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px center;
+    text-indent: -9999px;
+    overflow: hidden;
+    width: 15px;
+    display: inline-block;
+    margin: 0 0 0 6px;
+}
+
+.dark-mode .line-info .alert-icon {
+    background: url('/img/warning-light.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px center;
+}
+
+button.mostrar-horarios {
+    cursor: pointer;
+    background: url('/img/calendar-clock.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    color: HSL(0, 0%, 45%);
+    font-size: 0.8em;
+    display: block;
+    margin: auto;
+    padding: 10px 0px 10px 20px;
+    font-weight: normal;
+}
+
+.dark-mode button.mostrar-horarios {
+    color: HSL(0, 0%, 61%);
+}
+
+button.remove-stop {
+    cursor: pointer;
+    background: url('/img/trash-light-gray.png') no-repeat;
+    background-size: 13px;
+    background-position: 0px;
+    color: #CCC;
+    font-size: 0.8em;
+    display: block;
+    margin: auto;
+    float: right;
+    text-indent: -999px;
+    font-size: 0px;
+    padding: 34px 34px 0 0;
+}
+
+.line-info .alert-box,
+#horarios-box,
+#nearestStopsResults,
+.dialog-data {
+    position: fixed;
+    border-radius: 12px;
+    overflow: auto;
+    background: #fff;
+    box-shadow: 0 8px 64px 0 rgba(12, 12, 14, .12);
+    width: 85%;
+    margin: 0 auto;
+    padding: 1em;
+    top: 50%;
+    /* Centra verticalmente */
+    left: 50%;
+    /* Centra horizontalmente */
+    transform: translate(-50%, -50%);
+    /* Desplaza el elemento hacia atrás para centrarlo perfectamente */
+    z-index: 1100;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.line-info .alert-box {
+    box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
+    border: 1px solid hsl(0, 0%, 80%);
+    font-size: 0.9em;
+}
+
+.dark-mode .line-info .alert-box {
+    box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
+    border: 1px solid hsl(0, 0%, 17%);
+}
+
+.line-info .alert-box ul {
+    padding: 0 20px;
+}
+
+.line-info .alert-box ul li {
+    margin-bottom: 10px;
+}
+
+.line-info .alert-box h2,
+#horarios-box h2 {
+    padding: 0;
+}
+
+/* Skeleton placeholder */
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f9ff9c 25%, #e0e0e0 50%, #f0f9ff9c 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.2s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.stop-block.skeleton .line-info {
+    height: 1rem;
+    margin-bottom: 0.7rem;
+}
+
+.stop-block.skeleton .stop-header {
+    color: transparent;
+}
+
+.dark-mode .skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+}
+
+.dark-mode .stop-block.skeleton {
+    border-color: #3a3a3a;
+}
+
+.dark-mode .stop-block.skeleton .line-info.highlight {
+    background-color: #3b3d3d;
+}
+
+/* Estados de carga y error */
+.tiempo.loading {
+    color: #666;
+    font-size: 0.85em;
+    font-weight: normal;
+    position: relative;
+}
+
+.dark-mode .tiempo.loading {
+    color: #999;
+}
+
+.tiempo.loading::after {
+    content: '.';
+    animation: dots 1.5s steps(4, end) infinite;
+    display: inline-block;
+    width: 1em;
+}
+
+.dark-mode .tiempo.loading::after {
+    /* Heredar el color del texto padre */
+}
+
+@keyframes dots {
+
+    0%,
+    20% {
+        content: '.';
+    }
+
+    40% {
+        content: '..';
+    }
+
+    60% {
+        content: '...';
+    }
+
+    90%,
+    100% {
+        content: '';
+    }
+}
+
+.tiempo.error-state {
+    color: #FF9800;
+    font-size: 0.85em;
+    font-weight: normal;
+}
+
+.error-subtitle {
+    font-size: 0.7em;
+    color: #666;
+    margin-top: 3px;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.dark-mode .error-subtitle {
+    color: #999;
+}
+
+.loading-state {
+    opacity: 0.7;
+}
+
+/* Mejorar skeleton para hora-tiempo */
+.hora-tiempo.skeleton {
+    height: 2.5em;
+    border-radius: 4px;
+}
+
+.trip-info.skeleton {
+    height: 1.8em;
+    border-radius: 4px;
+    margin: 0.3em 0;
+}
+
+.ocupacion.skeleton {
+    height: 1.2em;
+    width: 60%;
+    border-radius: 4px;
+}
+
+#horarios-box,
+.dialog-data {
+    width: calc(100%);
+    height: 100%;
+    overflow-y: auto;
+    margin-top: 50px;
+    padding: 1em 2em 4em 2em;
+    box-sizing: border-box;
+    border-radius: 0;
+}
+
+#horarios-box div {
+    margin: 1em 0;
+    clear: both;
+}
+
+.horarios-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 0 !important;
+}
+
+.horarios-actions-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 !important;
+}
+
+.horarios-actions-row #stopDateInput {
+    margin-left: auto;
+    font-size: 0.8em;
+}
+
+.horarios-actions-explanation {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 0 0 1em 0 !important;
+}
+
+.horarios-actions-explanation #stopDateExplanation {
+    color: #CCC;
+    margin: 0 !important;
+    text-align: right;
+    font-size: 0.7em;
+    color: #CCC;
+}
+
+#horarios-box .add-stop-to-list {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75em;
+    color: #696969;
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 5px 10px 5px 30px;
+    font-weight: 500;
+    cursor: pointer;
+    background-image: url('../img/add-light.png');
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    background-position: 7px center;
+}
+
+.dark #horarios-box .add-stop-to-list {
+    background: #404040;
+    color: #eee;
+    border: 1px solid #505050;
+    background-image: url('../img/add-light.png');
+}
+
+#horarios-box .subheader {
+    font-size: 0.9em;
+}
+
+/* Botón de cierre de diálogos */
+#horarios-box .horarios-close,
+#nearestStopsResults #close-nearest-stops,
+.dialog-data .closeDialogBtn,
+.dialog-close {
+    background-image: url("/img/close.png");
+    background-size: 16px;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 16px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    position: sticky;
+    right: 0;
+    top: 0;
+    float: right;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    display: block;
+    background-color: #FFF;
+    background-position: 8px 8px;
+    z-index: 1000;
+}
+
+.dark-mode #horarios-box .horarios-close,
+.dark-mode #nearestStopsResults #close-nearest-stops,
+.dark-mode .dialog-data,
+.dark-mode .dialog-close {
+    background-color: #2d2d2d;
+}
+
+.dialog-close {
+    position: absolute;
+    right: 10px;
+    top: 54px;
+    border: none;
+}
+
+#horarios-box #indice-lineas {
+    margin: auto;
+}
+
+#horarios-box span.indice-linea {
+    margin: 7px 3px;
+    border-radius: 10px;
+    font-size: 1em;
+    padding: 2px 5px;
+    display: inline-block;
+    min-width: 23px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 1px 1px 10px 0 rgba(12, 12, 14, .2), 0 4px 8px 0 rgba(6, 6, 7, 0.12);
+}
+
+#horarios-box .hora {
+    border-left: 2px solid #7B7B7B;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    margin: 3px 3px;
+    display: inline-block;
+}
+
+#horarios-box .destino {
+    display: inline-block;
+    margin-left: 1em;
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
+#horarios-box h2 {
+    font-size: 1.1em;
+    margin-top: 0;
+}
+
+#horarios-box h3 {
+    border-radius: 10px;
+    text-align: center;
+    max-width: 85px;
+    min-width: 35px;
+    box-shadow: 1px 1px 10px 0 rgba(12, 12, 14, .2), 0 4px 8px 0 rgba(6, 6, 7, 0.12);
+    font-weight: bold;
+    font-size: 1.8em;
+    margin: 0.4em 0.2em 0 0;
+    display: inline-block;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+#horarios-box .notice {
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+#nearestStopsResults {
+    width: calc(100%);
+    height: 100%;
+    overflow-y: auto;
+    margin-top: 50px;
+    padding: 1em 0 4em 0;
+    box-sizing: border-box;
+    border-radius: 0;
+}
+
+#nearestStopsResults>* {
+    padding: 0 15px;
+}
+
+#nearestStopsResults #close-nearest-stops {
+    right: 15px;
+}
+
+#nearestStopsResults h2 {
+    font-size: 1.2em;
+    margin-top: 0;
+}
+
+#nearestStopsResults p {
+    font-size: 0.8em;
+}
+
+#nearestStopsResults .stopResult h2 {
+    font-size: 0.9em;
+    padding: 9px 0 9px 24px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-image: url('/img/bus-stop.png');
+    background-size: 17px;
+    background-repeat: no-repeat;
+    background-position: left;
+}
+
+.dark-mode #nearestStopsResults .stopResult h2 {
+    background-image: url('/img/bus-stop-dark.png');
+}
+
+#nearestStopsResults .stopResult h2 .mapIcon {
+    position: relative;
+    right: 0;
+    background-size: contain;
+    width: 23px;
+    height: 22px;
+    background-repeat: no-repeat;
+}
+
+#nearestStopsResults .stopResult h2 .numParada {
+    font-weight: normal;
+    color: #CCC;
+}
+
+#nearestStopsResults #mapaParadasCercanas {
+    height: 400px;
+    width: 100%;
+    padding: 0;
+}
+
+
+/* Enlaces a lineas en la info de paradas */
+#nearestStopsResults .stopResult .addLineButton,
+#lineas-correspondencia span.linea,
+#nearestStopsResults .stopResult .destino,
+#nearestStopsResults .leaflet-popup-content .destino {
+    display: inline-block;
+    padding: 6px 8px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 33px;
+    text-align: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    margin: 5px 0;
+    max-width: 130px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#nearestStopsResults .stopResult .lineas-correspondencia {
+    margin-top: 10px;
+}
+
+#nearestStopsResults .stopResult .lineas-correspondencia div,
+#nearestStopsResults #mapaParadasCercanas #lineas-correspondencia div {
+    display: inline-block;
+}
+
+
+#nearestStopsResults .stopResult .addLineButton,
+#nearestStopsResults .stopResult .destino,
+#nearestStopsResults .leaflet-popup-content .destino {
+    font-size: 0.7em;
+}
+
+#nearestStopsResults .stopResult .destino,
+#nearestStopsResults .leaflet-popup-content .destino {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 10px;
+    opacity: 0.7;
+    width: 58px;
+}
+
+#nearestStopsResults .leaflet-popup-content .destino {
+    margin: 0 6px 0 0;
+    line-height: 0.8em;
+    width: 45px;
+}
+
+.dialog-data h2 {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.dialog-data button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.dialog-data a {
+    color: #828282;
+}
+
+.dark-mode .dialog-data .closeDialogBtn {
+    background-color: #2d2d2d;
+}
+
+.dark-mode .dialog-data h2 {
+    color: #eeeeee;
+}
+
+.dark-mode .dialog-data p,
+.dark-mode .dialog-data ul {
+    color: #eeeeee;
+}
+
