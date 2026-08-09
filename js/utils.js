@@ -392,8 +392,8 @@ function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
 
     // Evitamos mostrar undefined mietras carga el DOM
     let lineNumber = "";
-    if (line.linenumber) {
-        lineNumber = line.linenumber;
+    if (line.lineNumber || line.linenumber) {
+        lineNumber = line.lineNumber || line.linenumber;
     }
 
     // Elemento con skeleton loading inicial
