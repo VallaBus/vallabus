@@ -259,13 +259,15 @@ def test_global_alert_count(result: BrowserPage) -> None:
             const fixture = [
                 {ruta: {parada: null, linea: null}, descripcion: 'Global 1'},
                 {ruta: {parada: '666', linea: null}, descripcion: 'Solo parada'},
-                {ruta: {parada: null, linea: '2'}, descripcion: 'Solo línea'},
+                {ruta: {parada: null, linea: 2}, descripcion: 'Línea 2'},
                 {ruta: {parada: null, linea: null}, descripcion: 'Global 2'},
             ];
             const globalAlerts = filterBusAlerts(fixture, null);
+            const lineAlerts = filterBusAlerts(fixture, '2');
             displayGlobalAlertsBanner(globalAlerts);
             return {
                 filtered: globalAlerts.length,
+                lineAlerts: lineAlerts.map(alert => alert.descripcion),
                 title: document.querySelector('.global-alert-title')?.textContent || '',
                 rendered: Array.from(document.querySelectorAll('#globalAlertsBox .alert-text-container'))
                     .map(element => element.textContent.replace('🞃', '').trim()),
@@ -274,6 +276,7 @@ def test_global_alert_count(result: BrowserPage) -> None:
     )
     assert snapshot == {
         "filtered": 2,
+        "lineAlerts": ["Línea 2"],
         "title": "Mostrar avisos generales (2)",
         "rendered": ["Global 1", "Global 2"],
     }

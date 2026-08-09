@@ -295,7 +295,10 @@ function filterBusAlerts(alerts, busLine) {
         }
 
         // Si la alerta es para una línea específica, la incluimos si coincide.
-        return route.linea === busLine;
+        // El API puede devolver el identificador como número o como texto.
+        return route.linea !== null
+            && route.linea !== undefined
+            && String(route.linea) === String(busLine);
     });
 }
 

@@ -214,7 +214,7 @@ La suite consulta la API remota real y comprueba en Chromium 14 flujos:
 2. Apertura/cierre del menú y cambio de temas.
 3. Flujo end-to-end de parada → sugerencia de línea → tarjeta con datos → mapa, geometría de ruta, paradas Leaflet, estado de ubicación y cierre.
 4. Horarios programados, selector de fecha y cierre del diálogo.
-5. Contador de avisos generales: solo cuenta avisos sin parada ni línea y coincide con los avisos renderizados.
+5. Avisos: el contador general solo cuenta avisos sin parada ni línea; los avisos de línea se filtran para su tarjeta y coinciden por identificador aunque cambie el tipo (`2`/`"2"`).
 6. Selección múltiple de líneas, rechazo de duplicados y borrado de todas las líneas.
 7. Destinos rápidos: validación de Casa, alta desde mapa, persistencia, ocultar/mostrar barra, planificador y borrado.
 8. Guardar Casa y reordenar favoritos con drag & drop, manteniendo Casa en primera posición.
