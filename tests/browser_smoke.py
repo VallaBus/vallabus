@@ -324,6 +324,26 @@ def test_live_search_line_and_map(
         "El mapa no muestra el estado de ubicación"
     )
 
+    # El popup del marcador de bus muestra la matrícula/identificador. Su
+    # cierre usa internamente el enlace `#close` de Leaflet y no debe cerrar el
+    # diálogo del mapa ni cambiar la ruta actual.
+    page.wait_for_selector("#busMap .bus-icon", state="attached", timeout=timeout_ms)
+    bus_marker = page.locator("#busMap .bus-icon").first
+    bus_marker.click()
+    page.wait_for_selector("#busMap .leaflet-popup", state="visible", timeout=timeout_ms)
+    popup = page.locator("#busMap .leaflet-popup")
+    has_vehicle_info = popup.locator(".matricula, .vehicle-id").count() > 0
+    assert has_vehicle_info or "Sin info del vehículo" in popup.inner_text(), (
+        "El popup del bus no muestra la matrícula ni un estado de vehículo"
+    )
+    popup.locator(".leaflet-popup-close-button").click()
+    page.wait_for_function(
+        """() => !document.querySelector('#busMap .leaflet-popup') &&
+                  document.querySelector('#mapContainer').classList.contains('show')""",
+        timeout=timeout_ms,
+    )
+    assert "#/mapa/" in page.url, "Cerrar la matrícula no debe abandonar la ruta del mapa"
+
     page.locator("#mapContainer .map-close").click()
     page.wait_for_function("() => !document.querySelector('#mapContainer').classList.contains('show')")
     assert_no_browser_errors(result)

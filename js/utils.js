@@ -1618,6 +1618,14 @@ function routersEvents() {
 
     // Manejar clics en enlaces internos
     document.body.addEventListener('click', function(e) {
+        // Leaflet cierra sus popups con un enlace interno `#close`. Ese
+        // enlace no representa una navegación de VallaBus: si llega al
+        // enrutador, se considera una ruta desconocida y closeAllDialogs()
+        // termina ocultando el mapa que el usuario sigue consultando.
+        if (e.target.closest('#busMap .leaflet-popup-close-button')) {
+            return;
+        }
+
         if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
             const url = new URL(e.target.href);
             
