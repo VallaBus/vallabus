@@ -1,0 +1,591 @@
+@font-face {
+    font-family: 'Fira Sans';
+    src: local('Fira Sans Bold'),
+        url('/fonts/FiraSans-Bold.woff2') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Fira Sans';
+    src: local('Fira Sans Regular'),
+        url('/fonts/FiraSans-Regular.woff2') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+body {
+    font-family: Helvetica, sans-serif;
+    font-size: 100%;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    margin: auto;
+    max-width: 530px;
+}
+
+header {
+    background: #054a32;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 4px -1px;
+    margin: 0;
+    padding: 0;
+    color: #FFFFFF;
+    height: 60px;
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+}
+
+.dark-mode header {
+    background-color: hsl(159.1, 41.3%, 15.5%);
+}
+
+header h1 {
+    color: #89bd6b;
+    text-shadow: #000 0px 0px 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-image: url('/img/logo.png');
+    background-repeat: no-repeat;
+    background-size: 33px;
+    background-position: 13px 12px;
+    padding: 0;
+    margin: -4px 0 0 0;
+    font-family: 'Fira Sans';
+    font-weight: 700;
+    font-size: 1.3em;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.dark-mode header h1 {
+    color: hsl(98, 34.3%, 49%);
+}
+
+header h1 a {
+    color: #FFF;
+    text-decoration: none;
+}
+
+header h1 #subheader {
+    font-size: 0.6em;
+    font-weight: normal;
+    text-shadow: none;
+    color: #CCC;
+    display: inline-block;
+    position: absolute;
+    top: 30px;
+}
+
+input[type=number],
+input[type=text] {
+    margin-left: 10px;
+    padding: 10px;
+    margin-right: 5px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    appearance: textfield;
+
+}
+
+input#stopNumber {
+    border-bottom: 1px solid #DDD;
+    background: url('/img/location-gray.png') no-repeat;
+    background-size: 15px;
+}
+
+input#lineNumber {
+    background: url('/img/bus-gray.png') no-repeat;
+    background-size: 19px;
+}
+
+input#stopNumber,
+input#lineNumber {
+    height: auto;
+    padding: 10px 0 10px 35px;
+    background-position: 5px 9px;
+    font-size: 0.9em;
+}
+
+button,
+.dialog button:last-child {
+    padding: 10px 20px;
+    background-color: hsl(168.8, 48.2%, 32.5%);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+button.secondary,
+.dialog-content button:first-child {
+    color: hsl(168.8, 48.2%, 32.5%);
+    border: 1px solid hsl(168.8, 48.2%, 32.5%);
+    background-color: white;
+}
+
+button.terciary {
+    color: hsl(168.8, 48.2%, 32.5%);
+    text-decoration: underline;
+    background-color: transparent;
+}
+
+button:disabled,
+.dialog-content button:last-child:disabled {
+    background-color: hsl(168.8, 18.2%, 32.5%);
+    opacity: 0.5;
+}
+
+.dark-mode .dialog-content button:first-child {
+    color: hsl(0, 0%, 92.9%);
+    border: 1px solid hsl(0, 0%, 92.9%);
+    background-color: hsl(0, 0%, 20%);
+}
+
+button#addButton {
+    margin: 0em 19px 0 0;
+    background-color: #c1c4ca;
+    background-image: url("/img/add.png");
+    background-size: 16px;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 16px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    display: block;
+    background-position: 8px 8px;
+    z-index: 2;
+}
+
+button#addButton:active {
+    background-color: #73767a;
+}
+
+button#removeAllButton {
+    color: hsl(0, 0%, 44%);
+    font-size: 0.9em;
+    font-weight: normal;
+}
+
+.dark-mode button#removeAllButton {
+    color: hsl(0, 0%, 55%);
+}
+
+button#installButton {
+    background-color: #a7cafb;
+    border-radius: 2em;
+    height: 39px;
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    padding: 10px 17px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #304868;
+}
+
+button#installIosButton {
+    background-color: #007aff;
+    border-radius: 2em;
+    height: 34px;
+    position: absolute;
+    left: 10px;
+    top: 7px;
+    padding: 7px 17px;
+    font-size: 14px;
+    color: #FFF;
+    font-weight: bold;
+    font-family: SF Pro Text, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+#formulario {
+    padding: 0;
+    z-index: 101;
+    position: relative;
+    max-width: 95%;
+    margin: 50px auto 0 auto;
+}
+
+#formulario form {
+    background: #FFF;
+    margin: 2px auto 4px auto;
+    position: relative;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 4px 7px 0px #E4E4E4;
+    height: auto;
+    max-width: 360px;
+}
+
+#formulario form.featured {
+    box-shadow: 0 0 3px 2px #bbd5d0;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 3px 2px #57978b;
+    }
+
+    to {
+        box-shadow: 0 0 5px 3px #bbd5d0;
+    }
+}
+
+#formulario #inputs {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.clear-input {
+    position: absolute;
+    right: 82px;
+    top: 25%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    padding: 0 5px;
+    z-index: 2;
+}
+
+.clear-input:hover {
+    color: #333;
+}
+
+.dark-mode .clear-input {
+    color: #ccc;
+}
+
+.dark-mode .clear-input:hover {
+    color: #fff;
+}
+
+#stopNumber,
+#lineNumber {
+    padding-right: 30px;
+}
+
+#formulario #inputs input {
+    position: relative;
+}
+
+#autocompleteResults {
+    margin-top: 12px;
+    background-color: white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.autocomplete-header {
+    font-size: 0.8em;
+    background-color: rgb(51, 51, 51);
+    text-align: center;
+    color: rgb(238, 238, 238);
+    padding: 3px 0;
+}
+
+.autocomplete-result {
+    cursor: pointer;
+    margin: 2px;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.dark-mode .autocomplete-result {
+    border-bottom: 1px solid #444;
+}
+
+.autocomplete-result .numParada {
+    background-color: #054a32;
+    color: #EEE;
+    padding: 0 3px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    margin-right: 10px;
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.autocomplete-result .stop-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.autocomplete-result .stopName {
+    font-size: 0.9em;
+}
+
+.autocomplete-result .stopLines {
+    font-size: 0.8em;
+    color: #666;
+    margin: 5px 0;
+}
+
+.autocomplete-result .stopLines .linea {
+    padding: 1px 3px;
+    margin-right: 4px;
+    text-align: center;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 15px;
+}
+
+.autocomplete-result .distance {
+    color: #999;
+    font-size: 0.8em;
+    margin-left: auto;
+    padding-left: 10px;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+/* Placeholder mientras se buscan paradas cercanas */
+.searching-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    font-style: italic;
+    color: #666;
+}
+
+.searching-message .spinner {
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Color de parada para otras empresas */
+
+.autocomplete-result .numParada.ecsa {
+    background-color: #052d4a;
+}
+
+.autocomplete-result .numParada.regi {
+    background-color: #ff83006e;
+    color: #333;
+}
+
+.autocomplete-result .numParada.line {
+    background-color: #006680;
+}
+
+.autocomplete-result.nearbyStopsSuggestion {
+    background-color: transparent;
+    background-image: url('/img/find-nearby.png');
+    background-size: 15px;
+    background-repeat: no-repeat;
+    font-size: 0.8em;
+    justify-content: center;
+    background-position: 13px;
+    padding: 5px;
+    font-weight: bold;
+}
+
+#lineSuggestions {
+    margin-top: 7px;
+    background-color: white;
+    box-sizing: border-box;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+}
+
+#lineSuggestions .line-suggestion {
+    display: inline-block;
+    margin: 10px 0px 10px 12px;
+}
+
+#lineSuggestions .line-suggestion span.linea {
+    border-radius: 10px;
+    min-width: 24px;
+    text-align: center;
+    max-width: 130px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 4px;
+}
+
+/* Efectos de glow para el formulario */
+.glow-blue {
+    box-shadow: 0 0 10px 5px rgba(0, 123, 255, 0.7);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.glow-red {
+    box-shadow: 0 0 10px 0px rgba(255, 0, 0, 0.7);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+#addButton.glow-blue {
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+/* Estilos para el botón del menú hamburguesa */
+#menuButton {
+    width: 32px;
+    height: 32px;
+    background-size: 28px;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    position: absolute;
+    right: 16px;
+    top: 25px;
+    transform: translateY(-50%);
+    background-color: transparent;
+    z-index: 1000;
+}
+
+#menuButton.icon-menu {
+    background-image: url('/img/menu.svg');
+}
+
+#menuButton.icon-close {
+    background-image: url('/img/close.svg');
+}
+
+/* Estilos para el panel lateral */
+.sidebar {
+    height: 100%;
+    position: fixed;
+    width: 250px;
+    /* Ajusta este valor al ancho deseado */
+    transition: right 0.5s ease-in-out;
+    /* Ajusta la duración y la función de tiempo según tus preferencias */
+    right: -100%;
+    /* Oculta el sidebar por defecto */
+    z-index: 1001;
+    top: 0;
+    background-color: #fffffff9;
+    border-left: 1px solid #d0d0d0;
+    overflow-x: auto;
+    margin-top: 50px;
+}
+
+.dark-mode .sidebar {
+    background-color: #323232;
+    border-left: 1px solid #262626;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 0px;
+    text-decoration: none;
+    font-size: 0.9em;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+.sidebar-open {
+    right: 0;
+    /* Muestra el sidebar cuando se agrega la clase 'sidebar-open' */
+}
+
+.sidebar ul {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar ul li {
+    list-style: none;
+}
+
+.sidebar h2 {
+    font-size: 0.8em;
+    margin: 25px 0 5px 0;
+    text-transform: uppercase;
+}
+
+.sidebar .sidebar-links {
+    margin: 0 0 0 32px;
+}
+
+.sidebar #sidebar-stops {
+    padding-left: 32px;
+    padding-bottom: 90px;
+}
+
+.sidebar #scrollTop {
+    background-color: transparent;
+    background-image: url('/img/arrow-up.png');
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: 3px center;
+    padding: 0 0 0 35px;
+    margin: 20px 0px;
+}
+
+.sidebar #nearestStops {
+    display: flex;
+}
+
+.sidebar .sidebar-footer {
+    background-image: url("/img/pin-transparent.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    font-size: 0.75em;
+    padding-left: 18px;
+    background-position: 0px 3px;
+    color: #CCC;
+}
+
+.dark-mode .sidebar .sidebar-footer {
+    background-image: url("/img/pin-transparent-light.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: 0px 3px;
+    max-width: 100%;
+    overflow: auto;
+}
+

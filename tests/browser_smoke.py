@@ -1,0 +1,850 @@
+#!/usr/bin/env python3
+"""Real-browser regression checks for VallaBus.
+
+The project intentionally has no npm manifest.  This suite uses the Python
+Playwright installation already available in the development environment and
+starts a disposable static HTTP server for the app.  The API remains the real
+remote API: that is part of the product contract and is deliberately not
+mocked here.
+
+Run from the repository root with:
+
+    python3 tests/browser_smoke.py
+
+The stop and line used by the live flow can be changed with
+``VALLABUS_TEST_STOP`` and ``VALLABUS_TEST_LINE``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import sys
+import threading
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from typing import Callable, List, Optional, Tuple
+
+from playwright.sync_api import Browser, Error as PlaywrightError
+from playwright.sync_api import Page, Playwright, sync_playwright
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_STOP = os.environ.get("VALLABUS_TEST_STOP", "666")
+DEFAULT_LINE = os.environ.get("VALLABUS_TEST_LINE", "2")
+CSS_BLOCKS = [
+    "01-foundation-shell.css",
+    "02-favorites-welcome.css",
+    "03-stops-lines.css",
+    "04-status-nearby-map.css",
+    "05-transit-details.css",
+    "06-banners.css",
+    "07-footer-feedback.css",
+    "08-overlays.css",
+    "09-theme-dialogs.css",
+    "10-responsive.css",
+    "11-line-colors.css",
+    "12-guide.css",
+]
+
+
+class QuietRequestHandler(SimpleHTTPRequestHandler):
+    """Serve the repository without polluting test output with access logs."""
+
+    def log_message(self, format: str, *args: object) -> None:  # noqa: A002
+        return
+
+
+class AppServer:
+    def __init__(self) -> None:
+        handler = partial(QuietRequestHandler, directory=str(ROOT))
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+
+    @property
+    def base_url(self) -> str:
+        return "http://127.0.0.1:%d" % self.server.server_port
+
+    def start(self) -> None:
+        self.thread.start()
+
+    def close(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+
+
+class BrowserPage:
+    def __init__(self, page: Page, close_context: Callable[[], None]) -> None:
+        self.page = page
+        self.errors: List[str] = []
+        self.console_errors: List[str] = []
+        self._close_context = close_context
+
+    def close(self) -> None:
+        self._close_context()
+
+
+def open_app(browser: Browser, base_url: str, timeout_ms: int) -> BrowserPage:
+    context = browser.new_context(
+        viewport={"width": 390, "height": 844},
+        service_workers="allow",
+        geolocation={"latitude": 41.652251, "longitude": -4.724532},
+        permissions=["geolocation"],
+    )
+    # Every case starts from a clean app state.  This only affects the
+    # disposable test context, never the developer's browser profile.
+    context.add_init_script(
+        """if (sessionStorage.getItem('__vallabus_test_clean') !== '1') {
+            localStorage.clear();
+            sessionStorage.setItem('__vallabus_test_clean', '1');
+        }"""
+    )
+    page = context.new_page()
+    result = BrowserPage(page, context.close)
+    page.set_default_timeout(timeout_ms)
+    page.on("pageerror", lambda error: result.errors.append(str(error)))
+    page.on(
+        "console",
+        lambda message: result.console_errors.append(message.text)
+        if message.type == "error"
+        else None,
+    )
+    page.goto(base_url + "/", wait_until="domcontentloaded", timeout=timeout_ms)
+    page.wait_for_selector("#stopNumber", state="visible", timeout=timeout_ms)
+    return result
+
+
+def select_stop(page: Page, stop_number: str, timeout_ms: int) -> None:
+    """Select a stop through the public autocomplete control."""
+    page.locator("#stopNumber").fill(stop_number)
+    page.wait_for_selector(
+        "#autocompleteResults .autocomplete-result", state="visible", timeout=timeout_ms
+    )
+    first_stop = page.locator("#autocompleteResults .autocomplete-result").first
+    assert stop_number in first_stop.inner_text(), "La búsqueda no devuelve la parada solicitada"
+    first_stop.click()
+    assert page.locator("#stopNumber").input_value() == stop_number
+
+
+def add_line_to_list(page: Page, stop_number: str, line_number: str, timeout_ms: int):
+    """Use the public search form and wait for the fully rendered line card."""
+    select_stop(page, stop_number, timeout_ms)
+
+    page.locator("#lineNumber").click()
+    page.wait_for_selector("#lineSuggestions .line-suggestion", state="visible", timeout=timeout_ms)
+    suggestion = page.locator("#lineSuggestions .line-suggestion").filter(
+        has_text=re.compile(r"^\s*" + re.escape(line_number) + r"\s*$")
+    )
+    assert suggestion.count() > 0, "La parada no ofrece la línea configurada para la prueba"
+    suggestion.first.click()
+    assert page.locator("#lineNumber").input_value() == line_number
+
+    page.locator("#addButton").click()
+    card = page.locator('[id="%s-%s"]' % (stop_number, line_number))
+    page.wait_for_selector('[id="%s-%s"] .linea h3' % (stop_number, line_number), timeout=timeout_ms)
+    page.wait_for_selector(
+        '[id="%s-%s"] .additional-info-panel' % (stop_number, line_number),
+        state="attached",
+        timeout=timeout_ms,
+    )
+    assert card.locator(".linea h3").inner_text().strip() == line_number
+    return card
+
+
+def create_favorite_from_map(page: Page, name: str, timeout_ms: int) -> None:
+    """Create one quick destination through the visible Leaflet map."""
+    page.locator("#addFavoriteButton").click()
+    page.wait_for_function("() => document.querySelector('#favoriteDialog').style.display === 'block'")
+    page.locator("#favoriteName").fill(name)
+    favorite_map = page.locator("#favoriteMapContainer")
+    page.wait_for_selector(
+        "#favoriteMapContainer.leaflet-container", state="attached", timeout=timeout_ms
+    )
+    box = favorite_map.bounding_box()
+    assert box and box["width"] > 0 and box["height"] > 0, "El mapa de favoritos no tiene tamaño"
+    page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    page.wait_for_function(
+        """() => Boolean(document.querySelector('#favoriteLat').value &&
+                          document.querySelector('#favoriteLon').value)""",
+        timeout=timeout_ms,
+    )
+    page.locator("#favoriteAcceptButton").click()
+    page.wait_for_function("() => document.querySelector('#favoriteDialog').style.display !== 'block'")
+    assert page.locator("#fav-destinations li").filter(has_text=name).count() == 1
+
+
+def assert_no_browser_errors(result: BrowserPage) -> None:
+    problems = result.errors + ["console.error: " + item for item in result.console_errors]
+    if problems:
+        raise AssertionError("El navegador registró errores:\n- " + "\n- ".join(problems))
+
+
+def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> None:
+    page = result.page
+    assert page.title().startswith("VallaBus"), "El título de la aplicación no se cargó"
+    assert page.locator("#welcome-box").is_visible(), "No aparece la pantalla inicial"
+
+    scripts = page.locator("script").evaluate_all(
+        """elements => elements.map(element => ({
+            src: element.getAttribute('src'),
+            type: element.getAttribute('type')
+        }))"""
+    )
+    app_scripts = [item for item in scripts if item["src"] and "script.js" in item["src"]]
+    assert len(app_scripts) == 1, "Debe existir un único entrypoint script.js"
+    assert app_scripts[0]["type"] == "module", "script.js debe cargarse como módulo"
+    assert not any(item["src"] and "browser.js" in item["src"] for item in scripts), (
+        "browser.js no debe cargarse como script independiente"
+    )
+
+    style = page.evaluate(
+        "() => fetch('/css/style.css', {cache: 'no-store'}).then(response => response.text())"
+    )
+    positions = [style.index('"' + block + '"') for block in CSS_BLOCKS]
+    assert positions == sorted(positions), "El agregador CSS no conserva el orden funcional"
+    assert len(style.splitlines()) < 40, "style.css debe ser solo el agregador de imports"
+
+    # Registration is asynchronous and happens from serviceworker-check.js.
+    page.wait_for_function(
+        """async () => {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                return Boolean(registration && registration.active);
+            } catch (_) {
+                return false;
+            }
+        }""",
+        timeout=timeout_ms,
+    )
+    worker_url = page.evaluate(
+        """async () => (await navigator.serviceWorker.ready).active.scriptURL"""
+    )
+    assert worker_url.endswith("/service-worker.js"), "No se activó el service worker de la app"
+    worker_source = page.evaluate(
+        "() => fetch('/service-worker.js', {cache: 'no-store'}).then(response => response.text())"
+    )
+    assert "addEventListener('fetch'" not in worker_source
+    assert "respondWith" not in worker_source
+    assert "cache.addAll" not in worker_source
+
+    assert_no_browser_errors(result)
+
+
+def test_menu_and_theme(result: BrowserPage) -> None:
+    page = result.page
+    page.locator("#menuButton").click()
+    assert page.locator("#sidebar.sidebar-open").count() == 1, "El menú lateral no se abre"
+    page.locator("#menuButton").click()
+    assert page.locator("#sidebar.sidebar-open").count() == 0, "El menú lateral no se cierra"
+
+    page.locator("#theme-toggle").click()
+    assert page.evaluate("() => localStorage.getItem('theme')") == "dark"
+    assert page.locator("html.dark-mode").count() == 1, "No se aplica el tema oscuro"
+
+    page.locator("#theme-toggle").click()
+    assert page.evaluate("() => localStorage.getItem('theme')") == "light"
+    assert page.locator("html.dark-mode").count() == 0, "No se puede volver al tema claro"
+    assert_no_browser_errors(result)
+
+
+def test_live_search_line_and_map(
+    result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
+) -> None:
+    page = result.page
+    card = add_line_to_list(page, stop_number, line_number, timeout_ms)
+
+    # A line card is the data surface the user asked about: it must expose the
+    # destination/status panel and open the live-map dialog on click.
+    assert card.locator(".trip-info").count() == 1, "La tarjeta de línea no muestra sus datos"
+    # The card contains a nested additional-info panel whose click handler
+    # intentionally stops propagation.  Clicking its line heading mirrors the
+    # user gesture while guaranteeing the line-card map handler receives it.
+    card.locator(".linea h3").click()
+    page.wait_for_selector("#mapContainer.show", state="visible", timeout=timeout_ms)
+    assert "#/mapa/" in page.url, "El clic de la línea no actualiza la ruta del mapa"
+    assert page.locator("#busMap").count() == 1, "No se creó el contenedor del mapa"
+    assert page.locator("#mapContainer .map-close").is_visible(), "El mapa no ofrece cierre"
+    # No basta con que aparezca el panel: updateBusMap debe haber cargado la
+    # geometría de la línea y las paradas de ese viaje en Leaflet.
+    line_class = "linea-" + line_number
+    page.wait_for_function(
+        """lineClass => {
+            const map = document.querySelector('#busMap');
+            const markers = map && map.querySelectorAll('.leaflet-marker-icon').length;
+            const route = map && Array.from(map.querySelectorAll('.leaflet-overlay-pane path'))
+                .some(path => path.classList.contains(lineClass));
+            return markers > 0 && route;
+        }""",
+        arg=line_class,
+        timeout=timeout_ms,
+    )
+    assert page.locator("#busMap .leaflet-marker-icon").count() > 0, (
+        "El mapa no cargó las paradas/marcadores del viaje"
+    )
+    assert page.locator("#busMap .leaflet-overlay-pane path.%s" % line_class).count() > 0, (
+        "El mapa no cargó la geometría de la ruta"
+    )
+    assert page.locator("#busMapLastUpdate").inner_text().strip(), (
+        "El mapa no muestra el estado de ubicación"
+    )
+
+    page.locator("#mapContainer .map-close").click()
+    page.wait_for_function("() => !document.querySelector('#mapContainer').classList.contains('show')")
+    assert_no_browser_errors(result)
+
+
+def test_scheduled_hours(
+    result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
+) -> None:
+    page = result.page
+    add_line_to_list(page, stop_number, line_number, timeout_ms)
+
+    page.locator("#mostrar-horarios-%s" % stop_number).click()
+    page.wait_for_function(
+        "() => document.querySelector('#horarios-box').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    page.wait_for_selector("#horarios-box h2", state="visible", timeout=timeout_ms)
+    assert "Horarios programados" in page.locator("#horarios-box").inner_text()
+    assert page.locator("#stopDateInput").count() == 1, "Falta el selector de fecha de horarios"
+    assert page.locator("#horarios-box .indice-linea").count() > 0, (
+        "El diálogo de horarios no muestra sus líneas"
+    )
+    assert page.locator("#horarios-box .hora").count() > 0 or "No hay horarios programados" in page.locator(
+        "#horarios-box"
+    ).inner_text()
+
+    # Cambiar la fecha ejercita el listener delegado que vuelve a consultar los
+    # horarios, sin asumir horas concretas que dependen del día de ejecución.
+    tomorrow = (dt.date.today() + dt.timedelta(days=1)).isoformat()
+    page.locator("#stopDateInput").fill(tomorrow)
+    page.locator("#stopDateInput").dispatch_event("change")
+    page.wait_for_selector("#horarios-box h2", state="visible", timeout=timeout_ms)
+    assert page.locator("#stopDateInput").input_value() == tomorrow
+
+    page.locator("#horarios-box .horarios-close").click()
+    page.wait_for_function("() => document.querySelector('#horarios-box').style.display !== 'block'")
+    assert_no_browser_errors(result)
+
+
+def test_multi_line_selection_duplicate_and_remove_all(
+    result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
+) -> None:
+    page = result.page
+    select_stop(page, stop_number, timeout_ms)
+
+    # Añadir varias líneas desde el diálogo que aparece cuando no se indica
+    # una línea concreta.
+    page.locator("#addButton").click()
+    page.wait_for_selector("#lineSelectionDialog", state="visible", timeout=timeout_ms)
+    checkboxes = page.locator('#lineSelectionDialog input[name="line"]')
+    assert checkboxes.count() >= 2, "La parada no ofrece selección múltiple de líneas"
+    assert page.locator("#addSelectedLines").is_disabled()
+    # Las casillas están visualmente ocultas dentro de .line-pill; se activa
+    # la misma superficie que pulsaría una persona en móvil.
+    line_pills = page.locator("#lineSelectionDialog .line-pill")
+    line_pills.nth(0).click()
+    line_pills.nth(1).click()
+    assert not page.locator("#addSelectedLines").is_disabled()
+    selected_values = checkboxes.evaluate_all(
+        "elements => elements.filter(element => element.checked).map(element => element.value)"
+    )
+    page.locator("#addSelectedLines").click()
+    page.wait_for_function(
+        "() => (JSON.parse(localStorage.getItem('busLines') || '[]')).length === %d"
+        % len(selected_values),
+        timeout=timeout_ms,
+    )
+    assert page.locator("#lineSelectionDialog").count() == 0
+
+    # Volver a añadir una combinación existente no debe duplicarla.
+    before_duplicate = page.evaluate(
+        "() => JSON.parse(localStorage.getItem('busLines') || '[]').length"
+    )
+    select_stop(page, stop_number, timeout_ms)
+    page.locator("#lineNumber").fill(line_number)
+    page.locator("#addButton").click()
+    page.wait_for_timeout(1000)
+    assert page.evaluate(
+        "() => JSON.parse(localStorage.getItem('busLines') || '[]').length"
+    ) == before_duplicate
+
+    # El borrado global deja de mostrar las tarjetas y recupera el welcome.
+    page.once("dialog", lambda dialog: dialog.accept())
+    page.locator("#removeAllButton").click()
+    page.wait_for_function(
+        "() => JSON.parse(localStorage.getItem('busLines') || '[]').length === 0",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function("() => document.querySelector('#welcome-box').style.display !== 'none'")
+    assert page.locator(".stop-block").count() == 0
+    assert_no_browser_errors(result)
+
+
+def test_favorite_destinations_and_route(
+    result: BrowserPage, timeout_ms: int
+) -> None:
+    page = result.page
+
+    # La rama Casa debe abrir su diálogo y mostrar validación si no hay
+    # ubicación elegida.
+    page.locator("#home-destination").click()
+    page.wait_for_function("() => document.querySelector('#homeDialog').style.display === 'block'")
+    page.locator("#homeAcceptButton").click()
+    page.wait_for_function(
+        "() => document.querySelector('#homeErrorMessage').style.display === 'block'"
+    )
+    assert "Debe elegir una ubicación" in page.locator("#homeErrorMessage").inner_text()
+    page.locator("#homeCancelButton").click()
+
+    # Crear un destino rápido mediante el mapa real de Leaflet.
+    create_favorite_from_map(page, "Prueba Playwright", timeout_ms)
+    assert page.evaluate(
+        "() => JSON.parse(localStorage.getItem('favoriteDestinations')).some(item => item.name === 'Prueba Playwright')"
+    )
+
+    # Configuración, ocultar/mostrar la barra y apertura del planificador desde
+    # el favorito.
+    page.locator("#configFavoritesButton").click()
+    page.wait_for_function(
+        "() => document.querySelector('#configFavoritesDialog').style.display === 'block'"
+    )
+    favorite_item = page.locator('.favorite-item[data-name="Prueba Playwright"]')
+    assert favorite_item.count() == 1
+
+    page.locator("#hideFavBar").check()
+    page.wait_for_function("() => getComputedStyle(document.querySelector('#fav-destinations')).display === 'none'")
+    page.locator("#hideFavBar").uncheck()
+    page.wait_for_function("() => getComputedStyle(document.querySelector('#fav-destinations')).display !== 'none'")
+
+    favorite_item.locator(".route-favorite-icon").click()
+    page.wait_for_function("() => document.querySelector('#iframe-container').style.display === 'block'")
+    assert page.locator("#iframe-container iframe[src^='https://rutas.vallabus.com']").count() == 1
+    page.locator("#iframe-container .closeRoutesButton").click()
+    page.wait_for_function("() => document.querySelector('#iframe-container').style.display === 'none'")
+
+    favorite_item.locator(".delete-favorite-icon").click()
+    page.wait_for_function("() => document.querySelectorAll('.favorite-item[data-name=\"Prueba Playwright\"]').length === 0")
+    assert not page.evaluate(
+        "() => (JSON.parse(localStorage.getItem('favoriteDestinations')) || []).some(item => item.name === 'Prueba Playwright')"
+    )
+    page.locator("#closeConfigDialog").click()
+    assert_no_browser_errors(result)
+
+
+def test_save_home_and_reorder_favorites(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+
+    # Guardar Casa, no solo validar el formulario vacío.
+    page.locator("#home-destination").click()
+    page.wait_for_function("() => document.querySelector('#homeDialog').style.display === 'block'")
+    home_map = page.locator("#homeMapContainer")
+    page.wait_for_selector("#homeMapContainer.leaflet-container", state="attached", timeout=timeout_ms)
+    home_box = home_map.bounding_box()
+    assert home_box and home_box["width"] > 0 and home_box["height"] > 0
+    page.mouse.click(home_box["x"] + home_box["width"] / 2, home_box["y"] + home_box["height"] / 2)
+    page.wait_for_function(
+        "() => Boolean(document.querySelector('#homeLat').value && document.querySelector('#homeLon').value)",
+        timeout=timeout_ms,
+    )
+    page.locator("#homeAcceptButton").click()
+    page.wait_for_function("() => document.querySelector('#homeDialog').style.display !== 'block'")
+    assert page.evaluate("() => JSON.parse(localStorage.getItem('homeDestination')).name") == "Casa"
+
+    create_favorite_from_map(page, "Favorito A", timeout_ms)
+    create_favorite_from_map(page, "Favorito B", timeout_ms)
+    page.locator("#configFavoritesButton").click()
+    page.wait_for_function(
+        "() => document.querySelector('#configFavoritesDialog').style.display === 'block'"
+    )
+    favorite_a = page.locator('.favorite-item[data-name="Favorito A"]')
+    favorite_b = page.locator('.favorite-item[data-name="Favorito B"]')
+    assert favorite_a.count() == 1 and favorite_b.count() == 1
+
+    # El handler de drag/drop debe mantener Casa en primera posición y
+    # persistir el nuevo orden de los destinos.
+    page.evaluate(
+        """() => {
+            const source = document.querySelector('.favorite-item[data-name="Favorito B"]');
+            const target = document.querySelector('.favorite-item[data-name="Favorito A"]');
+            // Chromium protege el payload de un DataTransfer real fuera del
+            // ciclo nativo de arrastre. Este objeto reproduce la interfaz que
+            // usa la aplicación y permite ejercitar los mismos listeners en
+            // una prueba automatizada y determinista.
+            const dataTransfer = {
+                value: '',
+                setData(_type, value) { this.value = value; },
+                getData(_type) { return this.value; },
+            };
+            const dispatch = (element, type) => {
+                const event = new Event(type, {bubbles: true, cancelable: true});
+                Object.defineProperty(event, 'dataTransfer', {value: dataTransfer});
+                element.dispatchEvent(event);
+            };
+            dispatch(source, 'dragstart');
+            dispatch(target, 'dragover');
+            dispatch(target, 'drop');
+            dispatch(source, 'dragend');
+        }"""
+    )
+    page.wait_for_function(
+        """() => {
+            const names = (JSON.parse(localStorage.getItem('favoriteDestinations')) || [])
+                .map(item => item.name);
+            return names[0] === 'Favorito B' && names[1] === 'Favorito A';
+        }""",
+        timeout=timeout_ms,
+    )
+    favorite_names = page.evaluate(
+        "() => (JSON.parse(localStorage.getItem('favoriteDestinations')) || []).map(item => item.name)"
+    )
+    assert favorite_names[:2] == ["Favorito B", "Favorito A"]
+    page.locator("#closeConfigDialog").click()
+    assert_no_browser_errors(result)
+
+
+def test_nearby_stops(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+    page.locator("#viewCercanasButton a").click()
+    page.wait_for_function(
+        "() => document.querySelector('#nearestStopsResults').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    page.wait_for_selector("#nearestStopsResults h2", state="visible", timeout=timeout_ms)
+    assert "Paradas cercanas" in page.locator("#nearestStopsResults").inner_text()
+    assert page.locator("#mapaParadasCercanas").count() == 1
+    page.wait_for_selector("#nearestStopsResults .stopResult", state="attached", timeout=timeout_ms)
+    assert page.locator("#nearestStopsResults .stopResult").count() > 0
+
+    nearby_line = page.locator("#nearestStopsResults .stopResult .addLineButton").first
+    nearby_stop = nearby_line.get_attribute("data-stop-number")
+    nearby_line_number = nearby_line.get_attribute("data-line-number")
+    assert nearby_stop and nearby_line_number
+    page.once("dialog", lambda dialog: dialog.accept())
+    nearby_line.click()
+    page.wait_for_function(
+        """(expected) => (JSON.parse(localStorage.getItem('busLines') || '[]'))
+            .some(line => line.stopNumber === expected.stop && line.lineNumber === expected.line)""",
+        arg={"stop": nearby_stop, "line": nearby_line_number},
+        timeout=timeout_ms,
+    )
+    assert page.evaluate(
+        """(expected) => (JSON.parse(localStorage.getItem('busLines') || '[]'))
+            .some(line => line.stopNumber === expected.stop && line.lineNumber === expected.line)""",
+        arg={"stop": nearby_stop, "line": nearby_line_number},
+    )
+    page.locator("#close-nearest-stops").click()
+    page.wait_for_function("() => document.querySelector('#nearestStopsResults').style.display !== 'block'")
+    assert_no_browser_errors(result)
+
+
+def test_route_planner(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+
+    page.locator("#routePlannerButton a").click()
+    page.wait_for_function("() => document.querySelector('#iframe-container').style.display === 'block'")
+    assert page.locator("#iframe-container iframe[src^='https://rutas.vallabus.com']").count() == 1
+    page.locator("#iframe-container .closeRoutesButton").click()
+    page.wait_for_function("() => document.querySelector('#iframe-container').style.display === 'none'")
+    # The external planner owns its own load lifecycle.  The route flow is
+    # isolated from the data/status dialogs so a slow third-party iframe cannot
+    # intercept clicks belonging to another regression case.
+    assert_no_browser_errors(result)
+
+
+def test_data_and_status_dialogs(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+
+    page.locator("#show-data").click()
+    page.wait_for_function("() => document.querySelector('#dataDialog').style.display === 'block'")
+    assert "Tus datos" in page.locator("#dataDialog").inner_text()
+    with page.expect_download(timeout=timeout_ms) as download_info:
+        page.locator("#exportDataBtn").click()
+    assert download_info.value.suggested_filename == "vallabus_datos.json"
+    page.locator("#closeDataDialogBtn").click()
+
+    page.locator("#show-status").click()
+    page.wait_for_function("() => document.querySelector('#statusDialog').style.display === 'block'")
+    page.wait_for_selector("#statusContent", state="visible", timeout=timeout_ms)
+    assert page.locator("#statusContent").inner_text().strip(), "El diálogo de estado está vacío"
+    page.locator("#closeStatusDialogBtn").click()
+    assert_no_browser_errors(result)
+
+
+def test_deep_links(
+    result: BrowserPage, base_url: str, stop_number: str, timeout_ms: int
+) -> None:
+    page = result.page
+
+    # Estas rutas deben funcionar también al abrirlas directamente o tras un
+    # refresh, no solo al llegar desde un click en la interfaz.
+    page.goto(base_url + "/#/horarios/" + stop_number, wait_until="domcontentloaded", timeout=timeout_ms)
+    page.wait_for_function(
+        "() => document.querySelector('#horarios-box').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    page.wait_for_selector("#horarios-box h2", state="visible", timeout=timeout_ms)
+    assert "Horarios programados" in page.locator("#horarios-box").inner_text()
+    page.locator("#horarios-box .horarios-close").click()
+
+    page.goto(base_url + "/#/datos", wait_until="domcontentloaded", timeout=timeout_ms)
+    page.wait_for_function("() => document.querySelector('#dataDialog').style.display === 'block'")
+    assert "Tus datos" in page.locator("#dataDialog").inner_text()
+    page.locator("#closeDataDialogBtn").click()
+
+    page.goto(base_url + "/#/estado", wait_until="domcontentloaded", timeout=timeout_ms)
+    page.wait_for_function("() => document.querySelector('#statusDialog').style.display === 'block'")
+    page.wait_for_selector("#statusContent", state="visible", timeout=timeout_ms)
+    assert page.locator("#statusContent").inner_text().strip()
+    page.locator("#closeStatusDialogBtn").click()
+    assert_no_browser_errors(result)
+
+
+def test_import_data(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+    page.locator("#show-data").click()
+    page.wait_for_function("() => document.querySelector('#dataDialog').style.display === 'block'")
+
+    payload = {
+        "favoriteDestinations": [
+            {"name": "Importado Playwright", "lat": "41.65", "lon": "-4.72"}
+        ],
+        "busLines": [],
+        "fixedStops": [],
+        "theme": "light",
+    }
+    # importData() asks for confirmation, opens a file chooser and finally
+    # navigates back to / after replacing localStorage.  A persistent dialog
+    # handler accepts both the confirmation and the success alert.
+    page.on("dialog", lambda dialog: dialog.accept())
+    with page.expect_file_chooser(timeout=timeout_ms) as chooser_info:
+        page.locator("#importDataBtn").click()
+    chooser_info.value.set_files(
+        {
+            "name": "vallabus-import.json",
+            "mimeType": "application/json",
+            "buffer": json.dumps(payload).encode("utf-8"),
+        }
+    )
+    page.wait_for_url(re.compile(r"/$"), wait_until="domcontentloaded", timeout=timeout_ms)
+    page.wait_for_selector("#fav-destinations li", state="visible", timeout=timeout_ms)
+    assert page.locator("#fav-destinations li").filter(has_text="Importado Playwright").count() == 1
+    assert page.evaluate(
+        "() => JSON.parse(localStorage.getItem('favoriteDestinations'))[0].name"
+    ) == "Importado Playwright"
+    assert_no_browser_errors(result)
+
+
+def test_pin_and_remove_followed_line(
+    result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
+) -> None:
+    page = result.page
+    card = add_line_to_list(page, stop_number, line_number, timeout_ms)
+    pin = page.locator("#pin-icon-%s" % stop_number)
+    pin.click()
+    page.wait_for_function(
+        "() => document.querySelector('#pin-icon-%s').classList.contains('fixed')" % stop_number,
+        timeout=timeout_ms,
+    )
+    assert page.evaluate(
+        "() => JSON.parse(localStorage.getItem('fixedStops')).includes('%s')" % stop_number
+    )
+
+    # Desplegar el lateral de la tarjeta: contiene los próximos horarios y la
+    # acción de borrar esa línea concreta.
+    detail_panel = card.locator(".additional-info-panel")
+    detail_panel.locator(".arrow-button").click()
+    page.wait_for_selector(
+        '[id="%s-%s"] .additional-info-panel.open' % (stop_number, line_number),
+        state="attached",
+        timeout=timeout_ms,
+    )
+    assert detail_panel.locator(".proximos-buses").count() == 1
+    assert detail_panel.locator(".remove-button").count() == 1, (
+        "El lateral no ofrece la acción de borrar"
+    )
+    upcoming_count = detail_panel.locator(".proximos-buses li").count()
+    if upcoming_count:
+        assert detail_panel.locator(".proximos-buses li strong").count() > 0, (
+            "Los próximos horarios no muestran hora"
+        )
+
+    detail_panel.locator(".arrow-button").click()
+    page.wait_for_function(
+        "() => !document.querySelector('[id=\"%s-%s\"] .additional-info-panel').classList.contains('open')"
+        % (stop_number, line_number),
+        timeout=timeout_ms,
+    )
+    detail_panel.locator(".arrow-button").click()
+    page.wait_for_selector(
+        '[id="%s-%s"] .additional-info-panel.open' % (stop_number, line_number),
+        state="attached",
+        timeout=timeout_ms,
+    )
+
+    # Borrado desde el lateral (en lugar del botón de quitar toda la parada).
+    page.once("dialog", lambda dialog: dialog.accept())
+    detail_panel.locator(".remove-button").click()
+    page.wait_for_function(
+        "() => JSON.parse(localStorage.getItem('busLines') || '[]').length === 0",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function("() => document.querySelector('#welcome-box').style.display !== 'none'")
+    assert page.locator('[id="%s-%s"]' % (stop_number, line_number)).count() == 0
+    assert_no_browser_errors(result)
+
+
+def run_case(
+    name: str,
+    callback: Callable[[], None],
+    result: BrowserPage,
+    artifact_dir: Path,
+) -> Optional[str]:
+    try:
+        callback()
+        print("PASS  " + name)
+        return None
+    except Exception as error:  # noqa: BLE001 - report browser artifacts before failing
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        screenshot_path = artifact_dir / (name.replace(" ", "_") + ".png")
+        try:
+            result.page.screenshot(path=str(screenshot_path), full_page=True)
+        except PlaywrightError:
+            pass
+        return "%s: %s (captura: %s)" % (name, error, screenshot_path)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stop", default=DEFAULT_STOP, help="Parada para el flujo live (por defecto: 666)")
+    parser.add_argument("--line", default=DEFAULT_LINE, help="Línea para el flujo live (por defecto: 2)")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=int(os.environ.get("VALLABUS_TEST_TIMEOUT_MS", "60000")),
+        help="Timeout Playwright en milisegundos",
+    )
+    parser.add_argument(
+        "--artifacts",
+        type=Path,
+        default=ROOT / "screenshots" / "playwright",
+        help="Directorio para capturas cuando falla una prueba",
+    )
+    parser.add_argument(
+        "--case",
+        action="append",
+        dest="case_names",
+        help="Ejecuta solo el caso indicado (se puede repetir para varios casos)",
+    )
+    args = parser.parse_args()
+
+    server = AppServer()
+    server.start()
+    failures: List[str] = []
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            cases: List[Tuple[str, Callable[[BrowserPage], None]]] = [
+                (
+                    "arranque_y_contratos_de_stack",
+                    lambda result: test_boot_contract(result, server.base_url, args.timeout),
+                ),
+                ("menu_y_tema", test_menu_and_theme),
+                (
+                    "flujo_live_parada_linea_mapa",
+                    lambda result: test_live_search_line_and_map(
+                        result, args.stop, args.line, args.timeout
+                    ),
+                ),
+                (
+                    "horarios_programados_y_cambio_de_fecha",
+                    lambda result: test_scheduled_hours(
+                        result, args.stop, args.line, args.timeout
+                    ),
+                ),
+                (
+                    "seleccion_multiple_duplicado_y_borrado_total",
+                    lambda result: test_multi_line_selection_duplicate_and_remove_all(
+                        result, args.stop, args.line, args.timeout
+                    ),
+                ),
+                (
+                    "destinos_favoritos_y_planificador",
+                    lambda result: test_favorite_destinations_and_route(result, args.timeout),
+                ),
+                (
+                    "guardar_casa_y_reordenar_favoritos",
+                    lambda result: test_save_home_and_reorder_favorites(result, args.timeout),
+                ),
+                (
+                    "paradas_cercanas_con_geolocalizacion",
+                    lambda result: test_nearby_stops(result, args.timeout),
+                ),
+                (
+                    "planificador_de_rutas",
+                    lambda result: test_route_planner(result, args.timeout),
+                ),
+                (
+                    "datos_y_estado",
+                    lambda result: test_data_and_status_dialogs(result, args.timeout),
+                ),
+                (
+                    "rutas_deep_link",
+                    lambda result: test_deep_links(
+                        result, server.base_url, args.stop, args.timeout
+                    ),
+                ),
+                (
+                    "importacion_de_datos",
+                    lambda result: test_import_data(result, args.timeout),
+                ),
+                (
+                    "fijar_y_eliminar_seguimiento",
+                    lambda result: test_pin_and_remove_followed_line(
+                        result, args.stop, args.line, args.timeout
+                    ),
+                ),
+            ]
+            if args.case_names:
+                requested = set(args.case_names)
+                available = {name for name, _callback in cases}
+                unknown = sorted(requested - available)
+                if unknown:
+                    parser.error("caso(s) desconocido(s): %s" % ", ".join(unknown))
+                cases = [case for case in cases if case[0] in requested]
+            for name, callback in cases:
+                result = open_app(browser, server.base_url, args.timeout)
+                try:
+                    failure = run_case(name, lambda: callback(result), result, args.artifacts)
+                    if failure:
+                        failures.append(failure)
+                finally:
+                    result.close()
+            browser.close()
+    except PlaywrightError as error:
+        print(
+            "ERROR  No se pudo arrancar Chromium de Playwright. "
+            "Instala el navegador con `python3 -m playwright install chromium` si falta.\n"
+            + str(error),
+            file=sys.stderr,
+        )
+        return 2
+    finally:
+        server.close()
+
+    if failures:
+        print("\nFALLOS:", file=sys.stderr)
+        for failure in failures:
+            print("- " + failure, file=sys.stderr)
+        return 1
+    print("\n%d pruebas Playwright superadas en Chromium real." % len(cases))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

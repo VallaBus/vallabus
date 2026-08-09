@@ -472,8 +472,9 @@ document.addEventListener('DOMContentLoaded', function () {
             iconsContainer.appendChild(dragIcon);
 
             li.addEventListener('dragstart', handleDragStart);
-            li.addEventListener('dragover', handleDragOver);
-            li.addEventListener('drop', handleDrop);
+            // dragover/drop se delegan en #favoritesList. Si también se
+            // registran en cada fila, el evento burbujea y handleDrop se
+            // ejecuta dos veces, deshaciendo el reordenado.
             li.addEventListener('touchstart', handleTouchStart, { passive: false });
             li.addEventListener('touchmove', handleTouchMove, { passive: false });
             li.addEventListener('touchend', handleTouchEnd);

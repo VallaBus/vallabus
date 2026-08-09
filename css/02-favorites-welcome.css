@@ -1,0 +1,347 @@
+/* Destinos rápidos */
+
+#fav-destinations {
+    background-color: #fff;
+    box-shadow: 0 2px 6px 0px #E9E9E9;
+    border: 1px solid #CCCCCCBA;
+    border-radius: 4px;
+    margin: 10px 4px;
+    position: relative;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.dark-mode #fav-destinations {
+    background-color: #333 !important;
+    color: #eeeeee;
+    border: 1px solid #404040BA !important;
+    box-shadow: 0 2px 16px 0 rgba(41, 41, 48, 0.2);
+}
+
+#fav-destinations p {
+    font-weight: bold;
+    background-image: url("/img/directions.png");
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 20px;
+    height: 20px;
+    text-indent: -9999px;
+    overflow: hidden;
+    margin: 0 4px 0 0;
+}
+
+#fav-destinations ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-grow: 1;
+    max-height: 40px;
+}
+
+#fav-destinations ul::-webkit-scrollbar {
+    display: none;
+}
+
+#addFavoriteButton,
+#configFavoritesButton {
+    flex-shrink: 0;
+    margin-left: 12px;
+    background-image: url("/img/gear.png");
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 15px;
+    height: 15px;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+#fav-destinations li {
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 5px 15px 3px 35px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    background-image: url("/img/star.png");
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    white-space: nowrap;
+    overflow: clip;
+    text-overflow: ellipsis;
+    max-width: 115px;
+}
+
+.dark-mode #fav-destinations li {
+    background-color: #404040;
+    color: #eeeeee;
+}
+
+#fav-destinations #home-destination {
+    background-image: url("/img/home.png");
+}
+
+#fav-destinations li:hover {
+    background-color: #e0e0e0;
+}
+
+.dark-mode #fav-destinations li:hover {
+    background-color: #404040;
+}
+
+.gray-emoji {
+    filter: grayscale(100%);
+}
+
+.gray-text {
+    color: #808080;
+    /* O cualquier tono de gris que prefieras */
+}
+
+#addFavoriteButton {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 1.2em;
+    background-image: url("/img/add.png");
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 20px;
+    height: 20px;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+.dark-mode #addFavoriteButton {
+    background-color: #404040;
+    background-image: url("/img/add-light.png");
+}
+
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+    clear: both;
+}
+
+.dark-mode .toggle-container {
+    border-top-color: #444;
+}
+
+.toggle-container label {
+    font-size: 0.9em;
+}
+
+.toggle-container input[type="checkbox"] {
+    appearance: none;
+    width: 50px;
+    height: 24px;
+    background-color: #ccc;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked {
+    background-color: hsla(168.8, 48.2%, 32.5%, 0.79);
+}
+
+.toggle-container input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    background-color: white;
+    transition: transform 0.3s;
+}
+
+.toggle-container input[type="checkbox"]:checked::before {
+    transform: translateX(26px);
+}
+
+.dark-mode .toggle-container input[type="checkbox"] {
+    background-color: #555;
+}
+
+.dark-mode .toggle-container input[type="checkbox"]:checked {
+    background-color: #45a049;
+}
+
+.add-favorite-button {
+    margin: 10px auto !important;
+    font-size: 0.8em;
+    height: 20px;
+    background-image: url("/img/add-light.png");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: left;
+    background-color: transparent;
+    color: hsl(0, 0%, 50.2%);
+    padding: 0 0 0 16px !important;
+    width: 60px;
+    float: right;
+}
+
+.dark-mode .add-favorite-button {
+    color: #eeeeee;
+}
+
+.dark-mode .add-favorite-button:hover {
+    background-color: #505050;
+}
+
+.map-instruction {
+    font-size: 0.8em;
+    color: #666;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Welcome box */
+
+#welcome-box {
+    position: relative;
+    border-radius: 12px;
+    overflow: auto;
+    background: #fff;
+    box-shadow: 0 9px 20px 0px #E9E9E9;
+    margin: 0 4px 15px 4px;
+    padding: 10px 0 5px 0;
+    border: 1px solid #CCCCCCBA;
+    display: none;
+}
+
+#welcome-box h2 {
+    font-size: 1.2em;
+    line-height: 1em;
+    color: #0c0c0e;
+    font-weight: bold;
+    padding: 0;
+    text-align: center;
+    margin: 6px auto 30px auto;
+}
+
+#welcome-box-content {
+    background-image: url("/img/list.png");
+    background-size: 105px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    padding: 0px 0 0 112px;
+    min-height: 72px;
+    max-width: 260px;
+    margin: auto;
+}
+
+#welcome-box p {
+    padding: 0 20px;
+    font-size: 0.8em;
+    color: #636363;
+}
+
+#welcome-box #welcome-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-top: 2em;
+}
+
+#welcome-box button {
+    flex: 1;
+    margin: 10px 5px;
+    padding: 0;
+    cursor: pointer;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: center 10px;
+    background-size: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8em;
+    text-align: center;
+    min-height: 60px;
+}
+
+#welcome-box button a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 40px 0px 12px 0px;
+}
+
+#welcome-box #viewCercanasButton {
+    background-image: url("/img/find-nearby-white.png");
+}
+
+#welcome-box #routePlannerButton {
+    background-image: url("/img/routes-white.png");
+}
+
+#welcome-box #install-tip {
+    margin-top: 4em;
+    color: #666;
+    font-size: 0.7em;
+    text-align: center;
+}
+
+.ios-only {
+    display: none;
+}
+
+/* en iOS mostramos la clase */
+html.ios .ios-only {
+    display: inline-block;
+}
+
+.center {
+    text-align: center;
+}
+
+#welcome-box .ios-only video {
+    max-width: 75%;
+    margin: auto;
+    display: block;
+}
+
+#welcome-box span.button-sample {
+    margin: -3px 0 0 3px;
+    background-color: #c1c4ca;
+    background-image: url("/img/add.png");
+    background-size: 10px;
+    width: 0px;
+    height: 0px;
+    text-indent: -9999px;
+    padding: 10px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    display: inline-block;
+    background-position: 5px 5px;
+    position: absolute;
+}
+

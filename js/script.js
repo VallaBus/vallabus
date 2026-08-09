@@ -1,3 +1,5 @@
+import { isIOS } from './browser.js?v=20260809';
+
 if (document.readyState === "loading") {  // Cargando aún no ha terminado
     document.addEventListener("DOMContentLoaded", main);
 } else {  // `DOMContentLoaded` ya se ha disparado

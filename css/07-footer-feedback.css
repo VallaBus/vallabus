@@ -1,0 +1,310 @@
+/* Si tiene mucho contenido lo limitamos */
+.global-alerts-box .alert-text-container.has-more {
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.global-alerts-box .alert-text-container.expanded {
+    padding: 0px 11px;
+    white-space: wrap;
+    text-overflow: none;
+    max-height: auto;
+    height: auto;
+    line-height: 1.4em;
+}
+
+.global-alerts-box .alert-text-container .read-more-button {
+    position: absolute;
+    top: -11px;
+    right: 0px;
+    background-color: transparent;
+    padding: 8px 10px;
+    cursor: pointer;
+    display: inline-block;
+    color: #72711c;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-indent: -9999px;
+    background-image: url('../img/arrow-down.png');
+    background-repeat: no-repeat;
+    background-size: 15px;
+    background-position: 0 center;
+}
+
+.dark-mode .global-alerts-box .alert-text-container .read-more-button {
+    background-color: #333;
+    color: #CCC;
+}
+
+.global-alerts-box .alert-text-container.expanded .read-more-button {
+    display: none;
+}
+
+.global-alerts-box .alert-text-container.has-more .read-more-button {
+    display: block;
+}
+
+#import-block {
+    width: 95%;
+    margin: 84px auto 30px auto;
+}
+
+#import-block h2 {
+    font-size: 20px;
+}
+
+#import-block #uploadForm {
+    margin: 1em auto;
+    width: 334px;
+    text-align: center;
+}
+
+#import-block #fileInput {
+    display: none;
+}
+
+#import-block .custom-file-upload {
+    padding: 8px;
+    background-color: #b17cb5;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+#import-block #import-complete {
+    background-color: #f8f5d7;
+    color: #72711c;
+    border: 1px solid #f5f4c6;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    text-align: center;
+    display: block;
+}
+
+.foot-note {
+    padding: 0 1em;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.foot-note a {
+    color: #828282;
+}
+
+.foot-note #footer-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 3em 0;
+}
+
+.foot-note #created-by {
+    margin-top: 3.5em;
+    padding: 9px 7px 9px 50px;
+    color: #636363;
+    border-radius: 10px;
+    background: url('../img/heart.png') no-repeat 17px center #FFFFFFBF;
+    background-size: 25px;
+}
+
+.dark-mode .foot-note #created-by {
+    background-color: #00000024;
+    color: #8d8d8d;
+}
+
+.foot-note #social-share {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin: 2em 0;
+}
+
+.foot-note #social-share a {
+    width: calc(40% - 10px);
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.foot-note a#twitter-share-button,
+.foot-note a#telegram-button,
+.foot-note a#facebook-share-button,
+.foot-note a#whatsapp-share-button,
+.foot-note a#instagram-button,
+.foot-note a#bluesky-button {
+    display: inline-block;
+    padding: 10px 0 10px 15px;
+    margin: 5px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    width: 135px;
+}
+
+.foot-note a#twitter-share-button {
+    background-color: #000000;
+    /* NEgro de X */
+    background-image: url('/img/share-white.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
+}
+
+.foot-note a#twitter-share-button:hover {
+    background-color: #0a76cf;
+}
+
+.foot-note a#whatsapp-share-button {
+    background-color: #25d366;
+    background-image: url('../img/share-white.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
+}
+
+.foot-note a#instagram-button {
+    background-color: #E1306C;
+    background-image: url('../img/instagram.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
+}
+
+.foot-note a#bluesky-button {
+    background-color: #0d8bf2;
+    background-image: url('../img/share-white.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
+}
+
+.foot-note #legend {
+    color: hsl(0, 0%, 38%);
+    text-align: center;
+    display: none;
+}
+
+.dark-mode .foot-note #legend {
+    color: HSL(0, 0%, 60%);
+}
+
+.foot-note #legend span {
+    margin-right: 10px;
+}
+
+.foot-note #legend img {
+    height: 11px;
+    margin: 0px;
+}
+
+.foot-note a#facebook-share-button {
+    background-color: #3B5998;
+    /* Azul de Facebook */
+    background-image: url('../img/share-white.png');
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 20px center;
+}
+
+.foot-note a#facebook-share-button:hover {
+    background-color: #334d84;
+}
+
+.foot-note a#telegram-button {
+    background-color: #24a1dd;
+    background-image: url('/img/logo.png');
+    background-repeat: no-repeat;
+    background-size: 15px;
+    background-position: 20px center;
+}
+
+.foot-note a#telegram-button:hover {
+    background-color: #1f8bbc;
+}
+
+button#theme-toggle {
+    background-color: #ffffff;
+}
+
+.foot-note #data-notice {
+    padding: 9px 7px;
+    color: #636363;
+}
+
+.dark-mode .foot-note #data-notice {
+    color: #8d8d8d;
+}
+
+footer {
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2em;
+    line-height: 2.1;
+}
+
+footer a {
+    color: #333;
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+.dark-mode footer a {
+    color: #BBB;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+#spinnerOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Asegúrate de que esté por encima de otros elementos */
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.new-feature::after {
+    content: "";
+    background: #0898d0;
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    position: absolute;
+}
+

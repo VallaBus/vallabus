@@ -1,0 +1,422 @@
+/* Modo oscuro para popups */
+.dark-mode .leaflet-popup-content-wrapper,
+.dark-mode .leaflet-popup-tip {
+    background-color: #484b4d;
+    color: #eeeeee;
+}
+
+
+#iframe-container {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    background-color: white;
+    z-index: 1100;
+    display: none;
+    /* Inicialmente oculto */
+}
+
+.dark-mode #mapContainer #mapFooter {
+    background-color: #333;
+    color: #fff;
+}
+
+.line-info .hora-programada .hora {
+    background: url('/img/clock.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    padding: 0 0 0 20px;
+    font-size: 0.8em;
+    color: #868686;
+}
+
+.dark-mode .line-info .hora-programada .hora {
+    color: #bebebe;
+}
+
+.hora-tiempo {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    margin-right: 5px;
+}
+
+.line-info .horaLlegada {
+    display: flex;
+    align-items: center;
+    margin: 2px 0px 16px 0;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.line-info .diferencia {
+    font-size: 0.75em;
+    color: hsl(0, 0%, 43.5%);
+}
+
+.dark-mode .line-info .diferencia {
+    color: hsl(0, 0%, 80%);
+    opacity: 0.8;
+}
+
+
+.line-info.retrasado .hora-programada .hora,
+.line-info.adelantado .hora-programada .hora {
+    text-decoration: line-through;
+}
+
+.line-info.retrasado .diferencia {
+    color: hsl(0, 47.1%, 44.5%);
+}
+
+.dark-mode .line-info.retrasado .diferencia {
+    color: hsl(0, 47.1%, 80.5%);
+}
+
+.line-info.adelantado .diferencia {
+    color: hsl(120, 45.5%, 23.7%);
+}
+
+.dark-mode .line-info.adelantado .diferencia {
+    color: hsl(120, 45.5%, 70.7%);
+}
+
+.line-info .ocupacion {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    text-indent: -9999px;
+    cursor: pointer;
+    margin: 0px 10px;
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 0 center;
+}
+
+.line-info .ocupacion.empty,
+.line-info .ocupacion.many {
+    background-image: url("/img/seats-empty-many.png");
+    display: inline-block;
+}
+
+.dark-mode .line-info .ocupacion.empty,
+.dark-mode .line-info .ocupacion.many {
+    background-image: url("/img/seats-empty-many-light.png");
+    display: inline-block;
+}
+
+.line-info .ocupacion.few {
+    background-image: url("/img/seats-few.png");
+    display: inline-block;
+}
+
+.dark-mode .line-info .ocupacion.few {
+    background-image: url("/img/seats-few-light.png");
+    display: inline-block;
+}
+
+.line-info .ocupacion.crushed,
+.line-info .ocupacion.full {
+    background-image: url("/img/seats-full.png");
+    display: inline-block;
+}
+
+.line-info .ocupacion.not {
+    background-image: url("/img/seats-notaccepting.png");
+    display: inline-block;
+}
+
+.line-info .ocupacion.standing {
+    background-image: url("/img/seats-standing.png");
+    display: inline-block;
+}
+
+/* No mostramos nada si los datos son nulos, vacíos o no_data_available */
+.line-info .ocupacion.null,
+.line-info .ocupacion.undefined,
+.line-info .ocupacion.no {
+    cursor: default;
+    z-index: -100;
+    /* Evitamos que se pueda hacer clic */
+}
+
+/* Estilo extra para los iconos en el panel de info de próximos buses */
+
+.additional-info-panel .ocupacion {
+    line-height: 17px;
+    margin-left: 0px;
+}
+
+.line-info.realtime .hora-tiempo .horaLlegada {
+    background: url('/img/feed-green.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    padding: 0 0 0 20px;
+}
+
+.line-info.realtime.propagated .hora-tiempo .horaLlegada {
+    background: url('/img/feed.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    padding: 0 0 0 20px;
+}
+
+.line-info.programado .hora-tiempo .horaLlegada {
+    background: url('/img/clock.png') no-repeat;
+    background-size: 15px;
+    background-position: 0px;
+    padding: 0 0 0 20px;
+}
+
+.line-info .linea {
+    text-align: left;
+}
+
+.dark-mode .line-info .linea {
+    opacity: 0.8;
+}
+
+.line-info .linea,
+.line-info .tiempo.futuro {
+    font-size: 0.8em;
+}
+
+.line-info .tiempo.futuro {
+    opacity: 0.8;
+}
+
+.line-info .trip-info {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.line-info .trip-info .ruta {
+    display: flex;
+    flex-direction: column;
+    min-width: 110px;
+}
+
+.line-info .trip-info .destino {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin: 0;
+    color: hsl(0, 0%, 37.2%);
+}
+
+.dark-mode .line-info .trip-info .destino {
+    color: hsl(0, 0%, 81.5%);
+}
+
+.line-info .tiempo {
+    font-size: 1.45em;
+    align-items: center;
+    display: flex;
+}
+
+.line-info .tiempo.sin-servicio {
+    font-size: 0.85em;
+    color: #CCC;
+    margin: 0 0 0 10px;
+}
+
+.line-info .tiempo p {
+    font-size: 0.5em;
+    display: inline-block;
+    margin: 0 0 0 4px;
+    opacity: 0.8;
+}
+
+.bell-button {
+    background: transparent no-repeat center center;
+    background-image: url('/img/bell-gray.png');
+    background-size: 15px 15px;
+    border: none;
+    font-size: 0;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 0 20px 0;
+    padding: 0 10px;
+    width: 15px;
+    text-indent: -9999px;
+}
+
+.remove-button {
+    background: transparent no-repeat center center;
+    background-image: url('/img/trash-gray.png');
+    background-size: 15px 15px;
+    border: none;
+    font-size: 0;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0;
+    padding: 0 10px;
+    width: 15px;
+    text-indent: -9999px;
+}
+
+.arrow-button {
+    background: transparent no-repeat center center;
+    background-image: url('/img/arrow-light.png');
+    background-size: 25px 25px;
+    border: none;
+    font-size: 0;
+    cursor: pointer;
+    padding: 13px;
+    width: 15px;
+}
+
+.error,
+.success {
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    position: fixed;
+    top: 278px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 1100;
+    display: none;
+    text-align: center;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.32);
+}
+
+.error a,
+.success a {
+    color: #FFF;
+}
+
+.error.show,
+.success.show {
+    opacity: 1;
+    display: block;
+}
+
+.error {
+    background-color: #f34949;
+}
+
+.success {
+    background-color: #2b7b6c;
+}
+
+.success p {
+    margin: 4px 0;
+    font-size: 0.9em;
+}
+
+.notification-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 1000;
+    /* Ensure it is above other elements */
+    min-width: 250px;
+    text-align: center;
+}
+
+.notification-popup.show {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#tips-banner,
+#instagram-warning {
+    font-size: 0.8em;
+    box-shadow: 0 1px 9px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 20px auto 1px auto;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.dark-mode #tips-banner,
+.dark-mode #instagram-warning {
+    color: #CCC;
+}
+
+#tips-banner p,
+#instagram-warning p {
+    display: none;
+    /* Ocultos por defecto */
+    margin: 0;
+    padding: 5px 30px 5px 10px;
+    color: hsl(168.8, 23.2%, 19.5%);
+    background-color: hsl(168.8, 9.2%, 92.5%);
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    position: relative;
+    border-left: 6px solid hsl(168.8, 23.2%, 30.5%);
+    line-height: 1.5em;
+}
+
+.dark-mode #tips-banner p,
+.dark-mode #instagram-warning p {
+    background-color: #333;
+    color: #CCC;
+}
+
+#tips-banner p a,
+#instagram-warning p a {
+    color: hsl(168.8, 23.2%, 19.5%);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#tips-banner img {
+    width: 90%;
+}
+
+.dark-mode #tips-banner p a,
+.dark-mode #instagram-warning p a {
+    color: hsl(168.8, 23.2%, 93%);
+}
+
+#instagram-warning p {
+    display: block !important;
+    padding: 7px 7px 7px 10px;
+    text-align: left;
+    border-left: 6px solid HSL(339.7, 74.7%, 53.5%);
+    color: HSL(339.7, 25.7%, 19.5%);
+    background-color: HSL(339.7, 12.2%, 92.5%);
+}
+
+#instagram-warning p strong {
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.close-tip {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    color: hsl(168.8, 23.2%, 30.5%);
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.dark-mode .close-tip {
+    color: hsl(168.8, 23.2%, 93%);
+}
+

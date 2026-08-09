@@ -1,0 +1,14 @@
+/* Estilos para pantallas pequeñas */
+@media (max-width: 576px) {
+    .container {
+        padding: 1rem;
+    }
+}
+
+/* Estilos para pantallas medianas */
+@media (min-width: 577px) and (max-width: 768px) {
+    .container {
+        padding: 2rem;
+    }
+}
+

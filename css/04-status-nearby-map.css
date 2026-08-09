@@ -1,0 +1,622 @@
+#statusDialog .status-summary {
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 3em;
+}
+
+#statusDialog .status-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#statusDialog .status-icon::after {
+    font-size: 30px;
+    color: white;
+}
+
+#statusDialog .all-active .status-icon {
+    background-color: #2EB67D;
+}
+
+#statusDialog .all-active .status-icon::after {
+    content: '✓';
+}
+
+#statusDialog .some-inactive .status-icon {
+    background-color: #ECB22E;
+}
+
+#statusDialog .some-inactive .status-icon::after {
+    content: '!';
+}
+
+#statusDialog .all-inactive .status-icon {
+    background-color: #E01E5A;
+}
+
+#statusDialog .all-inactive .status-icon::after {
+    content: '✕';
+}
+
+#statusDialog .status-message {
+    font-size: 16px;
+    color: #1d1c1d;
+    margin-bottom: 5px;
+}
+
+#statusDialog .status-submessage {
+    font-size: 14px;
+    color: #616061;
+}
+
+#statusDialog .status-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#statusDialog .status-item {
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#statusDialog .status-item-name {
+    font-weight: bold;
+    color: #1d1c1d;
+    margin-bottom: 5px;
+}
+
+#statusDialog .status-item-status {
+    font-weight: bold;
+}
+
+#statusDialog .status-active {
+    color: #2EB67D;
+}
+
+#statusDialog .status-inactive {
+    color: #E01E5A;
+}
+
+.dark-mode #statusDialog .status-summary {
+    margin-top: 2em;
+}
+
+.dark-mode #statusDialog .status-icon {
+    background-color: #2d2d2d;
+}
+
+.dark-mode #statusDialog .status-icon::after {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .all-active .status-icon {
+    background-color: #2EB67D;
+}
+
+.dark-mode #statusDialog .some-inactive .status-icon {
+    background-color: #ECB22E;
+}
+
+.dark-mode #statusDialog .all-inactive .status-icon {
+    background-color: #E01E5A;
+}
+
+.dark-mode #statusDialog .status-message {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-submessage {
+    color: #CCCCCC;
+}
+
+.dark-mode #statusDialog .status-grid {
+    gap: 10px;
+}
+
+.dark-mode #statusDialog .status-item {
+    background-color: #252525;
+    border-radius: 2px;
+    padding: 10px;
+}
+
+.dark-mode #statusDialog .status-item-name {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-item-status {
+    color: #eeeeee;
+}
+
+.dark-mode #statusDialog .status-active {
+    color: #45a049;
+}
+
+.dark-mode #statusDialog .status-inactive {
+    color: #E01E5A;
+}
+
+@media (min-width: 768px) {
+    #statusDialog .status-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    #statusDialog .status-icon::after {
+        font-size: 40px;
+    }
+
+    #statusDialog .status-message {
+        font-size: 18px;
+    }
+
+    #statusDialog .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #statusDialog .status-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #statusDialog .status-item-name {
+        margin-bottom: 0;
+    }
+}
+
+#lineas-correspondencia {
+    margin: 8px 0;
+}
+
+#lineas-correspondencia span.linea {
+    padding: 1px 6px;
+    margin: 0px 2px;
+    border-radius: 10px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content #lineas-correspondencia span.linea {
+    margin: 0;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+#lineas-correspondencia p {
+    font-style: italic;
+    font-size: 0.9em;
+    margin: 5px 0 0 0;
+}
+
+#nearestStopsResults .stopResult .stopResultFooter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#nearestStopsResults .stopResult .addStopButton {
+    background-color: #c1c4ca;
+    background-image: url("/img/add.png");
+    background-size: 8px;
+    width: 9px;
+    height: 9px;
+    text-indent: -9999px;
+    cursor: pointer;
+    touch-action: manipulation;
+    padding: 11px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    border-radius: 50%;
+    border: 1px solid #cdcdcd;
+    display: inline-block;
+    background-position: 7px 7px;
+}
+
+/* Custom css para evitar que los controles se oculten */
+#mapaParadasCercanas .leaflet-control {
+    position: relative;
+    z-index: 1500;
+    -webkit-transform: translate3d(0, 0, 0);
+    /* Fix para Safari iOS*/
+}
+
+#mapaParadasCercanas .leaflet-popup-content .mapIcon {
+    background-image: url("/img/directions.png");
+    background-size: 22px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    text-indent: -9999px;
+    cursor: pointer;
+    touch-action: manipulation;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    /* Aumenta el área de clic */
+    padding: 9px;
+    margin: -20px;
+}
+
+#nearestStopsResults .bike-control {
+    margin-left: 0;
+}
+
+#nearestStopsResults #show-bikes {
+    cursor: pointer;
+    touch-action: manipulation;
+    color: #143325;
+    font-weight: bold;
+    background-color: #f265229e;
+    width: 30px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    margin: 0;
+    background-image: url("/img/toggle-off.png");
+    background-size: 19px;
+    padding: 3px 18px 3px 35px;
+    background-repeat: no-repeat;
+    background-position: 7px center;
+    font-size: 1em;
+    position: relative;
+    z-index: 1500;
+    -webkit-transform: translate3d(0, 0, 0);
+    /* Fix para Safari iOS*/
+}
+
+#nearestStopsResults #show-bikes.enabled {
+    background-color: #f26522d1;
+    background-image: url("/img/toggle-on.png");
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bike-agency {
+    color: #143325;
+    font-weight: bold;
+    background-color: #f26522;
+    max-width: 23px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    position: absolute;
+    display: block;
+    padding: 2px 10px 2px 5px;
+    left: 0;
+    top: 12px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-name {
+    padding-left: 22px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p {
+    align-content: center;
+    text-align: center;
+    margin: 0 6px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.e-bikes {
+    border-right: 1px solid #CCC;
+    padding-right: 10px;
+    background-image: url('../img/electric.png');
+    background-size: 10px;
+    background-repeat: no-repeat;
+    background-position: left 8px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.m-bikes {
+    background-image: url('../img/bike.png');
+    background-size: 17px;
+    background-repeat: no-repeat;
+    background-position: 2px 7px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .bikes-available p.m-bikes .count {
+    padding-left: 11px;
+}
+
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .slots-bikes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-right: 10px;
+}
+
+#mapaParadasCercanas .leaflet-popup-content .bikestop-info .count {
+    font-weight: bold;
+    font-size: 2em;
+    display: block;
+}
+
+/* Enlaces en el sidebar */
+#routesButton,
+#viewLinesButton,
+#nearestStopsButton,
+#quickDestinationsButton,
+#communityButton,
+#informesButton {
+    color: #818181;
+    font-size: 0.9em;
+    text-align: center;
+    margin: 7px 0 20px 0;
+    padding: 0 0 0 35px;
+    display: block;
+    text-align: left;
+    min-height: 20px;
+    line-height: 20px;
+}
+
+#nearestStopsButton {
+    background-color: transparent;
+    background-image: url('/img/find-nearby.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+}
+
+#routesButton {
+    background-color: transparent;
+    background-image: url('/img/routes.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+}
+
+#viewLinesButton {
+    background-color: transparent;
+    background-image: url('/img/bus-gray.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+}
+
+#quickDestinationsButton {
+    background-color: transparent;
+    background-image: url('/img/directions-darker.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+}
+
+#communityButton {
+    background-color: transparent;
+    background-image: url('/img/users.png');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 0px 2px;
+}
+
+#informesButton {
+    background-color: transparent;
+    background-image: url('/img/file-gray.png');
+    background-size: 13px;
+    background-repeat: no-repeat;
+    background-position: 3px 2px
+}
+
+.closeRoutesButton {
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    z-index: 1001;
+    background-image: url("/img/close-light.png");
+    background-size: 12px;
+    width: 12px;
+    height: 12px;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 15px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    border-radius: 50%;
+    border: 1px solid #646262;
+    display: block;
+    background-color: #444;
+    background-position: 9px 9px;
+}
+
+#mapContainer {
+    position: fixed;
+    width: 98%;
+    height: 80%;
+    margin: 0 auto;
+    top: 420px;
+    left: 50%;
+    transform: translate(-50%, 100%);
+    /* Posición inicial: fuera de la vista hacia abajo */
+    z-index: 1000;
+    transition: transform 0.5s ease-in-out;
+}
+
+#mapContainer.show {
+    transform: translate(-50%, -290px);
+    /* Posición final: dentro de la vista hacia arriba */
+}
+
+#mapContainer #busMap {
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 8px 64px 0 rgba(12, 12, 14, .12);
+    background: #fff;
+    overflow: none;
+}
+
+@keyframes glowing {
+    0% {
+        box-shadow: 0 0 5px #1da1f2, 0 0 10px #1da1f2;
+    }
+
+    50% {
+        box-shadow: 0 0 10px #1da1f2, 0 0 20px #1da1f2;
+    }
+
+    100% {
+        box-shadow: 0 0 5px #1da1f2, 0 0 10px #1da1f2;
+    }
+}
+
+#mapContainer #busMap .bus-icon {
+    border-radius: 50%;
+    border: 1px solid #fff;
+    text-align: center;
+    width: 40px;
+    height: 40px;
+    box-shadow: 1px 1px 10px 0 rgba(12, 12, 14, .2), 0 4px 8px 0 rgba(6, 6, 7, 0.12);
+    font-weight: bold;
+    font-size: 1.8em;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    animation: glowing 1s ease-in-out infinite;
+}
+
+.dark-mode #mapContainer #busMap .bus-icon {
+    border: 1px solid #0000001f;
+}
+
+#mapContainer #busMap .user-location-icon {
+    animation: glowing 1s ease-in-out infinite;
+    border-radius: 50%;
+}
+
+#mapContainer #busMap .busInfo {
+    background-image: url("/img/bus-cover.png");
+    background-size: 120px;
+    padding: 20px 10px;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    position: relative;
+    margin: 0;
+    height: 37px;
+    width: 128px;
+    border: 1px solid #CCC;
+    border-radius: 13px;
+    background-color: #ebf4f6;
+}
+
+.dark-mode #mapContainer #busMap .busInfo {
+    background-color: #333333;
+    border: 1px solid #444;
+    background-image: url("/img/bus-cover-gray.png");
+    background-size: 120px;
+}
+
+#mapContainer #busMap .busInfo li {
+    list-style-type: none;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: #FFF;
+}
+
+.dark-mode #mapContainer #busMap .busInfo li {
+    color: #FFF;
+    background-color: #333333;
+}
+
+#mapContainer #busMap .busInfo li.vehicle-id {
+    position: absolute;
+    top: -9px;
+    left: 64px;
+}
+
+#mapContainer #busMap .busInfo li.matricula {
+    position: absolute;
+    bottom: -9px;
+    left: 40px;
+    padding: 0px 3px 0px 12px;
+    background-image: url("/img/matricula-e.png");
+    background-size: 8px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    border-radius: 3px;
+}
+
+#mapContainer .direction-icon {
+    font-size: 9px;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    line-height: 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: sans-serif;
+    cursor: grab;
+}
+
+#mapContainer #mapFooter {
+    background: #fff;
+    font-size: 0.8em;
+    text-align: center;
+    padding: 1px 8px 100px 0;
+    margin: 0px 0 0 0;
+}
+
+#mapContainer #mapFooter .map-close {
+    background-image: url("/img/close.png");
+    background-size: 15px;
+    width: 15px;
+    height: 15px;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 15px;
+    background-repeat: no-repeat;
+    color: rgb(5, 5, 6);
+    right: 10px;
+    top: 10px;
+    position: absolute;
+    margin: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.25);
+    display: block;
+    background-color: #FFF;
+    background-position: 7px 8px;
+    z-index: 1000;
+}
+
+.dark-mode #mapContainer #mapFooter .map-close {
+    background-image: url("/img/close-light.png");
+    border: 1px solid #646262;
+}
+
+#mapContainer #mapFooter #busMapLastUpdate {
+    border: 1px solid #d0d0d0;
+    border-radius: 10px;
+    position: absolute;
+    background-color: #FFF;
+    padding: 1em 0;
+    width: 90%;
+    bottom: 7px;
+    z-index: 1000;
+    left: 17px;
+    font-size: 0.9em;
+}
+
+.dark-mode #mapContainer #mapFooter #busMapLastUpdate {
+    background-color: #333333;
+    border: 1px solid #444;
+}
+
+.dark-mode #mapContainer .leaflet-control-attribution {
+    background-color: #060606;
+}
+
