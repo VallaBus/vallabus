@@ -1280,6 +1280,84 @@ function ensureLineAlertsDialog() {
     return dialog;
 }
 
+function getLineAlertClass(lineNumber) {
+    const lineClass = String(lineNumber).replace(/[^a-zA-Z0-9_-]/g, '');
+    return lineClass ? `linea-${lineClass}` : '';
+}
+
+function splitLineAlertDescription(description) {
+    const normalized = String(description || '')
+        .replace(/\r\n?/g, '\n')
+        .trim();
+
+    if (!normalized) {
+        return [];
+    }
+
+    return normalized
+        .split(/\n{2,}|\s+-\s+(?=[^:\n]{1,80}:\s*)/)
+        .map(section => section.trim())
+        .filter(Boolean)
+        .map(section => {
+            const labelMatch = section.match(/^([^:\n]{1,80}):\s*(.*)$/s);
+            if (!labelMatch) {
+                return { label: '', text: section };
+            }
+            return {
+                label: labelMatch[1].trim(),
+                text: labelMatch[2].trim(),
+            };
+        });
+}
+
+function getLineAlertSummary(alert) {
+    const summary = String(alert.resumen || alert.header_text || 'Aviso de servicio').trim();
+    const withoutLineNumber = summary.replace(/\s+línea\s+\S+/i, '').trim();
+    return withoutLineNumber || 'Aviso de servicio';
+}
+
+function renderLineAlertHeader(container, lineNumber, alert) {
+    container.replaceChildren();
+    container.className = 'line-alert-dialog-header';
+
+    const lineBadge = document.createElement('span');
+    const lineClass = getLineAlertClass(lineNumber);
+    lineBadge.className = `line-alert-line${lineClass ? ` ${lineClass}` : ''}`;
+    lineBadge.textContent = String(lineNumber);
+    lineBadge.setAttribute('aria-label', `Línea ${lineNumber}`);
+
+    const summary = document.createElement('span');
+    summary.className = 'line-alert-summary';
+    summary.textContent = getLineAlertSummary(alert);
+
+    container.append(lineBadge, summary);
+}
+
+function createLineAlertItem(alert) {
+    const item = document.createElement('li');
+    item.className = 'line-alert-item';
+
+    const body = document.createElement('div');
+    body.className = 'line-alert-body';
+    splitLineAlertDescription(alert.descripcion).forEach(section => {
+        const paragraph = document.createElement('p');
+        if (section.label) {
+            const label = document.createElement('strong');
+            label.textContent = `${section.label}:`;
+            paragraph.append(label);
+            if (section.text) {
+                paragraph.append(` ${section.text}`);
+            }
+        } else {
+            paragraph.textContent = section.text;
+        }
+        body.appendChild(paragraph);
+    });
+
+    item.appendChild(body);
+    return item;
+}
+
 function renderLineAlertsDialog(lineNumber, alerts) {
     const dialog = ensureLineAlertsDialog();
     if (!dialog) {
@@ -1287,25 +1365,27 @@ function renderLineAlertsDialog(lineNumber, alerts) {
     }
 
     const title = document.getElementById('lineAlertsDialogTitle');
+    const header = document.getElementById('lineAlertsDialogHeader');
     const list = document.getElementById('lineAlertsDialogList');
-    if (!title || !list) {
+    if (!title || !header || !list) {
         return;
     }
 
     title.textContent = `Avisos para la línea ${lineNumber}`;
+    dialog.setAttribute('aria-label', title.textContent);
     list.replaceChildren();
 
-    alerts.forEach(alert => {
-        const description = alert && alert.descripcion != null
-            ? String(alert.descripcion)
-            : '';
-        if (!description) {
-            return;
-        }
+    const firstAlert = alerts.find(alert => alert && alert.descripcion != null);
+    if (!firstAlert) {
+        header.replaceChildren();
+        return;
+    }
 
-        const item = document.createElement('li');
-        item.textContent = description;
-        list.appendChild(item);
+    renderLineAlertHeader(header, lineNumber, firstAlert);
+    alerts.forEach(alert => {
+        if (alert && alert.descripcion != null) {
+            list.appendChild(createLineAlertItem(alert));
+        }
     });
 }
 

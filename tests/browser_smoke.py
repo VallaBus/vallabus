@@ -327,7 +327,16 @@ def test_line_alert_dialog_persists(result: BrowserPage, timeout_ms: int) -> Non
     assert dialog.locator("#lineAlertsDialogTitle").inner_text() == (
         "Avisos para la línea " + line_number
     )
-    assert description in dialog.locator("#lineAlertsDialogList").inner_text()
+    dialog_text = dialog.locator("#lineAlertsDialogList").inner_text()
+    description_sections = [
+        section.strip()
+        for section in re.split(r"\s+-\s+(?=[^:\n]{1,80}:\s*)", description)
+        if section.strip()
+    ]
+    assert all(section in dialog_text for section in description_sections)
+    assert dialog.locator(".line-alert-item").count() > 0
+    assert dialog.locator(".line-alert-dialog-header").count() == 1
+    assert dialog.locator(".line-alert-line").count() == 1
     assert page.locator("#lineAlertsDialog").count() == 1
     assert card.locator(".alert-box").count() == 0, (
         "La tarjeta no debe contener diálogos de avisos dinámicos"
@@ -347,7 +356,8 @@ def test_line_alert_dialog_persists(result: BrowserPage, timeout_ms: int) -> Non
         "() => document.querySelector('#lineAlertsDialog').style.display === 'flex'",
         timeout=timeout_ms,
     )
-    assert description in dialog.locator("#lineAlertsDialogList").inner_text()
+    dialog_text = dialog.locator("#lineAlertsDialogList").inner_text()
+    assert all(section in dialog_text for section in description_sections)
     assert dialog.locator("#lineAlertsDialogList li").count() > 0
     assert card.locator(".alert-box").count() == 0
 
