@@ -281,15 +281,21 @@ function filterBusAlerts(alerts, busLine) {
         return [];
     }
 
-    // Filtra las alertas para la línea de autobús específica
+    // Para el banner general solo deben entrar avisos sin parada ni línea.
+    // Las alertas de una parada que no tienen línea también traen
+    // `ruta.linea === null`, pero no son avisos generales.
     return alerts.filter(alert => {
-        // Si la alerta es global (no tiene ni parada ni línea especificada) la incluimos. Nota: Desactivado de momento porque ya mostramos un banner con esto.
-        // if (alert.ruta.parada === null && alert.ruta.linea === null) {
-        //    return true;
-        // }
-        // Si la alerta es para una línea específica, la incluimos si coincide con busLine
-        // o si no tiene parada especificada
-        return alert.ruta.linea === busLine;
+        const route = alert && alert.ruta;
+        if (!route) {
+            return false;
+        }
+
+        if (busLine === null) {
+            return route.parada === null && route.linea === null;
+        }
+
+        // Si la alerta es para una línea específica, la incluimos si coincide.
+        return route.linea === busLine;
     });
 }
 

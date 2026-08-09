@@ -252,6 +252,34 @@ def test_menu_and_theme(result: BrowserPage) -> None:
     assert_no_browser_errors(result)
 
 
+def test_global_alert_count(result: BrowserPage) -> None:
+    page = result.page
+    snapshot = page.evaluate(
+        """() => {
+            const fixture = [
+                {ruta: {parada: null, linea: null}, descripcion: 'Global 1'},
+                {ruta: {parada: '666', linea: null}, descripcion: 'Solo parada'},
+                {ruta: {parada: null, linea: '2'}, descripcion: 'Solo línea'},
+                {ruta: {parada: null, linea: null}, descripcion: 'Global 2'},
+            ];
+            const globalAlerts = filterBusAlerts(fixture, null);
+            displayGlobalAlertsBanner(globalAlerts);
+            return {
+                filtered: globalAlerts.length,
+                title: document.querySelector('.global-alert-title')?.textContent || '',
+                rendered: Array.from(document.querySelectorAll('#globalAlertsBox .alert-text-container'))
+                    .map(element => element.textContent.replace('🞃', '').trim()),
+            };
+        }"""
+    )
+    assert snapshot == {
+        "filtered": 2,
+        "title": "Mostrar avisos generales (2)",
+        "rendered": ["Global 1", "Global 2"],
+    }
+    assert_no_browser_errors(result)
+
+
 def test_live_search_line_and_map(
     result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
 ) -> None:
@@ -755,6 +783,7 @@ def main() -> int:
                     lambda result: test_boot_contract(result, server.base_url, args.timeout),
                 ),
                 ("menu_y_tema", test_menu_and_theme),
+                ("contador_avisos_generales", test_global_alert_count),
                 (
                     "flujo_live_parada_linea_mapa",
                     lambda result: test_live_search_line_and_map(
