@@ -4,6 +4,7 @@ let intervalId;
 // Listado de ids de diálogos de la app
 const dialogIds = [
     'horarios-box',
+    'lineAlertsDialog',
     'nearestStopsResults',
     'iframe-container',
     'dataDialog',
@@ -1325,6 +1326,13 @@ function closeAllDialogs(ids) {
         const element = document.getElementById(id);
         if (element) {
             element.style.display = 'none';
+            if (id === 'lineAlertsDialog') {
+                if (typeof hideLineAlertsDialog === 'function') {
+                    hideLineAlertsDialog();
+                } else {
+                    element.setAttribute('aria-hidden', 'true');
+                }
+            }
         }
     });
     const mapBox = document.getElementById('mapContainer');

@@ -999,6 +999,7 @@ async function updateBusList(isInitialLoad = false) {
 
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
     const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+    removeAlertsForUnfollowedLines(busLines);
     if (busLines.length > 0) {
         legend.style.display = 'block';
     } else {
@@ -1241,6 +1242,119 @@ const globalEventListeners = {
     lineItem: new Set()
 };
 
+// El diálogo de avisos vive fuera de las tarjetas porque las tarjetas se
+// reconstruyen cada 30 segundos. Mantener un único estado evita que una
+// actualización cierre el diálogo o acumule elementos/listeners duplicados.
+const lineAlertsByLine = new Map();
+let activeLineAlertsLine = null;
+
+function removeAlertsForUnfollowedLines(busLines) {
+    const followedLineNumbers = new Set(
+        busLines.map(line => String(line.lineNumber))
+    );
+
+    for (const lineNumber of lineAlertsByLine.keys()) {
+        if (!followedLineNumbers.has(lineNumber)) {
+            lineAlertsByLine.delete(lineNumber);
+            if (activeLineAlertsLine === lineNumber) {
+                hideLineAlertsDialog();
+            }
+        }
+    }
+}
+
+function ensureLineAlertsDialog() {
+    const dialog = document.getElementById('lineAlertsDialog');
+    if (!dialog) {
+        return null;
+    }
+
+    if (dialog.dataset.listenersBound !== 'true') {
+        const closeButton = document.getElementById('lineAlertsDialogClose');
+        if (closeButton) {
+            closeButton.addEventListener('click', hideLineAlertsDialog);
+        }
+        dialog.dataset.listenersBound = 'true';
+    }
+
+    return dialog;
+}
+
+function renderLineAlertsDialog(lineNumber, alerts) {
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog) {
+        return;
+    }
+
+    const title = document.getElementById('lineAlertsDialogTitle');
+    const list = document.getElementById('lineAlertsDialogList');
+    if (!title || !list) {
+        return;
+    }
+
+    title.textContent = `Avisos para la línea ${lineNumber}`;
+    list.replaceChildren();
+
+    alerts.forEach(alert => {
+        const description = alert && alert.descripcion != null
+            ? String(alert.descripcion)
+            : '';
+        if (!description) {
+            return;
+        }
+
+        const item = document.createElement('li');
+        item.textContent = description;
+        list.appendChild(item);
+    });
+}
+
+function hideLineAlertsDialog() {
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog) {
+        return;
+    }
+
+    dialog.style.display = 'none';
+    dialog.setAttribute('aria-hidden', 'true');
+    activeLineAlertsLine = null;
+}
+
+function showLineAlertsDialog(lineNumber) {
+    const key = String(lineNumber);
+    const alerts = lineAlertsByLine.get(key) || [];
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog || alerts.length === 0) {
+        return;
+    }
+
+    activeLineAlertsLine = key;
+    renderLineAlertsDialog(lineNumber, alerts);
+    dialog.style.display = 'flex';
+    dialog.setAttribute('aria-hidden', 'false');
+}
+
+function updateLineAlerts(lineNumber, alerts) {
+    const key = String(lineNumber);
+    const lineAlerts = Array.isArray(alerts) ? alerts : [];
+
+    if (lineAlerts.length > 0) {
+        lineAlertsByLine.set(key, lineAlerts);
+    } else {
+        lineAlertsByLine.delete(key);
+    }
+
+    // Si el usuario tiene abierto el aviso de esta línea, actualizamos solo
+    // su contenido y no tocamos la visibilidad del diálogo.
+    if (activeLineAlertsLine === key) {
+        if (lineAlerts.length > 0) {
+            renderLineAlertsDialog(lineNumber, lineAlerts);
+        } else {
+            hideLineAlertsDialog();
+        }
+    }
+}
+
 /**
  * Actualiza los datos de una línea específica.
  * 
@@ -1264,16 +1378,8 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
 
     // Recuperamos si hay alertas para esa linea
     const busLineAlerts = filterBusAlerts(allAlerts, lineNumber);
-    let alertHTML = '';
-    let alertIcon = '';
-    if (busLineAlerts.length > 0) {
-        alertHTML = `<div class="alert-box"><h2>Avisos para la línea ${lineNumber}</h2><ul>`;
-        busLineAlerts.forEach(alert => {
-            alertHTML += `<li>${alert.descripcion}</li>`;
-        });
-        alertHTML += '</ul><button class="alerts-close secondary">Cerrar</button></div>';
-        alertIcon = '⚠️';
-    }
+    updateLineAlerts(lineNumber, busLineAlerts);
+    const alertIcon = busLineAlerts.length > 0 ? '⚠️' : '';
 
     let busesProximos;
 
@@ -1497,7 +1603,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo ${tiempoClass}">${tiempoRestanteHTML}</div>
                         <div class="horaLlegada">${horaLlegada}</div>
                     </div>
-                    ${alertHTML}
                 `;
 
                 // Si el estado en tiempo real es SKIPPED mostramos aviso
@@ -1517,7 +1622,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     <div class="hora-tiempo">
                         <div class="tiempo sin-servicio">Desviado</div>
                     </div>
-                    ${alertHTML}
                 `;
                 }
 
@@ -1565,7 +1669,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo sin-servicio">Sin servicio próximo</div>
                         <div class="horaLlegada"></div>
                     </div>
-                    ${alertHTML}
                 `;
             }
         } else {
@@ -1589,11 +1692,8 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo sin-servicio">Sin servicio próximo</div>
                         <div class="horaLlegada"></div>
                     </div>
-                    ${alertHTML}
                 `;
         }
-        // Cuadro de alertas
-        lineItem.innerHTML += alertHTML;
 
         // Borramos event listeners antes de añadir los nuevos
         removeExistingEventListeners(lineItem);
@@ -1753,15 +1853,7 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
     if (alertIcon) {
         const alertListener = function (event) {
             event.stopPropagation();
-            const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
-            if (alertBox) {
-                alertBox.style.display = 'flex';
-                const closeButton = alertBox.querySelector('.alerts-close');
-                closeButton.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    alertBox.style.display = 'none';
-                }, { once: true });
-            }
+            showLineAlertsDialog(lineNumber);
         };
         alertIcon.addEventListener('click', alertListener);
         globalEventListeners.alertIcon.add(alertListener);

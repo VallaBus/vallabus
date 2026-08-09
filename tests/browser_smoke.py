@@ -283,6 +283,82 @@ def test_global_alert_count(result: BrowserPage) -> None:
     assert_no_browser_errors(result)
 
 
+def test_line_alert_dialog_persists(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+
+    live_alert = page.evaluate(
+        """async () => {
+            const response = await fetch('https://gtfs.vallabus.com/alertas/', {cache: 'no-store'});
+            if (!response.ok) {
+                throw new Error(`El API de avisos devuelve HTTP ${response.status}`);
+            }
+            const alerts = await response.json();
+            const alert = alerts.find(item => item?.ruta?.linea != null && item?.ruta?.parada != null);
+            if (!alert) {
+                return null;
+            }
+            return {
+                stop: String(alert.ruta.parada),
+                line: String(alert.ruta.linea),
+                description: String(alert.descripcion || ''),
+            };
+        }"""
+    )
+    assert live_alert, "El API no ofrece un aviso asociado a una línea y parada"
+    stop_number = live_alert["stop"]
+    line_number = live_alert["line"]
+    description = live_alert["description"]
+
+    card = add_line_to_list(page, stop_number, line_number, timeout_ms)
+    page.wait_for_function(
+        """selector => document.querySelector(selector)?.querySelector('.alert-icon')?.textContent.includes('⚠️')""",
+        arg='[id="%s-%s"]' % (stop_number, line_number),
+        timeout=timeout_ms,
+    )
+    alert_icon = card.locator(".alert-icon")
+    assert "⚠️" in alert_icon.inner_text(), "La tarjeta no muestra el icono del aviso"
+
+    alert_icon.click()
+    page.wait_for_function(
+        "() => document.querySelector('#lineAlertsDialog').style.display === 'flex'",
+        timeout=timeout_ms,
+    )
+    dialog = page.locator("#lineAlertsDialog")
+    assert dialog.locator("#lineAlertsDialogTitle").inner_text() == (
+        "Avisos para la línea " + line_number
+    )
+    assert description in dialog.locator("#lineAlertsDialogList").inner_text()
+    assert page.locator("#lineAlertsDialog").count() == 1
+    assert card.locator(".alert-box").count() == 0, (
+        "La tarjeta no debe contener diálogos de avisos dinámicos"
+    )
+
+    # Fuerza una actualización real de la línea, con una nueva lectura del
+    # endpoint de avisos y del endpoint de tiempos de la aplicación.
+    page.evaluate(
+        """async ({stop, line}) => {
+            const response = await fetch('https://gtfs.vallabus.com/alertas/', {cache: 'no-store'});
+            const alerts = await response.json();
+            await fetchBusTime(stop, line, document.getElementById(`${stop}-${line}`), alerts);
+        }""",
+        arg={"stop": stop_number, "line": line_number},
+    )
+    page.wait_for_function(
+        "() => document.querySelector('#lineAlertsDialog').style.display === 'flex'",
+        timeout=timeout_ms,
+    )
+    assert description in dialog.locator("#lineAlertsDialogList").inner_text()
+    assert dialog.locator("#lineAlertsDialogList li").count() > 0
+    assert card.locator(".alert-box").count() == 0
+
+    dialog.locator("#lineAlertsDialogClose").click()
+    page.wait_for_function(
+        "() => document.querySelector('#lineAlertsDialog').style.display === 'none'",
+        timeout=timeout_ms,
+    )
+    assert_no_browser_errors(result)
+
+
 def test_live_search_line_and_map(
     result: BrowserPage, stop_number: str, line_number: str, timeout_ms: int
 ) -> None:
@@ -324,25 +400,30 @@ def test_live_search_line_and_map(
         "El mapa no muestra el estado de ubicación"
     )
 
-    # El popup del marcador de bus muestra la matrícula/identificador. Su
-    # cierre usa internamente el enlace `#close` de Leaflet y no debe cerrar el
-    # diálogo del mapa ni cambiar la ruta actual.
-    page.wait_for_selector("#busMap .bus-icon", state="attached", timeout=timeout_ms)
-    bus_marker = page.locator("#busMap .bus-icon").first
-    bus_marker.click()
-    page.wait_for_selector("#busMap .leaflet-popup", state="visible", timeout=timeout_ms)
-    popup = page.locator("#busMap .leaflet-popup")
-    has_vehicle_info = popup.locator(".matricula, .vehicle-id").count() > 0
-    assert has_vehicle_info or "Sin info del vehículo" in popup.inner_text(), (
-        "El popup del bus no muestra la matrícula ni un estado de vehículo"
-    )
-    popup.locator(".leaflet-popup-close-button").click()
-    page.wait_for_function(
-        """() => !document.querySelector('#busMap .leaflet-popup') &&
-                  document.querySelector('#mapContainer').classList.contains('show')""",
-        timeout=timeout_ms,
-    )
-    assert "#/mapa/" in page.url, "Cerrar la matrícula no debe abandonar la ruta del mapa"
+    # Si hay un bus en tiempo real, el popup muestra la matrícula/identificador
+    # y su cierre usa internamente el enlace `#close` de Leaflet. Si el API no
+    # tiene ningún bus activo en ese instante, se valida explícitamente el
+    # estado sin datos y se mantiene el resto de la prueba del mapa.
+    bus_markers = page.locator("#busMap .bus-icon")
+    if bus_markers.count() > 0:
+        bus_markers.first.click()
+        page.wait_for_selector("#busMap .leaflet-popup", state="visible", timeout=timeout_ms)
+        popup = page.locator("#busMap .leaflet-popup")
+        has_vehicle_info = popup.locator(".matricula, .vehicle-id").count() > 0
+        assert has_vehicle_info or "Sin info del vehículo" in popup.inner_text(), (
+            "El popup del bus no muestra la matrícula ni un estado de vehículo"
+        )
+        popup.locator(".leaflet-popup-close-button").click()
+        page.wait_for_function(
+            """() => !document.querySelector('#busMap .leaflet-popup') &&
+                      document.querySelector('#mapContainer').classList.contains('show')""",
+            timeout=timeout_ms,
+        )
+        assert "#/mapa/" in page.url, "Cerrar la matrícula no debe abandonar la ruta del mapa"
+    else:
+        assert "no hay datos" in page.locator("#busMapLastUpdate").inner_text().lower(), (
+            "El mapa no indica por qué no hay marcador de bus"
+        )
 
     page.locator("#mapContainer .map-close").click()
     page.wait_for_function("() => !document.querySelector('#mapContainer').classList.contains('show')")
@@ -807,6 +888,10 @@ def main() -> int:
                 ),
                 ("menu_y_tema", test_menu_and_theme),
                 ("contador_avisos_generales", test_global_alert_count),
+                (
+                    "avisos_de_linea_persisten_en_actualizacion",
+                    lambda result: test_line_alert_dialog_persists(result, args.timeout),
+                ),
                 (
                     "flujo_live_parada_linea_mapa",
                     lambda result: test_live_search_line_and_map(

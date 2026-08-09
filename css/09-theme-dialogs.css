@@ -42,7 +42,7 @@ html.dark-mode body {
     border: 1px solid #404040BA !important;
 }
 
-.dark-mode .alert-box,
+.dark-mode .line-alert-dialog,
 .dark-mode #horarios-box,
 .dark-mode #nearestStopsResults {
     box-shadow: 0 8px 64px 0 rgba(12, 12, 14, .12);
@@ -50,14 +50,14 @@ html.dark-mode body {
 }
 
 .dark-mode #welcome-box h2,
-.dark-mode .alert-box h2,
+.dark-mode .line-alert-dialog h2,
 .dark-mode #horarios-box h2,
 .dark-mode #nearestStopsResults h2 {
     color: #eeeeee;
 }
 
 .dark-mode #welcome-box p,
-.dark-mode .alert-box p,
+.dark-mode .line-alert-dialog p,
 .dark-mode #horarios-box p,
 .dark-mode #nearestStopsResults p {
     color: #eeeeee;
@@ -444,4 +444,3 @@ body.dialog-open {
 #lineSelectionDialog #addAllLines {
     letter-spacing: -0.5px;
 }
-
