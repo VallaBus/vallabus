@@ -14,6 +14,11 @@ if (document.readyState === 'loading') {
     mapEvents();
 }
 
+function crearClaseLinea(lineNumber) {
+    const normalized = String(lineNumber ?? '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    return normalized ? ` linea-${normalized}` : '';
+}
+
 function crearIconoBus(numeroBus) {
     const label = String(numeroBus ?? '');
     const labelClass = label.length >= 5
@@ -23,29 +28,23 @@ function crearIconoBus(numeroBus) {
             : '';
 
     return L.divIcon({
-        className: 'bus-icon' + (numeroBus ? ' linea-' + numeroBus : '') + labelClass,
+        className: 'bus-icon' + crearClaseLinea(numeroBus) + labelClass,
         html: `
             <div>${label}</div>
             <svg class="bus-icon-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <rect x="5.5" y="3.5" width="13" height="15" rx="2"></rect>
-                <path d="M6 10h12M8 6h3M13 6h3"></path>
-                <circle cx="8.5" cy="16" r="1"></circle>
-                <circle cx="15.5" cy="16" r="1"></circle>
+                <path fill-rule="evenodd" d="M8 3.5h8A2.5 2.5 0 0 1 18.5 6v13h-2v1.5h-2V19h-5v1.5h-2V19h-2V6A2.5 2.5 0 0 1 8 3.5zm0 3v4h8v-4H8z"></path>
             </svg>`,
         iconSize: [30, 30]
     });
 }
 
-function crearIconoParadaSeguimiento() {
+function crearIconoParadaSeguimiento(lineNumber) {
     return L.divIcon({
         className: 'ride-map-marker-icon',
         html: `
-            <span class="ride-map-marker ride-map-marker--board" aria-hidden="true">
+            <span class="ride-map-marker ride-map-marker--board${crearClaseLinea(lineNumber)}" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
-                    <rect x="5.5" y="3.5" width="13" height="15" rx="2"></rect>
-                    <path d="M6 10h12M8 6h3M13 6h3"></path>
-                    <circle cx="8.5" cy="16" r="1"></circle>
-                    <circle cx="15.5" cy="16" r="1"></circle>
+                    <path fill-rule="evenodd" d="M8 3.5h8A2.5 2.5 0 0 1 18.5 6v13h-2v1.5h-2V19h-5v1.5h-2V19h-2V6A2.5 2.5 0 0 1 8 3.5zm0 3v4h8v-4H8z"></path>
                 </svg>
             </span>`,
         iconSize: [40, 46],
@@ -157,7 +156,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 }
                 // La posición puede no estar disponible todavía, pero la
                 // geometría y las paradas del viaje sí deben mostrarse.
-                actualizarParada(paradaData);
+                actualizarParada(paradaData, busData.lineNumber);
                 addRouteShapesToMap(busData.tripId, busData.lineNumber);
                 addStopsToMap(busData.tripId, busData.lineNumber);
             } catch (error) {
@@ -236,7 +235,7 @@ let UbicacionUsuarioControl = L.Control.extend({
 
 myMap.addControl(new UbicacionUsuarioControl());
 
-function actualizarParada(paradaData) {
+function actualizarParada(paradaData, lineNumber) {
     // En la sesión de seguimiento la posición real del usuario ya explica
     // dónde está esperando; mantener además el marcador de la parada crea un
     // segundo símbolo en el mismo punto y parece otra persona.
@@ -252,13 +251,13 @@ function actualizarParada(paradaData) {
     if (paradaMarker) {
         // Si ya existe, actualizamos su posición y su popup
         paradaMarker.setLatLng([paradaData.latitud, paradaData.longitud]);
-        paradaMarker.setIcon(crearIconoParadaSeguimiento());
+        paradaMarker.setIcon(crearIconoParadaSeguimiento(lineNumber));
         paradaMarker.getPopup().setContent(paradaData.nombre);
     } else {
         // Si no existe, creamos uno nuevo
         paradaMarker = L.marker([paradaData.latitud, paradaData.longitud], {
             title: `Tu parada: ${paradaData.nombre}`,
-            icon: crearIconoParadaSeguimiento()
+            icon: crearIconoParadaSeguimiento(lineNumber)
         }).addTo(myMap).bindPopup(paradaData.nombre);
     }
 }

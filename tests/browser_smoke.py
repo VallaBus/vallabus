@@ -407,9 +407,24 @@ def test_live_search_line_and_map(
     assert page.locator("#busMap .ride-map-marker--board").count() == 1, (
         "La parada de subida no usa el marcador de usuario/parada"
     )
-    assert page.locator("#busMap .ride-map-marker--board svg rect").count() == 1, (
-        "La parada de subida no usa un icono de parada/autobús"
+    assert page.locator("#busMap .ride-map-marker--board svg path[fill-rule='evenodd']").count() == 1, (
+        "La parada de subida no usa un icono sólido de autobús"
     )
+    board_color = page.locator("#busMap .ride-map-marker--board").evaluate(
+        """(element, line) => {
+            const probe = document.createElement('span');
+            probe.className = `linea-${line}`;
+            document.body.appendChild(probe);
+            const result = {
+                marker: getComputedStyle(element).backgroundColor,
+                line: getComputedStyle(probe).backgroundColor
+            };
+            probe.remove();
+            return result;
+        }""",
+        line_number,
+    )
+    assert board_color["marker"] == board_color["line"], board_color
     assert page.locator("#busMap .leaflet-overlay-pane path.%s" % line_class).count() > 0, (
         "El mapa no cargó la geometría de la ruta"
     )
@@ -1007,7 +1022,10 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                 mapTouchAction: getComputedStyle(document.querySelector('#busMap')).touchAction,
                 busGlyph: Boolean(document.querySelector('#busMap .bus-icon-glyph')),
                 busGlyphColor: document.querySelector('#busMap .bus-icon-glyph')
-                    ? getComputedStyle(document.querySelector('#busMap .bus-icon-glyph')).stroke
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon-glyph')).fill
+                    : '',
+                busMarkerColor: document.querySelector('#busMap .bus-icon')
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon')).backgroundColor
                     : '',
                 busMarkerWidth: document.querySelector('#busMap .bus-icon')?.getBoundingClientRect().width || 0,
                 panelOverflow: document.querySelector('#rideTrackingPanel').scrollWidth > document.querySelector('#rideTrackingPanel').clientWidth
@@ -1112,6 +1130,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert waiting["mapTouchAction"] == "pan-x pan-y"
     assert waiting["busGlyph"] is True
     assert waiting["busGlyphColor"] == "rgb(255, 255, 255)"
+    assert waiting["busMarkerColor"] == "rgb(94, 189, 90)"
     assert waiting["busMarkerWidth"] == 48
     assert boarding["status"] == "El bus está en tu parada"
     assert boarding["boardHidden"] is False

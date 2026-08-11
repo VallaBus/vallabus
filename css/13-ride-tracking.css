@@ -227,19 +227,15 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     z-index: 1;
 }
 
-#mapContainer #busMap .ride-map-marker--board {
+#mapContainer #busMap .ride-map-marker--board:not([class*="linea-"]) {
     background: #1679d3;
 }
 
 #mapContainer #busMap .ride-map-marker--board svg {
+    fill: #fff;
     height: 22px;
-    stroke-width: 1.7;
-    width: 22px;
-}
-
-#mapContainer #busMap .ride-map-marker--board svg circle {
-    fill: currentColor;
     stroke: none;
+    width: 22px;
 }
 
 #mapContainer #busMap .ride-map-marker--user {
@@ -265,11 +261,10 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 
 #mapContainer.ride-tracking-active #busMap .bus-icon {
     align-items: center;
-    background: #70c949;
     border: 2px solid #f5fff2;
     box-sizing: border-box;
     border-radius: 50%;
-    box-shadow: 0 0 0 8px rgba(112, 201, 73, 0.15), 0 0 28px rgba(112, 201, 73, 0.62);
+    box-shadow: 0 0 0 8px rgba(31, 54, 42, 0.1), 0 0 24px rgba(31, 54, 42, 0.28);
     display: flex;
     height: 48px !important;
     justify-content: center;
@@ -277,6 +272,10 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     margin-top: -24px !important;
     width: 48px;
     width: 48px !important;
+}
+
+#mapContainer.ride-tracking-active #busMap .bus-icon:not([class*="linea-"]) {
+    background: #70c949;
 }
 
 /* En la vista general el marcador solo identifica la línea. El pictograma
@@ -298,18 +297,10 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 
 #mapContainer.ride-tracking-active #busMap .bus-icon-glyph {
     display: block;
-    fill: none;
-    height: 28px;
-    stroke: #fff;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
-    width: 28px;
-}
-
-#mapContainer.ride-tracking-active #busMap .bus-icon-glyph circle {
     fill: #fff;
+    height: 28px;
     stroke: none;
+    width: 28px;
 }
 
 /* Hoja inferior. */
