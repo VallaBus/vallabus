@@ -1056,9 +1056,16 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert abs(center_after_update["lng"] - center_after_drag["lng"]) < 0.00002
 
     page.locator("#rideDestinationButton").click()
+    page.wait_for_timeout(80)
     destination_options = page.locator("#rideDestinationOptions .ride-destination-option")
     assert destination_options.count() == 4
     assert "Paseo Zorrilla 203" not in page.locator("#rideDestinationOptions").inner_text()
+    assert page.locator("#rideDestinationSearch").evaluate("element => document.activeElement === element") is False
+    active_dialog_element = page.evaluate("() => document.activeElement?.id || document.activeElement?.tagName || ''")
+    assert active_dialog_element == "rideDestinationDialogClose", active_dialog_element
+    assert page.locator("#rideDestinationDialogClose").get_attribute("aria-label") == "Cerrar selector de destino"
+    close_box = page.locator("#rideDestinationDialogClose").bounding_box()
+    assert close_box and close_box["width"] >= 48 and close_box["height"] >= 48
     page.screenshot(path=str(artifact_dir / "00-selector-destino.png"), full_page=False)
     page.locator("#rideDestinationDialogClose").click()
     boarding = capture(2, "02-bus-en-parada.png")

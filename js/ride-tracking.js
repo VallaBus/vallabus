@@ -611,7 +611,11 @@
         ui.destinationDialog.hidden = false;
         if (ui.destinationSearch) ui.destinationSearch.value = '';
         renderDestinationOptions();
-        requestAnimationFrame(() => ui.destinationSearch?.focus());
+        // El selector se abre para poder recorrer la lista; enfocar el campo
+        // aquí dispara el teclado virtual antes de que el usuario decida
+        // buscar. Dejamos el foco en cerrar, que es accesible y no abre el
+        // teclado en móvil.
+        requestAnimationFrame(() => ui.destinationDialogClose?.focus({ preventScroll: true }));
     }
 
     function closeDestinationDialog() {

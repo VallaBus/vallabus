@@ -1060,10 +1060,12 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     background: #edf1ee;
     border: 0;
     border-radius: 50%;
-    color: #526158;
-    font-size: 1.45rem;
-    height: 44px;
-    width: 44px;
+    color: #20332a;
+    cursor: pointer;
+    flex: 0 0 48px;
+    height: 48px;
+    padding: 0;
+    width: 48px;
 }
 
 .ride-destination-search input {
@@ -1174,11 +1176,12 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 .ride-tracking-close svg,
 .ride-destination-dialog-heading button svg {
     fill: none;
-    height: 18px;
+    height: 24px;
     stroke: currentColor;
     stroke-linecap: round;
-    stroke-width: 2.1;
-    width: 18px;
+    stroke-linejoin: round;
+    stroke-width: 2.5;
+    width: 24px;
 }
 
 .dark-mode .ride-tracking-close {
@@ -1202,6 +1205,11 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     align-items: center;
     display: inline-flex;
     justify-content: center;
+}
+
+.ride-destination-dialog-heading button:focus-visible {
+    outline: 3px solid #267f43;
+    outline-offset: 3px;
 }
 
 /* First-time experience contextual. El foco visual apunta al botón real y
