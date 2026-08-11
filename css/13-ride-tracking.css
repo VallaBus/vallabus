@@ -1008,16 +1008,88 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 }
 
 .ride-tracking-panel.is-collapsed {
-    max-height: 154px !important;
+    max-height: 178px !important;
     overflow: hidden !important;
 }
 
-.ride-tracking-panel.is-collapsed .ride-tracking-status {
-    margin-top: 18px;
+.ride-tracking-panel.is-collapsed .ride-sheet-grabber {
+    margin-bottom: 12px;
 }
 
-.ride-tracking-panel.is-collapsed .ride-tracking-next-stop,
-.ride-tracking-panel.is-collapsed .ride-tracking-metric,
+.ride-tracking-panel.is-collapsed .ride-tracking-status {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 10px 0 4px;
+}
+
+.ride-tracking-panel.is-collapsed.is-onboard .ride-tracking-status {
+    display: none;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-next-stop:not([hidden]) {
+    color: #20332a;
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 720;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-next-stop::before {
+    color: #718077;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.ride-tracking-panel.is-collapsed.is-onboard .ride-tracking-next-stop::before {
+    content: 'Próxima parada · ';
+}
+
+.ride-tracking-panel.is-collapsed.is-waiting .ride-tracking-next-stop::before,
+.ride-tracking-panel.is-collapsed.is-preparing .ride-tracking-next-stop::before {
+    content: 'Parada de subida · ';
+}
+
+.ride-tracking-panel.is-collapsed.is-arrived .ride-tracking-next-stop::before {
+    content: 'Destino · ';
+}
+
+.dark-mode .ride-tracking-panel.is-collapsed .ride-tracking-next-stop {
+    color: #f4f7f4;
+}
+
+.dark-mode .ride-tracking-panel.is-collapsed .ride-tracking-next-stop::before {
+    color: #a9b3ae;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-metric:not([hidden]) {
+    display: flex;
+    gap: 8px;
+    margin: 5px 0 0;
+    min-height: 0;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric strong {
+    font-size: 1.4rem;
+    letter-spacing: -0.06em;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric span {
+    font-size: 0.9rem;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric {
+    gap: 5px;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-divider {
+    font-size: 1.25rem;
+}
+
 .ride-tracking-panel.is-collapsed .ride-tracking-location-hint,
 .ride-tracking-panel.is-collapsed .ride-tracking-arrival-time,
 .ride-tracking-panel.is-collapsed .ride-tracking-last-update,

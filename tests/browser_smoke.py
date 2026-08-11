@@ -1148,6 +1148,23 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     page.locator("#rideDestinationDialogClose").click()
     boarding = capture(2, "02-bus-en-parada.png")
     onboard = capture(4, "03-en-ruta.png")
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.add('is-collapsed')")
+    collapsed_onboard = page.evaluate(
+        """() => {
+            const nextStop = document.querySelector('#rideTrackingNextStop');
+            const metric = document.querySelector('.ride-tracking-metric');
+            const status = document.querySelector('#rideTrackingStatus');
+            return {
+                nextStopVisible: getComputedStyle(nextStop).display !== 'none',
+                nextStop: nextStop?.textContent || '',
+                metricVisible: getComputedStyle(metric).display !== 'none',
+                metric: metric?.textContent.replace(/\\s+/g, ' ').trim() || '',
+                statusVisible: getComputedStyle(status).display !== 'none'
+            };
+        }"""
+    )
+    page.screenshot(path=str(artifact_dir / "03b-en-ruta-plegado.png"), full_page=False)
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.remove('is-collapsed')")
     get_off = capture(6, "04-bajate-proxima.png")
     degraded = capture(7, "05-sin-senal-gps.png")
     arrived = capture(8, "06-destino.png")
@@ -1186,6 +1203,11 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
     assert onboard["remaining"] == "3"
     assert onboard["destination"] == "Paseo Zorrilla 101 LAVA"
+    assert collapsed_onboard["nextStopVisible"] is True
+    assert collapsed_onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
+    assert collapsed_onboard["metricVisible"] is True
+    assert "3" in collapsed_onboard["metric"] and "min" in collapsed_onboard["metric"]
+    assert collapsed_onboard["statusVisible"] is False
     assert get_off["status"] == "Bájate en la próxima parada"
     assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", get_off["arrivalTime"])
     assert get_off["alert"] == "Bájate en la próxima parada"
