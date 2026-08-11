@@ -105,7 +105,7 @@
     background-color: #064a3d;
 }
 
-#overlay-guia-voz-2026 .overlay-content {
+#overlay-ride-tracking-20260811 .overlay-content {
     top: auto;
     bottom: 110px;
     width: 320px;
@@ -121,30 +121,30 @@
     border-radius: 12px;
 }
 
-#overlay-guia-voz-2026 h2 {
+#overlay-ride-tracking-20260811 h2 {
     text-align: center;
     margin-bottom: 15px;
     font-size: 1.25em;
 }
 
-#overlay-guia-voz-2026 ul {
+#overlay-ride-tracking-20260811 ul {
     margin-bottom: 20px;
     padding-left: 25px;
 }
 
-#overlay-guia-voz-2026 ul li {
+#overlay-ride-tracking-20260811 ul li {
     margin-bottom: 8px;
     line-height: 1.4;
 }
 
-#overlay-guia-voz-2026 .close-overlay {
+#overlay-ride-tracking-20260811 .close-overlay {
     width: 100%;
     margin-top: 10px;
     float: none;
     padding: 12px;
 }
 
-#overlay-guia-voz-2026 .arrow {
+#overlay-ride-tracking-20260811 .arrow {
     bottom: -10px;
     left: 84%;
     transform: translateX(-50%);
@@ -262,4 +262,3 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
 }
-

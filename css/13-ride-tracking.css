@@ -1054,6 +1054,10 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     content: 'Parada de subida · ';
 }
 
+.ride-tracking-panel.is-collapsed.is-passed .ride-tracking-next-stop::before {
+    content: 'Siguiente parada · ';
+}
+
 .ride-tracking-panel.is-collapsed.is-arrived .ride-tracking-next-stop::before {
     content: 'Destino · ';
 }
@@ -1282,22 +1286,51 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 .ride-tracking-close {
     background: #f4f7f4;
     border: 1px solid rgba(69, 91, 78, 0.24);
-    border-radius: 999px;
+    border-radius: 50%;
     color: #637168;
-    flex: 0 0 auto;
-    font-size: 0.76rem;
-    font-weight: 750;
+    flex: 0 0 44px;
+    font-size: 0;
     height: 44px;
     min-width: 44px;
-    padding: 0 12px;
-    white-space: nowrap;
-    width: auto;
+    padding: 0;
+    width: 44px;
+}
+
+.ride-tracking-heading {
+    gap: 12px;
+}
+
+.ride-tracking-heading strong {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.ride-tracking-close::before {
+    background: currentColor;
+    border-radius: 2px;
+    content: '';
+    display: block;
+    height: 15px;
+    width: 15px;
+}
+
+.ride-tracking-close[aria-label="Cerrar"]::before {
+    background: transparent;
+    border-radius: 0;
+    content: '×';
+    font-size: 28px;
+    font-weight: 400;
+    height: 28px;
+    line-height: 24px;
+    width: 28px;
 }
 
 .ride-tracking-close:hover,
 .ride-tracking-close:focus-visible {
     background: #e9f0eb;
-    border-radius: 999px;
+    border-radius: 50%;
     border-color: rgba(38, 127, 67, 0.42);
     outline: none;
 }

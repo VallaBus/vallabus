@@ -236,6 +236,30 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
     assert_no_browser_errors(result)
 
 
+def test_tracking_first_entry_dialog(result: BrowserPage) -> None:
+    page = result.page
+    dialog = page.locator("#overlay-ride-tracking-20260811")
+
+    assert not dialog.is_visible(), "El diálogo no debe aparecer sin líneas añadidas"
+    page.evaluate(
+        "() => { localStorage.setItem('busLines', JSON.stringify([{linea: '1', parada: '1043'}])); showOverlayIfNotClosed('overlay-ride-tracking-20260811'); }"
+    )
+    assert dialog.is_visible(), "El diálogo de seguimiento no aparece"
+    assert "seguimiento en directo" in dialog.inner_text().lower()
+    assert "pulsa" in dialog.inner_text().lower()
+    assert dialog.locator(".close-overlay").inner_text() == "Entendido"
+
+    dialog.locator(".close-overlay").click()
+    assert not dialog.is_visible(), "Cerrar el diálogo no lo oculta"
+    assert page.evaluate(
+        "() => localStorage.getItem('overlayClosed_overlay-ride-tracking-20260811') === 'true'"
+    )
+
+    page.evaluate("() => showOverlayIfNotClosed('overlay-ride-tracking-20260811')")
+    assert not dialog.is_visible(), "El diálogo aceptado vuelve a aparecer"
+    assert_no_browser_errors(result)
+
+
 def test_menu_and_theme(result: BrowserPage) -> None:
     page = result.page
     page.locator("#menuButton").click()
@@ -1013,6 +1037,133 @@ def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
     assert_no_browser_errors(result)
 
 
+def test_ride_tracking_bus_already_passed(result: BrowserPage, timeout_ms: int) -> None:
+    """A bus past the boarding stop must not look like a one-minute wait."""
+    page = result.page
+    page.set_viewport_size({"width": 430, "height": 897})
+    route_data = {
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [-4.7240, 41.6520],
+                    [-4.7230, 41.6530],
+                    [-4.7215, 41.6545],
+                    [-4.7200, 41.6560],
+                ],
+            },
+            "properties": {},
+        }],
+    }
+    stops_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7240, 41.6520]},
+                "properties": {"stop_code": "BOARD", "stop_name": "Parada de subida"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7215, 41.6545]},
+                "properties": {"stop_code": "NEXT", "stop_name": "Siguiente parada real"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7200, 41.6560]},
+                "properties": {"stop_code": "DEST", "stop_name": "Destino final"},
+            },
+        ],
+    }
+
+    page.route(
+        "**/v2/geojson/**",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(stops_data if "/paradas/" in route.request.url else route_data),
+        ),
+    )
+
+    snapshot = page.evaluate(
+        """async () => {
+            const originalOpenMap = window.openTripMap;
+            const originalWatchPosition = navigator.geolocation.watchPosition;
+            const originalClearWatch = navigator.geolocation.clearWatch;
+            window.openTripMap = () => true;
+            navigator.geolocation.watchPosition = () => 7777;
+            navigator.geolocation.clearWatch = () => {};
+
+            try {
+                await window.rideTracking.start({
+                    tripId: 'passed-trip',
+                    lineNumber: '1',
+                    stopNumber: 'BOARD',
+                    stopName: 'Parada de subida',
+                    stopLatitud: 41.6520,
+                    stopLongitud: -4.7240,
+                    etaLabel: '1 min',
+                    arrivalTime: new Date(Date.now() + 60000).toISOString()
+                });
+                await new Promise(resolve => setTimeout(resolve, 150));
+
+                // El bus está más de 100 m después de la parada seleccionada.
+                window.rideTracking.onBusPosition({
+                    latitud: 41.6530,
+                    longitud: -4.7230,
+                    timestamp: Date.now()
+                }, {tripId: 'passed-trip'});
+
+                const beforeManualBoarding = {
+                    phase: window.rideTracking.getState().phase,
+                    phaseLabel: document.querySelector('#rideTrackingPhaseLabel')?.textContent || '',
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                    metricHidden: document.querySelector('.ride-tracking-metric')?.hidden,
+                    boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+                    boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
+                    hint: document.querySelector('#rideTrackingLocationHint')?.textContent || ''
+                };
+                document.querySelector('#rideBoardButton').click();
+                return {
+                    beforeManualBoarding,
+                    afterManualBoarding: {
+                        phase: window.rideTracking.getState().phase,
+                        status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                        boardHidden: document.querySelector('#rideBoardButton')?.hidden
+                    }
+                };
+            } finally {
+                window.rideTracking.stop('test', {silent: true});
+                window.openTripMap = originalOpenMap;
+                navigator.geolocation.watchPosition = originalWatchPosition;
+                navigator.geolocation.clearWatch = originalClearWatch;
+            }
+        }"""
+    )
+
+    assert snapshot == {
+        "beforeManualBoarding": {
+            "phase": "passed",
+            "phaseLabel": "en ruta",
+            "status": "Este bus ya ha pasado por tu parada",
+            "nextStop": "Siguiente parada real",
+            "metricHidden": True,
+            "boardHidden": False,
+            "boardLabel": "Sí, estoy dentro",
+            "hint": "La ubicación puede tener desfase. Si ya has subido, confírmalo para seguir el viaje.",
+        },
+        "afterManualBoarding": {
+            "phase": "onboard",
+            "status": "Próxima parada",
+            "boardHidden": True,
+        },
+    }, json.dumps(snapshot, ensure_ascii=False, indent=2)
+    assert_no_browser_errors(result)
+
+
 def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int) -> None:
     """The opt-in simulator exercises every critical travel state without live buses."""
     page = result.page
@@ -1704,6 +1855,7 @@ def main() -> int:
                     "arranque_y_contratos_de_stack",
                     lambda result: test_boot_contract(result, server.base_url, args.timeout),
                 ),
+                ("dialogo_inicial_seguimiento", test_tracking_first_entry_dialog),
                 ("menu_y_tema", test_menu_and_theme),
                 ("contador_avisos_generales", test_global_alert_count),
                 (
@@ -1721,6 +1873,10 @@ def main() -> int:
                 (
                     "sesion_de_seguimiento_en_primer_plano",
                     lambda result: test_ride_tracking_session(result, args.timeout),
+                ),
+                (
+                    "bus_que_ya_paso_la_parada",
+                    lambda result: test_ride_tracking_bus_already_passed(result, args.timeout),
                 ),
                 (
                     "simulador_de_estados_del_viaje",

@@ -949,6 +949,24 @@
             && state.busProjection.progress > boardProgress + 100;
     }
 
+    function updateObservedBusProgress() {
+        if (!state.busProjection || !state.stops.length) return;
+        const progress = state.busProjection.progress;
+        state.progressSource = 'bus';
+        state.nextStop = state.stops.find(stop => stop.progress > progress + 20) || null;
+    }
+
+    function syncPassedBusState() {
+        if (state.phase === 'waiting' && hasBusLeftBoardStop()) {
+            // Este viaje ya no se puede coger en la parada seleccionada. No
+            // lo convertimos en "a bordo": mostramos el recorrido que el
+            // bus continúa haciendo y descartamos su ETA antigua.
+            state.phase = 'passed';
+            state.boardingEvidence = 0;
+        }
+        if (state.phase === 'passed') updateObservedBusProgress();
+    }
+
     function isArrivalWindow() {
         const reportedEta = getReportedEtaMinutes();
         if (reportedEta !== null) return reportedEta <= 1;
@@ -1006,7 +1024,12 @@
             return;
         }
 
-        if (state.phase !== 'preparing' && state.phase !== 'boarding-candidate') return;
+        // Si la posición viva ya ha rebasado la parada, conservamos esta
+        // confirmación manual como salvaguarda ante un desfase del GPS: el
+        // usuario puede estar dentro aunque el bus parezca haber pasado.
+        if (state.phase !== 'preparing'
+            && state.phase !== 'boarding-candidate'
+            && state.phase !== 'passed') return;
         state.phase = 'onboard';
         state.boardingEvidence = 0;
         updateTripProgress();
@@ -1071,7 +1094,10 @@
             window.showNotice('', message);
         }
         if (typeof navigator.vibrate === 'function') {
-            navigator.vibrate(120);
+            // El aviso de bajada necesita distinguirse de los avisos de
+            // estado: dos pulsos cortos resultan más reconocibles sin ser
+            // invasivos. El resto mantiene una vibración breve.
+            navigator.vibrate(key === 'one-stop' ? [120, 80, 120] : 120);
         }
     }
 
@@ -1184,6 +1210,11 @@
         const ui = getUi();
         if (!ui.panel) return;
 
+        // La posición puede llegar antes o después de cargar la geometría.
+        // Sincronizar aquí cubre ambos órdenes y evita enseñar una ETA de la
+        // parada cuando el vehículo ya la ha rebasado.
+        syncPassedBusState();
+
         if (!state.active) {
             ui.panel.hidden = true;
         }
@@ -1199,6 +1230,8 @@
             ? 'en ruta'
             : state.phase === 'arrived'
                 ? 'destino alcanzado'
+                : state.phase === 'passed'
+                    ? 'en ruta'
                 : boardingPromptAvailable || scheduledBoardingWindow || state.phase === 'preparing' || state.phase === 'boarding-candidate'
                     ? 'prepárate para subir'
                     : 'esperando';
@@ -1234,6 +1267,10 @@
                 ? 'preparing'
                 : '';
             nextStopName = state.stopName || '';
+        } else if (state.phase === 'passed') {
+            statusMessage = 'Este bus ya ha pasado por tu parada';
+            statusTone = 'warning';
+            nextStopName = state.nextStop?.name || '';
         } else if (state.phase === 'preparing' || state.phase === 'boarding-candidate') {
             statusMessage = 'Prepárate para subir';
             eta = { value: 'Ahora', label: '' };
@@ -1266,11 +1303,14 @@
         }
 
         const showGpsHint = state.active && state.phase === 'waiting' && Boolean(state.gpsErrorMessage);
+        const showPassedHint = state.active && state.phase === 'passed';
         if (ui.locationHint) {
-            ui.locationHint.hidden = !showGpsHint;
-            ui.locationHint.textContent = showGpsHint
-                ? 'La ubicación ayuda a detectar el trayecto, pero puedes confirmarlo manualmente.'
-                : '';
+            ui.locationHint.hidden = !showGpsHint && !showPassedHint;
+            ui.locationHint.textContent = showPassedHint
+                ? 'La ubicación puede tener desfase. Si ya has subido, confírmalo para seguir el viaje.'
+                : showGpsHint
+                    ? 'La ubicación ayuda a detectar el trayecto, pero puedes confirmarlo manualmente.'
+                    : '';
         }
         const destinationArrivalLabel = getDestinationArrivalLabel();
         if (ui.arrivalTime) {
@@ -1292,6 +1332,7 @@
         ui.panel.classList.toggle('is-arrived', state.phase === 'arrived');
         ui.panel.classList.toggle('is-onboard', state.phase === 'onboard');
         ui.panel.classList.toggle('is-waiting', state.phase === 'waiting');
+        ui.panel.classList.toggle('is-passed', state.phase === 'passed');
         ui.panel.classList.toggle('is-preparing', state.phase === 'preparing' || state.phase === 'boarding-candidate' || boardingPromptAvailable || scheduledBoardingWindow);
         ui.panel.classList.toggle('is-near-destination', shouldWarnToGetOff);
 
@@ -1304,7 +1345,9 @@
         if (ui.destinationField) ui.destinationField.hidden = false;
 
         const canStartBoarding = state.phase === 'waiting' && (boardingPromptAvailable || scheduledBoardingWindow);
-        const canConfirmBoarding = state.phase === 'preparing' || state.phase === 'boarding-candidate';
+        const canConfirmBoarding = state.phase === 'preparing'
+            || state.phase === 'boarding-candidate'
+            || state.phase === 'passed';
         if (ui.boardButton) {
             ui.boardButton.hidden = !canStartBoarding && !canConfirmBoarding;
             ui.boardButton.textContent = boardingPromptAvailable ? 'Ya estoy dentro' : 'Sí, estoy dentro';
@@ -1318,6 +1361,7 @@
             const closeLabel = state.phase === 'arrived' ? 'Cerrar' : 'Parar seguimiento';
             ui.closeButton.textContent = closeLabel;
             ui.closeButton.setAttribute('aria-label', closeLabel);
+            ui.closeButton.title = closeLabel;
         }
 
         if (ui.mapFollowButton) {
