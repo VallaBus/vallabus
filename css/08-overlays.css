@@ -127,6 +127,16 @@
     font-size: 1.25em;
 }
 
+#overlay-ride-tracking-20260811 .ride-tracking-tip-image {
+    display: block;
+    width: calc(100% + 20px);
+    height: auto;
+    max-width: none;
+    margin: 0 -10px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+}
+
 #overlay-ride-tracking-20260811 ul {
     margin-bottom: 20px;
     padding-left: 25px;

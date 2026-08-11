@@ -247,6 +247,9 @@ def test_tracking_first_entry_dialog(result: BrowserPage) -> None:
     assert dialog.is_visible(), "El diálogo de seguimiento no aparece"
     assert "seguimiento en directo" in dialog.inner_text().lower()
     assert "pulsa" in dialog.inner_text().lower()
+    tip_image = dialog.locator(".ride-tracking-tip-image")
+    assert tip_image.is_visible(), "La captura del botón Seguir no aparece"
+    assert tip_image.get_attribute("src", timeout=1000).endswith("img/overlays/ride-tracking-follow.jpg")
     assert dialog.locator(".close-overlay").inner_text() == "Entendido"
 
     dialog.locator(".close-overlay").click()
