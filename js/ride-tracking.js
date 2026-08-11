@@ -951,6 +951,9 @@
     }
 
     function isArrivalWindow() {
+        const reportedEta = getReportedEtaMinutes();
+        if (reportedEta !== null) return reportedEta <= 1;
+
         if (state.arrivalTime) {
             const arrival = new Date(state.arrivalTime);
             if (!Number.isNaN(arrival.getTime())) {
@@ -959,8 +962,21 @@
             }
         }
 
+        return false;
+    }
+
+    function getReportedEtaMinutes() {
         const eta = String(state.etaLabel || '').match(/\d+/);
-        return Boolean(eta && Number(eta[0]) <= 1);
+        if (eta) return Math.max(0, Number(eta[0]));
+
+        if (state.arrivalTime) {
+            const arrival = new Date(state.arrivalTime);
+            if (!Number.isNaN(arrival.getTime())) {
+                return Math.max(0, Math.ceil((arrival.getTime() - Date.now()) / 60000));
+            }
+        }
+
+        return null;
     }
 
     function isScheduledBoardingWindow() {
@@ -1061,12 +1077,16 @@
     }
 
     function formatArrivalStatus() {
-        if (!state.arrivalTime) return 'Esperando al bus.';
-        const arrival = new Date(state.arrivalTime);
-        if (Number.isNaN(arrival.getTime())) return 'Esperando al bus.';
-        const minutes = Math.max(0, Math.ceil((arrival.getTime() - Date.now()) / 60000));
-        const time = arrival.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
-        return minutes <= 1 ? `El bus está llegando · ${time}` : `Esperando al bus · ${minutes} min · ${time}`;
+        const minutes = getReportedEtaMinutes();
+        if (minutes === null) return 'Esperando al bus.';
+        const arrival = state.arrivalTime ? new Date(state.arrivalTime) : null;
+        const time = arrival && !Number.isNaN(arrival.getTime())
+            ? arrival.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })
+            : String(state.arrivalLabel || '').trim();
+        const timeSuffix = time ? ` · ${time}` : '';
+        return minutes <= 1
+            ? `El bus está llegando${timeSuffix}`
+            : `Esperando al bus · ${minutes} min${timeSuffix}`;
     }
 
     function getDestinationArrivalLabel() {
@@ -1100,18 +1120,8 @@
         if (isBoardingPromptAvailable()) return { value: 'Ahora', label: '' };
         if (isScheduledBoardingWindow()) return { value: '', label: '' };
 
-        if (state.arrivalTime) {
-            const arrival = new Date(state.arrivalTime);
-            if (!Number.isNaN(arrival.getTime())) {
-                return {
-                    value: String(Math.max(0, Math.ceil((arrival.getTime() - Date.now()) / 60000))),
-                    label: 'min'
-                };
-            }
-        }
-
-        const eta = String(state.etaLabel || '').match(/\d+/);
-        return eta ? { value: eta[0], label: 'min' } : { value: '', label: '' };
+        const eta = getReportedEtaMinutes();
+        return eta === null ? { value: '', label: '' } : { value: String(eta), label: 'min' };
     }
 
     function compactFreshnessHtml(message) {
@@ -1506,6 +1516,8 @@
         }
         if (input.phase) state.phase = input.phase;
         if (input.arrivalTime !== undefined) state.arrivalTime = input.arrivalTime;
+        if (input.etaLabel !== undefined) state.etaLabel = input.etaLabel;
+        else if (input.arrivalMinutes !== undefined) state.etaLabel = `${input.arrivalMinutes} min`;
         if (input.lastUpdate) state.lastUpdateHtml = input.lastUpdate;
         if (state.phase === 'onboard' || state.phase === 'arrived') updateTripProgress();
         render();

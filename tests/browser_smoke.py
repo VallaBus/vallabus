@@ -1056,6 +1056,31 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
 
     waiting = capture(0, "01-esperando.png")
 
+    # La ficha puede mostrar una ETA redondeada distinta de la hora ISO de
+    # llegada. El panel debe conservar la ETA que vio el usuario al entrar.
+    eta_mismatch = page.evaluate(
+        """() => {
+            window.rideTracking.applyDemoState({
+                phase: 'waiting',
+                bus: null,
+                destinationKey: null,
+                etaLabel: '1 min',
+                arrivalTime: new Date(Date.now() + 120000).toISOString(),
+                lastUpdate: 'Última comprobación hace 1s'
+            });
+            return {
+                status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+                metric: document.querySelector('#rideTrackingMetricValue')?.textContent || ''
+            };
+        }"""
+    )
+    assert eta_mismatch == {
+        "status": "El bus está llegando",
+        "boardHidden": False,
+        "metric": ""
+    }, json.dumps(eta_mismatch, ensure_ascii=False)
+
     # El grabador se comporta como un gesto vertical, no como un botón
     # ambiguo en el borde de la hoja.
     handle_box = page.locator("#rideSheetToggle").bounding_box()
