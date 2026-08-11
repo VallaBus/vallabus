@@ -964,10 +964,12 @@
 
     function isScheduledBoardingWindow() {
         if (state.phase !== 'waiting') return false;
-        // Cuando tenemos GPS reciente, la hora prevista nunca puede afirmar
-        // que el bus se fue: primero debe confirmarlo su posición en la ruta.
-        // La ventana horaria queda como respaldo únicamente sin señal viva.
-        return hasFreshBusPosition() ? hasBusLeftBoardStop() : isArrivalWindow();
+        // La hora prevista habilita la confirmación manual aunque la posición
+        // viva todavía no haya llegado exactamente al radio de la parada.
+        // Solo la descartamos si el bus ha rebasado claramente la parada, para
+        // no mostrar "Estoy dentro" cuando ya sabemos que se fue.
+        if (hasBusLeftBoardStop()) return false;
+        return isArrivalWindow();
     }
 
     function hasFreshBusPosition() {

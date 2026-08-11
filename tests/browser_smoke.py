@@ -1099,7 +1099,8 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     page.evaluate("() => window.rideTrackingDemo.setState(1)")
     page.wait_for_timeout(180)
     assert page.locator("#rideTrackingStatus").inner_text() == "El bus está llegando"
-    assert page.locator("#rideBoardButton").is_hidden()
+    assert page.locator("#rideBoardButton").is_visible()
+    assert page.locator("#rideBoardButton").inner_text() == "Sí, estoy dentro"
     center_after_update = page.evaluate(
         """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
     )
