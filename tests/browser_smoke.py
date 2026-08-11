@@ -408,7 +408,7 @@ def test_live_search_line_and_map(
         "La parada de subida no usa el marcador de usuario/parada"
     )
     assert page.locator("#busMap .ride-map-marker--board svg path[fill-rule='evenodd']").count() == 1, (
-        "La parada de subida no usa un icono sólido de autobús"
+        "La parada de subida no usa un pin de ubicación"
     )
     board_color = page.locator("#busMap .ride-map-marker--board").evaluate(
         """(element, line) => {

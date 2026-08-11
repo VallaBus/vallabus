@@ -44,7 +44,7 @@ function crearIconoParadaSeguimiento(lineNumber) {
         html: `
             <span class="ride-map-marker ride-map-marker--board${crearClaseLinea(lineNumber)}" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
-                    <path fill-rule="evenodd" d="M8 3.5h8A2.5 2.5 0 0 1 18.5 6v13h-2v1.5h-2V19h-5v1.5h-2V19h-2V6A2.5 2.5 0 0 1 8 3.5zm0 3v4h8v-4H8z"></path>
+                    <path fill-rule="evenodd" d="M12 21s-6-4.8-6-10a6 6 0 1 1 12 0c0 5.2-6 10-6 10zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path>
                 </svg>
             </span>`,
         iconSize: [40, 46],
