@@ -218,6 +218,18 @@
     display: flex;
 }
 
+.line-info .tiempo.sin-datos {
+    font-size: 0.7em;
+    line-height: 1;
+    white-space: nowrap;
+    color: #666;
+    margin-left: 10px;
+}
+
+.dark-mode .line-info .tiempo.sin-datos {
+    color: #BDBDBD;
+}
+
 .line-info .tiempo.sin-servicio {
     font-size: 0.85em;
     color: #CCC;
@@ -419,4 +431,3 @@
 .dark-mode .close-tip {
     color: hsl(168.8, 23.2%, 93%);
 }
-

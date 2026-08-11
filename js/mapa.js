@@ -650,7 +650,8 @@ function prepararDatosParadas(paradas) {
 let biciGeoJSONLayer = null;
 
 // Mapa para paradas cercanas
-async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
+async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY, options = {}) {
+    const isApproximate = options.isApproximate === true;
 
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
@@ -749,13 +750,19 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
         window.myMapParadasCercanas.removeLayer(userLocationCircle);
     }
 
-    // Dibuja un círculo alrededor de la ubicación del usuario
-    userLocationCircle = L.circle([lat, lon], {
-        color: '#FFF',
-        fillColor: '#1da1f2',
-        fillOpacity: 0.7,
-        radius: 30
-    }).addTo(window.myMapParadasCercanas);
+    // Solo dibujamos la ubicación cuando procede del dispositivo. En el
+    // fallback del centro de Valladolid sería engañoso mostrarla como si
+    // fuera la posición real del usuario.
+    if (!isApproximate) {
+        userLocationCircle = L.circle([lat, lon], {
+            color: '#FFF',
+            fillColor: '#1da1f2',
+            fillOpacity: 0.7,
+            radius: 30
+        }).addTo(window.myMapParadasCercanas);
+    } else {
+        userLocationCircle = null;
+    }
 
     // Toogle de bicis
     // Definición del control personalizado

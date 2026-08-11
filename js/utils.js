@@ -1007,7 +1007,9 @@ function addRemoveButtonsEvents() {
             if (isClickAllowed) { // Verifica si se permite el clic
                 isClickAllowed = false; // Deshabilita nuevos clics
     
-                const stopNumber = document.getElementById('stopNumber').value;
+                const stopNumber = typeof getSelectedStopNumber === 'function'
+                    ? getSelectedStopNumber()
+                    : document.getElementById('stopNumber').value;
                 const lineNumber = document.getElementById('lineNumber').value;
                 await addBusLine(stopNumber, lineNumber);
     
@@ -1457,11 +1459,15 @@ async function handleRoute() {
             break;
         case '#/cercanas':
         case '/cercanas':
+            displayLoadingSpinner();
             if (navigator.geolocation) {
-                displayLoadingSpinner();
-                navigator.geolocation.getCurrentPosition(showNearestStops, showError, { maximumAge: 6000, timeout: 15000 });
+                navigator.geolocation.getCurrentPosition(
+                    showNearestStops,
+                    () => showNearestStops(null),
+                    { maximumAge: 6000, timeout: 15000 }
+                );
             } else {
-                console.log("Geolocalización no soportada por este navegador.");
+                showNearestStops(null);
             }
             break;
         case '#/datos':

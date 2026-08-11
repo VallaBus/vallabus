@@ -2,6 +2,23 @@
 let lastKnownLocation = null;
 let lastLocationTime = 0;
 
+function getSelectedStopNumber() {
+    const stopInput = document.getElementById('stopNumber');
+    return stopInput?.dataset.stopNumber?.trim() || stopInput?.value.trim() || '';
+}
+
+function setSelectedStop(stop) {
+    const stopInput = document.getElementById('stopNumber');
+    stopInput.value = stop.parada.nombre;
+    stopInput.dataset.stopNumber = stop.parada.numero;
+}
+
+function clearSelectedStop() {
+    const stopInput = document.getElementById('stopNumber');
+    stopInput.value = '';
+    stopInput.removeAttribute('data-stop-number');
+}
+
 function getUserLocation(callback) {
     const now = Date.now();
     if (lastKnownLocation && (now - lastLocationTime < 30000)) {
@@ -56,6 +73,9 @@ document.getElementById('stopNumber').addEventListener('input', async function()
     const inputText = this.value;
     const resultsContainer = document.getElementById('autocompleteResults');
 
+    // Al editar el nombre seleccionado, dejamos de usar el número interno anterior.
+    this.removeAttribute('data-stop-number');
+
     // Limpia resultados previos
     resultsContainer.innerHTML = '';
 
@@ -83,15 +103,14 @@ function showNearbyStopsLink(container) {
     resultElement.classList.add('autocomplete-result', 'nearbyStopsSuggestion');
     resultElement.addEventListener('click', function() {
         container.innerHTML = '';
+        displayLoadingSpinner();
+        closeAllDialogs(dialogIds);
         getUserLocation(function(location) {
-            if (location) {
-                displayLoadingSpinner();
-                closeAllDialogs(dialogIds);
-                showNearestStops({ coords: { latitude: location.y, longitude: location.x } });
-                toogleSidebar();
-            } else {
-                console.log("No se pudo obtener la ubicación.");
-            }
+            const position = location
+                ? { coords: { latitude: location.y, longitude: location.x } }
+                : null;
+            showNearestStops(position);
+            toogleSidebar();
         });
     });
     container.appendChild(resultElement);
@@ -210,7 +229,7 @@ function displayStops(stops, container) {
         `;
         resultElement.classList.add('autocomplete-result');
         resultElement.addEventListener('click', function() {
-            document.getElementById('stopNumber').value = stop.parada.numero;
+            setSelectedStop(stop);
             container.innerHTML = '';
             updateGlowEffects();
         });
@@ -243,10 +262,10 @@ function displaySearchResults(stops, container) {
    
         numParadaSpan.textContent = stop.parada.numero;
    
-        resultElement.innerHTML = `${numParadaSpan.outerHTML} ${stop.parada.nombre}`;
+        resultElement.innerHTML = `${numParadaSpan.outerHTML} <span class="stopName">${stop.parada.nombre}</span>`;
         resultElement.classList.add('autocomplete-result');
         resultElement.addEventListener('click', function() {
-            document.getElementById('stopNumber').value = stop.parada.numero;
+            setSelectedStop(stop);
             container.innerHTML = '';
             updateGlowEffects();
         });
@@ -301,7 +320,7 @@ document.getElementById('lineNumber').addEventListener('focus', async function()
     clearTimeout(timeoutId);
 
     const lineNumber = this.value;
-    const stopNumber = document.getElementById('stopNumber').value;
+    const stopNumber = getSelectedStopNumber();
 
     // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico o contiene dos puntos
     if (!(/^[a-zA-Z0-9:]+$/.test(stopNumber))) {
@@ -386,7 +405,7 @@ function displayLineSuggestions(buses) {
         resultElement.appendChild(lineElement);
 
         const addSelectedLine = async function() {
-            const stopNumber = document.getElementById('stopNumber').value.trim();
+            const stopNumber = getSelectedStopNumber();
             lineNumber.value = bus.linea;
             resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
 
@@ -415,7 +434,7 @@ function displayLineSuggestions(buses) {
 
 // Función para actualizar los efectos de glow
 function updateGlowEffects() {
-    const stopNumber = document.getElementById('stopNumber').value;
+    const stopNumber = getSelectedStopNumber();
     const lineNumber = document.getElementById('lineNumber');
     const addButton = document.getElementById('addButton');
 
@@ -460,7 +479,7 @@ function addClearButton(inputElement) {
 
     clearButton.addEventListener('click', function(e) {
         e.stopPropagation(); // Evita que el clic se propague al botón de añadir
-        inputElement.value = '';
+        clearSelectedStop();
         this.style.display = 'none';
         inputElement.focus();
         updateGlowEffects();

@@ -893,7 +893,11 @@ function addAllLinesForStop(stopData) {
     showSuccessPopUp('Todas las líneas de la parada añadidas');
 
     // Limpiar el contenido del input stopNumber
-    document.getElementById('stopNumber').value = '';
+    if (typeof clearSelectedStop === 'function') {
+        clearSelectedStop();
+    } else {
+        document.getElementById('stopNumber').value = '';
+    }
 
     // Limpiamos sugerencias de lineas
     document.getElementById('lineSuggestions').innerHTML = '';
@@ -1451,10 +1455,39 @@ function updateLineAlerts(lineNumber, alerts) {
  * 
  * @throws {Error} Si no se puede recuperar los datos del API.
  */
-async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount = 0) {
+function renderBusDataUnavailable(lineItem, lineNumber, alertIcon = '', message = 'Sin datos ahora') {
+    lineItem.classList.remove(
+        'realtime',
+        'programado',
+        'propagated',
+        'loading-state',
+        'skeleton',
+        'skeleton-text',
+        'highlight-update'
+    );
+    lineItem.classList.add('no-data');
+    lineItem.innerHTML = `
+            <div class="linea">
+                <h3>${lineNumber}</h3>
+            </div>
+            <div class="trip-info">
+                <div class="ocupacion"></div>
+                <div class="ruta">
+                    <p class="destino"></p>
+                    <span class="diferencia"></span>
+                </div>
+                <div class="alerta"><a class="alert-icon">${alertIcon}</a></div>
+            </div>
+            <div class="hora-tiempo">
+                <div class="tiempo sin-datos" role="status">${message}</div>
+                <div class="horaLlegada"></div>
+            </div>
+        `;
+}
+
+async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts) {
     // URL del API con estáticos y tiempo real
     const apiUrl = '/v2/parada/' + stopNumber + '/' + lineNumber;
-    const maxRetries = 2; // Máximo 2 reintentos
 
     // Recuperamos si hay alertas para esa linea
     const busLineAlerts = filterBusAlerts(allAlerts, lineNumber);
@@ -1467,6 +1500,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
     try {
         const response = await fetchApi(apiUrl);
         const scheduledData = await response.json();
+        lineItem.classList.remove('no-data');
 
         // Agrupar los datos por trip_id para una mejor búsqueda
         const combinedData = combineBusData(scheduledData);
@@ -1787,88 +1821,14 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
         lineItem.appendChild(infoPanel);
 
     } catch (error) {
-        console.error(`Error en fetchBusTime (intento ${retryCount + 1}/${maxRetries + 1}):`, error);
+        console.warn('No se han podido cargar los datos de la línea:', error);
 
-        // Intentar reintentar si no hemos alcanzado el máximo
-        if (retryCount < maxRetries) {
-            console.log(`Reintentando en 2 segundos... (intento ${retryCount + 1}/${maxRetries})`);
-
-            // Mostrar estado de reintento con estructura completa
-            lineItem.innerHTML = `
-                    <div class="linea">
-                        <h3>${lineNumber}</h3>
-                    </div>
-                    <div class="trip-info">
-                        <div class="ocupacion"></div>
-                        <div class="ruta">
-                            <p class="destino"></p>
-                            <span class="diferencia"></span>
-                        </div>
-                        <div class="alerta"><a class="alert-icon"></a></div>
-                    </div>
-                    <div class="hora-tiempo">
-                        <div class="tiempo loading"></div>
-                        <div class="horaLlegada"></div>
-                    </div>
-                `;
-
-            // Reintentar después de 2 segundos
-            setTimeout(() => {
-                fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCount + 1);
-            }, 2000);
-            return;
-        }
-
-        // Si ya agotamos los reintentos, mostrar error con estructura completa
-        lineItem.innerHTML = `
-                <div class="linea">
-                    <h3>${lineNumber}</h3>
-                </div>
-                <div class="trip-info">
-                    <div class="ocupacion"></div>
-                    <div class="ruta">
-                        <p class="destino"></p>
-                        <span class="diferencia"></span>
-                    </div>
-                    <div class="alerta"><a class="alert-icon"></a></div>
-                </div>
-                <div class="hora-tiempo">
-                    <div class="tiempo error-state">No disponible ahora</div>
-                    <div class="error-subtitle">Toca para reintentar</div>
-                </div>
-            `;
-
-        // Añadir evento para reintentar manualmente
-        const retryElement = lineItem.querySelector('.hora-tiempo');
-        if (retryElement) {
-            retryElement.style.cursor = 'pointer';
-            retryElement.addEventListener('click', function retryFetch() {
-                // Remover el event listener para evitar duplicados
-                retryElement.removeEventListener('click', retryFetch);
-
-                // Mostrar estado de carga con estructura completa
-                lineItem.innerHTML = `
-                        <div class="linea">
-                            <h3>${lineNumber}</h3>
-                        </div>
-                        <div class="trip-info">
-                            <div class="ocupacion"></div>
-                            <div class="ruta">
-                                <p class="destino"></p>
-                                <span class="diferencia"></span>
-                            </div>
-                            <div class="alerta"><a class="alert-icon"></a></div>
-                        </div>
-                        <div class="hora-tiempo">
-                            <div class="tiempo loading"></div>
-                            <div class="horaLlegada"></div>
-                        </div>
-                    `;
-
-                // Reintentar desde el principio
-                fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, 0);
-            });
-        }
+        // La actualización periódica volverá a consultar la línea. Mientras
+        // tanto, dejamos un estado estable que no parece un error activo ni
+        // una carga infinita.
+        renderBusDataUnavailable(lineItem, lineNumber, alertIcon);
+        removeExistingEventListeners(lineItem);
+        addEventListeners(lineItem, {}, lineNumber, stopNumber);
 
         const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber, null);
         lineItem.appendChild(infoPanel);
@@ -2594,10 +2554,23 @@ async function loadBikeStops() {
  * 
  * @throws {Error} Si no se proporciona una posición válida.
  */
-async function showNearestStops(position) {
-    const userLocation = { x: position.coords.longitude, y: position.coords.latitude };
+const VALLADOLID_CENTER = Object.freeze({ x: -4.724532, y: 41.652251 });
+
+async function showNearestStops(position = null) {
+    const hasUserLocation = Number.isFinite(Number(position?.coords?.longitude))
+        && Number.isFinite(Number(position?.coords?.latitude));
+    const userLocation = hasUserLocation
+        ? { x: Number(position.coords.longitude), y: Number(position.coords.latitude) }
+        : { ...VALLADOLID_CENTER };
+    const isApproximate = !hasUserLocation;
     const busStops = await loadBusStops();
     const bikeStops = await loadBikeStops();
+
+    if (!Array.isArray(busStops)) {
+        hideLoadingSpinner();
+        showErrorPopUp('No se han podido cargar las paradas cercanas.');
+        return;
+    }
 
     // Paradas de bus
     let sortedStops = busStops.map(stop => {
@@ -2637,7 +2610,7 @@ async function showNearestStops(position) {
         nearbyBikeStops = sortedBikeStops;
     }
 
-    displayNearestStopsResults(nearbyStops, nearbyBikeStops, userLocation);
+    displayNearestStopsResults(nearbyStops, nearbyBikeStops, userLocation, { isApproximate });
 }
 
 let currentResultsListener = null;
@@ -2655,16 +2628,24 @@ let currentResultsListener = null;
  * 
  * @throws {Error} Si no se proporcionan datos válidos.
  */
-async function displayNearestStopsResults(stops, bikeStops, userLocation) {
+async function displayNearestStopsResults(stops, bikeStops, userLocation, options = {}) {
     let resultsDiv = document.getElementById('nearestStopsResults');
     resultsDiv.style.display = 'block';
+    const isApproximate = options.isApproximate === true;
 
     resultsDiv.innerHTML = '<button id="close-nearest-stops">X</button>';
 
     // Añadir otros elementos estáticos al resultsDiv
+    const locationMessage = isApproximate
+        ? `<p class="nearby-location-notice" role="status">
+                <strong>Ubicación no disponible.</strong>
+                Mostramos las paradas cercanas al centro de Valladolid.
+                <button type="button" id="nearby-location-retry">Habilitar ubicación</button>
+           </p>`
+        : '<p>Estas son las paradas más cercanas a tu ubicación.</p>';
     resultsDiv.innerHTML += `
         <h2>Paradas cercanas</h2>
-        <p>Estas son las paradas más cercanas a tu ubicación.</p>
+        ${locationMessage}
         <div id="mapaParadasCercanas"></div>
         <p><strong>Pulsa sobre la linea para añadirla</strong> o sobre el botón <strong>+</strong> para añadir todas las líneas de la parada.</p>`;
 
@@ -2692,6 +2673,21 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     currentResultsListener = async function (event) {
         if (event.target.matches('#close-nearest-stops')) {
             closeNearestStops();
+        } else if (event.target.matches('#nearby-location-retry')) {
+            if (!navigator.geolocation) {
+                showErrorPopUp('Este navegador no permite usar la ubicación.');
+                return;
+            }
+
+            displayLoadingSpinner();
+            navigator.geolocation.getCurrentPosition(
+                showNearestStops,
+                function () {
+                    hideLoadingSpinner();
+                    showErrorPopUp('Habilita los permisos de ubicación para ver las paradas más cercanas a ti.');
+                },
+                { maximumAge: 6000, timeout: 15000 }
+            );
         } else if (event.target.matches('.stopResult .addStopButton')) {
             let stopNumber = event.target.getAttribute('data-stop-number');
             await addBusLine(stopNumber);
@@ -2730,7 +2726,7 @@ async function displayNearestStopsResults(stops, bikeStops, userLocation) {
     resultsDiv.addEventListener('click', currentResultsListener);
 
     // Generamos el mapa de paradas
-    await mapaParadasCercanas(stops, userLocation.x, userLocation.y);
+    await mapaParadasCercanas(stops, userLocation.x, userLocation.y, { isApproximate });
     const showBikes = localStorage.getItem('showBikes');
     if (showBikes) {
         const showBikesElement = document.getElementById('show-bikes');

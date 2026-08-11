@@ -129,8 +129,10 @@ def select_stop(page: Page, stop_number: str, timeout_ms: int) -> None:
     )
     first_stop = page.locator("#autocompleteResults .autocomplete-result").first
     assert stop_number in first_stop.inner_text(), "La búsqueda no devuelve la parada solicitada"
+    selected_stop_name = first_stop.locator(".stopName").inner_text()
     first_stop.click()
-    assert page.locator("#stopNumber").input_value() == stop_number
+    assert page.locator("#stopNumber").input_value() == selected_stop_name
+    assert page.locator("#stopNumber").get_attribute("data-stop-number") == stop_number
 
 
 def add_line_to_list(page: Page, stop_number: str, line_number: str, timeout_ms: int):
@@ -205,7 +207,7 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
     style = page.evaluate(
         "() => fetch('/css/style.css', {cache: 'no-store'}).then(response => response.text())"
     )
-    positions = [style.index('"' + block + '"') for block in CSS_BLOCKS]
+    positions = [style.index('"' + block) for block in CSS_BLOCKS]
     assert positions == sorted(positions), "El agregador CSS no conserva el orden funcional"
     assert len(style.splitlines()) < 40, "style.css debe ser solo el agregador de imports"
 
@@ -1651,6 +1653,36 @@ def test_nearby_stops(result: BrowserPage, timeout_ms: int) -> None:
     assert_no_browser_errors(result)
 
 
+def test_nearby_stops_without_geolocation(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+    page.evaluate(
+        """() => {
+            navigator.geolocation.getCurrentPosition = (_success, error) =>
+                error({code: 1, message: 'permission denied'});
+        }"""
+    )
+    page.locator("#viewCercanasButton a").click()
+    page.wait_for_function(
+        "() => document.querySelector('#nearestStopsResults').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    notice = page.locator("#nearestStopsResults .nearby-location-notice")
+    page.wait_for_selector(
+        "#nearestStopsResults .nearby-location-notice", state="visible", timeout=timeout_ms
+    )
+    notice_text = notice.inner_text()
+    assert "centro de Valladolid" in notice_text
+    assert page.locator("#nearby-location-retry").inner_text() == "Habilitar ubicación"
+    assert page.locator("#mapaParadasCercanas").count() == 1
+    page.wait_for_selector("#nearestStopsResults .stopResult", state="attached", timeout=timeout_ms)
+    assert page.locator("#nearestStopsResults .stopResult").count() > 0
+    assert page.locator("#mapaParadasCercanas .leaflet-overlay-pane path").count() == 0
+
+    page.locator("#close-nearest-stops").click()
+    page.wait_for_function("() => document.querySelector('#nearestStopsResults').style.display !== 'block'")
+    assert_no_browser_errors(result)
+
+
 def test_route_planner(result: BrowserPage, timeout_ms: int) -> None:
     page = result.page
 
@@ -1914,6 +1946,10 @@ def main() -> int:
                 (
                     "paradas_cercanas_con_geolocalizacion",
                     lambda result: test_nearby_stops(result, args.timeout),
+                ),
+                (
+                    "paradas_cercanas_sin_ubicacion",
+                    lambda result: test_nearby_stops_without_geolocation(result, args.timeout),
                 ),
                 (
                     "planificador_de_rutas",
