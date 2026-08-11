@@ -855,10 +855,21 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 }
 
 .map-follow-copy .map-follow-freshness {
-    color: #98a29c;
-    font-size: 0.7rem;
+    color: #9aa49e;
+    display: block;
+    font-size: 0.68rem;
     font-weight: 500;
-    margin-top: 2px;
+    line-height: 1.1;
+    margin-top: 1px;
+}
+
+/* La hora de actualización es contexto, no el dato principal de la tarjeta.
+   Evitamos que el <strong> generado por el texto herede el peso/tamaño del
+   nombre de la línea. */
+.map-follow-copy .map-follow-freshness strong {
+    color: inherit;
+    font-size: inherit;
+    font-weight: 600;
 }
 
 .map-follow-action {
@@ -882,6 +893,7 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 
 .dark-mode .map-follow-copy strong { color: #f5f7f5; }
 .dark-mode .map-follow-copy span { color: #aeb8b2; }
+.dark-mode .map-follow-copy .map-follow-freshness { color: #8f9b93; }
 
 /* Al cerrar el panel seguimos en una sesión activa, pero la tarjeta debe
    seguir siendo una superficie legible; el verde queda reservado a la

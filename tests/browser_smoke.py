@@ -419,6 +419,21 @@ def test_live_search_line_and_map(
     assert page.locator("#mapFollowFreshness").count() == 1, (
         "La tarjeta del mapa no tiene el estado de actualización"
     )
+    freshness_styles = page.locator("#mapFollowFreshness").evaluate(
+        """element => {
+            const strong = element.querySelector('strong');
+            const style = getComputedStyle(element);
+            const strongStyle = strong ? getComputedStyle(strong) : style;
+            return {
+                fontSize: style.fontSize,
+                fontWeight: style.fontWeight,
+                strongFontSize: strongStyle.fontSize,
+                strongFontWeight: strongStyle.fontWeight
+            };
+        }"""
+    )
+    assert freshness_styles["strongFontSize"] == freshness_styles["fontSize"]
+    assert int(freshness_styles["strongFontWeight"]) <= 600
 
     # Si hay un bus en tiempo real, el popup muestra la matrícula/identificador
     # y su cierre usa internamente el enlace `#close` de Leaflet. Si el API no
