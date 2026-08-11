@@ -1033,6 +1033,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                 nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
                 remaining: document.querySelector('#rideTrackingRemainingValue')?.textContent || '',
                 eta: document.querySelector('#rideTrackingMetricValue')?.textContent || '',
+                arrivalTime: document.querySelector('#rideTrackingArrivalTime')?.textContent || '',
                 freshness: document.querySelector('#rideTrackingLastUpdate')?.textContent || '',
                 boardHidden: document.querySelector('#rideBoardButton')?.hidden,
                 boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
@@ -1154,11 +1155,14 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert boarding["status"] == "El bus está en tu parada"
     assert boarding["boardHidden"] is False
     assert boarding["boardLabel"] == "Ya estoy dentro"
+    assert waiting["arrivalTime"] == ""
     assert onboard["phase"] == "onboard"
+    assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", onboard["arrivalTime"])
     assert onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
     assert onboard["remaining"] == "3"
     assert onboard["destination"] == "Paseo Zorrilla 101 LAVA"
     assert get_off["status"] == "Bájate en la próxima parada"
+    assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", get_off["arrivalTime"])
     assert get_off["alert"] == "Bájate en la próxima parada"
     assert get_off["remaining"] == "1"
     assert "Posición del bus no disponible" in degraded["freshness"]
@@ -1166,6 +1170,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert arrived["phase"] == "arrived"
     assert arrived["status"] == "Esta es tu parada"
     assert arrived["eta"] == "Baja aquí"
+    assert arrived["arrivalTime"] == ""
     assert scheduled_only == {
         "status": "El bus está llegando",
         "metricHidden": True,

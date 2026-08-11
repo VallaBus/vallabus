@@ -158,6 +158,7 @@
             metricValue: document.getElementById('rideTrackingMetricValue'),
             metricLabel: document.getElementById('rideTrackingMetricLabel'),
             nextStop: document.getElementById('rideTrackingNextStop'),
+            arrivalTime: document.getElementById('rideTrackingArrivalTime'),
             lastUpdate: document.getElementById('rideTrackingLastUpdate'),
             locationHint: document.getElementById('rideTrackingLocationHint'),
             destination: document.getElementById('rideDestinationSelect'),
@@ -1068,6 +1069,19 @@
         return minutes <= 1 ? `El bus está llegando · ${time}` : `Esperando al bus · ${minutes} min · ${time}`;
     }
 
+    function getDestinationArrivalLabel() {
+        if (state.phase !== 'onboard'
+            || !state.destination
+            || !Number.isFinite(state.destinationEtaMinutes)) return '';
+        const estimatedArrival = new Date(Date.now() + Math.max(0, state.destinationEtaMinutes) * 60000);
+        const time = estimatedArrival.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        return `Hora de llegada: ${time}`;
+    }
+
     function formatWaitingStatus() {
         if (state.busAtBoardStop) return 'El bus está en la parada. Prepárate para subir.';
         if (state.arrivalTime) {
@@ -1248,6 +1262,11 @@
             ui.locationHint.textContent = showGpsHint
                 ? 'La ubicación ayuda a detectar el trayecto, pero puedes confirmarlo manualmente.'
                 : '';
+        }
+        const destinationArrivalLabel = getDestinationArrivalLabel();
+        if (ui.arrivalTime) {
+            ui.arrivalTime.hidden = !destinationArrivalLabel;
+            ui.arrivalTime.textContent = destinationArrivalLabel;
         }
         if (ui.lastUpdate) {
             const degraded = state.phase === 'onboard' && state.busPositionUnavailable;

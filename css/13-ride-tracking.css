@@ -544,8 +544,21 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 }
 
 .ride-tracking-location-hint[hidden],
+.ride-tracking-arrival-time[hidden],
 .ride-tracking-last-update[hidden] {
     display: none;
+}
+
+.ride-tracking-arrival-time {
+    color: #69786f;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: -7px 0 10px;
+}
+
+.dark-mode .ride-tracking-arrival-time {
+    color: #aab5ae;
 }
 
 .ride-tracking-last-update {
@@ -1006,6 +1019,7 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 .ride-tracking-panel.is-collapsed .ride-tracking-next-stop,
 .ride-tracking-panel.is-collapsed .ride-tracking-metric,
 .ride-tracking-panel.is-collapsed .ride-tracking-location-hint,
+.ride-tracking-panel.is-collapsed .ride-tracking-arrival-time,
 .ride-tracking-panel.is-collapsed .ride-tracking-last-update,
 .ride-tracking-panel.is-collapsed .ride-destination-field,
 .ride-tracking-panel.is-collapsed .ride-tracking-actions,
