@@ -1,4 +1,7 @@
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
+// Exponemos la instancia para que el seguimiento de viaje pueda dibujar la
+// posición del usuario sobre el mismo mapa sin crear una segunda instancia.
+window.vallabusMap = myMap;
 let currentTileLayer;
 let centerControl;
 let paradaMarker;
@@ -21,8 +24,31 @@ function crearIconoBus(numeroBus) {
 
     return L.divIcon({
         className: 'bus-icon' + (numeroBus ? ' linea-' + numeroBus : '') + labelClass,
-        html: `<div>${label}</div>`,
+        html: `
+            <div>${label}</div>
+            <svg class="bus-icon-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="5.5" y="3.5" width="13" height="15" rx="2"></rect>
+                <path d="M6 10h12M8 6h3M13 6h3"></path>
+                <circle cx="8.5" cy="16" r="1"></circle>
+                <circle cx="15.5" cy="16" r="1"></circle>
+            </svg>`,
         iconSize: [30, 30]
+    });
+}
+
+function crearIconoParadaSeguimiento() {
+    return L.divIcon({
+        className: 'ride-map-marker-icon',
+        html: `
+            <span class="ride-map-marker ride-map-marker--board" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <circle cx="12" cy="7" r="3.1"></circle>
+                    <path d="M5.8 20c.4-4.1 2.4-6.2 6.2-6.2s5.8 2.1 6.2 6.2"></path>
+                </svg>
+            </span>`,
+        iconSize: [40, 46],
+        iconAnchor: [20, 42],
+        popupAnchor: [0, -38]
     });
 }
 
@@ -89,6 +115,10 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 // Si no hay datos de ubicación, los dejamos como null
                 if (!response.ok) {
                     console.log('Error al consultar el API de ubicación');
+                    actualizarSinPosicion();
+                    if (typeof window.rideTracking?.onBusPosition === 'function') {
+                        window.rideTracking.onBusPosition(null, busData);
+                    }
                 }
                 else {
                     const data = await response.json();
@@ -98,10 +128,13 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         if (centerMap) {
                             myMap.panTo([paradaData.latitud, paradaData.longitud]);
                         }
-                        document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
+                        actualizarSinPosicion();
                         if (marcadorAutobus) {
                             marcadorAutobus.remove();
                             marcadorAutobus = null;
+                        }
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(null, busData);
                         }
                     }
                     else {
@@ -109,6 +142,9 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         lat = parseFloat(data[0].latitud);
                         lon = parseFloat(data[0].longitud);
                         actualizarBus(lat, lon, busData);
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(data[0], busData);
+                        }
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
                         if (centerMap) {
@@ -124,9 +160,17 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 addStopsToMap(busData.tripId, busData.lineNumber);
             } catch (error) {
                 console.error('Error al actualizar el mapa de buses:', error.message);
+                actualizarSinPosicion();
+                if (typeof window.rideTracking?.onBusPosition === 'function') {
+                    window.rideTracking.onBusPosition(null, busData);
+                }
             }
         } catch (error) {
             console.error('Error al actualizar el mapa de buses:', error.message);
+            actualizarSinPosicion();
+            if (typeof window.rideTracking?.onBusPosition === 'function') {
+                window.rideTracking.onBusPosition(null, busData);
+            }
         }
     });
 
@@ -195,11 +239,13 @@ function actualizarParada(paradaData) {
     if (paradaMarker) {
         // Si ya existe, actualizamos su posición y su popup
         paradaMarker.setLatLng([paradaData.latitud, paradaData.longitud]);
+        paradaMarker.setIcon(crearIconoParadaSeguimiento());
         paradaMarker.getPopup().setContent(paradaData.nombre);
     } else {
         // Si no existe, creamos uno nuevo
         paradaMarker = L.marker([paradaData.latitud, paradaData.longitud], {
-            title: paradaData.nombre
+            title: `Tu parada: ${paradaData.nombre}`,
+            icon: crearIconoParadaSeguimiento()
         }).addTo(myMap).bindPopup(paradaData.nombre);
     }
 }
@@ -258,6 +304,13 @@ function actualizarUltimaActualizacion(timestamp) {
     let lastUpdate = minutes < 1 ? `${seconds}s` : `${minutes} min ${seconds}s`;
     let updateHTML = `Última ubicación <strong>aproximada</strong>. Actualizada hace ${lastUpdate}`;
     document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
+}
+
+function actualizarSinPosicion() {
+    const updateHTML = 'Última comprobación <strong>hace 0s</strong>. No hay datos de ubicación en directo';
+    document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
 }
 
 // Función para calcular el ángulo entre dos puntos

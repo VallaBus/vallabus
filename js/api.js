@@ -1462,6 +1462,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
     const alertIcon = busLineAlerts.length > 0 ? '⚠️' : '';
 
     let busesProximos;
+    let busMasCercano = null;
 
     try {
         const response = await fetchApi(apiUrl);
@@ -1474,7 +1475,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
         // Si no hay datos para esa línea, no hacemos nada
         if (busesLinea) {
             // Filtrar y encontrar el bus más cercano para la línea específica
-            const busMasCercano = await elegirBusMasCercano(busesLinea, stopNumber, lineNumber);
+            busMasCercano = await elegirBusMasCercano(busesLinea, stopNumber, lineNumber);
 
             if (busMasCercano) {
                 let horaLlegada;
@@ -1779,10 +1780,10 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
         removeExistingEventListeners(lineItem);
 
         // Eventos click a diferentes elementos generados dinámicamente
-        addEventListeners(lineItem, scheduledData, lineNumber);
+        addEventListeners(lineItem, scheduledData, lineNumber, stopNumber);
 
         // Creamos el panel informativo desplegable
-        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber, busMasCercano);
         lineItem.appendChild(infoPanel);
 
     } catch (error) {
@@ -1869,7 +1870,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
             });
         }
 
-        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber, null);
         lineItem.appendChild(infoPanel);
     };
 }
@@ -1927,7 +1928,76 @@ function removeExistingEventListeners(lineItem) {
  * 
  * @throws {Error} Si no se puede encontrar un elemento específico.
  */
-function addEventListeners(lineItem, scheduledData, lineNumber) {
+function openTripMap(busData, paradaData, options = {}) {
+    const mapBox = document.querySelector('#mapContainer');
+    const tripId = busData?.tripId != null ? String(busData.tripId).trim() : '';
+    if (!mapBox || !tripId || tripId === 'undefined' || tripId === 'null' || !busData?.lineNumber) {
+        return false;
+    }
+
+    window.globalState = window.globalState || {};
+    const mapContext = {
+        ...busData,
+        tripId,
+        stopNumber: busData.stopNumber ?? paradaData?.numero ?? '',
+        stopName: paradaData?.nombre || busData.stopName || '',
+        stopLatitud: paradaData?.latitud ?? busData.stopLatitud ?? null,
+        stopLongitud: paradaData?.longitud ?? busData.stopLongitud ?? null
+    };
+
+    // Ocultar el sidebar si estuviera abierto.
+    toogleSidebar(true);
+
+    // Mostrar el mapa y compartir el contexto con el MVP de seguimiento.
+    mapBox.classList.add('show');
+    if (typeof window.rideTracking?.setMapContext === 'function') {
+        window.rideTracking.setMapContext(mapContext);
+    }
+    updateBusMap(busData, paradaData, true);
+
+    if (options.pushHistory !== false) {
+        const dialogState = {
+            dialogType: 'showTripMap'
+        };
+        history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+        trackCurrentUrl();
+    }
+
+    // Si intervalMap ya está definido, limpiar el intervalo existente.
+    if (window.globalState.intervalMap) {
+        clearInterval(window.globalState.intervalMap);
+        window.globalState.intervalMap = null;
+    }
+
+    window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
+
+    // Clonamos el botón para eliminar listeners anteriores y evitar acumulación.
+    const oldCloseButton = mapBox.querySelector('.map-close');
+    if (oldCloseButton) {
+        const newCloseButton = oldCloseButton.cloneNode(true);
+        oldCloseButton.parentNode.replaceChild(newCloseButton, oldCloseButton);
+        newCloseButton.addEventListener('click', function () {
+            if (typeof window.rideTracking?.stop === 'function') {
+                window.rideTracking.stop('map-closed', { silent: true });
+            }
+            mapBox.classList.remove('show');
+            if (window.globalState.intervalMap) {
+                clearInterval(window.globalState.intervalMap);
+                window.globalState.intervalMap = null;
+            }
+            const dialogState = {
+                dialogType: 'home'
+            };
+            history.replaceState(dialogState, document.title, '#/');
+        });
+    }
+
+    return true;
+}
+
+window.openTripMap = openTripMap;
+
+function addEventListeners(lineItem, scheduledData, lineNumber, stopNumber) {
     // Add alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
     if (alertIcon) {
@@ -1952,7 +2022,6 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
 
     // Add lineItem listener para mostrar el mapa al hacer clic
     const lineItemListener = function (event) {
-        const mapBox = document.querySelector('#mapContainer');
         // Obtenemos el tripId del elemento hermano llamado .linea
         const brotherElement = this.firstElementChild;
         const tripId = brotherElement.getAttribute('data-trip-id');
@@ -1965,61 +2034,36 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
             this.classList.remove('clicked');
         }, 300);
 
-        if (mapBox) {
-            let paradaData = {
+        if (tripId && tripId !== 'undefined' && tripId !== 'null') {
+            const lineData = scheduledData?.lineas?.find(line => String(line.linea) === String(lineNumber))
+                || scheduledData?.lineas?.[0];
+            const scheduledTrip = lineData?.horarios?.find(schedule => String(schedule.trip_id) === String(tripId));
+            const realtimeTrip = lineData?.realtime?.find(realtime => String(realtime.trip_id) === String(tripId));
+            const paradaData = {
                 latitud: scheduledData.parada[0].latitud,
                 longitud: scheduledData.parada[0].longitud,
                 nombre: scheduledData.parada[0].parada,
+                numero: stopNumber
             };
 
-            let busData = {
+            const busData = {
                 tripId: tripId,
                 matricula: matricula,
                 vehicleId: vehicleId,
                 lineNumber: lineNumber,
+                stopNumber: stopNumber,
+                stopName: paradaData.nombre,
+                arrivalLabel: this.querySelector('.horaLlegada')?.textContent.trim() || '',
+                etaLabel: this.querySelector('.tiempo')?.textContent.replace(/\s+/g, ' ').trim() || '',
+                arrivalTime: realtimeTrip?.fechaHoraLlegada
+                    || scheduledTrip?.fechaHoraLlegada
+                    || null,
+                destination: scheduledTrip?.destino
+                    || this.querySelector('.destino')?.textContent.trim()
+                    || ''
             };
 
-            // Ocultar el sidebar si estuviera abierto
-            toogleSidebar(true);
-
-            // Mostrar el mapa
-            mapBox.classList.add('show');
-            updateBusMap(busData, paradaData, true);
-
-            // URL para mapa
-            const dialogState = {
-                dialogType: 'showTripMap'
-            };
-            history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
-            trackCurrentUrl();
-
-            // Si intervalMap ya está definido, limpiar el intervalo existente
-            if (window.globalState.intervalMap) {
-                clearInterval(window.globalState.intervalMap);
-                window.globalState.intervalMap = null;
-            }
-
-            window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
-
-            // Agrega un controlador de eventos de clic a alerts-close
-            // Clonamos el botón para eliminar listeners anteriores y evitar acumulación
-            const oldCloseButton = mapBox.querySelector('.map-close');
-            const newCloseButton = oldCloseButton.cloneNode(true);
-            oldCloseButton.parentNode.replaceChild(newCloseButton, oldCloseButton);
-            newCloseButton.addEventListener('click', function () {
-                mapBox.classList.remove('show');
-                if (window.globalState.intervalMap) {
-                    // Paramos las actualizaciones
-                    clearInterval(window.globalState.intervalMap);
-                    window.globalState.intervalMap = null;
-                }
-                // Regresamos al home
-                const dialogState = {
-                    dialogType: 'home'
-                };
-                history.replaceState(dialogState, document.title, '#/');
-            });
-
+            openTripMap(busData, paradaData);
             event.stopPropagation();
         }
 
