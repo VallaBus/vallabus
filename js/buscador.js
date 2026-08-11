@@ -380,11 +380,34 @@ function displayLineSuggestions(buses) {
         lineElement.textContent = bus.linea;
 
         resultElement.classList.add('line-suggestion');
+        resultElement.setAttribute('role', 'button');
+        resultElement.setAttribute('tabindex', '0');
+        resultElement.setAttribute('aria-label', `Añadir línea ${bus.linea}`);
         resultElement.appendChild(lineElement);
 
-        resultElement.addEventListener('click', function() {
+        const addSelectedLine = async function() {
+            const stopNumber = document.getElementById('stopNumber').value.trim();
             lineNumber.value = bus.linea;
             resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
+
+            if (!stopNumber) {
+                updateGlowEffects();
+                return;
+            }
+
+            try {
+                await addBusLine(stopNumber, String(bus.linea));
+            } finally {
+                updateGlowEffects();
+            }
+        };
+
+        resultElement.addEventListener('click', addSelectedLine);
+        resultElement.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                addSelectedLine();
+            }
         });
         resultsContainer.appendChild(resultElement);
     });

@@ -144,9 +144,7 @@ def add_line_to_list(page: Page, stop_number: str, line_number: str, timeout_ms:
     )
     assert suggestion.count() > 0, "La parada no ofrece la línea configurada para la prueba"
     suggestion.first.click()
-    assert page.locator("#lineNumber").input_value() == line_number
 
-    page.locator("#addButton").click()
     card = page.locator('[id="%s-%s"]' % (stop_number, line_number))
     page.wait_for_selector('[id="%s-%s"] .linea h3' % (stop_number, line_number), timeout=timeout_ms)
     page.wait_for_selector(
