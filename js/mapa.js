@@ -237,6 +237,17 @@ let UbicacionUsuarioControl = L.Control.extend({
 myMap.addControl(new UbicacionUsuarioControl());
 
 function actualizarParada(paradaData) {
+    // En la sesión de seguimiento la posición real del usuario ya explica
+    // dónde está esperando; mantener además el marcador de la parada crea un
+    // segundo símbolo en el mismo punto y parece otra persona.
+    if (document.getElementById('mapContainer')?.classList.contains('ride-tracking-active')) {
+        if (paradaMarker) {
+            paradaMarker.remove();
+            paradaMarker = null;
+        }
+        return;
+    }
+
     // Actualizar o crear el marcador de la parada
     if (paradaMarker) {
         // Si ya existe, actualizamos su posición y su popup

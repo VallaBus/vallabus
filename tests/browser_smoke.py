@@ -814,6 +814,7 @@ def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
                     boardHidden: document.querySelector('#rideBoardButton').hidden,
                     fullMap: document.querySelector('#mapContainer').classList.contains('ride-tracking-active'),
                     userMarkerVisible,
+                    userMarkerVisibleAfterBoarding: Boolean(document.querySelector('#busMap .ride-map-marker--user')),
                     destinationMarkerVisible,
                     beforeBoarding,
                     legacyTimelineCount: document.querySelectorAll('.ride-timeline').length,
@@ -924,6 +925,7 @@ def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
             "boardHidden": True,
             "fullMap": True,
             "userMarkerVisible": True,
+            "userMarkerVisibleAfterBoarding": False,
             "destinationMarkerVisible": True,
             "beforeBoarding": {
                 "phase": "waiting",

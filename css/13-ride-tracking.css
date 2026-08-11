@@ -883,6 +883,25 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 .dark-mode .map-follow-copy strong { color: #f5f7f5; }
 .dark-mode .map-follow-copy span { color: #aeb8b2; }
 
+/* Al cerrar el panel seguimos en una sesión activa, pero la tarjeta debe
+   seguir siendo una superficie legible; el verde queda reservado a la
+   acción principal Abrir. */
+#mapContainer #mapFooter .map-follow-button.is-active {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(24, 134, 75, 0.3);
+    color: #20332a;
+}
+
+#mapContainer #mapFooter .map-follow-button.is-active .map-follow-copy strong {
+    color: #187b43;
+}
+
+.dark-mode #mapContainer #mapFooter .map-follow-button.is-active {
+    background: rgba(27, 34, 37, 0.97);
+    border-color: rgba(122, 211, 159, 0.42);
+    color: #f5f7f5;
+}
+
 .ride-sheet-grabber {
     appearance: none;
     background: transparent;

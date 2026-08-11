@@ -12,6 +12,7 @@
     const BOARD_STOP_RADIUS = 90;
     const BUS_STOP_RADIUS = 95;
     const BUS_USER_RADIUS = 180;
+    const ONBOARD_MARKER_MERGE_RADIUS = 75;
     const DESTINATION_TOLERANCE = 25;
     const POSITION_MAX_AGE = 5000;
     const GPS_TIMEOUT = 12000;
@@ -719,7 +720,9 @@
         const map = window.vallabusMap;
         if (!map || !state.userPosition || typeof window.L === 'undefined') return;
         if ((state.phase === 'onboard' || state.phase === 'arrived')
-            && state.busPosition && haversine(state.userPosition, state.busPosition) <= 40) {
+            && state.busPosition
+            && haversine(state.userPosition, state.busPosition)
+                <= Math.max(ONBOARD_MARKER_MERGE_RADIUS, state.userPosition.accuracy || 0)) {
             removeUserMarker();
             return;
         }
