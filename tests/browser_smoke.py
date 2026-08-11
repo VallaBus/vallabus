@@ -1047,6 +1047,8 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     ) > 0.00001
     page.evaluate("() => window.rideTrackingDemo.setState(1)")
     page.wait_for_timeout(180)
+    assert page.locator("#rideTrackingStatus").inner_text() == "El bus está llegando"
+    assert page.locator("#rideBoardButton").is_hidden()
     center_after_update = page.evaluate(
         """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
     )
@@ -1105,7 +1107,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert arrived["status"] == "Esta es tu parada"
     assert arrived["eta"] == "Baja aquí"
     assert scheduled_only == {
-        "status": "El bus ya salió de la parada",
+        "status": "El bus está llegando",
         "metricHidden": True,
         "boardHidden": False,
         "boardLabel": "Sí, estoy dentro",

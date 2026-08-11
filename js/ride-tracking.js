@@ -936,20 +936,38 @@
         return state.busAtBoardStop && hasFreshBusPosition();
     }
 
-    function isScheduledBoardingWindow() {
-        if (state.phase !== 'waiting') return false;
-        const arrival = state.arrivalTime ? new Date(state.arrivalTime) : null;
-        if (arrival && !Number.isNaN(arrival.getTime())) {
-            const delta = arrival.getTime() - Date.now();
-            return delta <= 90 * 1000 && delta > -15 * 60 * 1000;
+    function hasBusLeftBoardStop() {
+        if (!hasFreshBusPosition() || !state.busProjection) return false;
+        const boardProgress = Number.isFinite(state.boardStop?.progress)
+            ? state.boardStop.progress
+            : projectToRoute(state.boardStop)?.progress;
+        return Number.isFinite(boardProgress)
+            && state.busProjection.progress > boardProgress + 100;
+    }
+
+    function isArrivalWindow() {
+        if (state.arrivalTime) {
+            const arrival = new Date(state.arrivalTime);
+            if (!Number.isNaN(arrival.getTime())) {
+                const delta = arrival.getTime() - Date.now();
+                return delta <= 90 * 1000 && delta > -15 * 60 * 1000;
+            }
         }
 
         const eta = String(state.etaLabel || '').match(/\d+/);
         return Boolean(eta && Number(eta[0]) <= 1);
     }
 
+    function isScheduledBoardingWindow() {
+        if (state.phase !== 'waiting') return false;
+        // Cuando tenemos GPS reciente, la hora prevista nunca puede afirmar
+        // que el bus se fue: primero debe confirmarlo su posición en la ruta.
+        // La ventana horaria queda como respaldo únicamente sin señal viva.
+        return hasFreshBusPosition() ? hasBusLeftBoardStop() : isArrivalWindow();
+    }
+
     function hasFreshBusPosition() {
-        if (!state.busPosition || !state.lastBusUpdateAt) return false;
+        if (state.busPositionUnavailable || !state.busPosition || !state.lastBusUpdateAt) return false;
         return Date.now() - state.lastBusUpdateAt <= LIVE_POSITION_MAX_AGE;
     }
 
@@ -1146,6 +1164,8 @@
 
         const boardingPromptAvailable = isBoardingPromptAvailable();
         const scheduledBoardingWindow = isScheduledBoardingWindow();
+        const arrivalWindow = isArrivalWindow();
+        const busHasLeftBoardStop = hasBusLeftBoardStop();
         const phaseLabel = state.phase === 'onboard'
             ? 'en ruta'
             : state.phase === 'arrived'
@@ -1175,11 +1195,15 @@
         if (state.phase === 'waiting') {
             statusMessage = boardingPromptAvailable
                 ? 'El bus está en tu parada'
-                : scheduledBoardingWindow
+                : busHasLeftBoardStop
                     ? 'El bus ya salió de la parada'
+                    : arrivalWindow
+                        ? 'El bus está llegando'
                     : 'Esperando al bus';
             eta = getWaitingMetric();
-            statusTone = boardingPromptAvailable || scheduledBoardingWindow ? 'preparing' : '';
+            statusTone = boardingPromptAvailable || scheduledBoardingWindow || (arrivalWindow && !hasFreshBusPosition())
+                ? 'preparing'
+                : '';
             nextStopName = state.stopName || '';
         } else if (state.phase === 'preparing' || state.phase === 'boarding-candidate') {
             statusMessage = 'Prepárate para subir';

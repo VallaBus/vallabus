@@ -30,8 +30,8 @@
             bus: route[0], user: route[2]
         },
         {
-            label: 'Se acerca · llega en 2 min',
-            phase: 'waiting', arrivalMinutes: 2, destinationKey: null,
+            label: 'Hora prevista · aún se acerca',
+            phase: 'waiting', arrivalMinutes: 0, destinationKey: null,
             bus: route[1], user: route[2]
         },
         {
