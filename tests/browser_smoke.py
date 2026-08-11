@@ -425,6 +425,24 @@ def test_live_search_line_and_map(
         line_number,
     )
     assert board_color["marker"] == board_color["line"], board_color
+    board_visible_during_tracking = page.evaluate(
+        """(line) => {
+            const container = document.querySelector('#mapContainer');
+            container.classList.add('ride-tracking-active');
+            window.actualizarParada({
+                latitud: 41.652,
+                longitud: -4.724,
+                nombre: 'Parada de subida'
+            }, line);
+            const visible = document.querySelectorAll('#busMap .ride-map-marker--board').length;
+            container.classList.remove('ride-tracking-active');
+            return visible;
+        }""",
+        line_number,
+    )
+    assert board_visible_during_tracking == 1, (
+        "La parada de subida desaparece al abrir el seguimiento"
+    )
     assert page.locator("#busMap .leaflet-overlay-pane path.%s" % line_class).count() > 0, (
         "El mapa no cargó la geometría de la ruta"
     )
