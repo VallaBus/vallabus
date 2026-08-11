@@ -1227,6 +1227,31 @@
         status.classList.toggle('is-preparing', tone === 'preparing');
     }
 
+    /**
+     * Salir por completo del modo de seguimiento iniciado desde el mapa.
+     *
+     * La bandeja y el mapa forman una única superficie de seguimiento: si el
+     * usuario pulsa «Parar seguimiento», no debe quedar el mapa abierto ni
+     * seguir actualizándose en segundo plano.
+     */
+    function closeTrackingSurface() {
+        const mapBox = document.getElementById('mapContainer');
+        if (mapBox) {
+            mapBox.classList.remove('show', 'ride-tracking-active');
+        }
+
+        const globalState = ensureGlobalState();
+        if (globalState.intervalMap) {
+            clearInterval(globalState.intervalMap);
+            globalState.intervalMap = null;
+        }
+
+        if (window.location.hash.startsWith('#/mapa/')) {
+            history.replaceState({ dialogType: 'home' }, document.title, '#/');
+            if (typeof window.trackCurrentUrl === 'function') window.trackCurrentUrl();
+        }
+    }
+
     function render() {
         bindUi();
         const ui = getUi();
@@ -1499,6 +1524,8 @@
 
     function stop(reason = 'manual', options = {}) {
         if (!state.active && reason !== 'map-closed') return;
+        const wasArrived = state.phase === 'arrived';
+        const shouldCloseSurface = reason === 'manual' || reason === 'finish' || reason === 'arrived';
         stopUserTracking();
         state.active = false;
         state.phase = 'idle';
@@ -1519,13 +1546,17 @@
         state.destinationEtaMinutes = null;
         state.progressSource = null;
         state.demoData = null;
+        if (shouldCloseSurface) {
+            closeTrackingSurface();
+            state.mapContext = null;
+        }
         const ui = getUi();
         if (ui.panel) ui.panel.hidden = true;
         removeDestinationMarker();
         const mapBox = document.getElementById('mapContainer');
         if (mapBox) mapBox.classList.remove('ride-tracking-active');
         if (ui.mapFollowButton) {
-            ui.mapFollowButton.hidden = !state.mapContext;
+            ui.mapFollowButton.hidden = shouldCloseSurface || !state.mapContext;
             ui.mapFollowButton.classList.remove('is-active');
             if (ui.mapFollowTitle) ui.mapFollowTitle.style.color = '';
             if (ui.mapFollowAction) ui.mapFollowAction.textContent = 'Seguir';
@@ -1533,7 +1564,7 @@
             renderMapFollowFreshness(ui);
         }
         if (!options.silent && reason === 'manual' && typeof window.showNotice === 'function') {
-            window.showNotice('', 'Seguimiento detenido.');
+            window.showNotice('', wasArrived ? 'Viaje finalizado.' : 'Seguimiento detenido.');
         }
     }
 

@@ -1424,6 +1424,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
         """() => ({
             active: window.rideTracking.getState().active,
             panelHidden: document.querySelector('#rideTrackingPanel')?.hidden,
+            mapVisible: document.querySelector('#mapContainer')?.classList.contains('show'),
             followVisible: !document.querySelector('#mapFollowButton')?.hidden,
             followAction: document.querySelector('#mapFollowButton .map-follow-action')?.textContent || ''
         })"""
@@ -1431,7 +1432,8 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert stopped_from_header == {
         "active": False,
         "panelHidden": True,
-        "followVisible": True,
+        "mapVisible": False,
+        "followVisible": False,
         "followAction": "Seguir",
     }, json.dumps(stopped_from_header, ensure_ascii=False)
     assert_no_browser_errors(result)
