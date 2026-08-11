@@ -1194,6 +1194,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                 boardHidden: document.querySelector('#rideBoardButton')?.hidden,
                 boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
                 destination: document.querySelector('#rideDestinationValue')?.textContent || '',
+                lineLabelColor: getComputedStyle(document.querySelector('#rideTrackingLineLabel')).color,
                 closeLabel: document.querySelector('#rideTrackingClose')?.textContent.trim() || '',
                 mapTouchAction: getComputedStyle(document.querySelector('#busMap')).touchAction,
                 busGlyph: Boolean(document.querySelector('#busMap .bus-icon-glyph')),
@@ -1295,6 +1296,12 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     destination_options = page.locator("#rideDestinationOptions .ride-destination-option")
     assert destination_options.count() == 4
     assert "Paseo Zorrilla 203" not in page.locator("#rideDestinationOptions").inner_text()
+    assert destination_options.locator("small").all_text_contents() == [
+        "1 parada · ~2 min",
+        "2 paradas · ~4 min",
+        "3 paradas · ~6 min",
+        "4 paradas · ~8 min",
+    ]
     assert page.locator("#rideDestinationSearch").evaluate("element => document.activeElement === element") is False
     active_dialog_element = page.evaluate("() => document.activeElement?.id || document.activeElement?.tagName || ''")
     assert active_dialog_element == "rideDestinationDialogClose", active_dialog_element
@@ -1351,6 +1358,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert waiting["busGlyphColor"] == "rgb(255, 255, 255)"
     assert waiting["busMarkerColor"] == "rgb(94, 189, 90)"
     assert waiting["busMarkerWidth"] == 48
+    assert waiting["lineLabelColor"] == "rgb(94, 189, 90)"
     assert waiting["closeLabel"] == "Parar seguimiento"
     assert boarding["status"] == "El bus está en tu parada"
     assert boarding["boardHidden"] is False

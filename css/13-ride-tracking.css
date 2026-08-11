@@ -376,7 +376,7 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
 
 .ride-tracking-heading strong::before {
     animation: ride-live-pulse 1.8s ease-out infinite;
-    background: #25a65d;
+    background: var(--ride-line-color, #25a65d);
     border: 3px solid #dff5e8;
     border-radius: 50%;
     content: '';

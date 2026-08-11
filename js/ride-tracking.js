@@ -23,6 +23,7 @@
         phase: 'idle',
         tripId: null,
         lineNumber: null,
+        lineColor: null,
         vehicleId: null,
         matricula: null,
         stopNumber: null,
@@ -241,6 +242,23 @@
     function toNumber(value) {
         const number = Number.parseFloat(value);
         return Number.isFinite(number) ? number : null;
+    }
+
+    function getLineColor(lineNumber) {
+        const normalized = String(lineNumber ?? '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+        if (!normalized || !document.body) return '';
+
+        // Los colores oficiales viven en 11-line-colors.css. Usamos una
+        // muestra temporal para que el seguimiento no mantenga una segunda
+        // tabla de colores que pueda quedarse desactualizada.
+        const probe = document.createElement('span');
+        probe.className = `linea-${normalized}`;
+        probe.setAttribute('aria-hidden', 'true');
+        probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden;';
+        document.body.appendChild(probe);
+        const color = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return color && color !== 'rgba(0, 0, 0, 0)' ? color : '';
     }
 
     function normalizeContext(input) {
@@ -551,20 +569,24 @@
         renderDestinationOptions();
     }
 
-    function getUpcomingStops() {
+    function getJourneyProgress() {
         const liveProgress = state.busProjection?.progress
             ?? state.userProjection?.progress
             ?? state.boardStop?.progress
             ?? -Infinity;
-        const currentProgress = Math.max(liveProgress, state.boardStop?.progress ?? -Infinity);
+        // Si el usuario confirma que está dentro antes de que la posición
+        // viva haya alcanzado su parada, no contamos la parada de subida
+        // como una parada pendiente del viaje.
+        return Math.max(liveProgress, state.boardStop?.progress ?? -Infinity);
+    }
+
+    function getUpcomingStops() {
+        const currentProgress = getJourneyProgress();
         return state.stops.filter(stop => stop.progress > currentProgress + 10);
     }
 
     function estimateStopMeta(stop) {
-        const currentProgress = state.busProjection?.progress
-            ?? state.userProjection?.progress
-            ?? state.boardStop?.progress
-            ?? -Infinity;
+        const currentProgress = getJourneyProgress();
         const remaining = state.stops.filter(candidate =>
             candidate.progress > currentProgress + 10 && candidate.progress <= stop.progress + 5
         ).length;
@@ -1045,7 +1067,7 @@
             ? state.busProjection
             : fallbackProjection;
         if (!projection || !state.stops.length) return;
-        const progress = projection.progress;
+        const progress = Math.max(projection.progress, state.boardStop?.progress ?? -Infinity);
         state.progressSource = projection === state.userProjection ? 'gps' : 'bus';
         state.nextStop = state.stops.find(stop => stop.progress > progress + 20) || null;
 
@@ -1221,6 +1243,7 @@
 
         const mapBox = document.getElementById('mapContainer');
         if (mapBox) mapBox.classList.toggle('ride-tracking-active', state.active);
+        ui.panel.style.setProperty('--ride-line-color', state.lineColor || '');
 
         const boardingPromptAvailable = isBoardingPromptAvailable();
         const scheduledBoardingWindow = isScheduledBoardingWindow();
@@ -1236,6 +1259,7 @@
                     ? 'prepárate para subir'
                     : 'esperando';
         if (ui.lineLabel && ui.phaseLabel) {
+            ui.lineLabel.style.color = state.lineColor || '';
             ui.lineLabel.textContent = state.lineNumber ? `Línea ${state.lineNumber}` : 'Seguimiento';
             ui.phaseLabel.textContent = state.lineNumber ? phaseLabel : 'del bus';
         } else if (ui.title) {
@@ -1367,7 +1391,10 @@
         if (ui.mapFollowButton) {
             ui.mapFollowButton.hidden = !state.mapContext || (state.active && !ui.panel.hidden);
             ui.mapFollowButton.classList.toggle('is-active', state.active);
-            if (ui.mapFollowTitle) ui.mapFollowTitle.textContent = state.mapContext?.lineNumber ? `Línea ${state.mapContext.lineNumber}` : 'Este bus';
+            if (ui.mapFollowTitle) {
+                ui.mapFollowTitle.style.color = state.lineColor || '';
+                ui.mapFollowTitle.textContent = state.mapContext?.lineNumber ? `Línea ${state.mapContext.lineNumber}` : 'Este bus';
+            }
             if (ui.mapFollowMeta) {
                 const direction = state.mapContext?.destination ? ` · hacia ${state.mapContext.destination}` : '';
                 const etaLabel = state.mapContext?.etaLabel || state.mapContext?.arrivalLabel || 'Ver recorrido';
@@ -1402,6 +1429,7 @@
         state.phase = 'waiting';
         state.tripId = context.tripId;
         state.lineNumber = context.lineNumber;
+        state.lineColor = getLineColor(context.lineNumber);
         state.vehicleId = context.vehicleId;
         state.matricula = context.matricula;
         state.stopNumber = context.stopNumber;
@@ -1474,6 +1502,7 @@
         stopUserTracking();
         state.active = false;
         state.phase = 'idle';
+        state.lineColor = null;
         state.loadToken += 1;
         state.userPosition = null;
         state.userProjection = null;
@@ -1498,6 +1527,7 @@
         if (ui.mapFollowButton) {
             ui.mapFollowButton.hidden = !state.mapContext;
             ui.mapFollowButton.classList.remove('is-active');
+            if (ui.mapFollowTitle) ui.mapFollowTitle.style.color = '';
             if (ui.mapFollowAction) ui.mapFollowAction.textContent = 'Seguir';
             ui.mapFollowButton.setAttribute('aria-label', 'Seguir este bus');
             renderMapFollowFreshness(ui);
@@ -1509,6 +1539,7 @@
 
     function setMapContext(context) {
         state.mapContext = normalizeContext(context);
+        state.lineColor = getLineColor(state.mapContext.lineNumber);
         bindUi();
         render();
         requestAnimationFrame(() => {
