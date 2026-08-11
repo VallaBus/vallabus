@@ -1278,6 +1278,36 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     color: #b8c2bc;
 }
 
+/* Acción explícita para salir del seguimiento sin obligar a abrir el panel. */
+.ride-tracking-close {
+    background: #f4f7f4;
+    border: 1px solid rgba(69, 91, 78, 0.24);
+    border-radius: 999px;
+    color: #637168;
+    flex: 0 0 auto;
+    font-size: 0.76rem;
+    font-weight: 750;
+    height: 44px;
+    min-width: 44px;
+    padding: 0 12px;
+    white-space: nowrap;
+    width: auto;
+}
+
+.ride-tracking-close:hover,
+.ride-tracking-close:focus-visible {
+    background: #e9f0eb;
+    border-radius: 999px;
+    border-color: rgba(38, 127, 67, 0.42);
+    outline: none;
+}
+
+.dark-mode .ride-tracking-close {
+    background: #2d3632;
+    border-color: rgba(220, 237, 225, 0.2);
+    color: #c5cec9;
+}
+
 .ride-stop-icon {
     box-sizing: border-box;
     flex-basis: 36px;

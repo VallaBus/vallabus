@@ -643,7 +643,8 @@ def test_ride_tracking_onboarding(result: BrowserPage) -> None:
                 secondary: document.querySelector('.ride-onboarding-secondary')?.textContent || '',
                 targetAligned: Math.abs((followRect.left - 6) - spotlightRect.left) < 2
                     && Math.abs((followRect.top - 6) - spotlightRect.top) < 2,
-                closeSize: [closeStyles.width, closeStyles.height],
+                closeSize: [closeStyles.minWidth, closeStyles.height],
+                closeLabel: document.querySelector('#rideTrackingClose')?.textContent.trim() || '',
                 stopSize: [stopStyles.width, stopStyles.height]
             };
         }"""
@@ -668,6 +669,7 @@ def test_ride_tracking_onboarding(result: BrowserPage) -> None:
     assert snapshot["secondary"] == "Ahora no"
     assert snapshot["targetAligned"] is True
     assert snapshot["closeSize"] == ["44px", "44px"]
+    assert snapshot["closeLabel"] == "Parar seguimiento"
     assert snapshot["stopSize"] == ["36px", "36px"]
     assert after_primary["seen"] == "seen"
     assert after_primary["dialogCount"] == 0
@@ -1038,6 +1040,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                 boardHidden: document.querySelector('#rideBoardButton')?.hidden,
                 boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
                 destination: document.querySelector('#rideDestinationValue')?.textContent || '',
+                closeLabel: document.querySelector('#rideTrackingClose')?.textContent.trim() || '',
                 mapTouchAction: getComputedStyle(document.querySelector('#busMap')).touchAction,
                 busGlyph: Boolean(document.querySelector('#busMap .bus-icon-glyph')),
                 busGlyphColor: document.querySelector('#busMap .bus-icon-glyph')
@@ -1194,6 +1197,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert waiting["busGlyphColor"] == "rgb(255, 255, 255)"
     assert waiting["busMarkerColor"] == "rgb(94, 189, 90)"
     assert waiting["busMarkerWidth"] == 48
+    assert waiting["closeLabel"] == "Parar seguimiento"
     assert boarding["status"] == "El bus está en tu parada"
     assert boarding["boardHidden"] is False
     assert boarding["boardLabel"] == "Ya estoy dentro"
@@ -1224,6 +1228,21 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
         "boardHidden": False,
         "boardLabel": "Sí, estoy dentro",
     }
+    page.locator("#rideTrackingClose").click()
+    stopped_from_header = page.evaluate(
+        """() => ({
+            active: window.rideTracking.getState().active,
+            panelHidden: document.querySelector('#rideTrackingPanel')?.hidden,
+            followVisible: !document.querySelector('#mapFollowButton')?.hidden,
+            followAction: document.querySelector('#mapFollowButton .map-follow-action')?.textContent || ''
+        })"""
+    )
+    assert stopped_from_header == {
+        "active": False,
+        "panelHidden": True,
+        "followVisible": True,
+        "followAction": "Seguir",
+    }, json.dumps(stopped_from_header, ensure_ascii=False)
     assert_no_browser_errors(result)
 
 

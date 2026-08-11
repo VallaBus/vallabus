@@ -226,8 +226,7 @@
 
         ui.closeButton.addEventListener('click', event => {
             event.stopPropagation();
-            ui.panel.hidden = true;
-            render();
+            stop('manual');
         });
 
         document.addEventListener('keydown', event => {
@@ -1315,6 +1314,11 @@
         } else if (ui.stopButton) {
             ui.stopButton.textContent = state.phase === 'arrived' ? 'Cerrar' : 'Parar seguimiento';
         }
+        if (ui.closeButton) {
+            const closeLabel = state.phase === 'arrived' ? 'Cerrar' : 'Parar seguimiento';
+            ui.closeButton.textContent = closeLabel;
+            ui.closeButton.setAttribute('aria-label', closeLabel);
+        }
 
         if (ui.mapFollowButton) {
             ui.mapFollowButton.hidden = !state.mapContext || (state.active && !ui.panel.hidden);
@@ -1450,9 +1454,9 @@
         if (ui.mapFollowButton) {
             ui.mapFollowButton.hidden = !state.mapContext;
             ui.mapFollowButton.classList.remove('is-active');
-            const label = ui.mapFollowButton.querySelector('span:last-child');
-            if (label) label.textContent = 'Seguir';
+            if (ui.mapFollowAction) ui.mapFollowAction.textContent = 'Seguir';
             ui.mapFollowButton.setAttribute('aria-label', 'Seguir este bus');
+            renderMapFollowFreshness(ui);
         }
         if (!options.silent && reason === 'manual' && typeof window.showNotice === 'function') {
             window.showNotice('', 'Seguimiento detenido.');
