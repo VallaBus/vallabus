@@ -273,17 +273,62 @@ function displaySearchResults(stops, container) {
     });
 }
 
+const STOP_SEARCH_IGNORABLE_WORDS = new Set([
+    'a',
+    'al',
+    'de',
+    'del',
+    'el',
+    'en',
+    'la',
+    'las',
+    'los',
+    'y'
+]);
+
+function normalizeStopSearchText(value) {
+    return String(value ?? '')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getStopSearchTokens(value) {
+    return normalizeStopSearchText(value)
+        .split(' ')
+        .filter(token => token && !STOP_SEARCH_IGNORABLE_WORDS.has(token));
+}
+
 // Función para buscar paradas por nombre o número
 async function searchByStopNumber(name) {
-    // Normaliza y elimina los acentos del nombre buscado
-    const normalizedSearchName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const normalizedSearchName = normalizeStopSearchText(name);
+    const searchTokens = getStopSearchTokens(name);
     const busStops = await loadBusStops();
 
-    // Devuelve todas las paradas que coincidan con el nombre buscado o el número de parada, ignorando acentos
+    if (!Array.isArray(busStops) || !normalizedSearchName) {
+        return [];
+    }
+
+    // La coincidencia directa conserva el comportamiento actual para nombres y
+    // números. La coincidencia por palabras permite tolerar espacios extra y
+    // conectores habituales en direcciones como "de" o "la".
     return busStops.filter(stop => {
-        const normalizedStopName = stop.parada.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        const normalizedStopNumber = stop.parada.numero.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        return normalizedStopName.includes(normalizedSearchName) || normalizedStopNumber.includes(normalizedSearchName);
+        const normalizedStopName = normalizeStopSearchText(stop?.parada?.nombre);
+        const normalizedStopNumber = normalizeStopSearchText(stop?.parada?.numero);
+
+        if (normalizedStopName.includes(normalizedSearchName)
+            || normalizedStopNumber.includes(normalizedSearchName)) {
+            return true;
+        }
+
+        if (searchTokens.length === 0) {
+            return false;
+        }
+
+        const stopTokens = new Set(getStopSearchTokens(normalizedStopName));
+        return searchTokens.every(token => stopTokens.has(token));
     });
 }
 

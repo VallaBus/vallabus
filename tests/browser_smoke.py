@@ -232,7 +232,36 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
     assert "addEventListener('fetch'" not in worker_source
     assert "respondWith" not in worker_source
     assert "cache.addAll" not in worker_source
+    assert_no_browser_errors(result)
 
+
+def test_stop_search_tolerates_spacing_and_connectives(result: BrowserPage) -> None:
+    """Search accepts accents, repeated spaces and optional street connectors."""
+    page = result.page
+    search_results = page.evaluate(
+        """async () => {
+            const originalLoadBusStops = window.loadBusStops;
+            window.loadBusStops = async () => [
+                {parada: {numero: '805', nombre: 'Avenida Gijón 1 esquina Plaza San Bartolomé'}},
+                {parada: {numero: '696', nombre: 'Avenida Gijón 3 frente Canal'}},
+            ];
+
+            try {
+                const queries = ['avenida de Gijón', 'avenida Gijón', 'avenida    gijon'];
+                const matches = {};
+                for (const query of queries) {
+                    matches[query] = (await searchByStopNumber(query))
+                        .map(stop => stop.parada.numero);
+                }
+                return matches;
+            } finally {
+                window.loadBusStops = originalLoadBusStops;
+            }
+        }"""
+    )
+    assert set(search_results["avenida de Gijón"]) == {"805", "696"}
+    assert set(search_results["avenida Gijón"]) == {"805", "696"}
+    assert set(search_results["avenida    gijon"]) == {"805", "696"}
     assert_no_browser_errors(result)
 
 
@@ -1895,6 +1924,10 @@ def main() -> int:
                 (
                     "arranque_y_contratos_de_stack",
                     lambda result: test_boot_contract(result, server.base_url, args.timeout),
+                ),
+                (
+                    "busqueda_de_paradas_tolerante",
+                    test_stop_search_tolerates_spacing_and_connectives,
                 ),
                 ("dialogo_inicial_seguimiento", test_tracking_first_entry_dialog),
                 ("menu_y_tema", test_menu_and_theme),
