@@ -416,6 +416,9 @@ def test_live_search_line_and_map(
     assert page.locator("#busMapLastUpdate").inner_text().strip(), (
         "El mapa no muestra el estado de ubicación"
     )
+    assert page.locator("#mapFollowFreshness").count() == 1, (
+        "La tarjeta del mapa no tiene el estado de actualización"
+    )
 
     # Si hay un bus en tiempo real, el popup muestra la matrícula/identificador
     # y su cierre usa internamente el enlace `#close` de Leaflet. Si el API no
@@ -423,6 +426,12 @@ def test_live_search_line_and_map(
     # estado sin datos y se mantiene el resto de la prueba del mapa.
     bus_markers = page.locator("#busMap .bus-icon")
     if bus_markers.count() > 0:
+        assert page.evaluate(
+            """() => {
+                const glyph = document.querySelector('#busMap .bus-icon-glyph');
+                return !glyph || getComputedStyle(glyph).display === 'none';
+            }"""
+        ), "El marcador general no debe mostrar el pictograma de bus"
         bus_markers.first.click()
         page.wait_for_selector("#busMap .leaflet-popup", state="visible", timeout=timeout_ms)
         popup = page.locator("#busMap .leaflet-popup")

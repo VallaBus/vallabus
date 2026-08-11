@@ -139,6 +139,7 @@
             mapFollowButton: document.getElementById('mapFollowButton'),
             mapFollowTitle: document.getElementById('mapFollowTitle'),
             mapFollowMeta: document.getElementById('mapFollowMeta'),
+            mapFollowFreshness: document.getElementById('mapFollowFreshness'),
             mapFollowAction: document.querySelector('#mapFollowButton .map-follow-action'),
             panel: document.getElementById('rideTrackingPanel'),
             sheetToggle: document.getElementById('rideSheetToggle'),
@@ -1082,6 +1083,27 @@
         return normalized;
     }
 
+    function mapFollowFreshnessHtml(message) {
+        const normalized = String(message || '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        const updated = normalized.match(/Actualizada hace\s+(.+)$/i);
+        if (updated) return `Actualizada hace <strong>${updated[1]}</strong>`;
+        const checked = normalized.match(/Última comprobación\s+(.+?)(?:\.|$)/i);
+        if (checked) return `Comprobada <strong>${checked[1]}</strong>`;
+        if (normalized.includes('No hay datos de ubicación')) return 'Sin posición en directo';
+        return compactFreshnessHtml(message);
+    }
+
+    function renderMapFollowFreshness(ui) {
+        if (!ui.mapFollowFreshness) return;
+        const freshness = mapFollowFreshnessHtml(state.lastUpdateHtml);
+        const visible = !state.active && !ui.mapFollowButton?.hidden && Boolean(freshness);
+        ui.mapFollowFreshness.hidden = !visible;
+        ui.mapFollowFreshness.innerHTML = visible ? freshness : '';
+    }
+
     function renderSummary(ui, remaining, eta) {
         const hasRemaining = Number.isFinite(remaining);
         const hasEta = Boolean(eta?.value);
@@ -1246,6 +1268,7 @@
                 ? 'Abrir seguimiento activo'
                 : `Seguir bus${state.mapContext?.arrivalLabel ? ` de las ${state.mapContext.arrivalLabel}` : ''}${state.mapContext?.destination ? ` hacia ${state.mapContext.destination}` : ''}`);
         }
+        renderMapFollowFreshness(ui);
     }
 
     async function start(input) {
@@ -1391,6 +1414,7 @@
             ui.lastUpdate.hidden = !state.lastUpdateHtml;
             ui.lastUpdate.innerHTML = compactFreshnessHtml(state.lastUpdateHtml);
         }
+        renderMapFollowFreshness(ui);
     }
 
     function applyDemoState(input = {}) {

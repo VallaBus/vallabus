@@ -279,6 +279,12 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     width: 48px !important;
 }
 
+/* En la vista general el marcador solo identifica la línea. El pictograma
+   blanco se reserva para el bus dentro del seguimiento activo. */
+#mapContainer #busMap .bus-icon-glyph {
+    display: none;
+}
+
 #mapContainer.ride-tracking-active #busMap .bus-icon > div {
     display: none;
 }
@@ -846,6 +852,13 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.map-follow-copy .map-follow-freshness {
+    color: #98a29c;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 2px;
 }
 
 .map-follow-action {
