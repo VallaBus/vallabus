@@ -281,15 +281,24 @@ function filterBusAlerts(alerts, busLine) {
         return [];
     }
 
-    // Filtra las alertas para la línea de autobús específica
+    // Para el banner general solo deben entrar avisos sin parada ni línea.
+    // Las alertas de una parada que no tienen línea también traen
+    // `ruta.linea === null`, pero no son avisos generales.
     return alerts.filter(alert => {
-        // Si la alerta es global (no tiene ni parada ni línea especificada) la incluimos. Nota: Desactivado de momento porque ya mostramos un banner con esto.
-        // if (alert.ruta.parada === null && alert.ruta.linea === null) {
-        //    return true;
-        // }
-        // Si la alerta es para una línea específica, la incluimos si coincide con busLine
-        // o si no tiene parada especificada
-        return alert.ruta.linea === busLine;
+        const route = alert && alert.ruta;
+        if (!route) {
+            return false;
+        }
+
+        if (busLine === null) {
+            return route.parada === null && route.linea === null;
+        }
+
+        // Si la alerta es para una línea específica, la incluimos si coincide.
+        // El API puede devolver el identificador como número o como texto.
+        return route.linea !== null
+            && route.linea !== undefined
+            && String(route.linea) === String(busLine);
     });
 }
 
@@ -990,6 +999,7 @@ async function updateBusList(isInitialLoad = false) {
 
     // Recuperamos las paradas y líneas guardadas previamente en Localstorage
     const busLines = JSON.parse(localStorage.getItem('busLines') || '[]');
+    removeAlertsForUnfollowedLines(busLines);
     if (busLines.length > 0) {
         legend.style.display = 'block';
     } else {
@@ -1232,6 +1242,199 @@ const globalEventListeners = {
     lineItem: new Set()
 };
 
+// El diálogo de avisos vive fuera de las tarjetas porque las tarjetas se
+// reconstruyen cada 30 segundos. Mantener un único estado evita que una
+// actualización cierre el diálogo o acumule elementos/listeners duplicados.
+const lineAlertsByLine = new Map();
+let activeLineAlertsLine = null;
+
+function removeAlertsForUnfollowedLines(busLines) {
+    const followedLineNumbers = new Set(
+        busLines.map(line => String(line.lineNumber))
+    );
+
+    for (const lineNumber of lineAlertsByLine.keys()) {
+        if (!followedLineNumbers.has(lineNumber)) {
+            lineAlertsByLine.delete(lineNumber);
+            if (activeLineAlertsLine === lineNumber) {
+                hideLineAlertsDialog();
+            }
+        }
+    }
+}
+
+function ensureLineAlertsDialog() {
+    const dialog = document.getElementById('lineAlertsDialog');
+    if (!dialog) {
+        return null;
+    }
+
+    if (dialog.dataset.listenersBound !== 'true') {
+        const closeButton = document.getElementById('lineAlertsDialogClose');
+        if (closeButton) {
+            closeButton.addEventListener('click', hideLineAlertsDialog);
+        }
+        dialog.dataset.listenersBound = 'true';
+    }
+
+    return dialog;
+}
+
+function getLineAlertClass(lineNumber) {
+    const lineClass = String(lineNumber).replace(/[^a-zA-Z0-9_-]/g, '');
+    return lineClass ? `linea-${lineClass}` : '';
+}
+
+function splitLineAlertDescription(description) {
+    const normalized = String(description || '')
+        .replace(/\r\n?/g, '\n')
+        .trim();
+
+    if (!normalized) {
+        return [];
+    }
+
+    return normalized
+        .split(/\n{2,}|\s+-\s+(?=[^:\n]{1,80}:\s*)/)
+        .map(section => section.trim())
+        .filter(Boolean)
+        .map(section => {
+            const labelMatch = section.match(/^([^:\n]{1,80}):\s*(.*)$/s);
+            if (!labelMatch) {
+                return { label: '', text: section };
+            }
+            return {
+                label: labelMatch[1].trim(),
+                text: labelMatch[2].trim(),
+            };
+        });
+}
+
+function getLineAlertSummary(alert) {
+    const summary = String(alert.resumen || alert.header_text || 'Aviso de servicio').trim();
+    const withoutLineNumber = summary.replace(/\s+línea\s+\S+/i, '').trim();
+    return withoutLineNumber || 'Aviso de servicio';
+}
+
+function renderLineAlertHeader(container, lineNumber, alert) {
+    container.replaceChildren();
+    container.className = 'line-alert-dialog-header';
+
+    const lineBadge = document.createElement('span');
+    const lineClass = getLineAlertClass(lineNumber);
+    lineBadge.className = `line-alert-line${lineClass ? ` ${lineClass}` : ''}`;
+    lineBadge.textContent = String(lineNumber);
+    lineBadge.setAttribute('aria-label', `Línea ${lineNumber}`);
+
+    const summary = document.createElement('span');
+    summary.className = 'line-alert-summary';
+    summary.textContent = getLineAlertSummary(alert);
+
+    container.append(lineBadge, summary);
+}
+
+function createLineAlertItem(alert) {
+    const item = document.createElement('li');
+    item.className = 'line-alert-item';
+
+    const body = document.createElement('div');
+    body.className = 'line-alert-body';
+    splitLineAlertDescription(alert.descripcion).forEach(section => {
+        const paragraph = document.createElement('p');
+        if (section.label) {
+            const label = document.createElement('strong');
+            label.textContent = `${section.label}:`;
+            paragraph.append(label);
+            if (section.text) {
+                paragraph.append(` ${section.text}`);
+            }
+        } else {
+            paragraph.textContent = section.text;
+        }
+        body.appendChild(paragraph);
+    });
+
+    item.appendChild(body);
+    return item;
+}
+
+function renderLineAlertsDialog(lineNumber, alerts) {
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog) {
+        return;
+    }
+
+    const title = document.getElementById('lineAlertsDialogTitle');
+    const header = document.getElementById('lineAlertsDialogHeader');
+    const list = document.getElementById('lineAlertsDialogList');
+    if (!title || !header || !list) {
+        return;
+    }
+
+    title.textContent = `Avisos para la línea ${lineNumber}`;
+    dialog.setAttribute('aria-label', title.textContent);
+    list.replaceChildren();
+
+    const firstAlert = alerts.find(alert => alert && alert.descripcion != null);
+    if (!firstAlert) {
+        header.replaceChildren();
+        return;
+    }
+
+    renderLineAlertHeader(header, lineNumber, firstAlert);
+    alerts.forEach(alert => {
+        if (alert && alert.descripcion != null) {
+            list.appendChild(createLineAlertItem(alert));
+        }
+    });
+}
+
+function hideLineAlertsDialog() {
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog) {
+        return;
+    }
+
+    dialog.style.display = 'none';
+    dialog.setAttribute('aria-hidden', 'true');
+    activeLineAlertsLine = null;
+}
+
+function showLineAlertsDialog(lineNumber) {
+    const key = String(lineNumber);
+    const alerts = lineAlertsByLine.get(key) || [];
+    const dialog = ensureLineAlertsDialog();
+    if (!dialog || alerts.length === 0) {
+        return;
+    }
+
+    activeLineAlertsLine = key;
+    renderLineAlertsDialog(lineNumber, alerts);
+    dialog.style.display = 'flex';
+    dialog.setAttribute('aria-hidden', 'false');
+}
+
+function updateLineAlerts(lineNumber, alerts) {
+    const key = String(lineNumber);
+    const lineAlerts = Array.isArray(alerts) ? alerts : [];
+
+    if (lineAlerts.length > 0) {
+        lineAlertsByLine.set(key, lineAlerts);
+    } else {
+        lineAlertsByLine.delete(key);
+    }
+
+    // Si el usuario tiene abierto el aviso de esta línea, actualizamos solo
+    // su contenido y no tocamos la visibilidad del diálogo.
+    if (activeLineAlertsLine === key) {
+        if (lineAlerts.length > 0) {
+            renderLineAlertsDialog(lineNumber, lineAlerts);
+        } else {
+            hideLineAlertsDialog();
+        }
+    }
+}
+
 /**
  * Actualiza los datos de una línea específica.
  * 
@@ -1255,18 +1458,11 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
 
     // Recuperamos si hay alertas para esa linea
     const busLineAlerts = filterBusAlerts(allAlerts, lineNumber);
-    let alertHTML = '';
-    let alertIcon = '';
-    if (busLineAlerts.length > 0) {
-        alertHTML = `<div class="alert-box"><h2>Avisos para la línea ${lineNumber}</h2><ul>`;
-        busLineAlerts.forEach(alert => {
-            alertHTML += `<li>${alert.descripcion}</li>`;
-        });
-        alertHTML += '</ul><button class="alerts-close secondary">Cerrar</button></div>';
-        alertIcon = '⚠️';
-    }
+    updateLineAlerts(lineNumber, busLineAlerts);
+    const alertIcon = busLineAlerts.length > 0 ? '⚠️' : '';
 
     let busesProximos;
+    let busMasCercano = null;
 
     try {
         const response = await fetchApi(apiUrl);
@@ -1279,7 +1475,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
         // Si no hay datos para esa línea, no hacemos nada
         if (busesLinea) {
             // Filtrar y encontrar el bus más cercano para la línea específica
-            const busMasCercano = await elegirBusMasCercano(busesLinea, stopNumber, lineNumber);
+            busMasCercano = await elegirBusMasCercano(busesLinea, stopNumber, lineNumber);
 
             if (busMasCercano) {
                 let horaLlegada;
@@ -1488,7 +1684,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo ${tiempoClass}">${tiempoRestanteHTML}</div>
                         <div class="horaLlegada">${horaLlegada}</div>
                     </div>
-                    ${alertHTML}
                 `;
 
                 // Si el estado en tiempo real es SKIPPED mostramos aviso
@@ -1508,7 +1703,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                     <div class="hora-tiempo">
                         <div class="tiempo sin-servicio">Desviado</div>
                     </div>
-                    ${alertHTML}
                 `;
                 }
 
@@ -1556,7 +1750,6 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo sin-servicio">Sin servicio próximo</div>
                         <div class="horaLlegada"></div>
                     </div>
-                    ${alertHTML}
                 `;
             }
         } else {
@@ -1580,20 +1773,17 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
                         <div class="tiempo sin-servicio">Sin servicio próximo</div>
                         <div class="horaLlegada"></div>
                     </div>
-                    ${alertHTML}
                 `;
         }
-        // Cuadro de alertas
-        lineItem.innerHTML += alertHTML;
 
         // Borramos event listeners antes de añadir los nuevos
         removeExistingEventListeners(lineItem);
 
         // Eventos click a diferentes elementos generados dinámicamente
-        addEventListeners(lineItem, scheduledData, lineNumber);
+        addEventListeners(lineItem, scheduledData, lineNumber, stopNumber);
 
         // Creamos el panel informativo desplegable
-        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber, busMasCercano);
         lineItem.appendChild(infoPanel);
 
     } catch (error) {
@@ -1680,7 +1870,7 @@ async function fetchBusTime(stopNumber, lineNumber, lineItem, allAlerts, retryCo
             });
         }
 
-        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber);
+        const infoPanel = await createInfoPanel(busesProximos, stopNumber, lineNumber, null);
         lineItem.appendChild(infoPanel);
     };
 }
@@ -1738,21 +1928,82 @@ function removeExistingEventListeners(lineItem) {
  * 
  * @throws {Error} Si no se puede encontrar un elemento específico.
  */
-function addEventListeners(lineItem, scheduledData, lineNumber) {
+function openTripMap(busData, paradaData, options = {}) {
+    const mapBox = document.querySelector('#mapContainer');
+    const tripId = busData?.tripId != null ? String(busData.tripId).trim() : '';
+    if (!mapBox || !tripId || tripId === 'undefined' || tripId === 'null' || !busData?.lineNumber) {
+        return false;
+    }
+
+    window.globalState = window.globalState || {};
+    const mapContext = {
+        ...busData,
+        tripId,
+        stopNumber: busData.stopNumber ?? paradaData?.numero ?? '',
+        stopName: paradaData?.nombre || busData.stopName || '',
+        stopLatitud: paradaData?.latitud ?? busData.stopLatitud ?? null,
+        stopLongitud: paradaData?.longitud ?? busData.stopLongitud ?? null
+    };
+
+    // Ocultar el sidebar si estuviera abierto.
+    toogleSidebar(true);
+
+    // Mostrar el mapa y compartir el contexto con el MVP de seguimiento.
+    mapBox.classList.add('show');
+    if (typeof window.rideTracking?.setMapContext === 'function') {
+        window.rideTracking.setMapContext(mapContext);
+    }
+    updateBusMap(busData, paradaData, true);
+
+    if (options.pushHistory !== false) {
+        const dialogState = {
+            dialogType: 'showTripMap'
+        };
+        history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
+        trackCurrentUrl();
+    }
+
+    // Si intervalMap ya está definido, limpiar el intervalo existente.
+    if (window.globalState.intervalMap) {
+        clearInterval(window.globalState.intervalMap);
+        window.globalState.intervalMap = null;
+    }
+
+    window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
+
+    // Clonamos el botón para eliminar listeners anteriores y evitar acumulación.
+    const oldCloseButton = mapBox.querySelector('.map-close');
+    if (oldCloseButton) {
+        const newCloseButton = oldCloseButton.cloneNode(true);
+        oldCloseButton.parentNode.replaceChild(newCloseButton, oldCloseButton);
+        newCloseButton.addEventListener('click', function () {
+            if (typeof window.rideTracking?.stop === 'function') {
+                window.rideTracking.stop('map-closed', { silent: true });
+            }
+            mapBox.classList.remove('show');
+            if (window.globalState.intervalMap) {
+                clearInterval(window.globalState.intervalMap);
+                window.globalState.intervalMap = null;
+            }
+            const dialogState = {
+                dialogType: 'home'
+            };
+            history.replaceState(dialogState, document.title, '#/');
+        });
+    }
+
+    return true;
+}
+
+window.openTripMap = openTripMap;
+
+function addEventListeners(lineItem, scheduledData, lineNumber, stopNumber) {
     // Add alert icon listener
     const alertIcon = lineItem.querySelector('.alert-icon');
     if (alertIcon) {
         const alertListener = function (event) {
             event.stopPropagation();
-            const alertBox = this.parentNode.parentNode.parentNode.querySelector('.alert-box');
-            if (alertBox) {
-                alertBox.style.display = 'flex';
-                const closeButton = alertBox.querySelector('.alerts-close');
-                closeButton.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    alertBox.style.display = 'none';
-                }, { once: true });
-            }
+            showLineAlertsDialog(lineNumber);
         };
         alertIcon.addEventListener('click', alertListener);
         globalEventListeners.alertIcon.add(alertListener);
@@ -1771,7 +2022,6 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
 
     // Add lineItem listener para mostrar el mapa al hacer clic
     const lineItemListener = function (event) {
-        const mapBox = document.querySelector('#mapContainer');
         // Obtenemos el tripId del elemento hermano llamado .linea
         const brotherElement = this.firstElementChild;
         const tripId = brotherElement.getAttribute('data-trip-id');
@@ -1784,61 +2034,36 @@ function addEventListeners(lineItem, scheduledData, lineNumber) {
             this.classList.remove('clicked');
         }, 300);
 
-        if (mapBox) {
-            let paradaData = {
+        if (tripId && tripId !== 'undefined' && tripId !== 'null') {
+            const lineData = scheduledData?.lineas?.find(line => String(line.linea) === String(lineNumber))
+                || scheduledData?.lineas?.[0];
+            const scheduledTrip = lineData?.horarios?.find(schedule => String(schedule.trip_id) === String(tripId));
+            const realtimeTrip = lineData?.realtime?.find(realtime => String(realtime.trip_id) === String(tripId));
+            const paradaData = {
                 latitud: scheduledData.parada[0].latitud,
                 longitud: scheduledData.parada[0].longitud,
                 nombre: scheduledData.parada[0].parada,
+                numero: stopNumber
             };
 
-            let busData = {
+            const busData = {
                 tripId: tripId,
                 matricula: matricula,
                 vehicleId: vehicleId,
                 lineNumber: lineNumber,
+                stopNumber: stopNumber,
+                stopName: paradaData.nombre,
+                arrivalLabel: this.querySelector('.horaLlegada')?.textContent.trim() || '',
+                etaLabel: this.querySelector('.tiempo')?.textContent.replace(/\s+/g, ' ').trim() || '',
+                arrivalTime: realtimeTrip?.fechaHoraLlegada
+                    || scheduledTrip?.fechaHoraLlegada
+                    || null,
+                destination: scheduledTrip?.destino
+                    || this.querySelector('.destino')?.textContent.trim()
+                    || ''
             };
 
-            // Ocultar el sidebar si estuviera abierto
-            toogleSidebar(true);
-
-            // Mostrar el mapa
-            mapBox.classList.add('show');
-            updateBusMap(busData, paradaData, true);
-
-            // URL para mapa
-            const dialogState = {
-                dialogType: 'showTripMap'
-            };
-            history.pushState(dialogState, `Mostrar mapa`, `#/mapa/${tripId}`);
-            trackCurrentUrl();
-
-            // Si intervalMap ya está definido, limpiar el intervalo existente
-            if (window.globalState.intervalMap) {
-                clearInterval(window.globalState.intervalMap);
-                window.globalState.intervalMap = null;
-            }
-
-            window.globalState.intervalMap = setInterval(() => updateBusMap(busData, paradaData, false), 5000);
-
-            // Agrega un controlador de eventos de clic a alerts-close
-            // Clonamos el botón para eliminar listeners anteriores y evitar acumulación
-            const oldCloseButton = mapBox.querySelector('.map-close');
-            const newCloseButton = oldCloseButton.cloneNode(true);
-            oldCloseButton.parentNode.replaceChild(newCloseButton, oldCloseButton);
-            newCloseButton.addEventListener('click', function () {
-                mapBox.classList.remove('show');
-                if (window.globalState.intervalMap) {
-                    // Paramos las actualizaciones
-                    clearInterval(window.globalState.intervalMap);
-                    window.globalState.intervalMap = null;
-                }
-                // Regresamos al home
-                const dialogState = {
-                    dialogType: 'home'
-                };
-                history.replaceState(dialogState, document.title, '#/');
-            });
-
+            openTripMap(busData, paradaData);
             event.stopPropagation();
         }
 

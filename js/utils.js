@@ -4,6 +4,7 @@ let intervalId;
 // Listado de ids de diálogos de la app
 const dialogIds = [
     'horarios-box',
+    'lineAlertsDialog',
     'nearestStopsResults',
     'iframe-container',
     'dataDialog',
@@ -57,7 +58,7 @@ function showNotice(lineNumber, message = null) {
 }
 
 // Creación del panel lateral desplegable con info extra de la línea
-async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
+async function createInfoPanel(busesProximos, stopNumber, lineNumber, trackingBus = null) {
     let tripId;
     let infoPanel = document.createElement('div');
     infoPanel.className = 'additional-info-panel';
@@ -67,6 +68,49 @@ async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
     arrowButton.className = 'arrow-button';
     arrowButton.textContent = '⮞';
     infoPanel.appendChild(arrowButton);
+
+    // La acción de seguimiento vive dentro del panel ya desplegado. De esta
+    // forma no se añade un icono repetido en todas las filas y tampoco se
+    // pisa el gesto principal de tocar la línea para abrir el mapa.
+    const rawTrackingTripId = trackingBus?.realTime?.tripId
+        || trackingBus?.scheduled?.tripId
+        || trackingBus?.trip_id;
+    const trackingTripId = rawTrackingTripId != null
+        && !['', 'undefined', 'null'].includes(String(rawTrackingTripId).trim())
+        ? String(rawTrackingTripId).trim()
+        : null;
+    const trackingRealTime = trackingBus?.realTime;
+    const trackingScheduled = trackingBus?.scheduled;
+    const trackingDestination = trackingScheduled?.destino || trackingBus?.destination || '';
+    const trackingArrivalTime = trackingRealTime?.fechaHoraLlegada
+        || trackingScheduled?.fechaHoraLlegada
+        || null;
+
+    if (trackingTripId && typeof window.rideTracking?.start === 'function') {
+        const followButton = createButton('ride-follow-button', '', function(event) {
+            event.stopPropagation();
+            window.rideTrackingOnboarding?.complete?.();
+            window.rideTracking.start({
+                tripId: trackingTripId,
+                vehicleId: trackingRealTime?.vehicleId || null,
+                matricula: trackingRealTime?.matricula || null,
+                lineNumber: String(lineNumber),
+                stopNumber: String(stopNumber),
+                stopName: '',
+                arrivalTime: trackingArrivalTime,
+                etaLabel: trackingBus?.etaLabel || '',
+                arrivalLabel: trackingBus?.arrivalLabel || '',
+                destination: trackingDestination
+            });
+        });
+        followButton.type = 'button';
+        const trackingTime = trackingArrivalTime
+            ? new Date(trackingArrivalTime).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })
+            : '';
+        followButton.setAttribute('aria-label', `Seguir bus${trackingTime ? ` de las ${trackingTime}` : ''}${trackingDestination ? ` hacia ${trackingDestination}` : ` de la línea ${lineNumber}`}`);
+        followButton.innerHTML = '<span class="ride-follow-icon" aria-hidden="true"></span><span>Seguir</span>';
+        infoPanel.appendChild(followButton);
+    }
 
     let innerHTML = '<div class="proximos-buses"><ul>';
 
@@ -147,6 +191,7 @@ async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
 
         // Si el panel se está abriendo, cargamos la ocupación
         if (panel.classList.contains('open')) {
+            window.rideTrackingOnboarding?.consider?.(panel.querySelector('.ride-follow-button'));
             const busElements = panel.querySelectorAll('.ocupacion');
             busElements.forEach(async (busElement) => {
                 const tripId = busElement.getAttribute('data-trip-id');
@@ -294,29 +339,41 @@ function updateStopName(stopElement, newName, stopGeo) {
 
 // Guarda o elimina las paradas fijas y actualiza su posición
 async function toggleFixedStop(event) {
-    const stopId = event.target.id.split('-')[2]; // Obtiene el stopId del id del icono
-    let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
+    const pinIcon = event.currentTarget || event.target.closest('.pin-icon');
+    const stopId = String(
+        pinIcon?.dataset.stopId || pinIcon?.id?.replace(/^pin-icon-/, '') || ''
+    );
+    if (!stopId) return;
+
+    let fixedStops = localStorage.getItem('fixedStops')
+        ? JSON.parse(localStorage.getItem('fixedStops'))
+        : [];
+    fixedStops = Array.isArray(fixedStops) ? fixedStops.map(String) : [];
 
     const busList = document.getElementById("busList");
     const stopElement = document.getElementById(stopId);
+    const isFixed = fixedStops.includes(stopId);
 
-    if (fixedStops.includes(stopId)) {
+    if (isFixed) {
         // Si la parada ya está en fixedStops, la quitamos
         fixedStops = fixedStops.filter(stop => stop !== stopId);
+        localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
         showSuccessPopUp("Parada desfijada");
-        stopElement.parentNode.removeChild(stopElement);
+        stopElement?.parentNode?.removeChild(stopElement);
 
         await updateBusList(true);
         // Delay para que de tiempo a recrear el elemento
         setTimeout(async () => {
             const newStopElement = document.getElementById(`pin-icon-${stopId}`);
-            newStopElement.classList.remove('fixed'); // Actualiza el icono
-            await updateBusList(false); // Volvemos a actualizar
+            newStopElement?.classList.remove('fixed'); // Actualiza el icono
+            if (newStopElement) newStopElement.title = 'Fijar parada';
         }, 2000);
     } else {
         // Si la parada no está en fixedStops, la añadimos
-        fixedStops.push(stopId);
-        event.target.classList.add('fixed'); // Actualiza el icono
+        fixedStops = [...new Set([...fixedStops, stopId])];
+        localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
+        pinIcon.classList.add('fixed'); // Actualiza el icono
+        pinIcon.title = 'Desfijar parada';
         showSuccessPopUp("Parada fijada en la parte superior");
         // Verifica si el elemento de parada ya está al principio del contenedor de paradas
         const firstChild = busList.firstChild;
@@ -328,18 +385,15 @@ async function toggleFixedStop(event) {
         await updateBusList(false);
 
         // Delay para que de tiempo a mover el elemento
-        setTimeout(async () => {
+        setTimeout(() => {
             // Hacemos scroll al elemento
-            scrollToElement(stopElement);
-            await updateBusList(false); // Volvemos a actualizar
+            scrollToElement(document.getElementById(stopId) || stopElement);
         }, 700);
     }
-
-    // Guarda la nueva lista de paradas fijas en localStorage
-    localStorage.setItem('fixedStops', JSON.stringify(fixedStops));
 }
 
 function createStopElement(stopId, container, isSkeleton = false) {
+    const normalizedStopId = String(stopId);
     let welcomeBox = document.getElementById('welcome-box');
     if (welcomeBox) {
         welcomeBox.style.display = 'none';
@@ -348,7 +402,7 @@ function createStopElement(stopId, container, isSkeleton = false) {
     }
     
     let stopElement = document.createElement('div');
-    stopElement.id = stopId;
+    stopElement.id = normalizedStopId;
     stopElement.className = 'stop-block' + (isSkeleton ? ' skeleton' : '');
 
     let headerElement = document.createElement('div');
@@ -360,12 +414,14 @@ function createStopElement(stopId, container, isSkeleton = false) {
     // Agrega el icono de fijar parada
     let pinIcon = document.createElement('i');
     pinIcon.className = 'pin-icon';
-    pinIcon.id = `pin-icon-${stopId}`;
+    pinIcon.id = `pin-icon-${normalizedStopId}`;
+    pinIcon.dataset.stopId = normalizedStopId;
     pinIcon.title = 'Fijar parada';
 
     // Verifica si la parada está en fixedStops y establece la clase del icono en consecuencia
     let fixedStops = localStorage.getItem('fixedStops') ? JSON.parse(localStorage.getItem('fixedStops')) : [];
-    if (fixedStops.includes(stopId)) {
+    fixedStops = Array.isArray(fixedStops) ? fixedStops.map(String) : [];
+    if (fixedStops.includes(normalizedStopId)) {
         pinIcon.classList.add('fixed'); // Agrega la clase 'fixed' si la parada está en fixedStops
         pinIcon.title = 'Desfijar parada';
     }
@@ -392,8 +448,8 @@ function createBusElement(busId, line, index, stopElement, isSkeleton = false) {
 
     // Evitamos mostrar undefined mietras carga el DOM
     let lineNumber = "";
-    if (line.linenumber) {
-        lineNumber = line.linenumber;
+    if (line.lineNumber || line.linenumber) {
+        lineNumber = line.lineNumber || line.linenumber;
     }
 
     // Elemento con skeleton loading inicial
@@ -1325,10 +1381,23 @@ function closeAllDialogs(ids) {
         const element = document.getElementById(id);
         if (element) {
             element.style.display = 'none';
+            if (id === 'lineAlertsDialog') {
+                if (typeof hideLineAlertsDialog === 'function') {
+                    hideLineAlertsDialog();
+                } else {
+                    element.setAttribute('aria-hidden', 'true');
+                }
+            }
         }
     });
     const mapBox = document.getElementById('mapContainer');
-    mapBox.classList.remove('show');
+    if (mapBox) {
+        mapBox.classList.remove('show');
+    }
+
+    if (typeof window.rideTracking?.stop === 'function') {
+        window.rideTracking.stop('dialog-closed', { silent: true });
+    }
 
     // Cerrar el sidebar
     toogleSidebar(true);
@@ -1618,6 +1687,14 @@ function routersEvents() {
 
     // Manejar clics en enlaces internos
     document.body.addEventListener('click', function(e) {
+        // Leaflet cierra sus popups con un enlace interno `#close`. Ese
+        // enlace no representa una navegación de VallaBus: si llega al
+        // enrutador, se considera una ruta desconocida y closeAllDialogs()
+        // termina ocultando el mapa que el usuario sigue consultando.
+        if (e.target.closest('#busMap .leaflet-popup-close-button')) {
+            return;
+        }
+
         if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
             const url = new URL(e.target.href);
             

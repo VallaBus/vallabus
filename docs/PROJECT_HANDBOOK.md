@@ -208,21 +208,22 @@ Ejecutar desde la raíz:
 python3 tests/browser_smoke.py
 ```
 
-La suite consulta la API remota real y comprueba en Chromium 13 flujos:
+La suite consulta la API remota real y comprueba en Chromium 14 flujos:
 
 1. Arranque sin errores de runtime, entrypoint ES Module, agregador CSS y registro del Service Worker sin `fetch`/`respondWith`.
 2. Apertura/cierre del menú y cambio de temas.
 3. Flujo end-to-end de parada → sugerencia de línea → tarjeta con datos → mapa, geometría de ruta, paradas Leaflet, estado de ubicación y cierre.
 4. Horarios programados, selector de fecha y cierre del diálogo.
-5. Selección múltiple de líneas, rechazo de duplicados y borrado de todas las líneas.
-6. Destinos rápidos: validación de Casa, alta desde mapa, persistencia, ocultar/mostrar barra, planificador y borrado.
-7. Guardar Casa y reordenar favoritos con drag & drop, manteniendo Casa en primera posición.
-8. Paradas cercanas con permiso de geolocalización, mapa, añadir una línea y cierre.
-9. Planificador de rutas desde la pantalla inicial.
-10. Diálogos de datos/estado y descarga de exportación JSON.
-11. Rutas hash directas para horarios, datos y estado.
-12. Importación JSON mediante `file chooser`, confirmación, persistencia y navegación de vuelta.
-13. Fijar una parada, desplegar el lateral de una línea, consultar próximos horarios y borrar la línea desde ese lateral.
+5. Avisos: el contador general solo cuenta avisos sin parada ni línea; los avisos de línea se filtran para su tarjeta y coinciden por identificador aunque cambie el tipo (`2`/`"2"`).
+6. Selección múltiple de líneas, rechazo de duplicados y borrado de todas las líneas.
+7. Destinos rápidos: validación de Casa, alta desde mapa, persistencia, ocultar/mostrar barra, planificador y borrado.
+8. Guardar Casa y reordenar favoritos con drag & drop, manteniendo Casa en primera posición.
+9. Paradas cercanas con permiso de geolocalización, mapa, añadir una línea y cierre.
+10. Planificador de rutas desde la pantalla inicial.
+11. Diálogos de datos/estado y descarga de exportación JSON.
+12. Rutas hash directas para horarios, datos y estado.
+13. Importación JSON mediante `file chooser`, confirmación, persistencia y navegación de vuelta.
+14. Fijar una parada, desplegar el lateral de una línea, consultar próximos horarios y borrar la línea desde ese lateral.
 
 El flujo live usa por defecto parada `666` y línea `2`. Se puede seleccionar otra combinación estable para el entorno con `--stop`/`--line` o las variables `VALLABUS_TEST_STOP`/`VALLABUS_TEST_LINE`. Para iterar sobre un flujo concreto, añadir `--case <nombre>` (se puede repetir). Si falla una prueba se guarda una captura en `screenshots/playwright/`.
 

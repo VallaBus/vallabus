@@ -1,4 +1,7 @@
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
+// Exponemos la instancia para que el seguimiento de viaje pueda dibujar la
+// posición del usuario sobre el mismo mapa sin crear una segunda instancia.
+window.vallabusMap = myMap;
 let currentTileLayer;
 let centerControl;
 let paradaMarker;
@@ -12,10 +15,40 @@ if (document.readyState === 'loading') {
 }
 
 function crearIconoBus(numeroBus) {
+    const label = String(numeroBus ?? '');
+    const labelClass = label.length >= 5
+        ? ' bus-icon-long-label'
+        : label.length >= 4
+            ? ' bus-icon-text-label'
+            : '';
+
     return L.divIcon({
-        className: 'bus-icon' + (numeroBus ? ' linea-' + numeroBus : ''),
-        html: `<div>${numeroBus}</div>`,
+        className: 'bus-icon' + (numeroBus ? ' linea-' + numeroBus : '') + labelClass,
+        html: `
+            <div>${label}</div>
+            <svg class="bus-icon-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="5.5" y="3.5" width="13" height="15" rx="2"></rect>
+                <path d="M6 10h12M8 6h3M13 6h3"></path>
+                <circle cx="8.5" cy="16" r="1"></circle>
+                <circle cx="15.5" cy="16" r="1"></circle>
+            </svg>`,
         iconSize: [30, 30]
+    });
+}
+
+function crearIconoParadaSeguimiento() {
+    return L.divIcon({
+        className: 'ride-map-marker-icon',
+        html: `
+            <span class="ride-map-marker ride-map-marker--board" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <circle cx="12" cy="7" r="3.1"></circle>
+                    <path d="M5.8 20c.4-4.1 2.4-6.2 6.2-6.2s5.8 2.1 6.2 6.2"></path>
+                </svg>
+            </span>`,
+        iconSize: [40, 46],
+        iconAnchor: [20, 42],
+        popupAnchor: [0, -38]
     });
 }
 
@@ -82,6 +115,10 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 // Si no hay datos de ubicación, los dejamos como null
                 if (!response.ok) {
                     console.log('Error al consultar el API de ubicación');
+                    actualizarSinPosicion();
+                    if (typeof window.rideTracking?.onBusPosition === 'function') {
+                        window.rideTracking.onBusPosition(null, busData);
+                    }
                 }
                 else {
                     const data = await response.json();
@@ -91,10 +128,13 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         if (centerMap) {
                             myMap.panTo([paradaData.latitud, paradaData.longitud]);
                         }
-                        document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
+                        actualizarSinPosicion();
                         if (marcadorAutobus) {
                             marcadorAutobus.remove();
                             marcadorAutobus = null;
+                        }
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(null, busData);
                         }
                     }
                     else {
@@ -102,6 +142,9 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         lat = parseFloat(data[0].latitud);
                         lon = parseFloat(data[0].longitud);
                         actualizarBus(lat, lon, busData);
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(data[0], busData);
+                        }
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
                         if (centerMap) {
@@ -109,15 +152,25 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         }
                     }
 
-                    actualizarParada(paradaData);
-                    addRouteShapesToMap(busData.tripId, busData.lineNumber);
-                    addStopsToMap(busData.tripId, busData.lineNumber);
                 }
+                // La posición puede no estar disponible todavía, pero la
+                // geometría y las paradas del viaje sí deben mostrarse.
+                actualizarParada(paradaData);
+                addRouteShapesToMap(busData.tripId, busData.lineNumber);
+                addStopsToMap(busData.tripId, busData.lineNumber);
             } catch (error) {
                 console.error('Error al actualizar el mapa de buses:', error.message);
+                actualizarSinPosicion();
+                if (typeof window.rideTracking?.onBusPosition === 'function') {
+                    window.rideTracking.onBusPosition(null, busData);
+                }
             }
         } catch (error) {
             console.error('Error al actualizar el mapa de buses:', error.message);
+            actualizarSinPosicion();
+            if (typeof window.rideTracking?.onBusPosition === 'function') {
+                window.rideTracking.onBusPosition(null, busData);
+            }
         }
     });
 
@@ -186,11 +239,13 @@ function actualizarParada(paradaData) {
     if (paradaMarker) {
         // Si ya existe, actualizamos su posición y su popup
         paradaMarker.setLatLng([paradaData.latitud, paradaData.longitud]);
+        paradaMarker.setIcon(crearIconoParadaSeguimiento());
         paradaMarker.getPopup().setContent(paradaData.nombre);
     } else {
         // Si no existe, creamos uno nuevo
         paradaMarker = L.marker([paradaData.latitud, paradaData.longitud], {
-            title: paradaData.nombre
+            title: `Tu parada: ${paradaData.nombre}`,
+            icon: crearIconoParadaSeguimiento()
         }).addTo(myMap).bindPopup(paradaData.nombre);
     }
 }
@@ -199,17 +254,29 @@ function actualizarBus(lat, lon, busData) {
     // Actualizar o crear el marcador del autobús
     const nuevoIconoBus = crearIconoBus(busData.lineNumber);
 
-    // Guardamos info del bus si existe
-    let busInfo;
-    if (busData && busData.vehicleId !== 'undefined' && busData.matricula !== 'undefined') {
-        busInfo = `<ul class="busInfo">
-                        <li class="vehicle-id"><strong>${busData.vehicleId}</li>
-                        <li class="matricula"><strong>${busData.matricula}</li>
-                    </ul>
-        `;
-    } else {
-        busInfo = 'Sin info del vehiculo aún';
+    // Mostramos solo los datos que realmente publica el API. LaRegional
+    // puede enviar el número interno del vehículo sin matrícula.
+    const hasVehicleValue = (value) => {
+        if (value === null || value === undefined) return false;
+        const normalizedValue = String(value).trim().toLowerCase();
+        return normalizedValue !== ''
+            && normalizedValue !== 'undefined'
+            && normalizedValue !== 'null';
+    };
+    const hasVehicleId = hasVehicleValue(busData?.vehicleId);
+    const hasMatricula = hasVehicleValue(busData?.matricula);
+
+    const vehicleInfoRows = [];
+    if (hasVehicleId) {
+        vehicleInfoRows.push(`<li class="vehicle-id"><strong>${busData.vehicleId}</strong></li>`);
     }
+    if (hasMatricula) {
+        vehicleInfoRows.push(`<li class="matricula"><strong>${busData.matricula}</strong></li>`);
+    }
+
+    const busInfo = vehicleInfoRows.length > 0
+        ? `<ul class="busInfo">${vehicleInfoRows.join('')}</ul>`
+        : 'Sin info del vehículo aún';
 
     if (marcadorAutobus) {
         // Si ya existe, actualizamos su posición y su icono
@@ -237,6 +304,13 @@ function actualizarUltimaActualizacion(timestamp) {
     let lastUpdate = minutes < 1 ? `${seconds}s` : `${minutes} min ${seconds}s`;
     let updateHTML = `Última ubicación <strong>aproximada</strong>. Actualizada hace ${lastUpdate}`;
     document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
+}
+
+function actualizarSinPosicion() {
+    const updateHTML = 'Última comprobación <strong>hace 0s</strong>. No hay datos de ubicación en directo';
+    document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
 }
 
 // Función para calcular el ángulo entre dos puntos
@@ -362,7 +436,8 @@ async function addRouteShapesToMap(tripId, lineNumber) {
 // Preparar los datos asíncronos antes de agregar las capas al mapa
 async function prepareBusLines(stopsData) {
     let busLinesPromises = stopsData.features.map(async (stop) => {
-        let stopCode = stop.properties.stop_code;
+        // El GeoJSON antiguo usaba stop_code; el GTFS nuevo publica stop_id.
+        let stopCode = stop.properties.stop_code || stop.properties.stop_id;
         let lines = await getStopLines(stopCode);
         return { stopCode, lines };
     });
@@ -410,12 +485,14 @@ async function addStopsToMap(tripId, lineNumber) {
             // Add the new stops to the map
             currentStopsLayer = L.geoJSON(stopsData, {
                 pointToLayer: (feature, latlng) => {
+                    const stopCode = feature.properties.stop_code || feature.properties.stop_id;
+                    const stopName = feature.properties.stop_name || feature.properties.name || 'Parada';
                     // HTML para el listado de líneas
                     let lineasHTML = '<div id="lineas-correspondencia">';
                     // Iteramos por las líneas de la parada y las añadimos
-                    if (busLines[feature.properties.stop_code]) {
-                        busLines[feature.properties.stop_code].forEach(lineNumber => {
-                            lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${feature.properties.stop_code}" data-line-number="${lineNumber}">${lineNumber}</span>`;
+                    if (busLines[stopCode]) {
+                        busLines[stopCode].forEach(lineNumber => {
+                            lineasHTML += `<span class="addLineButton linea linea-${lineNumber}" data-stop-number="${stopCode}" data-line-number="${lineNumber}">${lineNumber}</span>`;
                         });
                     }
                     lineasHTML += '</div>';
@@ -431,10 +508,10 @@ async function addStopsToMap(tripId, lineNumber) {
                         iconUrl = 'img/bus-stop-dark.png';
                     }
 
-                    let popupContent = `<strong>${feature.properties.stop_name}</strong> (${feature.properties.stop_code}) ${lineasHTML}`;
+                    let popupContent = `<strong>${stopName}</strong> (${stopCode}) ${lineasHTML}`;
 
                     // Verify if the stop is suppressed
-                    let stopSuppressed = suppressedStops.some(stop => stop.numero === feature.properties.stop_code);
+                    let stopSuppressed = suppressedStops.some(stop => stop.numero === stopCode);
                     if (stopSuppressed) {
                         iconUrl = 'img/circle-exclamation.png';
                         popupContent += '<br>🚫 Aviso: Parada actualmente suprimida';

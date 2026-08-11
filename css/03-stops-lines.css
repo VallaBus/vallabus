@@ -336,7 +336,7 @@ button.remove-stop {
     padding: 34px 34px 0 0;
 }
 
-.line-info .alert-box,
+.line-alert-dialog,
 #horarios-box,
 #nearestStopsResults,
 .dialog-data {
@@ -361,28 +361,95 @@ button.remove-stop {
     justify-content: center;
 }
 
-.line-info .alert-box {
+.line-alert-dialog {
     box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
     border: 1px solid hsl(0, 0%, 80%);
     font-size: 0.9em;
 }
 
-.dark-mode .line-info .alert-box {
+.line-alert-dialog ul {
+    width: 100%;
+    padding: 0;
+    margin: 0 0 1em;
+}
+
+.line-alert-dialog .line-alert-item {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0 0 1rem;
+    border-bottom: 1px solid hsl(0, 0%, 88%);
+}
+
+.line-alert-dialog .line-alert-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.line-alert-dialog .line-alert-dialog-header {
+    display: flex;
+    align-self: stretch;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.9rem;
+    background: hsl(0, 0%, 93%);
+    border-radius: 0.55rem;
+}
+
+.line-alert-dialog .line-alert-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 2.7rem;
+    min-height: 2.2rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1;
+    box-sizing: border-box;
+}
+
+.line-alert-dialog .line-alert-summary {
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.line-alert-dialog .line-alert-body {
+    padding: 0.85rem 0.9rem 0;
+    text-align: left;
+}
+
+.line-alert-dialog .line-alert-body p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.line-alert-dialog .line-alert-body p + p {
+    margin-top: 0.9rem;
+}
+
+.line-alert-dialog .line-alert-body strong {
+    font-weight: 700;
+}
+
+.line-alert-dialog h2,
+#horarios-box h2 {
+    padding: 0;
+}
+
+.dark-mode .line-alert-dialog {
     box-shadow: 0 4px 8px hsla(0, 0%, 0%, 0.1);
     border: 1px solid hsl(0, 0%, 17%);
 }
 
-.line-info .alert-box ul {
-    padding: 0 20px;
+.dark-mode .line-alert-dialog .line-alert-item {
+    border-bottom-color: hsl(0, 0%, 25%);
 }
 
-.line-info .alert-box ul li {
-    margin-bottom: 10px;
-}
-
-.line-info .alert-box h2,
-#horarios-box h2 {
-    padding: 0;
+.dark-mode .line-alert-dialog .line-alert-dialog-header {
+    background: hsl(0, 0%, 24%);
 }
 
 /* Skeleton placeholder */
@@ -839,4 +906,3 @@ button.remove-stop {
 .dark-mode .dialog-data ul {
     color: #eeeeee;
 }
-
