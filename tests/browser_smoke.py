@@ -407,6 +407,9 @@ def test_live_search_line_and_map(
     assert page.locator("#busMap .ride-map-marker--board").count() == 1, (
         "La parada de subida no usa el marcador de usuario/parada"
     )
+    assert page.locator("#busMap .ride-map-marker--board svg rect").count() == 1, (
+        "La parada de subida no usa un icono de parada/autobús"
+    )
     assert page.locator("#busMap .leaflet-overlay-pane path.%s" % line_class).count() > 0, (
         "El mapa no cargó la geometría de la ruta"
     )
@@ -989,6 +992,56 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
         return snapshot
 
     waiting = capture(0, "01-esperando.png")
+
+    # El grabador se comporta como un gesto vertical, no como un botón
+    # ambiguo en el borde de la hoja.
+    handle_box = page.locator("#rideSheetToggle").bounding_box()
+    assert handle_box, "Falta el área táctil del grabador"
+    handle_x = handle_box["x"] + handle_box["width"] / 2
+    handle_y = handle_box["y"] + handle_box["height"] / 2
+    page.mouse.move(handle_x, handle_y)
+    page.mouse.down()
+    page.mouse.move(handle_x, handle_y + 72, steps=4)
+    page.mouse.up()
+    page.wait_for_timeout(120)
+    assert "is-collapsed" in page.locator("#rideTrackingPanel").get_attribute("class")
+
+    handle_box = page.locator("#rideSheetToggle").bounding_box()
+    handle_x = handle_box["x"] + handle_box["width"] / 2
+    handle_y = handle_box["y"] + handle_box["height"] / 2
+    page.mouse.move(handle_x, handle_y)
+    page.mouse.down()
+    page.mouse.move(handle_x, handle_y - 72, steps=4)
+    page.mouse.up()
+    page.wait_for_timeout(160)
+    assert "is-collapsed" not in page.locator("#rideTrackingPanel").get_attribute("class")
+
+    # Un desplazamiento manual no se pierde cuando llega una nueva posición
+    # del bus: el seguimiento actualiza el marcador, no la cámara.
+    center_before_drag = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    page.mouse.move(220, 150)
+    page.mouse.down()
+    page.mouse.move(175, 205, steps=5)
+    page.mouse.up()
+    # Leaflet conserva inercia después del gesto; esperamos a que la cámara
+    # se estabilice para comparar contra la siguiente actualización del bus.
+    page.wait_for_timeout(700)
+    center_after_drag = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    assert abs(center_after_drag["lat"] - center_before_drag["lat"]) > 0.00001 or abs(
+        center_after_drag["lng"] - center_before_drag["lng"]
+    ) > 0.00001
+    page.evaluate("() => window.rideTrackingDemo.setState(1)")
+    page.wait_for_timeout(180)
+    center_after_update = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    assert abs(center_after_update["lat"] - center_after_drag["lat"]) < 0.00002
+    assert abs(center_after_update["lng"] - center_after_drag["lng"]) < 0.00002
+
     page.locator("#rideDestinationButton").click()
     destination_options = page.locator("#rideDestinationOptions .ride-destination-option")
     assert destination_options.count() == 4

@@ -29,9 +29,14 @@
     inset: 0;
     margin: 0;
     padding: 0;
+    pointer-events: none;
     position: absolute;
     text-align: left;
     width: 100%;
+}
+
+#mapContainer.ride-tracking-active #mapFooter > * {
+    pointer-events: auto;
 }
 
 #mapContainer.ride-tracking-active #busMap {
@@ -226,6 +231,17 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     background: #1679d3;
 }
 
+#mapContainer #busMap .ride-map-marker--board svg {
+    height: 22px;
+    stroke-width: 1.7;
+    width: 22px;
+}
+
+#mapContainer #busMap .ride-map-marker--board svg circle {
+    fill: currentColor;
+    stroke: none;
+}
+
 #mapContainer #busMap .ride-map-marker--user {
     background: #1278e4;
     box-shadow: 0 0 0 7px rgba(18, 120, 228, 0.16), 0 5px 16px rgba(18, 120, 228, 0.35);
@@ -255,7 +271,7 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     border-radius: 50%;
     box-shadow: 0 0 0 8px rgba(112, 201, 73, 0.15), 0 0 28px rgba(112, 201, 73, 0.62);
     display: flex;
-    height: 48px;
+    height: 48px !important;
     justify-content: center;
     margin-left: -24px !important;
     margin-top: -24px !important;
@@ -305,7 +321,7 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     color: #20332a;
     height: auto;
     left: 0;
-    max-height: calc(100% - 44px);
+    max-height: min(680px, 68dvh);
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -858,14 +874,20 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     appearance: none;
     background: transparent;
     border: 0;
-    cursor: pointer;
+    cursor: grab;
     display: block;
     height: 32px;
     margin: -8px 0 2px;
     min-height: 32px;
     padding: 0;
     position: relative;
+    touch-action: none;
+    user-select: none;
     width: 100%;
+}
+
+.ride-sheet-grabber.is-dragging {
+    cursor: grabbing;
 }
 
 .ride-sheet-grabber::before {

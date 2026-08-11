@@ -42,8 +42,10 @@ function crearIconoParadaSeguimiento() {
         html: `
             <span class="ride-map-marker ride-map-marker--board" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
-                    <circle cx="12" cy="7" r="3.1"></circle>
-                    <path d="M5.8 20c.4-4.1 2.4-6.2 6.2-6.2s5.8 2.1 6.2 6.2"></path>
+                    <rect x="5.5" y="3.5" width="13" height="15" rx="2"></rect>
+                    <path d="M6 10h12M8 6h3M13 6h3"></path>
+                    <circle cx="8.5" cy="16" r="1"></circle>
+                    <circle cx="15.5" cy="16" r="1"></circle>
                 </svg>
             </span>`,
         iconSize: [40, 46],
@@ -125,7 +127,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
 
                     if (!data || !data.length || !data[0].latitud || !data[0].longitud) {
                         // Si no hay datos simplemente centramos el mapa en la parada
-                        if (centerMap) {
+                        if (centerMap && !document.getElementById('mapContainer')?.classList.contains('ride-tracking-active')) {
                             myMap.panTo([paradaData.latitud, paradaData.longitud]);
                         }
                         actualizarSinPosicion();
@@ -147,7 +149,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         }
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
-                        if (centerMap) {
+                        if (centerMap && !document.getElementById('mapContainer')?.classList.contains('ride-tracking-active')) {
                             myMap.panTo([lat, lon], { animate: true, duration: 1 });
                         }
                     }
@@ -253,6 +255,7 @@ function actualizarParada(paradaData) {
 function actualizarBus(lat, lon, busData) {
     // Actualizar o crear el marcador del autobús
     const nuevoIconoBus = crearIconoBus(busData.lineNumber);
+    const trackingActive = document.getElementById('mapContainer')?.classList.contains('ride-tracking-active');
 
     // Mostramos solo los datos que realmente publica el API. LaRegional
     // puede enviar el número interno del vehículo sin matrícula.
@@ -285,8 +288,11 @@ function actualizarBus(lat, lon, busData) {
             marcadorAutobus.setLatLng([lat, lon]).setIcon(nuevoIconoBus);
             // Popup con info del bus
             marcadorAutobus.bindPopup(`${busInfo}`);
-            // Centramos la vista en la nueva ubicación
-            myMap.panTo([lat, lon], { animate: true, duration: 1 });
+            // En seguimiento el usuario puede haber desplazado el mapa; no
+            // devolvemos la vista al bus en cada refresco del API.
+            if (!trackingActive) {
+                myMap.panTo([lat, lon], { animate: true, duration: 1 });
+            }
         }
     } else {
         // Si no existe, creamos uno nuevo

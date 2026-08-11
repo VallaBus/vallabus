@@ -63,6 +63,72 @@
     let destinationMarker = null;
     let uiBound = false;
 
+    function refreshTrackingMap({ refit = false } = {}) {
+        const map = window.vallabusMap;
+        if (!map) return;
+        map.invalidateSize?.({ pan: false });
+        map.dragging?.enable?.();
+        map.touchZoom?.enable?.();
+        map.scrollWheelZoom?.enable?.();
+        map.doubleClickZoom?.enable?.();
+        if (refit) requestAnimationFrame(() => fitMapToJourney({ animate: true }));
+    }
+
+    function setPanelCollapsed(collapsed) {
+        const ui = getUi();
+        if (!ui.panel || !ui.sheetToggle) return;
+        ui.panel.classList.toggle('is-collapsed', collapsed);
+        ui.sheetToggle.setAttribute('aria-expanded', String(!collapsed));
+        ui.sheetToggle.setAttribute('aria-label', collapsed ? 'Expandir panel' : 'Contraer panel');
+        refreshTrackingMap();
+    }
+
+    function bindSheetGesture(ui) {
+        const handle = ui.sheetToggle;
+        if (!handle) return;
+
+        let gesture = null;
+        let suppressPointerClick = false;
+
+        // Con puntero la hoja cambia mediante un gesto vertical. El click
+        // queda reservado para teclado y lectores de pantalla.
+        handle.addEventListener('click', event => {
+            if (suppressPointerClick) {
+                suppressPointerClick = false;
+                event.preventDefault();
+                return;
+            }
+            setPanelCollapsed(!ui.panel.classList.contains('is-collapsed'));
+        });
+
+        handle.addEventListener('pointerdown', event => {
+            if (event.pointerType === 'mouse' && event.button !== 0) return;
+            gesture = { startY: event.clientY, pointerId: event.pointerId };
+            suppressPointerClick = true;
+            handle.classList.add('is-dragging');
+            handle.setPointerCapture?.(event.pointerId);
+            event.preventDefault();
+        }, { passive: false });
+
+        handle.addEventListener('pointermove', event => {
+            if (!gesture || event.pointerId !== gesture.pointerId) return;
+            event.preventDefault();
+        }, { passive: false });
+
+        const finishGesture = event => {
+            if (!gesture || (event.pointerId !== undefined && event.pointerId !== gesture.pointerId)) return;
+            const deltaY = event.clientY - gesture.startY;
+            const dragged = Math.abs(deltaY) >= 28;
+            gesture = null;
+            handle.classList.remove('is-dragging');
+            handle.releasePointerCapture?.(event.pointerId);
+            if (dragged) setPanelCollapsed(deltaY > 0);
+        };
+
+        handle.addEventListener('pointerup', finishGesture);
+        handle.addEventListener('pointercancel', finishGesture);
+    }
+
     function ensureGlobalState() {
         window.globalState = window.globalState || {};
         return window.globalState;
@@ -143,12 +209,7 @@
         });
         ui.destinationSearch?.addEventListener('input', renderDestinationOptions);
 
-        ui.sheetToggle?.addEventListener('click', event => {
-            event.stopPropagation();
-            const collapsed = ui.panel.classList.toggle('is-collapsed');
-            ui.sheetToggle.setAttribute('aria-expanded', String(!collapsed));
-            ui.sheetToggle.setAttribute('aria-label', collapsed ? 'Expandir panel' : 'Contraer panel');
-        });
+        bindSheetGesture(ui);
 
         ui.boardButton.addEventListener('click', event => {
             event.stopPropagation();
@@ -720,20 +781,49 @@
             }
         };
 
-        // Cuando hay destino, mostramos solo el tramo que importa al usuario.
-        // Sin destino, la ruta completa aporta contexto y permite descubrir la
-        // secuencia de paradas antes de elegir dónde bajarse.
+        const progressCandidates = [
+            state.busProjection?.progress,
+            state.userProjection?.progress,
+            state.boardStop?.progress
+        ].filter(Number.isFinite);
+        const currentProgress = progressCandidates.length ? Math.max(...progressCandidates) : null;
+        const boardProgress = Number.isFinite(state.boardStop?.progress) ? state.boardStop.progress : null;
+        const startProgress = Math.max(
+            0,
+            (state.phase === 'waiting' && boardProgress !== null
+                ? Math.min(currentProgress ?? boardProgress, boardProgress)
+                : currentProgress ?? boardProgress ?? 0) - 120
+        );
+
+        let endProgress = destinationProgress;
+        if (endProgress === null && currentProgress !== null) {
+            const upcomingStops = state.stops
+                .filter(stop => Number.isFinite(stop.progress) && stop.progress >= currentProgress - 20)
+                .sort((first, second) => first.progress - second.progress);
+            const lastVisibleStop = upcomingStops[Math.min(5, Math.max(0, upcomingStops.length - 1))];
+            endProgress = lastVisibleStop?.progress
+                ?? Math.min(state.route?.length ?? currentProgress + 2600, currentProgress + 2600);
+        }
+        if (endProgress === null && state.route?.length) endProgress = state.route.length;
+        if (endProgress !== null && endProgress < startProgress + 120) {
+            endProgress = startProgress + 120;
+        }
+
+        // Encuadramos el tramo relevante, no toda la línea: así la secuencia
+        // de próximas paradas se entiende incluso en una pantalla pequeña.
         if (state.route?.coordinates?.length) {
             state.route.coordinates.forEach((point, index) => {
-                if (destinationProgress === null
-                    || state.route.cumulative[index] <= destinationProgress + 45) {
+                const progress = state.route.cumulative[index];
+                if (progress >= startProgress && progress <= (endProgress ?? progress) + 45) {
                     addPoint(point);
                 }
             });
         }
 
         state.stops
-            .filter(stop => destinationProgress === null || stop.progress <= destinationProgress + 45)
+            .filter(stop => Number.isFinite(stop.progress)
+                && stop.progress >= startProgress
+                && stop.progress <= (endProgress ?? stop.progress) + 45)
             .forEach(addPoint);
         addPoint(state.boardStop);
         addPoint(state.busPosition);
@@ -752,13 +842,13 @@
             Math.max(96, Math.round(mapHeight - 96))
         );
 
-        map.invalidateSize?.({ pan: false });
+        refreshTrackingMap();
         map.fitBounds(points, {
             animate: options.animate !== false,
             duration: 0.45,
             paddingTopLeft: [32, 52],
             paddingBottomRight: [32, bottomPadding],
-            maxZoom: 15.5
+            maxZoom: 16.5
         });
     }
 

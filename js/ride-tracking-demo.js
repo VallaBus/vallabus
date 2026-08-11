@@ -74,6 +74,7 @@
     let current = 0;
     let timer = null;
     let demoLayer = null;
+    let lastFramedDestinationKey = Symbol('unframed');
 
     function drawDemoRoute() {
         if (!window.vallabusMap || !window.L) return;
@@ -106,7 +107,11 @@
         });
         const label = document.getElementById('rideDemoStateLabel');
         if (label) label.textContent = `${current + 1}/${states.length} · ${item.label}`;
-        setTimeout(() => window.rideTracking.fitMapToJourney?.({ animate: false }), 50);
+        const destinationChanged = item.destinationKey !== lastFramedDestinationKey;
+        lastFramedDestinationKey = item.destinationKey;
+        if (destinationChanged) {
+            setTimeout(() => window.rideTracking.fitMapToJourney?.({ animate: false }), 50);
+        }
     }
 
     async function startDemo() {
