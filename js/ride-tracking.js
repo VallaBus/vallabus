@@ -12,7 +12,6 @@
     const BOARD_STOP_RADIUS = 90;
     const BUS_STOP_RADIUS = 95;
     const BUS_USER_RADIUS = 180;
-    const ONBOARD_MARKER_MERGE_RADIUS = 75;
     const DESTINATION_TOLERANCE = 25;
     const POSITION_MAX_AGE = 5000;
     const GPS_TIMEOUT = 12000;
@@ -58,7 +57,8 @@
         notified: new Set(),
         gpsWatchId: null,
         gpsErrorMessage: '',
-        loadToken: 0
+        loadToken: 0,
+        countdownTimer: null
     };
 
     let userMarker = null;
@@ -570,8 +570,11 @@
     }
 
     function getJourneyProgress() {
-        const liveProgress = state.busProjection?.progress
-            ?? state.userProjection?.progress
+        const useGpsAsTripPosition = (state.phase === 'onboard' || state.phase === 'arrived')
+            && Number.isFinite(state.userProjection?.progress);
+        const liveProgress = (useGpsAsTripPosition
+            ? state.userProjection?.progress
+            : state.busProjection?.progress ?? state.userProjection?.progress)
             ?? state.boardStop?.progress
             ?? -Infinity;
         // Si el usuario confirma que está dentro antes de que la posición
@@ -681,6 +684,21 @@
         removeUserMarker();
     }
 
+    function startCountdownTimer() {
+        if (state.countdownTimer !== null) clearInterval(state.countdownTimer);
+        state.countdownTimer = window.setInterval(() => {
+            if (!state.active || state.phase !== 'waiting') return;
+            render();
+        }, 1000);
+    }
+
+    function stopCountdownTimer() {
+        if (state.countdownTimer !== null) {
+            clearInterval(state.countdownTimer);
+            state.countdownTimer = null;
+        }
+    }
+
     function handleUserPosition(position) {
         if (!state.active) return;
         if (!position?.coords) return;
@@ -745,13 +763,6 @@
     function updateUserMarker() {
         const map = window.vallabusMap;
         if (!map || !state.userPosition || typeof window.L === 'undefined') return;
-        if ((state.phase === 'onboard' || state.phase === 'arrived')
-            && state.busPosition
-            && haversine(state.userPosition, state.busPosition)
-                <= Math.max(ONBOARD_MARKER_MERGE_RADIUS, state.userPosition.accuracy || 0)) {
-            removeUserMarker();
-            return;
-        }
         const latLng = [state.userPosition.lat, state.userPosition.lon];
         if (!userMarker) {
             userMarker = window.L.marker(latLng, {
@@ -811,9 +822,10 @@
             }
         };
 
+        const useGpsAsTripPosition = (state.phase === 'onboard' || state.phase === 'arrived')
+            && Number.isFinite(state.userProjection?.progress);
         const progressCandidates = [
-            state.busProjection?.progress,
-            state.userProjection?.progress,
+            useGpsAsTripPosition ? state.userProjection?.progress : state.busProjection?.progress,
             state.boardStop?.progress
         ].filter(Number.isFinite);
         const currentProgress = progressCandidates.length ? Math.max(...progressCandidates) : null;
@@ -856,7 +868,7 @@
                 && stop.progress <= (endProgress ?? stop.progress) + 45)
             .forEach(addPoint);
         addPoint(state.boardStop);
-        addPoint(state.busPosition);
+        if (!useGpsAsTripPosition) addPoint(state.busPosition);
         addPoint(state.userPosition);
         addPoint(state.destination);
 
@@ -1005,15 +1017,19 @@
     }
 
     function getReportedEtaMinutes() {
-        const eta = String(state.etaLabel || '').match(/\d+/);
-        if (eta) return Math.max(0, Number(eta[0]));
-
         if (state.arrivalTime) {
             const arrival = new Date(state.arrivalTime);
             if (!Number.isNaN(arrival.getTime())) {
-                return Math.max(0, Math.ceil((arrival.getTime() - Date.now()) / 60000));
+                // La etiqueta que viene de la ficha es una foto del momento
+                // en que se abrió el seguimiento. La hora absoluta sí permite
+                // que la cuenta atrás siga avanzando aunque el API no envíe
+                // una nueva posición durante unos segundos.
+                return Math.max(0, Math.floor((arrival.getTime() - Date.now()) / 60000));
             }
         }
+
+        const eta = String(state.etaLabel || '').match(/\d+/);
+        if (eta) return Math.max(0, Number(eta[0]));
 
         return null;
     }
@@ -1060,12 +1076,20 @@
     }
 
     function updateTripProgress() {
+        // Después de confirmar que está dentro, el GPS del usuario representa
+        // mejor el avance real que la posición del vehículo publicada por el
+        // API, que puede llegar con retraso. Si no hay GPS, conservamos el bus
+        // como respaldo.
+        const useGpsAsTripPosition = (state.phase === 'onboard' || state.phase === 'arrived')
+            && state.userProjection;
         const fallbackProjection = state.userProjection && state.busProjection
             ? (state.userProjection.progress >= state.busProjection.progress - 20 ? state.userProjection : state.busProjection)
             : state.userProjection || state.busProjection;
-        const projection = !state.busPositionUnavailable && state.busProjection
-            ? state.busProjection
-            : fallbackProjection;
+        const projection = useGpsAsTripPosition
+            ? state.userProjection
+            : !state.busPositionUnavailable && state.busProjection
+                ? state.busProjection
+                : fallbackProjection;
         if (!projection || !state.stops.length) return;
         const progress = Math.max(projection.progress, state.boardStop?.progress ?? -Infinity);
         state.progressSource = projection === state.userProjection ? 'gps' : 'bus';
@@ -1267,7 +1291,15 @@
         }
 
         const mapBox = document.getElementById('mapContainer');
-        if (mapBox) mapBox.classList.toggle('ride-tracking-active', state.active);
+        if (mapBox) {
+            mapBox.classList.toggle('ride-tracking-active', state.active);
+            mapBox.classList.toggle(
+                'ride-tracking-use-gps-marker',
+                state.active
+                    && (state.phase === 'onboard' || state.phase === 'arrived')
+                    && Boolean(state.userPosition)
+            );
+        }
         ui.panel.style.setProperty('--ride-line-color', state.lineColor || '');
 
         const boardingPromptAvailable = isBoardingPromptAvailable();
@@ -1441,6 +1473,10 @@
             return;
         }
 
+        // La hoja es una preferencia momentánea de esta entrada, no un
+        // estado que deba heredarse al abrir el mismo u otro seguimiento.
+        setPanelCollapsed(false);
+
         if (state.active && state.tripId === context.tripId) {
             const ui = getUi();
             ui.panel.hidden = false;
@@ -1489,6 +1525,7 @@
         state.progressSource = null;
         state.gpsErrorMessage = '';
         state.notified = new Set();
+        startCountdownTimer();
 
         const ui = getUi();
         ui.panel.hidden = false;
@@ -1526,6 +1563,7 @@
         if (!state.active && reason !== 'map-closed') return;
         const wasArrived = state.phase === 'arrived';
         const shouldCloseSurface = reason === 'manual' || reason === 'finish' || reason === 'arrived';
+        stopCountdownTimer();
         stopUserTracking();
         state.active = false;
         state.phase = 'idle';

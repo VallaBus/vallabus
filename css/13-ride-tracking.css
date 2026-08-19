@@ -303,6 +303,14 @@ html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
     width: 28px;
 }
 
+/* Tras confirmar el embarque, el GPS del móvil es la posición principal.
+   El vehículo puede llegar retrasado desde el API y no debe dibujarse como
+   una segunda burbuja detrás. Sin GPS, esta clase no se activa y el bus sigue
+   siendo el respaldo visible. */
+#mapContainer.ride-tracking-use-gps-marker #busMap .bus-icon {
+    display: none !important;
+}
+
 /* Hoja inferior. */
 
 #mapContainer #mapFooter .ride-tracking-panel {

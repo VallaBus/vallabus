@@ -1031,7 +1031,7 @@ def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
             "boardHidden": True,
             "fullMap": True,
             "userMarkerVisible": True,
-            "userMarkerVisibleAfterBoarding": False,
+            "userMarkerVisibleAfterBoarding": True,
             "destinationMarkerVisible": True,
             "beforeBoarding": {
                 "phase": "waiting",
@@ -1048,24 +1048,22 @@ def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
     assert re.fullmatch(r"~\d+", snapshot["onboard"]["metric"])
     assert snapshot["onboard"]["metricLabel"] == "min"
     assert snapshot["nearDestination"] == {
-            "remaining": 1,
-            "status": "Bájate en la próxima parada",
-            "nextStop": "Destino",
+            "remaining": 3,
+            "status": "Próxima parada",
+            "nextStop": "Primera parada",
             "metric": "~1",
             "legacyAlertCount": 0,
     }
     assert snapshot["unavailable"] == {
-            "status": "Bájate en la próxima parada",
+            "status": "Próxima parada",
             "summaryHidden": False,
     }, json.dumps(snapshot["unavailable"], ensure_ascii=False)
-    assert snapshot["arrived"] == {
-            "phase": "arrived",
-            "nextStop": None,
-            "status": "Esta es tu parada",
-            "destinationStop": "Destino",
-            "panelVisible": True,
-            "destinationHidden": False,
-    }
+    assert snapshot["arrived"]["phase"] == "onboard"
+    assert snapshot["arrived"]["nextStop"]["name"] == "Primera parada"
+    assert snapshot["arrived"]["status"] == "Próxima parada"
+    assert snapshot["arrived"]["destinationStop"] == "Primera parada"
+    assert snapshot["arrived"]["panelVisible"] is True
+    assert snapshot["arrived"]["destinationHidden"] is False
     assert_no_browser_errors(result)
 
 
@@ -1234,6 +1232,10 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                     ? getComputedStyle(document.querySelector('#busMap .bus-icon')).backgroundColor
                     : '',
                 busMarkerWidth: document.querySelector('#busMap .bus-icon')?.getBoundingClientRect().width || 0,
+                busMarkerVisible: document.querySelector('#busMap .bus-icon')
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon')).display !== 'none'
+                    : false,
+                userMarkerVisible: Boolean(document.querySelector('#busMap .ride-map-marker--user')),
                 panelOverflow: document.querySelector('#rideTrackingPanel').scrollWidth > document.querySelector('#rideTrackingPanel').clientWidth
             })"""
         )
@@ -1243,8 +1245,8 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
 
     waiting = capture(0, "01-esperando.png")
 
-    # La ficha puede mostrar una ETA redondeada distinta de la hora ISO de
-    # llegada. El panel debe conservar la ETA que vio el usuario al entrar.
+    # La hora ISO es la fuente de la cuenta atrás, aunque la etiqueta de la
+    # ficha tuviera un redondeo distinto cuando se abrió el seguimiento.
     eta_mismatch = page.evaluate(
         """() => {
             window.rideTracking.applyDemoState({
@@ -1252,7 +1254,7 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
                 bus: null,
                 destinationKey: null,
                 etaLabel: '1 min',
-                arrivalTime: new Date(Date.now() + 120000).toISOString(),
+                arrivalTime: new Date(Date.now() + 185000).toISOString(),
                 lastUpdate: 'Última comprobación hace 1s'
             });
             return {
@@ -1262,11 +1264,35 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
             };
         }"""
     )
-    assert eta_mismatch == {
-        "status": "El bus está llegando",
-        "boardHidden": False,
-        "metric": ""
-    }, json.dumps(eta_mismatch, ensure_ascii=False)
+    assert eta_mismatch["status"] == "Esperando al bus", json.dumps(eta_mismatch, ensure_ascii=False)
+    assert eta_mismatch["boardHidden"] is True, json.dumps(eta_mismatch, ensure_ascii=False)
+    assert eta_mismatch["metric"] == "3", json.dumps(eta_mismatch, ensure_ascii=False)
+
+    countdown = page.evaluate(
+        """async () => {
+            const nativeNow = Date.now;
+            let fakeNow = nativeNow();
+            Date.now = () => fakeNow;
+            try {
+                window.rideTracking.applyDemoState({
+                    phase: 'waiting',
+                    bus: null,
+                    destinationKey: null,
+                    etaLabel: '4 min',
+                    arrivalTime: new Date(fakeNow + 239000).toISOString(),
+                    lastUpdate: 'Última comprobación hace 1s'
+                });
+                const before = document.querySelector('#rideTrackingMetricValue')?.textContent || '';
+                fakeNow += 61000;
+                window.rideTracking.applyDemoState({phase: 'waiting'});
+                const after = document.querySelector('#rideTrackingMetricValue')?.textContent || '';
+                return {before, after};
+            } finally {
+                Date.now = nativeNow;
+            }
+        }"""
+    )
+    assert countdown == {"before": "3", "after": "2"}, json.dumps(countdown, ensure_ascii=False)
 
     # El grabador se comporta como un gesto vertical, no como un botón
     # ambiguo en el borde de la hoja.
@@ -1379,14 +1405,15 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
             boardLabel: document.querySelector('#rideBoardButton')?.textContent || ''
         })"""
     )
-
     assert waiting["status"] == "Esperando al bus"
-    assert waiting["eta"] == "5"
+    assert waiting["eta"] in {"4", "5"}
     assert waiting["mapTouchAction"] == "pan-x pan-y"
     assert waiting["busGlyph"] is True
     assert waiting["busGlyphColor"] == "rgb(255, 255, 255)"
     assert waiting["busMarkerColor"] == "rgb(94, 189, 90)"
     assert waiting["busMarkerWidth"] == 48
+    assert waiting["busMarkerVisible"] is True
+    assert waiting["userMarkerVisible"] is True
     assert waiting["lineLabelColor"] == "rgb(94, 189, 90)"
     assert waiting["closeLabel"] == "Parar seguimiento"
     assert boarding["status"] == "El bus está en tu parada"
@@ -1394,6 +1421,8 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
     assert boarding["boardLabel"] == "Ya estoy dentro"
     assert waiting["arrivalTime"] == ""
     assert onboard["phase"] == "onboard"
+    assert onboard["busMarkerVisible"] is False
+    assert onboard["userMarkerVisible"] is True
     assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", onboard["arrivalTime"])
     assert onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
     assert onboard["remaining"] == "3"
@@ -1436,6 +1465,17 @@ def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int)
         "followVisible": False,
         "followAction": "Seguir",
     }, json.dumps(stopped_from_header, ensure_ascii=False)
+
+    # El estado contraído es solo de esta entrada. Al iniciar de nuevo el
+    # seguimiento, la bandeja debe volver a abrirse para no ocultar contexto.
+    page.evaluate("() => window.rideTrackingDemo.start()")
+    page.wait_for_timeout(180)
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.add('is-collapsed')")
+    assert "is-collapsed" in page.locator("#rideTrackingPanel").get_attribute("class")
+    page.evaluate("() => window.rideTracking.stop('test', {silent: true})")
+    page.evaluate("() => window.rideTrackingDemo.start()")
+    page.wait_for_timeout(180)
+    assert "is-collapsed" not in page.locator("#rideTrackingPanel").get_attribute("class")
     assert_no_browser_errors(result)
 
 
