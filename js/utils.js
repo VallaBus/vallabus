@@ -271,11 +271,11 @@ function buildRoutePlannerUrl({
     plannerParams.push('ignoreRealtimeUpdates=true');
     plannerParams.push('numItineraries=3');
     plannerParams.push('otherThanPreferredRoutesPenalty=900');
+    // El planificador no ofrece un botón independiente de caminar; con
+    // mode=WALK necesita mantener visible/seleccionable el grupo de transporte.
     const modeButtons = normalizedTravelMode === 'bike'
         ? 'transit_bicycle'
-        : normalizedTravelMode === 'walk'
-            ? 'walk'
-            : (bike ? 'transit_bicycle' : 'transit');
+        : (bike ? 'transit_bicycle' : 'transit');
     plannerParams.push(`modeButtons=${modeButtons}`);
 
     return `https://rutas.vallabus.com/#/?${plannerParams.join('&')}`;

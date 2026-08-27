@@ -748,7 +748,7 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert with_origin["date"] == ["2030-01-02"]
     assert with_origin["time"] == ["18:30"]
     assert with_origin["mode"] == ["WALK"]
-    assert with_origin["modeButtons"] == ["walk"]
+    assert with_origin["modeButtons"] == ["transit"]
     assert with_origin["ui_activeSearch"]
 
     # Caso sin posición de origen: no se pide geolocalización y el parámetro
