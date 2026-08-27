@@ -4,6 +4,7 @@ let deferredPrompt;
 
 const EXTERNAL_INSTALL_BANNER_DISMISSED_KEY = 'externalInstallBannerDismissed';
 const EXTERNAL_INSTALL_BANNER_INSTALLED_KEY = 'externalInstallBannerInstalled';
+const ANDROID_PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.auvasatracker.twa';
 
 if (document.readyState === "loading") {  // Cargando aún no ha terminado
     document.addEventListener("DOMContentLoaded", main);
@@ -175,11 +176,18 @@ function trackExternalInstallEvent(action) {
     _paq.push(['trackEvent', 'external-install', action, origin]);
 }
 
-function isStandaloneApp() {
+function isAndroidDevice() {
+    return /Android/i.test(window.navigator.userAgent);
+}
+
+function isStandaloneWindow() {
     const displayModes = ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'];
-    const isInstalledDisplayMode = displayModes.some(mode =>
+    return displayModes.some(mode =>
         window.matchMedia(`(display-mode: ${mode})`).matches
-    );
+    ) || window.navigator.standalone === true;
+}
+
+function isStandaloneApp() {
     const isAndroidAppContext = document.referrer.startsWith('android-app://');
     const hasRecordedVallaBusInstallation =
         localStorage.getItem(EXTERNAL_INSTALL_BANNER_INSTALLED_KEY) === 'true';
@@ -191,12 +199,10 @@ function isStandaloneApp() {
     const isLikelyExternalPwaContainer = isExternalInstallEntry()
         && !hasRecordedVallaBusInstallation
         && !isAndroidAppContext;
-    const isStandaloneWindow = isInstalledDisplayMode
-        || window.navigator.standalone === true;
 
     return isAndroidAppContext
         || hasRecordedVallaBusInstallation
-        || (isStandaloneWindow && !isLikelyExternalPwaContainer);
+        || (isStandaloneWindow() && !isLikelyExternalPwaContainer);
 }
 
 function hasExternalInstallBannerBeenHandled() {
@@ -225,6 +231,14 @@ function setupExternalInstallBanner() {
             if (typeof window.showIosInstallInstructions === 'function') {
                 window.showIosInstallInstructions();
             }
+            return;
+        }
+
+        // Dentro de otra PWA no siempre existe beforeinstallprompt. En Android
+        // llevamos al usuario a la ficha nativa de VallaBus como alternativa.
+        if (isAndroidDevice() && isStandaloneWindow()) {
+            trackExternalInstallEvent('play_store_click');
+            window.location.href = ANDROID_PLAY_STORE_URL;
             return;
         }
 

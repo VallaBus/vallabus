@@ -62,6 +62,10 @@ https://vallabus.com/#/rutas?destinationName=...&destinationLat=...&destinationL
 
 También se admite `origen=externo` como origen genérico. El botón del aviso registra en Matomo el evento `external-install / add_click` con el identificador de origen. Cuando la instalación PWA se completa en Android/navegadores compatibles, registra además `external-install / installed` con el mismo identificador. En iPhone solo se registra `add_click`.
 
+En Android, si el enlace se abre dentro de la ventana standalone de otra PWA, el botón `Añadir` registra `external-install / play_store_click` y abre la ficha nativa de VallaBus en Google Play. En un navegador normal se mantiene el aviso nativo de instalación PWA cuando el navegador ofrece `beforeinstallprompt`.
+
 Si la persona cierra el aviso, se guarda `externalInstallBannerDismissed` en `localStorage` y no vuelve a mostrarse. Tras una instalación completada se guarda `externalInstallBannerInstalled`; además, el aviso no se muestra dentro de una PWA instalada o de una aplicación Android/TWA.
 
 Si el enlace con `origen` se abre dentro de la ventana standalone de otra PWA, el aviso sigue pudiendo mostrarse: `display-mode=standalone` no identifica por sí solo qué aplicación instalada es la propietaria de la ventana.
+
+En Android, si esa ventana standalone no tiene disponible el prompt web de instalación, el botón `Añadir` abre la ficha de VallaBus en [Google Play](https://play.google.com/store/apps/details?id=com.auvasatracker.twa) y registra `external-install / play_store_click`.

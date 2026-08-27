@@ -76,6 +76,12 @@
     /* Ajusta el elemento hacia la izquierda */
 }
 
+/* La instalación iOS debe quedar por encima del planificador, los diálogos
+   generales y el banner contextual de instalación. */
+#overlay-installIos {
+    z-index: 3000;
+}
+
 #overlay-installIos .overlay-content video {
     max-height: 400px;
     width: 100%;
@@ -262,4 +268,3 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
 }
-
