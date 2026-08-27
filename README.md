@@ -47,10 +47,16 @@ https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinat
 
 ## Aviso de instalación para enlaces externos
 
-Para mostrar el aviso sutil de instalación al abrir VallaBus desde otra web, añade el parámetro `origen` con un identificador de esa web:
+Para mostrar el aviso sutil de instalación al abrir VallaBus desde otra web, añade el parámetro `origen` con un identificador de esa web. Se puede colocar en la query de la raíz:
 
 ```text
 https://vallabus.com/?origen=mi-web
+```
+
+o junto a los parámetros del planificador dentro del hash:
+
+```text
+https://vallabus.com/#/rutas?destinationName=...&destinationLat=...&destinationLon=...&origen=mi-web
 ```
 
 También se admite `origen=externo` como origen genérico. El botón del aviso registra en Matomo el evento `external-install / add_click` con el identificador de origen. Cuando la instalación PWA se completa en Android/navegadores compatibles, registra además `external-install / installed` con el mismo identificador. En iPhone solo se registra `add_click`.

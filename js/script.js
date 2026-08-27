@@ -148,7 +148,12 @@ window.addEventListener('appinstalled', () => {
 });
 
 function getExternalInstallOrigin() {
-    const source = new URLSearchParams(window.location.search).get('origen');
+    const pageParams = new URLSearchParams(window.location.search);
+    const hashQueryIndex = window.location.hash.indexOf('?');
+    const hashParams = hashQueryIndex >= 0
+        ? new URLSearchParams(window.location.hash.slice(hashQueryIndex + 1))
+        : null;
+    const source = pageParams.get('origen') || hashParams?.get('origen');
     const normalizedSource = source?.trim().toLocaleLowerCase();
     return normalizedSource
         ? normalizedSource.replace(/[^a-z0-9_-]/g, '_').slice(0, 64)
