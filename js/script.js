@@ -181,10 +181,22 @@ function isStandaloneApp() {
         window.matchMedia(`(display-mode: ${mode})`).matches
     );
     const isAndroidAppContext = document.referrer.startsWith('android-app://');
+    const hasRecordedVallaBusInstallation =
+        localStorage.getItem(EXTERNAL_INSTALL_BANNER_INSTALLED_KEY) === 'true';
 
-    return isInstalledDisplayMode
-        || window.navigator.standalone === true
-        || isAndroidAppContext;
+    // display-mode describe la ventana PWA, no qué aplicación instalada es la
+    // propietaria de esa ventana. Si otra PWA navega hasta VallaBus mediante un
+    // enlace marcado con "origen", no debemos confundir su ventana standalone
+    // con una instalación de VallaBus.
+    const isLikelyExternalPwaContainer = isExternalInstallEntry()
+        && !hasRecordedVallaBusInstallation
+        && !isAndroidAppContext;
+    const isStandaloneWindow = isInstalledDisplayMode
+        || window.navigator.standalone === true;
+
+    return isAndroidAppContext
+        || hasRecordedVallaBusInstallation
+        || (isStandaloneWindow && !isLikelyExternalPwaContainer);
 }
 
 function hasExternalInstallBannerBeenHandled() {

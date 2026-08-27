@@ -63,3 +63,5 @@ https://vallabus.com/#/rutas?destinationName=...&destinationLat=...&destinationL
 También se admite `origen=externo` como origen genérico. El botón del aviso registra en Matomo el evento `external-install / add_click` con el identificador de origen. Cuando la instalación PWA se completa en Android/navegadores compatibles, registra además `external-install / installed` con el mismo identificador. En iPhone solo se registra `add_click`.
 
 Si la persona cierra el aviso, se guarda `externalInstallBannerDismissed` en `localStorage` y no vuelve a mostrarse. Tras una instalación completada se guarda `externalInstallBannerInstalled`; además, el aviso no se muestra dentro de una PWA instalada o de una aplicación Android/TWA.
+
+Si el enlace con `origen` se abre dentro de la ventana standalone de otra PWA, el aviso sigue pudiendo mostrarse: `display-mode=standalone` no identifica por sí solo qué aplicación instalada es la propietaria de la ventana.
