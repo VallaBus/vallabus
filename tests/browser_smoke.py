@@ -732,6 +732,7 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
             "originName": "Plaza Mayor & Centro",
             "originLat": "41.652251",
             "originLon": "-4.724532",
+            "mode": "walk",
         }),
         wait_until="domcontentloaded",
         timeout=timeout_ms,
@@ -746,11 +747,13 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert with_origin["arriveBy"] == ["true"]
     assert with_origin["date"] == ["2030-01-02"]
     assert with_origin["time"] == ["18:30"]
+    assert with_origin["mode"] == ["WALK"]
+    assert with_origin["modeButtons"] == ["walk"]
 
     # Caso sin posición de origen: no se pide geolocalización y el parámetro
     # fromPlace se omite para que el campo quede vacío en el planificador.
     page.goto(
-        base_url + "/?" + urlencode(common_params),
+        base_url + "/?" + urlencode({**common_params, "mode": "bike"}),
         wait_until="domcontentloaded",
         timeout=timeout_ms,
     )
@@ -762,6 +765,8 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert "fromPlace" not in without_origin
     assert without_origin["toPlace"] == ["Estadio José Zorrilla::41.6440028,-4.7605973"]
     assert without_origin["arriveBy"] == ["true"]
+    assert without_origin["mode"] == ["BICYCLE"]
+    assert without_origin["modeButtons"] == ["transit_bicycle"]
     assert_no_browser_errors(result)
 
 

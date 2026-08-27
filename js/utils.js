@@ -230,9 +230,13 @@ function buildRoutePlannerUrl({
     destinationLon,
     arriveByDate = null,
     arriveByHour = null,
-    bike = false
+    bike = false,
+    travelMode = 'transit'
 }) {
     const plannerParams = ['ui_activeItinerary=0'];
+    const normalizedTravelMode = ['transit', 'walk', 'bike'].includes(travelMode)
+        ? travelMode
+        : 'transit';
 
     if (originName !== null && originLat !== null && originLon !== null) {
         plannerParams.push(
@@ -253,13 +257,18 @@ function buildRoutePlannerUrl({
     }
 
     plannerParams.push(`arriveBy=${hasArrival ? 'true' : 'false'}`);
-    plannerParams.push('mode=WALK');
+    plannerParams.push(`mode=${normalizedTravelMode === 'bike' ? 'BICYCLE' : 'WALK'}`);
     plannerParams.push('showIntermediateStops=true');
     plannerParams.push('maxWalkDistance=2000');
     plannerParams.push('ignoreRealtimeUpdates=true');
     plannerParams.push('numItineraries=3');
     plannerParams.push('otherThanPreferredRoutesPenalty=900');
-    plannerParams.push(`modeButtons=${bike ? 'transit_bicycle' : 'transit'}`);
+    const modeButtons = normalizedTravelMode === 'bike'
+        ? 'transit_bicycle'
+        : normalizedTravelMode === 'walk'
+            ? 'walk'
+            : (bike ? 'transit_bicycle' : 'transit');
+    plannerParams.push(`modeButtons=${modeButtons}`);
 
     return `https://rutas.vallabus.com/#/?${plannerParams.join('&')}`;
 }
@@ -1494,7 +1503,7 @@ function sanitizeString(str) {
 const routePlannerParamNames = [
     'originName', 'originLat', 'originLon',
     'destinationName', 'destinationLat', 'destinationLon',
-    'arrivalDate', 'arrivalTime'
+    'arrivalDate', 'arrivalTime', 'mode', 'travelMode'
 ];
 
 function readRoutePlannerParam(params, ...names) {
@@ -1565,6 +1574,7 @@ function parseRoutePlannerDeepLink(params) {
     const destinationLonRaw = readRoutePlannerParam(params, 'destinationLon');
     const arrivalDate = readRoutePlannerParam(params, 'arrivalDate');
     const arrivalTime = readRoutePlannerParam(params, 'arrivalTime');
+    const requestedMode = readRoutePlannerParam(params, 'mode', 'travelMode');
 
     const originValues = [originName, originLatRaw, originLonRaw];
     const hasOrigin = originValues.some(value => value !== null && value !== '');
@@ -1606,6 +1616,13 @@ function parseRoutePlannerDeepLink(params) {
         };
     }
 
+    const travelMode = (requestedMode || 'transit').toLowerCase();
+    if (!['transit', 'walk', 'bike'].includes(travelMode)) {
+        return {
+            error: 'El modo debe ser transit, walk o bike'
+        };
+    }
+
     return {
         originName: hasOrigin ? originName : null,
         originLat,
@@ -1614,7 +1631,8 @@ function parseRoutePlannerDeepLink(params) {
         destinationLat: destinationLat.value,
         destinationLon: destinationLon.value,
         arriveByDate: hasArrival ? arrivalDate : null,
-        arriveByHour: hasArrival ? arrivalTime : null
+        arriveByHour: hasArrival ? arrivalTime : null,
+        travelMode
     };
 }
 

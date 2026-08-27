@@ -40,10 +40,11 @@ Esta sencilla app permite a los usuarios del bus en Valladolid llevar un seguimi
 Una web externa puede abrir directamente el planificador con un destino y, opcionalmente, un origen y una llegada prevista. El formato recomendado es:
 
 ```text
-https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinationName=...&destinationLat=...&destinationLon=...&arrivalDate=YYYY-MM-DD&arrivalTime=HH:MM
+https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinationName=...&destinationLat=...&destinationLon=...&arrivalDate=YYYY-MM-DD&arrivalTime=HH:MM&mode=transit
 ```
 
 `destinationName`, `destinationLat` y `destinationLon` son obligatorios. Los tres parámetros `origin*` son opcionales: si se omiten, el origen queda vacío en el planificador. `arrivalDate` y `arrivalTime` también son opcionales, pero deben aparecer juntos. Los nombres deben estar codificados como parámetros de URL.
+El parámetro `mode` también es opcional y admite `transit`, `walk` o `bike`; con `bike` se selecciona Bici y se mantiene visible la opción de bicicleta junto al transporte público.
 
 ## Aviso de instalación para enlaces externos
 
