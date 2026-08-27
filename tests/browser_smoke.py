@@ -732,7 +732,7 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
             "originName": "Plaza Mayor & Centro",
             "originLat": "41.652251",
             "originLon": "-4.724532",
-            "mode": "walk",
+            "mode": "transit",
         }),
         wait_until="domcontentloaded",
         timeout=timeout_ms,
@@ -769,6 +769,17 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert without_origin["mode"] == ["BICYCLE"]
     assert without_origin["modeButtons"] == ["transit_bicycle"]
     assert without_origin["ui_activeSearch"]
+
+    # El modo andando no forma parte del contrato público de estos enlaces.
+    page.goto(
+        base_url + "/#/rutas?" + urlencode({**common_params, "mode": "walk"}),
+        wait_until="domcontentloaded",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function(
+        "() => document.querySelector('.error.show')?.textContent === 'El modo debe ser transit o bike'",
+        timeout=timeout_ms,
+    )
     assert_no_browser_errors(result)
 
 

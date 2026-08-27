@@ -235,7 +235,7 @@ function buildRoutePlannerUrl({
     autoSearch = false
 }) {
     const plannerParams = ['ui_activeItinerary=0'];
-    const normalizedTravelMode = ['transit', 'walk', 'bike'].includes(travelMode)
+    const normalizedTravelMode = ['transit', 'bike'].includes(travelMode)
         ? travelMode
         : 'transit';
 
@@ -271,8 +271,6 @@ function buildRoutePlannerUrl({
     plannerParams.push('ignoreRealtimeUpdates=true');
     plannerParams.push('numItineraries=3');
     plannerParams.push('otherThanPreferredRoutesPenalty=900');
-    // El planificador no ofrece un botón independiente de caminar; con
-    // mode=WALK necesita mantener visible/seleccionable el grupo de transporte.
     const modeButtons = normalizedTravelMode === 'bike'
         ? 'transit_bicycle'
         : (bike ? 'transit_bicycle' : 'transit');
@@ -1625,9 +1623,9 @@ function parseRoutePlannerDeepLink(params) {
     }
 
     const travelMode = (requestedMode || 'transit').toLowerCase();
-    if (!['transit', 'walk', 'bike'].includes(travelMode)) {
+    if (!['transit', 'bike'].includes(travelMode)) {
         return {
-            error: 'El modo debe ser transit, walk o bike'
+            error: 'El modo debe ser transit o bike'
         };
     }
 
