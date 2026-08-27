@@ -629,6 +629,29 @@ button.remove-stop {
     color: #CCC;
 }
 
+#horarios-box .horarios-message {
+    margin: 1.25em 0;
+    padding: 0.9em 1em;
+    border-radius: 8px;
+    background: #f4f4f4;
+    color: #555;
+}
+
+#horarios-box .horarios-error {
+    background: #fff1f1;
+    color: #9b2525;
+}
+
+.dark-mode #horarios-box .horarios-message {
+    background: #3a3a3a;
+    color: #eeeeee;
+}
+
+.dark-mode #horarios-box .horarios-error {
+    background: #4a2d2d;
+    color: #ffd6d6;
+}
+
 #horarios-box .add-stop-to-list {
     display: inline-flex;
     align-items: center;

@@ -494,57 +494,79 @@ async function displayScheduledBuses(stopNumber, date) {
 
     let horariosBuses;
     let groupedHorarios = {};
+    let hasScheduledService = false;
+    let scheduleRequestFailed = false;
+    const hasRequestedDate = date !== undefined && date !== null;
+    const parsedDate = hasRequestedDate ? parseIsoScheduleDate(date) : null;
+    const invalidDateMessage = hasRequestedDate && !parsedDate
+        ? 'La fecha indicada no es válida. Usa el formato YYYY-MM-DD.'
+        : null;
+
+    // Mantener la fecha en formato ISO para la vista y convertirla sólo al
+    // construir la consulta al API.
+    date = parsedDate ? parsedDate.isoDate : null;
+
     // Si se proporciona una fecha, obtener todas las líneas de la parada y consultar los horarios para cada una
-    if (date) {
+    if (hasRequestedDate) {
         const busStops = await loadBusStops();
         const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
-        const allLines = [
-            ...(stopData.lineas.ordinarias || []),
-            ...(stopData.lineas.poligonos || []),
-            ...(stopData.lineas.matinales || []),
-            ...(stopData.lineas.futbol || []),
-            ...(stopData.lineas.buho || []),
-            ...(stopData.lineas.universidad || [])
-        ];
+        horariosBuses = { parada: [{ parada: stopData?.parada?.nombre || `Parada ${stopNumber}` }], lineas: [] };
 
-        for (const lineNumber of allLines) {
-            // Limpiamos el formato de date input HTML a YYYYMMDD
-            const [year, month, day] = date.split('-');
-            const cleanDate = `${year}${month}${day}`;
+        if (stopData && !invalidDateMessage) {
+            const allLines = [
+                ...(stopData.lineas?.ordinarias || []),
+                ...(stopData.lineas?.poligonos || []),
+                ...(stopData.lineas?.matinales || []),
+                ...(stopData.lineas?.futbol || []),
+                ...(stopData.lineas?.buho || []),
+                ...(stopData.lineas?.universidad || [])
+            ];
+            const uniqueLines = [...new Set(allLines)];
+            const cleanDate = parsedDate.apiDate;
 
-            const busHorarios = await fetchScheduledBuses(stopNumber, lineNumber, cleanDate);
-            if (busHorarios && busHorarios.lineas) {
-                busHorarios.lineas.forEach(bus => {
-                    bus.horarios.forEach(horario => {
-                        const key = `${bus.linea}-${horario.destino}`;
-                        if (!groupedHorarios[key]) {
-                            groupedHorarios[key] = {
+            for (const lineNumber of uniqueLines) {
+                const busHorarios = await fetchScheduledBuses(stopNumber, lineNumber, cleanDate);
+                if (busHorarios === null) {
+                    scheduleRequestFailed = true;
+                    continue;
+                }
+                if (busHorarios && Array.isArray(busHorarios.lineas)) {
+                    busHorarios.lineas.forEach(bus => {
+                        const horarios = Array.isArray(bus.horarios) ? bus.horarios : [];
+                        if (horarios.length > 0) {
+                            hasScheduledService = true;
+                        }
+                        horarios.forEach(horario => {
+                            const key = `${bus.linea}-${horario.destino}`;
+                            if (!groupedHorarios[key]) {
+                                groupedHorarios[key] = {
+                                    linea: bus.linea,
+                                    destino: horario.destino,
+                                    horarios: []
+                                };
+                            }
+                            groupedHorarios[key].horarios.push(horario);
+                        });
+
+                        // Si no hay horarios para esta línea, al menos se crea una entrada con un array vacío
+                        if (horarios.length === 0 && !groupedHorarios[`${bus.linea}-${bus.destino}`]) {
+                            groupedHorarios[`${bus.linea}-${bus.destino}`] = {
                                 linea: bus.linea,
-                                destino: horario.destino,
+                                destino: bus.destino,
                                 horarios: []
                             };
                         }
-                        groupedHorarios[key].horarios.push(horario);
                     });
-
-                    // Si no hay horarios para esta línea, al menos se crea una entrada con un array vacío
-                    if (bus.horarios.length === 0 && !groupedHorarios[`${bus.linea}-${bus.destino}`]) {
-                        groupedHorarios[`${bus.linea}-${bus.destino}`] = {
-                            linea: bus.linea,
-                            destino: bus.destino,
-                            horarios: []
-                        };
-                    }
-                });
+                }
             }
         }
-        horariosBuses = { parada: [{ parada: stopData.parada.nombre }] }; // Asumiendo que queremos mostrar el nombre de la parada
     } else {
         // Si no se proporciona una fecha, simplemente obtener los horarios de la parada sin especificar una línea
         horariosBuses = await fetchScheduledBuses(stopNumber);
         if (horariosBuses && horariosBuses.lineas) {
             horariosBuses.lineas.forEach(bus => {
-                bus.horarios.forEach(horario => {
+                const horarios = Array.isArray(bus.horarios) ? bus.horarios : [];
+                horarios.forEach(horario => {
                     const key = `${bus.linea}-${horario.destino}`;
                     if (!groupedHorarios[key]) {
                         groupedHorarios[key] = {
@@ -560,14 +582,14 @@ async function displayScheduledBuses(stopNumber, date) {
     }
 
     // La fecha es por defecto hoy a menos que le hayamos pasado alguna
-    date = date || new Date().toISOString().split('T')[0];
+    date = date || getTodayIsoDate();
 
     // Crear el campo de entrada de fecha y el botón para cambiar la fecha
     const dateInput = document.createElement('input');
     dateInput.type = 'date';
     dateInput.id = 'stopDateInput';
     dateInput.setAttribute('value', date);
-    dateInput.dispatchEvent(new Event('change'));
+    dateInput.value = date;
 
     // Botón para añadir parada a la lista
     const addStopButton = document.createElement('button');
@@ -608,6 +630,10 @@ async function displayScheduledBuses(stopNumber, date) {
         horariosElement.appendChild(actionsDiv);
     }
 
+    if (invalidDateMessage) {
+        horariosElement.innerHTML += `<p class="horarios-message horarios-error" role="alert">${invalidDateMessage}</p>`;
+    }
+
     // Ordenar líneas, primer numéricas
     let orderedHorarios = Object.values(groupedHorarios).sort((a, b) => {
         // Convertir los números de línea a enteros para la comparación
@@ -628,6 +654,13 @@ async function displayScheduledBuses(stopNumber, date) {
         // Si ambos son letras, compararlos alfabéticamente
         return a.linea.localeCompare(b.linea);
     })
+
+    if (hasRequestedDate && !invalidDateMessage && !hasScheduledService && orderedHorarios.length === 0) {
+        const noServiceMessage = scheduleRequestFailed
+            ? 'No se han podido cargar los horarios para la fecha seleccionada. Inténtalo de nuevo.'
+            : 'No hay servicio de autobús programado para esta parada en la fecha seleccionada.';
+        horariosElement.innerHTML += `<p class="horarios-message" role="status">${noServiceMessage}</p>`;
+    }
 
     // Mostramos las líneas disponibles en la cabecera a modo de índice
     Object.values(orderedHorarios).forEach(linea => {

@@ -1096,12 +1096,29 @@ function scheduledBusesEvents() {
     horariosBox.addEventListener('change', async function(event) {
         if (event.target.matches("#stopDateInput")) {
             displayLoadingSpinner();
-            const selectedDate = document.getElementById("stopDateInput").value;
-            let stopNumber = horariosBox.getAttribute("data-stopnumber");
-            horariosBox = document.getElementById('horarios-box');
-            let newHorariosElement = await displayScheduledBuses(stopNumber, selectedDate);
-            horariosBox.innerHTML = newHorariosElement.innerHTML;
-            hideLoadingSpinner();
+            const dateInput = document.getElementById("stopDateInput");
+            const selectedDate = dateInput.value || getTodayIsoDate();
+            const parsedDate = parseIsoScheduleDate(selectedDate);
+            const stopNumber = horariosBox.getAttribute("data-stopnumber");
+
+            if (!parsedDate) {
+                hideLoadingSpinner();
+                showErrorPopUp('La fecha indicada no es válida. Usa el formato YYYY-MM-DD.');
+                dateInput.value = getTodayIsoDate();
+                return;
+            }
+
+            try {
+                const newHorariosElement = await displayScheduledBuses(stopNumber, parsedDate.isoDate);
+                horariosBox = document.getElementById('horarios-box');
+                horariosBox.innerHTML = newHorariosElement.innerHTML;
+                updateScheduleRoute(stopNumber, parsedDate.isoDate);
+            } catch (error) {
+                console.error('Error al cambiar la fecha de horarios:', error);
+                showErrorPopUp('No se han podido cargar los horarios para la fecha seleccionada.');
+            } finally {
+                hideLoadingSpinner();
+            }
         }
     });
     // Manejo del botón de cerrar en horarios
@@ -1394,6 +1411,81 @@ function closeAllDialogs(ids) {
     }
 }
 
+// Fecha actual en formato ISO, usando la zona horaria local del dispositivo.
+function getTodayIsoDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Valida fechas ISO sin permitir que Date corrija silenciosamente días
+// inexistentes, como 2026-02-31.
+function parseIsoScheduleDate(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31) {
+        return null;
+    }
+
+    // Usar un año intermedio evita la interpretación especial de 00-99 que
+    // aplica Date.UTC antes de restaurar el año solicitado.
+    const parsed = new Date(Date.UTC(2000, month - 1, day));
+    parsed.setUTCFullYear(year);
+    if (
+        parsed.getUTCFullYear() !== year
+        || parsed.getUTCMonth() !== month - 1
+        || parsed.getUTCDate() !== day
+    ) {
+        return null;
+    }
+
+    return {
+        isoDate: value,
+        apiDate: `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`
+    };
+}
+
+// Extrae la parada y la query de un enlace #/horarios/<parada>, sin mezclar
+// los parámetros con el identificador de la parada.
+function parseScheduleRoute(route) {
+    const pathMatch = route.match(/^#?\/horarios\/([^/?]+)\/?(?:\?([^#]*))?$/);
+    if (!pathMatch) {
+        return null;
+    }
+
+    let stopNumber = '';
+    try {
+        stopNumber = sanitizeString(decodeURIComponent(pathMatch[1]));
+    } catch (error) {
+        return { stopNumber: '', date: null, hasDate: false };
+    }
+
+    const query = new URLSearchParams(pathMatch[2] || '');
+    return {
+        stopNumber,
+        date: query.get('date'),
+        hasDate: query.has('date')
+    };
+}
+
+function updateScheduleRoute(stopNumber, date) {
+    const encodedStopNumber = encodeURIComponent(stopNumber);
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    const url = `#/horarios/${encodedStopNumber}${query}`;
+    const dialogState = {
+        dialogType: 'scheduledTimes',
+        stopNumber,
+        date: date || null
+    };
+    history.replaceState(dialogState, `Horarios para la parada ${stopNumber}`, url);
+    trackCurrentUrl();
+}
+
 // Función para eliminar caracteres no alfanuméricos, puntos, guiones y dos puntos de una cadena
 function sanitizeString(str) {
     return str.replace(/[^\w.:-]/g, '');
@@ -1615,28 +1707,44 @@ async function handleRoute() {
             break;
         default:
             // Manejar rutas con o sin hash
-            const pathMatch = route.match(/#?\/horarios\/(.+)/);
-            if (pathMatch) {
-                const stopNumber = sanitizeString(pathMatch[1]);
+            const scheduleRoute = parseScheduleRoute(route);
+            if (scheduleRoute) {
+                const { stopNumber, date: requestedDate, hasDate } = scheduleRoute;
                 if (stopNumber) {
                     displayLoadingSpinner();
-                    const busStops = await loadBusStops();
-                    const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
+                    const parsedDate = hasDate ? parseIsoScheduleDate(requestedDate) : null;
+                    const invalidDate = hasDate && !parsedDate;
 
-                    if (!stopData) {
-                        showErrorPopUp('Error: Parada no encontrada o vacía');
-                        history.replaceState({ dialogType: 'home' }, document.title, '#/');
-                        hideLoadingSpinner();
-                    } else {
-                        displayScheduledBuses(stopNumber).then(horariosElement => {
+                    try {
+                        const busStops = await loadBusStops();
+                        const stopData = busStops.find(stop => stop.parada.numero === stopNumber);
+
+                        if (!stopData) {
+                            showErrorPopUp('Error: Parada no encontrada o vacía');
+                            history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                        } else {
+                            // displayScheduledBuses también recibe la fecha no
+                            // válida para poder mostrar el mensaje dentro del
+                            // diálogo, sin consultar el API con datos erróneos.
+                            const horariosElement = hasDate
+                                ? await displayScheduledBuses(
+                                    stopNumber,
+                                    invalidDate ? (requestedDate || '') : parsedDate.isoDate
+                                )
+                                : await displayScheduledBuses(stopNumber);
                             const horariosBox = document.getElementById('horarios-box');
                             horariosBox.setAttribute('data-stopNumber', stopNumber);
                             horariosBox.innerHTML = horariosElement.innerHTML;
                             horariosBox.style.display = 'block';
                             horariosBox.scrollTo(0, 0);
-                            hideLoadingSpinner();
                             clearInterval(intervalId);
-                        });
+                        }
+                    } catch (error) {
+                        console.error('Error al cargar los horarios de la parada:', error);
+                        showErrorPopUp('No se han podido cargar los horarios. Inténtalo de nuevo.');
+                        history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                    } finally {
+                        hideLoadingSpinner();
                     }
                 }
             } else if (routePath.startsWith('#linea-') || routePath.startsWith('/linea-')) {

@@ -800,6 +800,47 @@ def test_deep_links(
     assert "Horarios programados" in page.locator("#horarios-box").inner_text()
     page.locator("#horarios-box .horarios-close").click()
 
+    # La fecha debe viajar separada del identificador y llegar al API en
+    # formato YYYYMMDD, manteniendo el valor ISO en el selector.
+    requested_date = "2026-09-05"
+    api_date = "20260905"
+    dated_requests = []
+    page.on(
+        "request",
+        lambda request: dated_requests.append(request.url)
+        if "/v2/parada/%s/" % stop_number in request.url
+        else None,
+    )
+    page.goto(
+        base_url + "/#/horarios/%s?date=%s" % (stop_number, requested_date),
+        wait_until="domcontentloaded",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function(
+        "() => document.querySelector('#horarios-box').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    page.wait_for_selector("#stopDateInput", state="visible", timeout=timeout_ms)
+    assert page.locator("#stopDateInput").input_value() == requested_date
+    assert any(url.rstrip("/").endswith("/" + api_date) for url in dated_requests), (
+        "El deep link no convierte la fecha al formato YYYYMMDD del API"
+    )
+    page.locator("#horarios-box .horarios-close").click()
+
+    # Una fecha de calendario imposible se muestra como error y no provoca un
+    # fallo JavaScript ni una petición de horarios con datos inválidos.
+    page.goto(
+        base_url + "/#/horarios/%s?date=2026-02-31" % stop_number,
+        wait_until="domcontentloaded",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function(
+        "() => document.querySelector('#horarios-box').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    assert "La fecha indicada no es válida" in page.locator("#horarios-box").inner_text()
+    page.locator("#horarios-box .horarios-close").click()
+
     page.goto(base_url + "/#/datos", wait_until="domcontentloaded", timeout=timeout_ms)
     page.wait_for_function("() => document.querySelector('#dataDialog').style.display === 'block'")
     assert "Tus datos" in page.locator("#dataDialog").inner_text()
