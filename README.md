@@ -44,3 +44,15 @@ https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinat
 ```
 
 `destinationName`, `destinationLat` y `destinationLon` son obligatorios. Los tres parámetros `origin*` son opcionales: si se omiten, el origen queda vacío en el planificador. `arrivalDate` y `arrivalTime` también son opcionales, pero deben aparecer juntos. Los nombres deben estar codificados como parámetros de URL.
+
+## Aviso de instalación para enlaces externos
+
+Para mostrar el aviso sutil de instalación al abrir VallaBus desde otra web, añade el parámetro `origen` con un identificador de esa web:
+
+```text
+https://vallabus.com/?origen=mi-web
+```
+
+También se admite `origen=externo` como origen genérico. El botón del aviso registra en Matomo el evento `external-install / add_click` con el identificador de origen. Cuando la instalación PWA se completa en Android/navegadores compatibles, registra además `external-install / installed` con el mismo identificador. En iPhone solo se registra `add_click`.
+
+Si la persona cierra el aviso, se guarda `externalInstallBannerDismissed` en `localStorage` y no vuelve a mostrarse. Tras una instalación completada se guarda `externalInstallBannerInstalled`; además, el aviso no se muestra dentro de una PWA instalada o de una aplicación Android/TWA.

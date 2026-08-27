@@ -1,5 +1,10 @@
 import { isIOS } from './browser.js?v=20260809';
 
+let deferredPrompt;
+
+const EXTERNAL_INSTALL_BANNER_DISMISSED_KEY = 'externalInstallBannerDismissed';
+const EXTERNAL_INSTALL_BANNER_INSTALLED_KEY = 'externalInstallBannerInstalled';
+
 if (document.readyState === "loading") {  // Cargando aún no ha terminado
     document.addEventListener("DOMContentLoaded", main);
 } else {  // `DOMContentLoaded` ya se ha disparado
@@ -40,6 +45,9 @@ function main() {
         showIosInstallButton();
         setTimeout(() => updateBusList(true), 1000);
     }
+
+    // Aviso de instalación para visitas marcadas desde una web externa.
+    setupExternalInstallBanner();
 
     // Eventos para el manejo de URLs
     routersEvents();
@@ -95,8 +103,6 @@ function main() {
     guiaFABEvents();
 }
 
-let deferredPrompt;
-
 // Configurar manejadores de visibilidad para recargar datos al volver
 function setupVisibilityHandlers() {
     document.addEventListener('visibilitychange', () => {
@@ -125,6 +131,98 @@ window.addEventListener('beforeinstallprompt', (e) => {
     // Actualiza la interfaz para mostrar el botón de instalación
     showInstallButton();
 });
+
+window.addEventListener('appinstalled', () => {
+    // iOS no expone este evento de forma fiable; allí medimos únicamente el
+    // clic en "Añadir". En navegadores compatibles, este evento representa
+    // la instalación completada.
+    if (!isIOS()) {
+        localStorage.setItem(EXTERNAL_INSTALL_BANNER_INSTALLED_KEY, 'true');
+        trackExternalInstallEvent('installed');
+    }
+
+    const banner = document.getElementById('external-install-banner');
+    if (banner) {
+        banner.hidden = true;
+    }
+});
+
+function getExternalInstallOrigin() {
+    const source = new URLSearchParams(window.location.search).get('origen');
+    const normalizedSource = source?.trim().toLocaleLowerCase();
+    return normalizedSource
+        ? normalizedSource.replace(/[^a-z0-9_-]/g, '_').slice(0, 64)
+        : null;
+}
+
+function isExternalInstallEntry() {
+    return Boolean(getExternalInstallOrigin());
+}
+
+function trackExternalInstallEvent(action) {
+    const origin = getExternalInstallOrigin();
+    if (!origin) {
+        return;
+    }
+
+    // El nombre del evento contiene el identificador de la web de origen,
+    // que permite comparar cada campaña en Matomo sin enviar la URL completa.
+    _paq.push(['trackEvent', 'external-install', action, origin]);
+}
+
+function isStandaloneApp() {
+    const displayModes = ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'];
+    const isInstalledDisplayMode = displayModes.some(mode =>
+        window.matchMedia(`(display-mode: ${mode})`).matches
+    );
+    const isAndroidAppContext = document.referrer.startsWith('android-app://');
+
+    return isInstalledDisplayMode
+        || window.navigator.standalone === true
+        || isAndroidAppContext;
+}
+
+function hasExternalInstallBannerBeenHandled() {
+    return localStorage.getItem(EXTERNAL_INSTALL_BANNER_DISMISSED_KEY) === 'true'
+        || localStorage.getItem(EXTERNAL_INSTALL_BANNER_INSTALLED_KEY) === 'true';
+}
+
+function setupExternalInstallBanner() {
+    const banner = document.getElementById('external-install-banner');
+    const actionButton = document.getElementById('external-install-button');
+    const closeButton = document.getElementById('external-install-close');
+
+    if (!banner || !actionButton || !closeButton || !isExternalInstallEntry()
+        || isStandaloneApp() || hasExternalInstallBannerBeenHandled()) {
+        return;
+    }
+
+    banner.hidden = false;
+
+    actionButton.addEventListener('click', () => {
+        trackExternalInstallEvent('add_click');
+
+        if (isIOS()) {
+            // La instalación en iOS se explica con el flujo que ya usa el botón
+            // superior de instalación.
+            if (typeof window.showIosInstallInstructions === 'function') {
+                window.showIosInstallInstructions();
+            }
+            return;
+        }
+
+        // En Chromium, beforeinstallprompt es el botón de instalación nativo.
+        if (deferredPrompt) {
+            document.getElementById('installButton')?.click();
+        }
+    });
+
+    closeButton.addEventListener('click', () => {
+        localStorage.setItem(EXTERNAL_INSTALL_BANNER_DISMISSED_KEY, 'true');
+        banner.hidden = true;
+        trackExternalInstallEvent('dismissed');
+    });
+}
 
 
 function showInstallButton() {

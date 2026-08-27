@@ -1,0 +1,157 @@
+/* Aviso contextual para las visitas derivadas desde una web externa. */
+
+.external-install-banner {
+    position: fixed;
+    /* Debe seguir accesible sobre el planificador, horarios y overlays. */
+    z-index: 2000;
+    left: 50%;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: min(calc(100% - 16px), 540px);
+    box-sizing: border-box;
+    padding: 12px 42px 12px 12px;
+    transform: translate(-50%, 0);
+    border: 1px solid #d5e2db;
+    border-left: 4px solid #2b7b6c;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 7px 24px rgba(20, 46, 37, 0.2);
+    color: #18352b;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    opacity: 1;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.external-install-banner[hidden] {
+    display: none;
+}
+
+.external-install-banner__icon {
+    display: inline-flex;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: #054a32;
+}
+
+.external-install-banner__icon img {
+    width: 27px;
+    height: 27px;
+}
+
+.external-install-banner__copy {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1.2;
+}
+
+.external-install-banner__copy strong {
+    font-size: 0.9rem;
+}
+
+.external-install-banner__copy > span {
+    color: #52655d;
+    font-size: 0.78rem;
+}
+
+.external-install-banner__action {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    border-radius: 9px;
+    background: #2b7b6c;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+.external-install-banner__action:hover,
+.external-install-banner__action:focus-visible {
+    background: #216254;
+}
+
+.external-install-banner__close {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #5c7067;
+    font-size: 1.35rem;
+    font-weight: normal;
+    line-height: 1;
+}
+
+.external-install-banner__close:hover,
+.external-install-banner__close:focus-visible {
+    background: #e8f2eb;
+    color: #18352b;
+}
+
+.dark-mode .external-install-banner {
+    border-color: #385046;
+    background: rgba(35, 49, 44, 0.98);
+    color: #f1f5f2;
+    box-shadow: 0 7px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dark-mode .external-install-banner__icon {
+    background: #0b6245;
+}
+
+.dark-mode .external-install-banner__copy > span,
+.dark-mode .external-install-banner__close {
+    color: #b5c5bd;
+}
+
+.dark-mode .external-install-banner__close:hover,
+.dark-mode .external-install-banner__close:focus-visible {
+    background: #314a3e;
+    color: #f1f5f2;
+}
+
+@media (max-width: 380px) {
+    .external-install-banner {
+        gap: 8px;
+        padding: 10px 38px 10px 10px;
+    }
+
+    .external-install-banner__icon {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
+
+    .external-install-banner__icon img {
+        width: 23px;
+        height: 23px;
+    }
+
+    .external-install-banner__copy strong {
+        font-size: 0.82rem;
+    }
+
+    .external-install-banner__copy > span {
+        font-size: 0.72rem;
+    }
+
+    .external-install-banner__action {
+        padding: 9px 11px;
+        font-size: 0.76rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .external-install-banner {
+        transition: none;
+    }
+}

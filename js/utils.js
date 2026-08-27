@@ -2029,35 +2029,41 @@ function showIosInstallButton() {
         const installButton = document.getElementById('installIosButton');
         installButton.style.display = 'block';
 
-        installButton.addEventListener('click', (e) => {
-
-            let overlay = document.createElement("div");
-            overlay.id = "overlay-installIos";
-            overlay.className = "overlay";
-            overlay.innerHTML = `
-                <div class="overlay-content">
-                    <video id="ios-install-video" poster="/img/ios-install.jpg" controls preload="none" loop>
-                        <source src="/img/ios-install.mp4" type="video/mp4">
-                    </video>
-                    <h2>Añade VallaBus a tu pantalla de inicio</h2>
-                    <p>1. Haz clic en el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> de Safari y "Añadir a la pantalla de inicio"</p>
-                    <p>2. Abre la app desde el icono y añade tu primera parada para que se oculte el botón de instalar.</p>
-                    <button class="close-overlay">Entendido</button>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-            overlay.style.display = 'block';
-
-            const closeButton = overlay.querySelector('.close-overlay');
-            if (closeButton) {
-                closeButton.addEventListener('click', function(event) {
-                    overlay.remove();
-                });
-            }
-            _paq.push(['trackEvent', 'installIosbutton', 'click']);
-        });
+        installButton.addEventListener('click', showIosInstallInstructions);
     }
 }
+
+// Abre las instrucciones de instalación en iOS. También se expone para que
+// otros puntos de entrada, como el aviso contextual de visitas externas,
+// reutilicen exactamente el mismo flujo.
+function showIosInstallInstructions() {
+    let overlay = document.createElement("div");
+    overlay.id = "overlay-installIos";
+    overlay.className = "overlay";
+    overlay.innerHTML = `
+        <div class="overlay-content">
+            <video id="ios-install-video" poster="/img/ios-install.jpg" controls preload="none" loop>
+                <source src="/img/ios-install.mp4" type="video/mp4">
+            </video>
+            <h2>Añade VallaBus a tu pantalla de inicio</h2>
+            <p>1. Haz clic en el icono Compartir <img src="img/ios-share.svg" alt="Icono compartir en iOS"/> de Safari y "Añadir a la pantalla de inicio"</p>
+            <p>2. Abre la app desde el icono y añade tu primera parada para que se oculte el botón de instalar.</p>
+            <button class="close-overlay">Entendido</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.style.display = 'block';
+
+    const closeButton = overlay.querySelector('.close-overlay');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            overlay.remove();
+        });
+    }
+    _paq.push(['trackEvent', 'installIosbutton', 'click']);
+}
+
+window.showIosInstallInstructions = showIosInstallInstructions;
 
 function showDialog(dialogId, content) {
     const dialog = document.getElementById(dialogId);

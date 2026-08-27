@@ -27,7 +27,7 @@
         content="🚍 La forma más rápida de saber los horarios de tu bus en Valladolid (AUVASA), La Cistérniga, Simancas, Laguna y Arroyo">
     <meta name="twitter:image" content="https://vallabus.com/favicon.png">
     <link rel="icon" type="image/x-icon" href="favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/style.css?v=202501281541">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=20260827-3">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -106,6 +106,22 @@
         <!--<p id="share-app-dic24" class="share-app"><strong>Este 2025 regala VallaBus</strong><br />Compártenos con más personas y grupos</p>-->
         <!--<p id="reclama-0125" class="peticion"><a href="/reclama/">El ayuntamiento rechazó mejorar el servicio<br /><span>Clic aquí para ayudar enviándoles una reclamación</span></a></p>-->
     </div>
+
+    <aside id="external-install-banner" class="external-install-banner" hidden
+        aria-label="Instalar VallaBus">
+        <span class="external-install-banner__icon" aria-hidden="true">
+            <img src="img/logo.png" alt="">
+        </span>
+        <span class="external-install-banner__copy">
+            <strong>Añade VallaBus a tu pantalla de inicio</strong>
+            <span>Muévete por Valladolid de forma fácil.</span>
+        </span>
+        <button id="external-install-button" class="external-install-banner__action" type="button">
+            Añadir
+        </button>
+        <button id="external-install-close" class="external-install-banner__close" type="button"
+            aria-label="Cerrar aviso de instalación">×</button>
+    </aside>
 
     <div id="fav-destinations">
         <p>Ir a</p>
@@ -292,7 +308,7 @@
     <script src="js/api.js"></script>
     <script src="js/buscador.js"></script>
     <script src="js/favDestinations.js"></script>
-    <script type="module" src="js/script.js?v=20260809"></script>
+    <script type="module" src="js/script.js?v=20260827-2"></script>
 
     <script src="js/serviceworker-check.js"></script>
 </body>
