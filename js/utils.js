@@ -231,7 +231,8 @@ function buildRoutePlannerUrl({
     arriveByDate = null,
     arriveByHour = null,
     bike = false,
-    travelMode = 'transit'
+    travelMode = 'transit',
+    autoSearch = false
 }) {
     const plannerParams = ['ui_activeItinerary=0'];
     const normalizedTravelMode = ['transit', 'walk', 'bike'].includes(travelMode)
@@ -254,6 +255,13 @@ function buildRoutePlannerUrl({
     if (hasArrival) {
         plannerParams.push(`date=${encodeURIComponent(arriveByDate)}`);
         plannerParams.push(`time=${encodeURIComponent(arriveByHour)}`);
+    }
+
+    // OpenTripPlanner lanza la búsqueda al detectar ui_activeSearch en la
+    // URL. Solo lo añadimos a los deep links; las aperturas desde la interfaz
+    // conservan el flujo manual actual.
+    if (autoSearch) {
+        plannerParams.push(`ui_activeSearch=${encodeURIComponent(uuidv4())}`);
     }
 
     plannerParams.push(`arriveBy=${hasArrival ? 'true' : 'false'}`);
@@ -1632,7 +1640,8 @@ function parseRoutePlannerDeepLink(params) {
         destinationLon: destinationLon.value,
         arriveByDate: hasArrival ? arrivalDate : null,
         arriveByHour: hasArrival ? arrivalTime : null,
-        travelMode
+        travelMode,
+        autoSearch: true
     };
 }
 

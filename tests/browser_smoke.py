@@ -749,6 +749,7 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert with_origin["time"] == ["18:30"]
     assert with_origin["mode"] == ["WALK"]
     assert with_origin["modeButtons"] == ["walk"]
+    assert with_origin["ui_activeSearch"]
 
     # Caso sin posición de origen: no se pide geolocalización y el parámetro
     # fromPlace se omite para que el campo quede vacío en el planificador.
@@ -767,6 +768,7 @@ def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms:
     assert without_origin["arriveBy"] == ["true"]
     assert without_origin["mode"] == ["BICYCLE"]
     assert without_origin["modeButtons"] == ["transit_bicycle"]
+    assert without_origin["ui_activeSearch"]
     assert_no_browser_errors(result)
 
 

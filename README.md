@@ -37,7 +37,7 @@ Esta sencilla app permite a los usuarios del bus en Valladolid llevar un seguimi
 
 ## Enlace externo al planificador
 
-Una web externa puede abrir directamente el planificador con un destino y, opcionalmente, un origen y una llegada prevista. El formato recomendado es:
+Una web externa puede abrir directamente el planificador con un destino y, opcionalmente, un origen y una llegada prevista. El planificador hace la búsqueda automáticamente al abrirse. El formato recomendado es:
 
 ```text
 https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinationName=...&destinationLat=...&destinationLon=...&arrivalDate=YYYY-MM-DD&arrivalTime=HH:MM&mode=transit
