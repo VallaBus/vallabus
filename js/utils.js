@@ -218,36 +218,82 @@ async function createInfoPanel(busesProximos, stopNumber, lineNumber) {
     return infoPanel;
 }
 
-// Muestra dialogo de rutas con ruta al destino desde ubicación del usuario
-// Opcionalmente acepta una fecha en formato YYYY-MM-DD y una hora HH:MM
-function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null, bike = false) {
-    // Abrimos el planeador de rutas
-    let plannerURL;
-    let arriveBy = 'false';
-    let arriveByParams = '';
-    let modeButtons = 'transit';
-    // Si se definió una hora de llegada
-    if (arriveByDate && arriveByHour) {
-        arriveBy = 'true'
-        arriveByParams = `&date=${arriveByDate}&time=${encodeURIComponent(arriveByHour)}`;
+// Construye la URL del planificador externo. El origen es opcional: si no se
+// proporciona, el planificador deja vacío ese campo para que el usuario lo
+// introduzca manualmente.
+function buildRoutePlannerUrl({
+    originName = null,
+    originLat = null,
+    originLon = null,
+    destinationName,
+    destinationLat,
+    destinationLon,
+    arriveByDate = null,
+    arriveByHour = null,
+    bike = false
+}) {
+    const plannerParams = ['ui_activeItinerary=0'];
+
+    if (originName !== null && originLat !== null && originLon !== null) {
+        plannerParams.push(
+            `fromPlace=${encodeURIComponent(originName)}::${originLat},${originLon}`
+        );
     }
 
-    // Si es ruta en bici
-    if (bike) {
-        modeButtons = 'transit_bicycle';
+    if (destinationName !== null && destinationName !== undefined) {
+        plannerParams.push(
+            `toPlace=${encodeURIComponent(destinationName)}::${destinationLat},${destinationLon}`
+        );
     }
-    
+
+    const hasArrival = arriveByDate && arriveByHour;
+    if (hasArrival) {
+        plannerParams.push(`date=${encodeURIComponent(arriveByDate)}`);
+        plannerParams.push(`time=${encodeURIComponent(arriveByHour)}`);
+    }
+
+    plannerParams.push(`arriveBy=${hasArrival ? 'true' : 'false'}`);
+    plannerParams.push('mode=WALK');
+    plannerParams.push('showIntermediateStops=true');
+    plannerParams.push('maxWalkDistance=2000');
+    plannerParams.push('ignoreRealtimeUpdates=true');
+    plannerParams.push('numItineraries=3');
+    plannerParams.push('otherThanPreferredRoutesPenalty=900');
+    plannerParams.push(`modeButtons=${bike ? 'transit_bicycle' : 'transit'}`);
+
+    return `https://rutas.vallabus.com/#/?${plannerParams.join('&')}`;
+}
+
+function openRoutePlanner(options, historyPath = null) {
+    displayLoadingSpinner();
+    showIframe(buildRoutePlannerUrl(options));
+
+    if (historyPath) {
+        const dialogState = {
+            dialogType: 'planRoute'
+        };
+        history.pushState(dialogState, `Planificar ruta`, historyPath);
+    }
+
+    trackCurrentUrl();
+}
+
+// Muestra dialogo de rutas con ruta al destino desde ubicación del usuario
+// Opcionalmente acepta una fecha en formato YYYY-MM-DD y una hora HH:MM.
+function showRouteToDestination(destName, destY, destX, arriveByDate = null, arriveByHour = null, bike = false) {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            displayLoadingSpinner();
-            plannerURL = `https://rutas.vallabus.com/#/?ui_activeItinerary=0&&fromPlace=(Ubicación actual)::${position.coords.latitude},${position.coords.longitude}&toPlace=${encodeURIComponent(destName)}::${destY},${destX}${arriveByParams}&arriveBy=${arriveBy}&mode=WALK&showIntermediateStops=true&maxWalkDistance=2000&ignoreRealtimeUpdates=true&numItineraries=3&otherThanPreferredRoutesPenalty=900&modeButtons=${modeButtons}`;
-            showIframe(plannerURL);
-            // URL para rutas
-            const dialogState = {
-                dialogType: 'planRoute'
-            };
-            history.pushState(dialogState, `Planificar ruta`, `#/rutas/destino/${encodeURIComponent(destName)}`);
-            trackCurrentUrl();
+            openRoutePlanner({
+                originName: '(Ubicación actual)',
+                originLat: position.coords.latitude,
+                originLon: position.coords.longitude,
+                destinationName: destName,
+                destinationLat: destY,
+                destinationLon: destX,
+                arriveByDate,
+                arriveByHour,
+                bike
+            }, `#/rutas/destino/${encodeURIComponent(destName)}`);
         }, showError,
             { maximumAge: 6000, timeout: 15000 });
     } else {
@@ -1353,6 +1399,133 @@ function sanitizeString(str) {
     return str.replace(/[^\w.:-]/g, '');
 }
 
+const routePlannerParamNames = [
+    'originName', 'originLat', 'originLon',
+    'destinationName', 'destinationLat', 'destinationLon',
+    'arrivalDate', 'arrivalTime'
+];
+
+function readRoutePlannerParam(params, ...names) {
+    for (const name of names) {
+        if (params.has(name)) {
+            return params.get(name).trim();
+        }
+    }
+    return null;
+}
+
+function parseRoutePlannerCoordinate(value, label, min, max) {
+    if (value === null || value === '') {
+        return {
+            value: null,
+            error: `Falta la coordenada ${label}`
+        };
+    }
+
+    const coordinate = Number(value);
+    if (!Number.isFinite(coordinate) || coordinate < min || coordinate > max) {
+        return {
+            value: null,
+            error: `La coordenada ${label} no es válida`
+        };
+    }
+
+    return { value: coordinate, error: null };
+}
+
+function isValidRoutePlannerDate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return false;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year
+        && date.getMonth() === month - 1
+        && date.getDate() === day;
+}
+
+function isValidRoutePlannerTime(value) {
+    if (!/^\d{2}:\d{2}$/.test(value)) {
+        return false;
+    }
+
+    const [hour, minute] = value.split(':').map(Number);
+    return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59;
+}
+
+// Lee los parámetros de un deep link del planificador.
+// Contrato: #/rutas?originName=...&originLat=...&originLon=...
+//                 &destinationName=...&destinationLat=...&destinationLon=...
+//                 &arrivalDate=YYYY-MM-DD&arrivalTime=HH:MM
+// Los tres parámetros de origen son opcionales y deben omitirse juntos.
+function parseRoutePlannerDeepLink(params) {
+    const hasPlannerParams = routePlannerParamNames.some(name => params.has(name));
+    if (!hasPlannerParams) {
+        return null;
+    }
+
+    const originName = readRoutePlannerParam(params, 'originName');
+    const originLatRaw = readRoutePlannerParam(params, 'originLat');
+    const originLonRaw = readRoutePlannerParam(params, 'originLon');
+    const destinationName = readRoutePlannerParam(params, 'destinationName');
+    const destinationLatRaw = readRoutePlannerParam(params, 'destinationLat');
+    const destinationLonRaw = readRoutePlannerParam(params, 'destinationLon');
+    const arrivalDate = readRoutePlannerParam(params, 'arrivalDate');
+    const arrivalTime = readRoutePlannerParam(params, 'arrivalTime');
+
+    const originValues = [originName, originLatRaw, originLonRaw];
+    const hasOrigin = originValues.some(value => value !== null && value !== '');
+    if (hasOrigin && originValues.some(value => value === null || value === '')) {
+        return {
+            error: 'El origen debe incluir nombre, latitud y longitud'
+        };
+    }
+
+    if (!destinationName || destinationLatRaw === null || destinationLatRaw === ''
+        || destinationLonRaw === null || destinationLonRaw === '') {
+        return {
+            error: 'El destino debe incluir nombre, latitud y longitud'
+        };
+    }
+
+    const destinationLat = parseRoutePlannerCoordinate(destinationLatRaw, 'de destino', -90, 90);
+    if (destinationLat.error) return { error: destinationLat.error };
+    const destinationLon = parseRoutePlannerCoordinate(destinationLonRaw, 'de destino', -180, 180);
+    if (destinationLon.error) return { error: destinationLon.error };
+
+    let originLat = null;
+    let originLon = null;
+    if (hasOrigin) {
+        const parsedOriginLat = parseRoutePlannerCoordinate(originLatRaw, 'de origen', -90, 90);
+        if (parsedOriginLat.error) return { error: parsedOriginLat.error };
+        const parsedOriginLon = parseRoutePlannerCoordinate(originLonRaw, 'de origen', -180, 180);
+        if (parsedOriginLon.error) return { error: parsedOriginLon.error };
+        originLat = parsedOriginLat.value;
+        originLon = parsedOriginLon.value;
+    }
+
+    const hasArrival = arrivalDate !== null || arrivalTime !== null;
+    if (hasArrival && (!arrivalDate || !arrivalTime
+        || !isValidRoutePlannerDate(arrivalDate)
+        || !isValidRoutePlannerTime(arrivalTime))) {
+        return {
+            error: 'La llegada debe usar fecha YYYY-MM-DD y hora HH:MM válidas'
+        };
+    }
+
+    return {
+        originName: hasOrigin ? originName : null,
+        originLat,
+        originLon,
+        destinationName,
+        destinationLat: destinationLat.value,
+        destinationLon: destinationLon.value,
+        arriveByDate: hasArrival ? arrivalDate : null,
+        arriveByHour: hasArrival ? arrivalTime : null
+    };
+}
+
 // Manejo de estado de URLs y acciones en cada ruta
 async function handleRoute() {
     // Si la ruta es un path (no un hash) y no es la raíz, permitimos la navegación normal
@@ -1361,15 +1534,24 @@ async function handleRoute() {
     }
 
     // Obtener el hash o pathname según corresponda
-    let route = window.location.hash.replace(/\/$/, ''); // Elimina la barra final si existe
+    let route = window.location.hash;
     
     // Si no hay hash, usar el pathname
     if (!route && window.location.pathname !== '/') {
         route = '#' + window.location.pathname;
     }
 
+    const routeQueryIndex = route.indexOf('?');
+    const routePath = (routeQueryIndex >= 0 ? route.slice(0, routeQueryIndex) : route)
+        .replace(/\/$/, '');
+    const routeParams = routeQueryIndex >= 0
+        ? new URLSearchParams(route.slice(routeQueryIndex + 1))
+        : (!window.location.hash && window.location.pathname === '/'
+            ? new URLSearchParams(window.location.search)
+            : new URLSearchParams());
+
     // No cerramos el sidebar ni los diálogos para los enlaces #linea-X
-    if (!route.startsWith('#linea-')) {
+    if (!routePath.startsWith('#linea-')) {
         // Cerrar el sidebar antes de procesar la ruta
         toogleSidebar(true);
 
@@ -1377,12 +1559,22 @@ async function handleRoute() {
         closeAllDialogs(dialogIds);
     }
 
-    switch(route) {
+    switch(routePath) {
         case '':
         case '#':
         case '#/':
         case '/':
-            // No hacemos nada con el historial aquí
+            // También aceptamos el deep link en la query de la raíz para que
+            // la web externa no tenga que conocer el router hash.
+            {
+                const plannerOptions = parseRoutePlannerDeepLink(routeParams);
+                if (plannerOptions?.error) {
+                    showErrorPopUp(plannerOptions.error);
+                    history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                } else if (plannerOptions) {
+                    openRoutePlanner(plannerOptions);
+                }
+            }
             break;
         case '#/lineas':
         case '/lineas':
@@ -1391,8 +1583,18 @@ async function handleRoute() {
             break;
         case '#/rutas':
         case '/rutas':
-            displayLoadingSpinner();
-            showIframe('https://rutas.vallabus.com');
+            {
+                const plannerOptions = parseRoutePlannerDeepLink(routeParams);
+                if (plannerOptions?.error) {
+                    showErrorPopUp(plannerOptions.error);
+                    history.replaceState({ dialogType: 'home' }, document.title, '#/');
+                } else if (plannerOptions) {
+                    openRoutePlanner(plannerOptions);
+                } else {
+                    displayLoadingSpinner();
+                    showIframe('https://rutas.vallabus.com');
+                }
+            }
             break;
         case '#/cercanas':
         case '/cercanas':
@@ -1437,10 +1639,10 @@ async function handleRoute() {
                         });
                     }
                 }
-            } else if (route.startsWith('#linea-') || route.startsWith('/linea-')) {
+            } else if (routePath.startsWith('#linea-') || routePath.startsWith('/linea-')) {
                 // No hacemos nada especial aquí, permitimos que funcione normalmente
                 // Sanitizar el número de línea si es necesario
-                const lineNumber = sanitizeString(route.split('-')[1]);
+                const lineNumber = sanitizeString(routePath.split('-')[1]);
             } else {
                 // Si no coincide con ningún deeplink conocido, volver a la página principal
                 history.replaceState({ dialogType: 'home' }, document.title, '#/');

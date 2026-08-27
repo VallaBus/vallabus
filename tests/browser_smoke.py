@@ -28,6 +28,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Callable, List, Optional, Tuple
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from playwright.sync_api import Browser, Error as PlaywrightError
 from playwright.sync_api import Page, Playwright, sync_playwright
@@ -699,6 +700,71 @@ def test_route_planner(result: BrowserPage, timeout_ms: int) -> None:
     assert_no_browser_errors(result)
 
 
+def test_route_planner_deep_link(result: BrowserPage, base_url: str, timeout_ms: int) -> None:
+    """An external link opens the planner with or without a supplied origin."""
+    page = result.page
+    page.route(
+        "https://rutas.vallabus.com/**",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="text/html",
+            body="<html><body>planner fixture</body></html>",
+        ),
+    )
+
+    def planner_params(planner_url: str):
+        fragment = urlsplit(planner_url).fragment
+        assert "?" in fragment, "El iframe no recibió parámetros del planificador"
+        return parse_qs(fragment.split("?", 1)[1])
+
+    common_params = {
+        "destinationName": "Estadio José Zorrilla",
+        "destinationLat": "41.6440028",
+        "destinationLon": "-4.7605973",
+        "arrivalDate": "2030-01-02",
+        "arrivalTime": "18:30",
+    }
+
+    # Caso con origen proporcionado por la web externa.
+    page.goto(
+        base_url + "/#/rutas?" + urlencode({
+            **common_params,
+            "originName": "Plaza Mayor & Centro",
+            "originLat": "41.652251",
+            "originLon": "-4.724532",
+        }),
+        wait_until="domcontentloaded",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function(
+        "() => document.querySelector('#iframe-container').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    with_origin = planner_params(page.locator("#iframe-container iframe").get_attribute("src"))
+    assert with_origin["fromPlace"] == ["Plaza Mayor & Centro::41.652251,-4.724532"]
+    assert with_origin["toPlace"] == ["Estadio José Zorrilla::41.6440028,-4.7605973"]
+    assert with_origin["arriveBy"] == ["true"]
+    assert with_origin["date"] == ["2030-01-02"]
+    assert with_origin["time"] == ["18:30"]
+
+    # Caso sin posición de origen: no se pide geolocalización y el parámetro
+    # fromPlace se omite para que el campo quede vacío en el planificador.
+    page.goto(
+        base_url + "/?" + urlencode(common_params),
+        wait_until="domcontentloaded",
+        timeout=timeout_ms,
+    )
+    page.wait_for_function(
+        "() => document.querySelector('#iframe-container').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    without_origin = planner_params(page.locator("#iframe-container iframe").get_attribute("src"))
+    assert "fromPlace" not in without_origin
+    assert without_origin["toPlace"] == ["Estadio José Zorrilla::41.6440028,-4.7605973"]
+    assert without_origin["arriveBy"] == ["true"]
+    assert_no_browser_errors(result)
+
+
 def test_data_and_status_dialogs(result: BrowserPage, timeout_ms: int) -> None:
     page = result.page
 
@@ -935,6 +1001,12 @@ def main() -> int:
                 (
                     "planificador_de_rutas",
                     lambda result: test_route_planner(result, args.timeout),
+                ),
+                (
+                    "planificador_deep_link_con_origen_opcional",
+                    lambda result: test_route_planner_deep_link(
+                        result, server.base_url, args.timeout
+                    ),
                 ),
                 (
                     "datos_y_estado",

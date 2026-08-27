@@ -34,3 +34,13 @@ Esta aplicación web permite a los usuarios llevar un seguimiento de las líneas
 4. Los datos se actualizan cada 30 segundos.
 
 Esta sencilla app permite a los usuarios del bus en Valladolid llevar un seguimiento de las líneas y paradas de su interés para estar al tanto de los tiempos de llegada de los autobuses en tiempo real.
+
+## Enlace externo al planificador
+
+Una web externa puede abrir directamente el planificador con un destino y, opcionalmente, un origen y una llegada prevista. El formato recomendado es:
+
+```text
+https://vallabus.com/#/rutas?originName=...&originLat=...&originLon=...&destinationName=...&destinationLat=...&destinationLon=...&arrivalDate=YYYY-MM-DD&arrivalTime=HH:MM
+```
+
+`destinationName`, `destinationLat` y `destinationLon` son obligatorios. Los tres parámetros `origin*` son opcionales: si se omiten, el origen queda vacío en el planificador. `arrivalDate` y `arrivalTime` también son opcionales, pero deben aparecer juntos. Los nombres deben estar codificados como parámetros de URL.
