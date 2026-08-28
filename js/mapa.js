@@ -56,7 +56,7 @@ async function updateBusMap(busData, paradaData, centerMap) {
             if (savedTheme === "dark") {
                 if (!currentTileLayer || currentTileLayer._url.indexOf('thunderforest') !== -1) {
                     if (currentTileLayer) myMap.removeLayer(currentTileLayer);
-                    currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+                    currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png') + '?key=cb1_2fkf_1_f8d9bbe64162f71f25c06f64', {
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
                         subdomains: 'abcd',
                         maxZoom: 20,
@@ -614,7 +614,7 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
         savedTheme = 'dark';
     }
     if (savedTheme === "dark") {
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png'), {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}' + (L.Browser.retina ? '@2x.png' : '.png') + '?key=cb1_2fkf_1_f8d9bbe64162f71f25c06f64', {
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20,
