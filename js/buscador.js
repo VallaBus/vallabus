@@ -2,6 +2,23 @@
 let lastKnownLocation = null;
 let lastLocationTime = 0;
 
+function getSelectedStopNumber() {
+    const stopInput = document.getElementById('stopNumber');
+    return stopInput?.dataset.stopNumber?.trim() || stopInput?.value.trim() || '';
+}
+
+function setSelectedStop(stop) {
+    const stopInput = document.getElementById('stopNumber');
+    stopInput.value = stop.parada.nombre;
+    stopInput.dataset.stopNumber = stop.parada.numero;
+}
+
+function clearSelectedStop() {
+    const stopInput = document.getElementById('stopNumber');
+    stopInput.value = '';
+    stopInput.removeAttribute('data-stop-number');
+}
+
 function getUserLocation(callback) {
     const now = Date.now();
     if (lastKnownLocation && (now - lastLocationTime < 30000)) {
@@ -56,6 +73,9 @@ document.getElementById('stopNumber').addEventListener('input', async function()
     const inputText = this.value;
     const resultsContainer = document.getElementById('autocompleteResults');
 
+    // Al editar el nombre seleccionado, dejamos de usar el número interno anterior.
+    this.removeAttribute('data-stop-number');
+
     // Limpia resultados previos
     resultsContainer.innerHTML = '';
 
@@ -83,15 +103,14 @@ function showNearbyStopsLink(container) {
     resultElement.classList.add('autocomplete-result', 'nearbyStopsSuggestion');
     resultElement.addEventListener('click', function() {
         container.innerHTML = '';
+        displayLoadingSpinner();
+        closeAllDialogs(dialogIds);
         getUserLocation(function(location) {
-            if (location) {
-                displayLoadingSpinner();
-                closeAllDialogs(dialogIds);
-                showNearestStops({ coords: { latitude: location.y, longitude: location.x } });
-                toogleSidebar();
-            } else {
-                console.log("No se pudo obtener la ubicación.");
-            }
+            const position = location
+                ? { coords: { latitude: location.y, longitude: location.x } }
+                : null;
+            showNearestStops(position);
+            toogleSidebar();
         });
     });
     container.appendChild(resultElement);
@@ -210,7 +229,7 @@ function displayStops(stops, container) {
         `;
         resultElement.classList.add('autocomplete-result');
         resultElement.addEventListener('click', function() {
-            document.getElementById('stopNumber').value = stop.parada.numero;
+            setSelectedStop(stop);
             container.innerHTML = '';
             updateGlowEffects();
         });
@@ -243,10 +262,10 @@ function displaySearchResults(stops, container) {
    
         numParadaSpan.textContent = stop.parada.numero;
    
-        resultElement.innerHTML = `${numParadaSpan.outerHTML} ${stop.parada.nombre}`;
+        resultElement.innerHTML = `${numParadaSpan.outerHTML} <span class="stopName">${stop.parada.nombre}</span>`;
         resultElement.classList.add('autocomplete-result');
         resultElement.addEventListener('click', function() {
-            document.getElementById('stopNumber').value = stop.parada.numero;
+            setSelectedStop(stop);
             container.innerHTML = '';
             updateGlowEffects();
         });
@@ -254,17 +273,62 @@ function displaySearchResults(stops, container) {
     });
 }
 
+const STOP_SEARCH_IGNORABLE_WORDS = new Set([
+    'a',
+    'al',
+    'de',
+    'del',
+    'el',
+    'en',
+    'la',
+    'las',
+    'los',
+    'y'
+]);
+
+function normalizeStopSearchText(value) {
+    return String(value ?? '')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getStopSearchTokens(value) {
+    return normalizeStopSearchText(value)
+        .split(' ')
+        .filter(token => token && !STOP_SEARCH_IGNORABLE_WORDS.has(token));
+}
+
 // Función para buscar paradas por nombre o número
 async function searchByStopNumber(name) {
-    // Normaliza y elimina los acentos del nombre buscado
-    const normalizedSearchName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const normalizedSearchName = normalizeStopSearchText(name);
+    const searchTokens = getStopSearchTokens(name);
     const busStops = await loadBusStops();
 
-    // Devuelve todas las paradas que coincidan con el nombre buscado o el número de parada, ignorando acentos
+    if (!Array.isArray(busStops) || !normalizedSearchName) {
+        return [];
+    }
+
+    // La coincidencia directa conserva el comportamiento actual para nombres y
+    // números. La coincidencia por palabras permite tolerar espacios extra y
+    // conectores habituales en direcciones como "de" o "la".
     return busStops.filter(stop => {
-        const normalizedStopName = stop.parada.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        const normalizedStopNumber = stop.parada.numero.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        return normalizedStopName.includes(normalizedSearchName) || normalizedStopNumber.includes(normalizedSearchName);
+        const normalizedStopName = normalizeStopSearchText(stop?.parada?.nombre);
+        const normalizedStopNumber = normalizeStopSearchText(stop?.parada?.numero);
+
+        if (normalizedStopName.includes(normalizedSearchName)
+            || normalizedStopNumber.includes(normalizedSearchName)) {
+            return true;
+        }
+
+        if (searchTokens.length === 0) {
+            return false;
+        }
+
+        const stopTokens = new Set(getStopSearchTokens(normalizedStopName));
+        return searchTokens.every(token => stopTokens.has(token));
     });
 }
 
@@ -301,7 +365,7 @@ document.getElementById('lineNumber').addEventListener('focus', async function()
     clearTimeout(timeoutId);
 
     const lineNumber = this.value;
-    const stopNumber = document.getElementById('stopNumber').value;
+    const stopNumber = getSelectedStopNumber();
 
     // Verifica si lineNumber ya está rellenado o si stopNumber no es alfanumérico o contiene dos puntos
     if (!(/^[a-zA-Z0-9:]+$/.test(stopNumber))) {
@@ -380,11 +444,34 @@ function displayLineSuggestions(buses) {
         lineElement.textContent = bus.linea;
 
         resultElement.classList.add('line-suggestion');
+        resultElement.setAttribute('role', 'button');
+        resultElement.setAttribute('tabindex', '0');
+        resultElement.setAttribute('aria-label', `Añadir línea ${bus.linea}`);
         resultElement.appendChild(lineElement);
 
-        resultElement.addEventListener('click', function() {
+        const addSelectedLine = async function() {
+            const stopNumber = getSelectedStopNumber();
             lineNumber.value = bus.linea;
             resultsContainer.innerHTML = ''; // Limpia los resultados después de seleccionar
+
+            if (!stopNumber) {
+                updateGlowEffects();
+                return;
+            }
+
+            try {
+                await addBusLine(stopNumber, String(bus.linea));
+            } finally {
+                updateGlowEffects();
+            }
+        };
+
+        resultElement.addEventListener('click', addSelectedLine);
+        resultElement.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                addSelectedLine();
+            }
         });
         resultsContainer.appendChild(resultElement);
     });
@@ -392,7 +479,7 @@ function displayLineSuggestions(buses) {
 
 // Función para actualizar los efectos de glow
 function updateGlowEffects() {
-    const stopNumber = document.getElementById('stopNumber').value;
+    const stopNumber = getSelectedStopNumber();
     const lineNumber = document.getElementById('lineNumber');
     const addButton = document.getElementById('addButton');
 
@@ -437,7 +524,7 @@ function addClearButton(inputElement) {
 
     clearButton.addEventListener('click', function(e) {
         e.stopPropagation(); // Evita que el clic se propague al botón de añadir
-        inputElement.value = '';
+        clearSelectedStop();
         this.style.display = 'none';
         inputElement.focus();
         updateGlowEffects();

@@ -121,16 +121,28 @@
 .foot-note #social-share {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
-    margin: 2em 0;
+    gap: 0.25rem 0.8rem;
+    max-width: 32rem;
+    margin: 1.25em auto 0.75em;
 }
 
 .foot-note #social-share a {
-    width: calc(40% - 10px);
-    text-align: center;
-    font-size: 0.9em;
-    font-weight: bold;
+    --social-accent: #58736d;
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    min-height: 32px;
+    padding: 0.25rem 0.15rem;
+    color: var(--social-accent);
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .foot-note a#twitter-share-button,
@@ -139,50 +151,20 @@
 .foot-note a#whatsapp-share-button,
 .foot-note a#instagram-button,
 .foot-note a#bluesky-button {
-    display: inline-block;
-    padding: 10px 0 10px 15px;
-    margin: 5px;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    width: 135px;
+    background: transparent;
+    background-image: none;
 }
 
 .foot-note a#twitter-share-button {
-    background-color: #000000;
-    /* NEgro de X */
-    background-image: url('/img/share-white.png');
-    background-repeat: no-repeat;
-    background-size: 12px;
-    background-position: 20px center;
-}
-
-.foot-note a#twitter-share-button:hover {
-    background-color: #0a76cf;
-}
-
-.foot-note a#whatsapp-share-button {
-    background-color: #25d366;
-    background-image: url('../img/share-white.png');
-    background-repeat: no-repeat;
-    background-size: 12px;
-    background-position: 20px center;
+    --social-accent: #596565;
 }
 
 .foot-note a#instagram-button {
-    background-color: #E1306C;
-    background-image: url('../img/instagram.png');
-    background-repeat: no-repeat;
-    background-size: 12px;
-    background-position: 20px center;
+    --social-accent: #9a667c;
 }
 
 .foot-note a#bluesky-button {
-    background-color: #0d8bf2;
-    background-image: url('../img/share-white.png');
-    background-repeat: no-repeat;
-    background-size: 12px;
-    background-position: 20px center;
+    --social-accent: #5e82a4;
 }
 
 .foot-note #legend {
@@ -205,28 +187,54 @@
 }
 
 .foot-note a#facebook-share-button {
-    background-color: #3B5998;
-    /* Azul de Facebook */
-    background-image: url('../img/share-white.png');
-    background-repeat: no-repeat;
-    background-size: 12px;
-    background-position: 20px center;
+    --social-accent: #63779b;
 }
 
-.foot-note a#facebook-share-button:hover {
-    background-color: #334d84;
+.foot-note a#whatsapp-share-button {
+    --social-accent: #4f8d72;
 }
 
 .foot-note a#telegram-button {
-    background-color: #24a1dd;
-    background-image: url('/img/logo.png');
-    background-repeat: no-repeat;
-    background-size: 15px;
-    background-position: 20px center;
+    --social-accent: #5b8ca5;
 }
 
-.foot-note a#telegram-button:hover {
-    background-color: #1f8bbc;
+.foot-note #social-share a:hover,
+.foot-note #social-share a:focus-visible {
+    color: #2f5148;
+    border-bottom-color: currentColor;
+}
+
+.dark-mode .foot-note #social-share a {
+    --social-accent: #a6c2b9;
+}
+
+.dark-mode .foot-note a#twitter-share-button {
+    --social-accent: #adb8b8;
+}
+
+.dark-mode .foot-note a#instagram-button {
+    --social-accent: #d2a8b9;
+}
+
+.dark-mode .foot-note a#bluesky-button {
+    --social-accent: #a9c5e0;
+}
+
+.dark-mode .foot-note a#facebook-share-button {
+    --social-accent: #b7c5dd;
+}
+
+.dark-mode .foot-note a#whatsapp-share-button {
+    --social-accent: #a9d4bd;
+}
+
+.dark-mode .foot-note a#telegram-button {
+    --social-accent: #acd1e0;
+}
+
+.dark-mode .foot-note #social-share a:hover,
+.dark-mode .foot-note #social-share a:focus-visible {
+    color: #e4f3ed;
 }
 
 button#theme-toggle {
@@ -307,4 +315,3 @@ footer a:hover {
     margin-right: 5px;
     position: absolute;
 }
-

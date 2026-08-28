@@ -1,0 +1,1508 @@
+/*
+ * Seguimiento de viaje
+ *
+ * La hoja mantiene una sola jerarquía: próxima parada, distancia en paradas,
+ * tiempo estimado y destino. El mapa aporta el contexto espacial; el panel no
+ * repite esa información con una segunda línea temporal.
+ */
+
+#mapContainer.ride-tracking-active,
+#mapContainer.ride-tracking-active.show {
+    background: #edf3ef;
+    height: 100dvh;
+    inset: 0;
+    left: 0;
+    margin: 0;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    transform: none;
+    transition: none;
+    width: 100%;
+    z-index: 1000;
+}
+
+#mapContainer.ride-tracking-active #mapFooter {
+    background: transparent;
+    box-sizing: border-box;
+    height: 100%;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    text-align: left;
+    width: 100%;
+}
+
+#mapContainer.ride-tracking-active #mapFooter > * {
+    pointer-events: auto;
+}
+
+#mapContainer.ride-tracking-active #busMap {
+    background: #edf3ef;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100%;
+    width: 100%;
+}
+
+/* El mapa sigue siendo una superficie interactiva aunque la hoja inferior
+   esté abierta: el gesto se queda en Leaflet y no se convierte en scroll de
+   la página. */
+#mapContainer.ride-tracking-active #busMap.leaflet-container {
+    cursor: grab;
+    touch-action: pan-x pan-y !important;
+}
+
+#mapContainer.ride-tracking-active #busMap.leaflet-container:active {
+    cursor: grabbing;
+}
+
+#mapContainer.ride-tracking-active .leaflet-control-container,
+#mapContainer.ride-tracking-active #mapFooter > .map-close,
+#mapContainer.ride-tracking-active #mapFooter > #busMapLastUpdate {
+    display: none;
+}
+
+html:not(.dark-mode) #mapContainer.ride-tracking-active #busMap .leaflet-tile {
+    filter: none;
+}
+
+.dark-mode #mapContainer.ride-tracking-active,
+.dark-mode #mapContainer.ride-tracking-active #busMap {
+    background: #0f1b21;
+}
+
+/* La acción compacta de las filas de líneas/paradas. */
+
+.additional-info-panel .ride-follow-button {
+    align-items: center;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid #e5e5e5;
+    color: #18864b;
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 58px;
+    flex-direction: column;
+    font: inherit;
+    font-size: 0.95em;
+    gap: 4px;
+    height: 56px;
+    justify-content: center;
+    line-height: 1.1;
+    margin: 0 4px 0 0;
+    min-width: 58px;
+    padding: 6px 5px;
+    text-align: center;
+}
+
+.additional-info-panel .ride-follow-button:hover,
+.additional-info-panel .ride-follow-button:focus-visible {
+    background-color: #eff9f1;
+    outline: none;
+}
+
+.additional-info-panel .ride-follow-button:active {
+    transform: scale(0.96);
+}
+
+.ride-follow-icon {
+    background-image: url('/img/bus-location.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: block;
+    height: 22px;
+    width: 25px;
+}
+
+.dark-mode .additional-info-panel .ride-follow-button {
+    border-right-color: #555;
+    color: #83d39f;
+}
+
+.dark-mode .additional-info-panel .ride-follow-button:hover,
+.dark-mode .additional-info-panel .ride-follow-button:focus-visible {
+    background-color: #263d30;
+}
+
+.dark-mode .ride-follow-icon {
+    background-image: url('/img/bus-location-white.png');
+}
+
+/* Acción equivalente dentro del mapa. */
+
+#mapContainer #mapFooter .map-follow-button {
+    align-items: center;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #18864b;
+    border: 0;
+    border-radius: 999px;
+    bottom: max(68px, calc(env(safe-area-inset-bottom) + 60px));
+    box-shadow: 0 8px 24px rgba(18, 107, 59, 0.28);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    gap: 7px;
+    justify-content: center;
+    left: 50%;
+    min-height: 44px;
+    min-width: 112px;
+    padding: 8px 16px;
+    position: absolute;
+    transform: translateX(-50%);
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    width: max-content;
+    z-index: 1001;
+}
+
+#mapContainer #mapFooter .map-follow-button .ride-follow-icon {
+    background-image: url('/img/bus-location-white.png');
+    height: 20px;
+    width: 23px;
+}
+
+#mapContainer #mapFooter .map-follow-button:hover,
+#mapContainer #mapFooter .map-follow-button:focus-visible {
+    background: #126b3b;
+    box-shadow: 0 10px 28px rgba(18, 107, 59, 0.34);
+    outline: 3px solid rgba(24, 134, 75, 0.22);
+    outline-offset: 2px;
+}
+
+#mapContainer #mapFooter .map-follow-button:active {
+    transform: translateX(-50%) scale(0.97);
+}
+
+#mapContainer #mapFooter .map-follow-button.is-active {
+    background: #0f6e3e;
+}
+
+#mapContainer #mapFooter .map-follow-button[hidden],
+#mapContainer #mapFooter .ride-tracking-panel[hidden] {
+    display: none;
+}
+
+.dark-mode #mapContainer #mapFooter .map-follow-button {
+    background: #2a9d5b;
+}
+
+/* Marcadores del viaje: usuario azul, destino naranja y parada de subida azul. */
+
+#mapContainer #busMap .ride-map-marker-icon {
+    background: transparent;
+    border: 0;
+}
+
+#mapContainer #busMap .ride-map-marker {
+    align-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.96);
+    border-radius: 50%;
+    box-shadow: 0 5px 14px rgba(8, 24, 18, 0.3);
+    color: #fff;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    position: relative;
+    width: 36px;
+}
+
+#mapContainer #busMap .ride-map-marker svg {
+    fill: none;
+    height: 19px;
+    position: relative;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 19px;
+    z-index: 1;
+}
+
+#mapContainer #busMap .ride-map-marker--board:not([class*="linea-"]) {
+    background: #1679d3;
+}
+
+#mapContainer #busMap .ride-map-marker--board svg {
+    fill: #fff;
+    height: 22px;
+    stroke: none;
+    width: 22px;
+}
+
+#mapContainer #busMap .ride-map-marker--user {
+    background: #1278e4;
+    box-shadow: 0 0 0 7px rgba(18, 120, 228, 0.16), 0 5px 16px rgba(18, 120, 228, 0.35);
+}
+
+#mapContainer #busMap .ride-map-marker--destination {
+    background: #ed8a22;
+}
+
+#mapContainer #busMap .ride-map-marker--destination svg {
+    height: 20px;
+    width: 20px;
+}
+
+.dark-mode #mapContainer #busMap .ride-map-marker {
+    border-color: #eef8f1;
+}
+
+/* El vehículo del mapa conserva su número en el mapa general, pero en el
+   seguimiento se convierte en un marcador de bus reconocible. */
+
+#mapContainer.ride-tracking-active #busMap .bus-icon {
+    align-items: center;
+    border: 2px solid #f5fff2;
+    box-sizing: border-box;
+    border-radius: 50%;
+    box-shadow: 0 0 0 8px rgba(31, 54, 42, 0.1), 0 0 24px rgba(31, 54, 42, 0.28);
+    display: flex;
+    height: 48px !important;
+    justify-content: center;
+    margin-left: -24px !important;
+    margin-top: -24px !important;
+    width: 48px;
+    width: 48px !important;
+}
+
+#mapContainer.ride-tracking-active #busMap .bus-icon:not([class*="linea-"]) {
+    background: #70c949;
+}
+
+/* En la vista general el marcador solo identifica la línea. El pictograma
+   blanco se reserva para el bus dentro del seguimiento activo. */
+#mapContainer #busMap .bus-icon-glyph {
+    display: none;
+}
+
+#mapContainer.ride-tracking-active #busMap .bus-icon > div {
+    display: none;
+}
+
+#mapContainer.ride-tracking-active #busMap .bus-icon::before {
+    content: none;
+    display: block;
+    height: 0;
+    width: 0;
+}
+
+#mapContainer.ride-tracking-active #busMap .bus-icon-glyph {
+    display: block;
+    fill: #fff;
+    height: 28px;
+    stroke: none;
+    width: 28px;
+}
+
+/* Tras confirmar el embarque, el GPS del móvil es la posición principal.
+   El vehículo puede llegar retrasado desde el API y no debe dibujarse como
+   una segunda burbuja detrás. Sin GPS, esta clase no se activa y el bus sigue
+   siendo el respaldo visible. */
+#mapContainer.ride-tracking-use-gps-marker #busMap .bus-icon {
+    display: none !important;
+}
+
+/* Hoja inferior. */
+
+#mapContainer #mapFooter .ride-tracking-panel {
+    -webkit-backdrop-filter: blur(18px);
+    animation: ride-sheet-in 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    backdrop-filter: blur(18px);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(29, 52, 40, 0.12);
+    border-radius: 28px 28px 0 0;
+    bottom: 0;
+    box-shadow: 0 -18px 56px rgba(32, 55, 43, 0.18);
+    box-sizing: border-box;
+    color: #20332a;
+    height: auto;
+    left: 0;
+    max-height: min(680px, 68dvh);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 15px 32px calc(20px + env(safe-area-inset-bottom));
+    position: absolute;
+    text-align: left;
+    width: 100%;
+    z-index: 1002;
+}
+
+.dark-mode #mapContainer #mapFooter .ride-tracking-panel {
+    background: rgba(25, 31, 34, 0.98);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -18px 56px rgba(0, 0, 0, 0.34);
+    color: #f3f6f4;
+}
+
+@keyframes ride-sheet-in {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ride-sheet-grabber {
+    background: #b6c1bb;
+    border-radius: 999px;
+    height: 5px;
+    margin: 0 auto 22px;
+    width: 82px;
+}
+
+.dark-mode .ride-sheet-grabber {
+    background: #7e8985;
+}
+
+.ride-tracking-heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ride-tracking-heading strong {
+    align-items: center;
+    color: #20332a;
+    display: inline-flex;
+    font-size: 1.08rem;
+    font-weight: 750;
+    gap: 8px;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+}
+
+.dark-mode .ride-tracking-heading strong {
+    color: #f3f6f4;
+}
+
+.ride-tracking-heading strong::before {
+    animation: ride-live-pulse 1.8s ease-out infinite;
+    background: var(--ride-line-color, #25a65d);
+    border: 3px solid #dff5e8;
+    border-radius: 50%;
+    content: '';
+    display: block;
+    height: 10px;
+    width: 10px;
+}
+
+.ride-tracking-heading strong > span {
+    display: inline-block;
+}
+
+.ride-tracking-heading strong > span:first-child {
+    color: #2da45e;
+}
+
+.ride-tracking-title-separator {
+    color: #7e8b84;
+    margin: 0 2px;
+}
+
+.ride-tracking-heading strong > span:last-child {
+    color: #718077;
+    font-weight: 550;
+}
+
+.dark-mode .ride-tracking-title-separator,
+.dark-mode .ride-tracking-heading strong > span:last-child {
+    color: #a9b3ae;
+}
+
+.ride-tracking-close {
+    align-items: center;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    color: #738079;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 1.35rem;
+    height: 32px;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+}
+
+.ride-tracking-close:hover,
+.ride-tracking-close:focus-visible {
+    background: rgba(113, 128, 119, 0.12);
+    border-radius: 50%;
+    outline: none;
+}
+
+.ride-tracking-status {
+    color: #2f9d5d;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    margin: 48px 0 12px;
+}
+
+.dark-mode .ride-tracking-status {
+    color: #7bd454;
+}
+
+.ride-tracking-status.is-preparing {
+    color: #b47713;
+}
+
+.dark-mode .ride-tracking-status.is-preparing {
+    color: #efb84f;
+}
+
+.ride-tracking-status.is-warning {
+    color: #bd780d;
+}
+
+.dark-mode .ride-tracking-status.is-warning {
+    color: #f1b44b;
+}
+
+.ride-tracking-next-stop {
+    color: #20332a;
+    font-size: clamp(1.85rem, 8.1vw, 3rem);
+    font-weight: 750;
+    letter-spacing: -0.055em;
+    line-height: 1.08;
+    margin: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+.ride-tracking-next-stop[hidden] {
+    display: none;
+}
+
+.dark-mode .ride-tracking-next-stop {
+    color: #f4f7f4;
+}
+
+.ride-tracking-metric {
+    align-items: baseline;
+    display: flex;
+    gap: 14px;
+    line-height: 1;
+    margin: 24px 0 18px;
+    min-height: 3.35rem;
+}
+
+.ride-tracking-metric[hidden],
+.ride-summary-metric[hidden],
+.ride-summary-divider[hidden] {
+    display: none;
+}
+
+.ride-summary-metric {
+    align-items: baseline;
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 9px;
+}
+
+.ride-summary-metric span { white-space: nowrap; }
+
+.ride-summary-metric strong {
+    color: #71c94b;
+    font-size: clamp(2.5rem, 11vw, 4rem);
+    font-weight: 780;
+    letter-spacing: -0.09em;
+    line-height: 0.9;
+}
+
+.ride-summary-metric span {
+    color: #71c94b;
+    font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+}
+
+.ride-summary-divider {
+    color: #a8b2ad;
+    font-size: 2.1rem;
+    font-weight: 350;
+    line-height: 0.8;
+}
+
+.dark-mode .ride-summary-divider {
+    color: #68726e;
+}
+
+.ride-tracking-location-hint {
+    color: #9a7a3c;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    margin: -3px 0 15px;
+}
+
+.dark-mode .ride-tracking-location-hint {
+    color: #d5b66b;
+}
+
+.ride-tracking-location-hint[hidden],
+.ride-tracking-arrival-time[hidden],
+.ride-tracking-last-update[hidden] {
+    display: none;
+}
+
+.ride-tracking-arrival-time {
+    color: #69786f;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: -7px 0 10px;
+}
+
+.dark-mode .ride-tracking-arrival-time {
+    color: #aab5ae;
+}
+
+.ride-tracking-last-update {
+    color: #7a8780;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    margin: 0 0 22px;
+}
+
+.ride-tracking-last-update strong {
+    color: #5f6d65;
+    font-weight: 700;
+}
+
+.dark-mode .ride-tracking-last-update {
+    color: #98a39e;
+}
+
+.dark-mode .ride-tracking-last-update strong {
+    color: #c5cec9;
+}
+
+/* Destino: una fila secundaria, visible y editable sin competir con la
+   próxima parada. */
+
+.ride-destination-field {
+    align-items: center;
+    border-bottom: 1px solid rgba(52, 73, 61, 0.16);
+    border-top: 1px solid rgba(52, 73, 61, 0.16);
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    min-width: 0;
+    padding: 16px 0;
+}
+
+.dark-mode .ride-destination-field {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.ride-destination-field[hidden] {
+    display: none;
+}
+
+.ride-destination-icon {
+    align-items: center;
+    background: #ed8a22;
+    border: 2px solid #fff5e9;
+    border-radius: 50%;
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 40px;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
+}
+
+.ride-destination-icon svg {
+    fill: none;
+    height: 20px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 20px;
+}
+
+.ride-destination-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ride-destination-copy > span {
+    color: #7a8780;
+    font-size: 0.84rem;
+    font-weight: 650;
+    line-height: 1.1;
+}
+
+.dark-mode .ride-destination-copy > span {
+    color: #a5afa9;
+}
+
+.ride-destination-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: linear-gradient(45deg, transparent 50%, #7a8780 50%) calc(100% - 6px) 52% / 6px 6px no-repeat,
+        linear-gradient(135deg, #7a8780 50%, transparent 50%) 100% 52% / 6px 6px no-repeat;
+    border: 0;
+    border-radius: 0;
+    color: #20332a;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.02rem;
+    font-weight: 550;
+    line-height: 1.25;
+    min-height: 25px;
+    min-width: 0;
+    padding: 0 22px 0 0;
+    width: 100%;
+}
+
+.ride-destination-field select:focus-visible {
+    border-radius: 5px;
+    box-shadow: 0 0 0 3px rgba(46, 164, 94, 0.18);
+    outline: none;
+}
+
+.dark-mode .ride-destination-field select {
+    background-image: linear-gradient(45deg, transparent 50%, #a5afa9 50%), linear-gradient(135deg, #a5afa9 50%, transparent 50%);
+    background-position: calc(100% - 6px) 52%, 100% 52%;
+    background-size: 6px 6px, 6px 6px;
+    color: #f3f6f4;
+}
+
+/* La acción de parada es deliberadamente secundaria y neutral. */
+
+.ride-tracking-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 15px;
+}
+
+.ride-board-button,
+.ride-stop-button {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.ride-board-button {
+    background: #71c94b;
+    border: 0;
+    border-radius: 14px;
+    color: #15311c;
+    font-size: 1rem;
+    font-weight: 750;
+    min-height: 52px;
+    padding: 9px 16px;
+}
+
+.ride-board-button:hover,
+.ride-board-button:focus-visible {
+    background: #83d85e;
+    outline: 3px solid rgba(113, 201, 75, 0.22);
+    outline-offset: 1px;
+}
+
+.ride-board-button[hidden] {
+    display: none;
+}
+
+.ride-stop-button {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid rgba(52, 73, 61, 0.16);
+    color: #78847d;
+    display: flex;
+    font-size: 0.94rem;
+    font-weight: 600;
+    gap: 12px;
+    min-height: 54px;
+    padding: 10px 0;
+    text-align: left;
+}
+
+.ride-stop-button::after {
+    color: currentColor;
+    content: '›';
+    font-size: 2rem;
+    font-weight: 350;
+    line-height: 1;
+    margin-left: auto;
+}
+
+.dark-mode .ride-stop-button {
+    border-top-color: rgba(255, 255, 255, 0.12);
+    color: #aeb7b2;
+}
+
+.ride-stop-button:hover,
+.ride-stop-button:focus-visible {
+    color: #4d5a52;
+    outline: none;
+}
+
+.dark-mode .ride-stop-button:hover,
+.dark-mode .ride-stop-button:focus-visible {
+    color: #e0e6e2;
+}
+
+.ride-stop-icon {
+    align-items: center;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    display: inline-flex;
+    flex: 0 0 36px;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
+}
+
+.ride-stop-icon svg {
+    fill: currentColor;
+    height: 17px;
+    width: 17px;
+}
+
+@media (max-width: 380px) {
+    #mapContainer #mapFooter .ride-tracking-panel {
+        padding-left: 23px;
+        padding-right: 23px;
+    }
+
+    .ride-tracking-status {
+        margin-top: 40px;
+    }
+
+    .ride-tracking-next-stop {
+        font-size: 1.72rem;
+    }
+
+    .ride-summary-metric strong {
+        font-size: 2.35rem;
+    }
+}
+
+@media (min-width: 640px) {
+    #mapContainer #mapFooter .ride-tracking-panel {
+        bottom: 24px;
+        border-radius: 28px;
+        left: 24px;
+        max-height: min(640px, calc(100% - 48px));
+        width: min(480px, calc(100% - 48px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #mapContainer #mapFooter .ride-tracking-panel,
+    .ride-tracking-heading strong::before {
+        animation: none;
+    }
+}
+
+/* Refinamiento UX: una jerarquía por estado, controles táctiles y preview
+   compacto antes de iniciar el seguimiento. */
+
+#mapContainer #mapFooter .map-follow-button {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid rgba(31, 54, 42, 0.14);
+    border-radius: 18px;
+    bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+    box-shadow: 0 12px 36px rgba(25, 48, 36, 0.2);
+    color: #20332a;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    min-height: 72px;
+    padding: 12px 13px 12px 18px;
+    width: min(420px, calc(100% - 28px));
+}
+
+#mapContainer #mapFooter .map-follow-button:hover,
+#mapContainer #mapFooter .map-follow-button:focus-visible {
+    background: #fff;
+    box-shadow: 0 14px 40px rgba(25, 48, 36, 0.24);
+}
+
+.map-follow-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    text-align: left;
+}
+
+.map-follow-copy strong {
+    color: #20332a;
+    font-size: 1rem;
+    font-weight: 760;
+}
+
+.map-follow-copy span {
+    color: #68766e;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.map-follow-copy .map-follow-freshness {
+    color: #9aa49e;
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-top: 1px;
+}
+
+/* La hora de actualización es contexto, no el dato principal de la tarjeta.
+   Evitamos que el <strong> generado por el texto herede el peso/tamaño del
+   nombre de la línea. */
+.map-follow-copy .map-follow-freshness strong {
+    color: inherit;
+    font-size: inherit;
+    font-weight: 600;
+}
+
+.map-follow-action {
+    align-items: center;
+    background: #187b43;
+    border-radius: 12px;
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+    font-weight: 750;
+    min-height: 44px;
+    padding: 0 18px;
+}
+
+.dark-mode #mapContainer #mapFooter .map-follow-button {
+    background: rgba(27, 34, 37, 0.97);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f5f7f5;
+}
+
+.dark-mode .map-follow-copy strong { color: #f5f7f5; }
+.dark-mode .map-follow-copy span { color: #aeb8b2; }
+.dark-mode .map-follow-copy .map-follow-freshness { color: #8f9b93; }
+
+/* Al cerrar el panel seguimos en una sesión activa, pero la tarjeta debe
+   seguir siendo una superficie legible; el verde queda reservado a la
+   acción principal Abrir. */
+#mapContainer #mapFooter .map-follow-button.is-active {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(24, 134, 75, 0.3);
+    color: #20332a;
+}
+
+#mapContainer #mapFooter .map-follow-button.is-active .map-follow-copy strong {
+    color: #187b43;
+}
+
+.dark-mode #mapContainer #mapFooter .map-follow-button.is-active {
+    background: rgba(27, 34, 37, 0.97);
+    border-color: rgba(122, 211, 159, 0.42);
+    color: #f5f7f5;
+}
+
+.ride-sheet-grabber {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: grab;
+    display: block;
+    height: 32px;
+    margin: -8px 0 2px;
+    min-height: 32px;
+    padding: 0;
+    position: relative;
+    touch-action: none;
+    user-select: none;
+    width: 100%;
+}
+
+.ride-sheet-grabber.is-dragging {
+    cursor: grabbing;
+}
+
+.ride-sheet-grabber::before {
+    background: #b6c1bb;
+    border-radius: 999px;
+    content: '';
+    height: 5px;
+    left: 50%;
+    position: absolute;
+    top: 10px;
+    transform: translateX(-50%);
+    width: 82px;
+}
+
+.ride-tracking-close {
+    height: 44px;
+    width: 44px;
+}
+
+.ride-tracking-heading strong > span:first-child,
+.ride-tracking-status,
+.ride-summary-metric strong,
+.ride-summary-metric span {
+    color: #267f43;
+}
+
+.ride-tracking-urgent-alert {
+    color: #a85d00;
+    font-size: 1.05rem;
+    font-weight: 780;
+    line-height: 1.25;
+    margin: 42px 0 10px;
+}
+
+.ride-tracking-urgent-alert + .ride-tracking-next-stop {
+    margin-top: 0;
+}
+
+.ride-tracking-panel.is-near-destination .ride-tracking-status {
+    display: none;
+}
+
+.ride-destination-field {
+    appearance: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.ride-destination-copy strong {
+    color: #20332a;
+    font-size: 1.02rem;
+    font-weight: 560;
+    line-height: 1.3;
+}
+
+.dark-mode .ride-destination-copy strong { color: #f3f6f4; }
+
+.ride-destination-chevron {
+    color: #7a8780;
+    font-size: 1.8rem;
+    margin-left: auto;
+}
+
+.ride-destination-native {
+    display: none;
+}
+
+.ride-tracking-panel.is-collapsed {
+    max-height: 178px !important;
+    overflow: hidden !important;
+}
+
+.ride-tracking-panel.is-collapsed .ride-sheet-grabber {
+    margin-bottom: 12px;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-status {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin: 10px 0 4px;
+}
+
+.ride-tracking-panel.is-collapsed.is-onboard .ride-tracking-status {
+    display: none;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-next-stop:not([hidden]) {
+    color: #20332a;
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 720;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-next-stop::before {
+    color: #718077;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.ride-tracking-panel.is-collapsed.is-onboard .ride-tracking-next-stop::before {
+    content: 'Próxima parada · ';
+}
+
+.ride-tracking-panel.is-collapsed.is-waiting .ride-tracking-next-stop::before,
+.ride-tracking-panel.is-collapsed.is-preparing .ride-tracking-next-stop::before {
+    content: 'Parada de subida · ';
+}
+
+.ride-tracking-panel.is-collapsed.is-passed .ride-tracking-next-stop::before {
+    content: 'Siguiente parada · ';
+}
+
+.ride-tracking-panel.is-collapsed.is-arrived .ride-tracking-next-stop::before {
+    content: 'Destino · ';
+}
+
+.dark-mode .ride-tracking-panel.is-collapsed .ride-tracking-next-stop {
+    color: #f4f7f4;
+}
+
+.dark-mode .ride-tracking-panel.is-collapsed .ride-tracking-next-stop::before {
+    color: #a9b3ae;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-metric:not([hidden]) {
+    display: flex;
+    gap: 8px;
+    margin: 5px 0 0;
+    min-height: 0;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric strong {
+    font-size: 1.4rem;
+    letter-spacing: -0.06em;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric span {
+    font-size: 0.9rem;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-metric {
+    gap: 5px;
+}
+
+.ride-tracking-panel.is-collapsed .ride-summary-divider {
+    font-size: 1.25rem;
+}
+
+.ride-tracking-panel.is-collapsed .ride-tracking-location-hint,
+.ride-tracking-panel.is-collapsed .ride-tracking-arrival-time,
+.ride-tracking-panel.is-collapsed .ride-tracking-last-update,
+.ride-tracking-panel.is-collapsed .ride-destination-field,
+.ride-tracking-panel.is-collapsed .ride-tracking-actions,
+.ride-tracking-panel.is-collapsed .ride-tracking-urgent-alert {
+    display: none;
+}
+
+.ride-destination-dialog[hidden] { display: none; }
+
+.ride-destination-dialog {
+    align-items: flex-end;
+    background: rgba(10, 20, 15, 0.42);
+    display: flex;
+    inset: 0;
+    position: fixed;
+    z-index: 1600;
+}
+
+.ride-destination-dialog-sheet {
+    background: #fff;
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -18px 56px rgba(20, 39, 29, 0.2);
+    box-sizing: border-box;
+    max-height: min(78dvh, 680px);
+    overflow-y: auto;
+    padding: 24px 22px calc(24px + env(safe-area-inset-bottom));
+    width: 100%;
+}
+
+.dark-mode .ride-destination-dialog-sheet {
+    background: #1b2225;
+    color: #f4f7f5;
+}
+
+.ride-destination-dialog-heading {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ride-destination-dialog-heading span {
+    color: #267f43;
+    font-size: 0.8rem;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+.ride-destination-dialog-heading h2 {
+    font-size: 1.55rem;
+    letter-spacing: -0.035em;
+    margin: 4px 0 18px;
+}
+
+.ride-destination-dialog-heading button {
+    background: #edf1ee;
+    border: 0;
+    border-radius: 50%;
+    color: #20332a;
+    cursor: pointer;
+    flex: 0 0 48px;
+    height: 48px;
+    padding: 0;
+    width: 48px;
+}
+
+.ride-destination-search input {
+    background: #f1f4f2;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    box-sizing: border-box;
+    color: #20332a;
+    font: inherit;
+    min-height: 50px;
+    padding: 0 16px;
+    width: 100%;
+}
+
+.ride-destination-options { margin-top: 12px; }
+
+.ride-destination-option {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #e5ebe7;
+    color: #20332a;
+    display: flex;
+    font: inherit;
+    justify-content: space-between;
+    min-height: 68px;
+    padding: 10px 4px;
+    text-align: left;
+    width: 100%;
+}
+
+.ride-destination-option > span:first-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ride-destination-option strong { font-size: 0.98rem; }
+.ride-destination-option small { color: #6b7971; margin-top: 4px; }
+.ride-destination-option.is-selected strong { color: #267f43; }
+.ride-destination-empty { color: #68766e; padding: 24px 4px; }
+
+.ride-demo-toolbar[hidden] { display: none; }
+
+.ride-demo-toolbar {
+    align-items: center;
+    background: #17231d;
+    border-radius: 16px;
+    top: calc(10px + env(safe-area-inset-top));
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3);
+    color: #fff;
+    display: flex;
+    gap: 7px;
+    left: 50%;
+    padding: 8px;
+    position: fixed;
+    transform: translateX(-50%);
+    width: min(410px, calc(100% - 20px));
+    box-sizing: border-box;
+    z-index: 1800;
+}
+
+.ride-demo-toolbar > div {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    padding-left: 8px;
+}
+
+.ride-demo-toolbar strong { font-size: 0.77rem; }
+.ride-demo-toolbar span { color: #b8c5bd; font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ride-demo-toolbar button {
+    background: #2d3b34;
+    border: 0;
+    border-radius: 10px;
+    color: #fff;
+    font: inherit;
+    font-size: 0.78rem;
+    min-height: 42px;
+    padding: 0 12px;
+}
+
+.ride-demo-toolbar button:first-of-type,
+.ride-demo-toolbar button:last-of-type { font-size: 1.5rem; padding: 0; width: 42px; }
+
+@media (max-width: 430px) {
+    #mapContainer #mapFooter .ride-tracking-panel {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .ride-tracking-status { margin-top: 34px; }
+    .ride-tracking-next-stop { font-size: clamp(1.72rem, 7.4vw, 2.25rem); }
+}
+
+/* Iconografía óptica: todos los controles conservan un área táctil de 44 px,
+   con glifos más pequeños y consistentes. */
+
+.ride-tracking-close {
+    background: #eef2ef;
+    border-radius: 50%;
+    color: #637168;
+    flex: 0 0 44px;
+}
+
+.ride-tracking-close svg,
+.ride-destination-dialog-heading button svg {
+    fill: none;
+    height: 24px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.5;
+    width: 24px;
+}
+
+.dark-mode .ride-tracking-close {
+    background: #2d3632;
+    color: #b8c2bc;
+}
+
+/* Acción explícita para salir del seguimiento sin obligar a abrir el panel. */
+.ride-tracking-close {
+    background: #f4f7f4;
+    border: 1px solid rgba(69, 91, 78, 0.24);
+    border-radius: 50%;
+    color: #637168;
+    flex: 0 0 44px;
+    font-size: 0;
+    height: 44px;
+    min-width: 44px;
+    padding: 0;
+    width: 44px;
+}
+
+.ride-tracking-heading {
+    gap: 12px;
+}
+
+.ride-tracking-heading strong {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.ride-tracking-close::before {
+    background: currentColor;
+    border-radius: 2px;
+    content: '';
+    display: block;
+    height: 15px;
+    width: 15px;
+}
+
+.ride-tracking-close[aria-label="Cerrar"]::before {
+    background: transparent;
+    border-radius: 0;
+    content: '×';
+    font-size: 28px;
+    font-weight: 400;
+    height: 28px;
+    line-height: 24px;
+    width: 28px;
+}
+
+.ride-tracking-close:hover,
+.ride-tracking-close:focus-visible {
+    background: #e9f0eb;
+    border-radius: 50%;
+    border-color: rgba(38, 127, 67, 0.42);
+    outline: none;
+}
+
+.dark-mode .ride-tracking-close {
+    background: #2d3632;
+    border-color: rgba(220, 237, 225, 0.2);
+    color: #c5cec9;
+}
+
+.ride-stop-icon {
+    box-sizing: border-box;
+    flex-basis: 36px;
+    height: 36px;
+    width: 36px;
+}
+
+.ride-stop-icon svg {
+    height: 18px;
+    width: 18px;
+}
+
+.ride-destination-dialog-heading button {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.ride-destination-dialog-heading button:focus-visible {
+    outline: 3px solid #267f43;
+    outline-offset: 3px;
+}
+
+/* First-time experience contextual. El foco visual apunta al botón real y
+   la explicación ocupa una sola tarjeta inferior. */
+
+.ride-onboarding-spotlight {
+    border: 3px solid #54c96b;
+    border-radius: 14px;
+    box-shadow: 0 0 0 9999px rgba(12, 25, 18, 0.58), 0 0 0 7px rgba(84, 201, 107, 0.2);
+    box-sizing: border-box;
+    pointer-events: none;
+    position: fixed;
+    transition: left 160ms ease, top 160ms ease, width 160ms ease, height 160ms ease;
+    z-index: 1900;
+}
+
+.ride-onboarding {
+    animation: ride-onboarding-in 220ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+    background: #fff;
+    border-radius: 24px;
+    bottom: max(16px, calc(env(safe-area-inset-bottom) + 12px));
+    box-shadow: 0 20px 64px rgba(6, 20, 12, 0.3);
+    box-sizing: border-box;
+    color: #20332a;
+    left: 50%;
+    padding: 24px;
+    position: fixed;
+    transform: translateX(-50%);
+    width: min(390px, calc(100% - 24px));
+    z-index: 1901;
+}
+
+@keyframes ride-onboarding-in {
+    from { opacity: 0; transform: translate(-50%, 18px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.ride-onboarding-icon {
+    align-items: center;
+    background: #e9f7ed;
+    border-radius: 15px;
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    margin-bottom: 18px;
+    width: 48px;
+}
+
+.ride-onboarding-icon .ride-follow-icon {
+    background-image: url('/img/bus-location.png');
+    height: 25px;
+    width: 29px;
+}
+
+.ride-onboarding-eyebrow {
+    color: #267f43;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    margin: 0 0 7px;
+    text-transform: uppercase;
+}
+
+.ride-onboarding h2 {
+    color: #20332a;
+    font-size: 1.55rem;
+    font-weight: 780;
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+    margin: 0;
+}
+
+.ride-onboarding > p:not(.ride-onboarding-eyebrow) {
+    color: #65736b;
+    font-size: 0.94rem;
+    line-height: 1.45;
+    margin: 12px 0 22px;
+}
+
+.ride-onboarding-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ride-onboarding-actions button {
+    appearance: none;
+    border: 0;
+    border-radius: 13px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 750;
+    min-height: 50px;
+    padding: 0 16px;
+}
+
+.ride-onboarding-primary {
+    background: #267f43;
+    color: #fff;
+}
+
+.ride-onboarding-primary:hover,
+.ride-onboarding-primary:focus-visible {
+    background: #1d6936;
+    outline: 3px solid rgba(38, 127, 67, 0.25);
+    outline-offset: 2px;
+}
+
+.ride-onboarding-secondary {
+    background: transparent;
+    color: #69776f;
+}
+
+.ride-onboarding-secondary:hover,
+.ride-onboarding-secondary:focus-visible {
+    background: #f0f4f1;
+    outline: none;
+}
+
+.dark-mode .ride-onboarding {
+    background: #1b2320;
+    color: #f3f6f4;
+}
+
+.dark-mode .ride-onboarding h2 { color: #f3f6f4; }
+.dark-mode .ride-onboarding > p:not(.ride-onboarding-eyebrow) { color: #abb6af; }
+.dark-mode .ride-onboarding-icon { background: #263e2e; }
+.dark-mode .ride-onboarding-secondary { color: #b7c0ba; }
+.dark-mode .ride-onboarding-secondary:hover,
+.dark-mode .ride-onboarding-secondary:focus-visible { background: #29332f; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ride-onboarding { animation: none; }
+    .ride-onboarding-spotlight { transition: none; }
+}

@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import threading
+import traceback
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -103,7 +104,8 @@ def open_app(browser: Browser, base_url: str, timeout_ms: int) -> BrowserPage:
         """if (sessionStorage.getItem('__vallabus_test_clean') !== '1') {
             localStorage.clear();
             sessionStorage.setItem('__vallabus_test_clean', '1');
-        }"""
+        }
+        localStorage.setItem('vallabus.rideTrackingOnboarding.v1', 'seen');"""
     )
     page = context.new_page()
     result = BrowserPage(page, context.close)
@@ -128,8 +130,10 @@ def select_stop(page: Page, stop_number: str, timeout_ms: int) -> None:
     )
     first_stop = page.locator("#autocompleteResults .autocomplete-result").first
     assert stop_number in first_stop.inner_text(), "La búsqueda no devuelve la parada solicitada"
+    selected_stop_name = first_stop.locator(".stopName").inner_text()
     first_stop.click()
-    assert page.locator("#stopNumber").input_value() == stop_number
+    assert page.locator("#stopNumber").input_value() == selected_stop_name
+    assert page.locator("#stopNumber").get_attribute("data-stop-number") == stop_number
 
 
 def add_line_to_list(page: Page, stop_number: str, line_number: str, timeout_ms: int):
@@ -143,9 +147,7 @@ def add_line_to_list(page: Page, stop_number: str, line_number: str, timeout_ms:
     )
     assert suggestion.count() > 0, "La parada no ofrece la línea configurada para la prueba"
     suggestion.first.click()
-    assert page.locator("#lineNumber").input_value() == line_number
 
-    page.locator("#addButton").click()
     card = page.locator('[id="%s-%s"]' % (stop_number, line_number))
     page.wait_for_selector('[id="%s-%s"] .linea h3' % (stop_number, line_number), timeout=timeout_ms)
     page.wait_for_selector(
@@ -206,7 +208,7 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
     style = page.evaluate(
         "() => fetch('/css/style.css', {cache: 'no-store'}).then(response => response.text())"
     )
-    positions = [style.index('"' + block + '"') for block in CSS_BLOCKS]
+    positions = [style.index('"' + block) for block in CSS_BLOCKS]
     assert positions == sorted(positions), "El agregador CSS no conserva el orden funcional"
     assert len(style.splitlines()) < 40, "style.css debe ser solo el agregador de imports"
 
@@ -219,8 +221,7 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
             } catch (_) {
                 return false;
             }
-        }""",
-        timeout=timeout_ms,
+        }"""
     )
     worker_url = page.evaluate(
         """async () => (await navigator.serviceWorker.ready).active.scriptURL"""
@@ -232,7 +233,63 @@ def test_boot_contract(result: BrowserPage, base_url: str, timeout_ms: int) -> N
     assert "addEventListener('fetch'" not in worker_source
     assert "respondWith" not in worker_source
     assert "cache.addAll" not in worker_source
+    assert_no_browser_errors(result)
 
+
+def test_stop_search_tolerates_spacing_and_connectives(result: BrowserPage) -> None:
+    """Search accepts accents, repeated spaces and optional street connectors."""
+    page = result.page
+    search_results = page.evaluate(
+        """async () => {
+            const originalLoadBusStops = window.loadBusStops;
+            window.loadBusStops = async () => [
+                {parada: {numero: '805', nombre: 'Avenida Gijón 1 esquina Plaza San Bartolomé'}},
+                {parada: {numero: '696', nombre: 'Avenida Gijón 3 frente Canal'}},
+            ];
+
+            try {
+                const queries = ['avenida de Gijón', 'avenida Gijón', 'avenida    gijon'];
+                const matches = {};
+                for (const query of queries) {
+                    matches[query] = (await searchByStopNumber(query))
+                        .map(stop => stop.parada.numero);
+                }
+                return matches;
+            } finally {
+                window.loadBusStops = originalLoadBusStops;
+            }
+        }"""
+    )
+    assert set(search_results["avenida de Gijón"]) == {"805", "696"}
+    assert set(search_results["avenida Gijón"]) == {"805", "696"}
+    assert set(search_results["avenida    gijon"]) == {"805", "696"}
+    assert_no_browser_errors(result)
+
+
+def test_tracking_first_entry_dialog(result: BrowserPage) -> None:
+    page = result.page
+    dialog = page.locator("#overlay-ride-tracking-20260811")
+
+    assert not dialog.is_visible(), "El diálogo no debe aparecer sin líneas añadidas"
+    page.evaluate(
+        "() => { localStorage.setItem('busLines', JSON.stringify([{linea: '1', parada: '1043'}])); showOverlayIfNotClosed('overlay-ride-tracking-20260811'); }"
+    )
+    assert dialog.is_visible(), "El diálogo de seguimiento no aparece"
+    assert "seguimiento en directo" in dialog.inner_text().lower()
+    assert "pulsa" in dialog.inner_text().lower()
+    tip_image = dialog.locator(".ride-tracking-tip-image")
+    assert tip_image.is_visible(), "La captura del botón Seguir no aparece"
+    assert tip_image.get_attribute("src", timeout=1000).endswith("img/overlays/ride-tracking-follow.jpg")
+    assert dialog.locator(".close-overlay").inner_text() == "Entendido"
+
+    dialog.locator(".close-overlay").click()
+    assert not dialog.is_visible(), "Cerrar el diálogo no lo oculta"
+    assert page.evaluate(
+        "() => localStorage.getItem('overlayClosed_overlay-ride-tracking-20260811') === 'true'"
+    )
+
+    page.evaluate("() => showOverlayIfNotClosed('overlay-ride-tracking-20260811')")
+    assert not dialog.is_visible(), "El diálogo aceptado vuelve a aparecer"
     assert_no_browser_errors(result)
 
 
@@ -404,12 +461,69 @@ def test_live_search_line_and_map(
     assert page.locator("#busMap .leaflet-marker-icon").count() > 0, (
         "El mapa no cargó las paradas/marcadores del viaje"
     )
+    assert page.locator("#busMap .ride-map-marker--board").count() == 1, (
+        "La parada de subida no usa el marcador de usuario/parada"
+    )
+    assert page.locator("#busMap .ride-map-marker--board svg path[fill-rule='evenodd']").count() == 1, (
+        "La parada de subida no usa un pin de ubicación"
+    )
+    board_color = page.locator("#busMap .ride-map-marker--board").evaluate(
+        """(element, line) => {
+            const probe = document.createElement('span');
+            probe.className = `linea-${line}`;
+            document.body.appendChild(probe);
+            const result = {
+                marker: getComputedStyle(element).backgroundColor,
+                line: getComputedStyle(probe).backgroundColor
+            };
+            probe.remove();
+            return result;
+        }""",
+        line_number,
+    )
+    assert board_color["marker"] == board_color["line"], board_color
+    board_visible_during_tracking = page.evaluate(
+        """(line) => {
+            const container = document.querySelector('#mapContainer');
+            container.classList.add('ride-tracking-active');
+            window.actualizarParada({
+                latitud: 41.652,
+                longitud: -4.724,
+                nombre: 'Parada de subida'
+            }, line);
+            const visible = document.querySelectorAll('#busMap .ride-map-marker--board').length;
+            container.classList.remove('ride-tracking-active');
+            return visible;
+        }""",
+        line_number,
+    )
+    assert board_visible_during_tracking == 1, (
+        "La parada de subida desaparece al abrir el seguimiento"
+    )
     assert page.locator("#busMap .leaflet-overlay-pane path.%s" % line_class).count() > 0, (
         "El mapa no cargó la geometría de la ruta"
     )
     assert page.locator("#busMapLastUpdate").inner_text().strip(), (
         "El mapa no muestra el estado de ubicación"
     )
+    assert page.locator("#mapFollowFreshness").count() == 1, (
+        "La tarjeta del mapa no tiene el estado de actualización"
+    )
+    freshness_styles = page.locator("#mapFollowFreshness").evaluate(
+        """element => {
+            const strong = element.querySelector('strong');
+            const style = getComputedStyle(element);
+            const strongStyle = strong ? getComputedStyle(strong) : style;
+            return {
+                fontSize: style.fontSize,
+                fontWeight: style.fontWeight,
+                strongFontSize: strongStyle.fontSize,
+                strongFontWeight: strongStyle.fontWeight
+            };
+        }"""
+    )
+    assert freshness_styles["strongFontSize"] == freshness_styles["fontSize"]
+    assert int(freshness_styles["strongFontWeight"]) <= 600
 
     # Si hay un bus en tiempo real, el popup muestra la matrícula/identificador
     # y su cierre usa internamente el enlace `#close` de Leaflet. Si el API no
@@ -417,6 +531,12 @@ def test_live_search_line_and_map(
     # estado sin datos y se mantiene el resto de la prueba del mapa.
     bus_markers = page.locator("#busMap .bus-icon")
     if bus_markers.count() > 0:
+        assert page.evaluate(
+            """() => {
+                const glyph = document.querySelector('#busMap .bus-icon-glyph');
+                return !glyph || getComputedStyle(glyph).display === 'none';
+            }"""
+        ), "El marcador general no debe mostrar el pictograma de bus"
         bus_markers.first.click()
         page.wait_for_selector("#busMap .leaflet-popup", state="visible", timeout=timeout_ms)
         popup = page.locator("#busMap .leaflet-popup")
@@ -438,6 +558,925 @@ def test_live_search_line_and_map(
 
     page.locator("#mapContainer .map-close").click()
     page.wait_for_function("() => !document.querySelector('#mapContainer').classList.contains('show')")
+    assert_no_browser_errors(result)
+
+
+def test_ride_tracking_entry_points(result: BrowserPage) -> None:
+    """The compact panel action and the map action share one tracking entry point."""
+    page = result.page
+    snapshot = page.evaluate(
+        """async () => {
+            const received = [];
+            const originalStart = window.rideTracking.start;
+            window.rideTracking.start = context => received.push(context);
+
+            const arrival = new Date(Date.now() + 120000).toISOString();
+            const trackingBus = {
+                trip_id: 'mvp-trip',
+                scheduled: {
+                    tripId: 'mvp-trip',
+                    fechaHoraLlegada: arrival,
+                    destino: 'Destino MVP'
+                },
+                realTime: {
+                    tripId: 'mvp-trip',
+                    vehicleId: 'vehicle-mvp',
+                    matricula: '1234-ABC',
+                    fechaHoraLlegada: arrival
+                }
+            };
+
+            const panel = await createInfoPanel([], '666', '2', trackingBus);
+            const panelButton = panel.querySelector('.ride-follow-button');
+            panelButton.click();
+
+            // Renderiza el estado expandido en una tarjeta real para poder
+            // revisar visualmente el nuevo primer botón del panel.
+            const preview = document.createElement('div');
+            preview.id = 'rideTrackingPreview';
+            preview.className = 'line-info';
+            preview.innerHTML = `
+                <div class="linea"><h3>1</h3></div>
+                <div class="trip-info"><div class="ocupacion"></div><div class="ruta"><p class="destino">COVARESA</p><span class="diferencia">retraso 2 min</span></div></div>
+                <div class="hora-tiempo"><div class="tiempo">2 <p>min</p></div><div class="horaLlegada">19:06</div></div>
+            `;
+            preview.appendChild(panel);
+            document.body.appendChild(preview);
+            panel.classList.add('open');
+            await new Promise(resolve => requestAnimationFrame(resolve));
+
+            window.rideTracking.setMapContext({
+                tripId: 'map-trip',
+                lineNumber: '2',
+                stopNumber: '666',
+                stopName: 'Parada MVP',
+                stopLatitud: 41.652,
+                stopLongitud: -4.724
+            });
+            const mapButton = document.querySelector('#mapFollowButton');
+            mapButton.click();
+
+            const originalOpenTripMap = window.openTripMap;
+            const rowMapContexts = [];
+            window.openTripMap = context => rowMapContexts.push(context);
+            const rowArrival = '2030-01-01T20:10:00.000Z';
+            const row = document.createElement('div');
+            row.className = 'line-info';
+            row.innerHTML = `
+                <div class="linea" data-trip-id="row-trip"><h3>2</h3></div>
+                <div class="trip-info"><div class="ocupacion"></div><div class="ruta"><p class="destino">Destino fila</p></div></div>
+                <div class="hora-tiempo"><div class="tiempo">3 <p>min</p></div><div class="horaLlegada">20:10</div></div>
+            `;
+            document.body.appendChild(row);
+            addEventListeners(row, {
+                parada: [{latitud: 41.652, longitud: -4.724, parada: 'Parada fila'}],
+                lineas: [{linea: '2', horarios: [{trip_id: 'row-trip', fechaHoraLlegada: rowArrival, destino: 'Destino fila'}]}]
+            }, '2', '666');
+            row.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+            row.remove();
+            window.openTripMap = originalOpenTripMap;
+
+            window.rideTracking.start = originalStart;
+            await new Promise(resolve => setTimeout(resolve, 650));
+            return {
+                panelText: panelButton.textContent.trim(),
+                panelLabel: panelButton.getAttribute('aria-label'),
+                mapVisible: !mapButton.hidden,
+                receivedTrips: received.map(context => context.tripId),
+                rowArrivalTime: rowMapContexts[0]?.arrivalTime || ''
+            };
+        }"""
+    )
+    page.locator('#rideTrackingPreview').screenshot(path="/tmp/vallabus-ride-panel.png")
+    page.locator('#rideTrackingPreview').evaluate("element => element.remove()")
+    assert snapshot["panelText"] == "Seguir"
+    assert snapshot["panelLabel"].startswith("Seguir bus de las ")
+    assert snapshot["panelLabel"].endswith(" hacia Destino MVP")
+    assert snapshot["mapVisible"] is True
+    assert snapshot["receivedTrips"] == ["mvp-trip", "map-trip"]
+    assert snapshot["rowArrivalTime"] == "2030-01-01T20:10:00.000Z"
+    assert_no_browser_errors(result)
+
+
+def test_ride_tracking_onboarding(result: BrowserPage) -> None:
+    """The first-time experience teaches the real action once and can start it."""
+    page = result.page
+    page.set_viewport_size({"width": 430, "height": 897})
+    snapshot = page.evaluate(
+        """async () => {
+            window.rideTrackingOnboarding.reset();
+            window.__rideOnboardingReceived = [];
+            window.__rideOnboardingOriginalStart = window.rideTracking.start;
+            window.rideTracking.start = context => window.__rideOnboardingReceived.push(context);
+            const arrival = new Date(Date.now() + 120000).toISOString();
+            const panel = await createInfoPanel([], '1043', '1', {
+                trip_id: 'onboarding-trip',
+                scheduled: {
+                    tripId: 'onboarding-trip',
+                    fechaHoraLlegada: arrival,
+                    destino: 'B. España'
+                }
+            });
+            const preview = document.createElement('div');
+            preview.id = 'rideOnboardingPreview';
+            preview.className = 'line-info';
+            preview.style.cssText = 'position:fixed;left:16px;right:16px;top:160px;z-index:1200;background:#fff;';
+            preview.innerHTML = `
+                <div class="linea"><h3>1</h3></div>
+                <div class="trip-info"><div class="ruta"><p class="destino">B. ESPAÑA</p></div></div>
+                <div class="hora-tiempo"><div class="tiempo">2 <p>min</p></div></div>`;
+            preview.appendChild(panel);
+            document.body.appendChild(preview);
+            panel.querySelector('.arrow-button').click();
+            await new Promise(resolve => setTimeout(resolve, 620));
+            const followRect = panel.querySelector('.ride-follow-button').getBoundingClientRect();
+            const spotlightRect = document.querySelector('.ride-onboarding-spotlight').getBoundingClientRect();
+            const closeStyles = getComputedStyle(document.querySelector('#rideTrackingClose'));
+            const stopStyles = getComputedStyle(document.querySelector('.ride-stop-icon'));
+            return {
+                title: document.querySelector('#rideOnboardingTitle')?.textContent || '',
+                body: document.querySelector('.ride-onboarding > p:not(.ride-onboarding-eyebrow)')?.textContent || '',
+                primary: document.querySelector('.ride-onboarding-primary')?.textContent || '',
+                secondary: document.querySelector('.ride-onboarding-secondary')?.textContent || '',
+                targetAligned: Math.abs((followRect.left - 6) - spotlightRect.left) < 2
+                    && Math.abs((followRect.top - 6) - spotlightRect.top) < 2,
+                closeSize: [closeStyles.minWidth, closeStyles.height],
+                closeLabel: document.querySelector('#rideTrackingClose')?.textContent.trim() || '',
+                stopSize: [stopStyles.width, stopStyles.height]
+            };
+        }"""
+    )
+    page.screenshot(
+        path=str(ROOT / "screenshots" / "ride-demo" / "07-onboarding-seguimiento.png"),
+        full_page=False,
+    )
+    page.locator(".ride-onboarding-primary").click()
+    after_primary = page.evaluate(
+        """() => ({
+            seen: localStorage.getItem('vallabus.rideTrackingOnboarding.v1'),
+            dialogCount: document.querySelectorAll('.ride-onboarding').length,
+            receivedTrip: window.__rideOnboardingReceived?.[0]?.tripId || ''
+        })"""
+    )
+    # The wrapped start recorded the context in the page closure; verify the
+    # visible side effects and then exercise the dismissal/no-repeat contract.
+    assert snapshot["title"] == "Tu viaje, parada a parada"
+    assert snapshot["body"] == "Consulta por dónde va el bus y recibe un aviso antes de llegar a tu destino."
+    assert snapshot["primary"] == "Seguir este bus"
+    assert snapshot["secondary"] == "Ahora no"
+    assert snapshot["targetAligned"] is True
+    assert snapshot["closeSize"] == ["44px", "44px"]
+    assert snapshot["closeLabel"] == "Parar seguimiento"
+    assert snapshot["stopSize"] == ["36px", "36px"]
+    assert after_primary["seen"] == "seen"
+    assert after_primary["dialogCount"] == 0
+    assert after_primary["receivedTrip"] == "onboarding-trip"
+    page.evaluate(
+        """() => {
+            window.rideTrackingOnboarding.reset();
+            const button = document.querySelector('#rideOnboardingPreview .ride-follow-button');
+            window.rideTrackingOnboarding.consider(button);
+        }"""
+    )
+    page.wait_for_selector(".ride-onboarding", state="visible")
+    page.locator(".ride-onboarding-secondary").click()
+    page.evaluate(
+        """() => window.rideTrackingOnboarding.consider(
+            document.querySelector('#rideOnboardingPreview .ride-follow-button')
+        )"""
+    )
+    page.wait_for_timeout(50)
+    assert page.locator(".ride-onboarding").count() == 0
+    page.evaluate(
+        """() => {
+            if (window.__rideOnboardingOriginalStart) {
+                window.rideTracking.start = window.__rideOnboardingOriginalStart;
+            }
+            delete window.__rideOnboardingOriginalStart;
+            delete window.__rideOnboardingReceived;
+            document.querySelector('#rideOnboardingPreview')?.remove();
+        }"""
+    )
+    assert_no_browser_errors(result)
+
+
+def test_ride_tracking_session(result: BrowserPage, timeout_ms: int) -> None:
+    """The foreground MVP can load a route, select a stop and enter onboard state."""
+    page = result.page
+    page.set_viewport_size({"width": 430, "height": 897})
+    route_data = {
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [-4.7240, 41.6520],
+                    [-4.7230, 41.6530],
+                    [-4.7220, 41.6540],
+                    [-4.7210, 41.6550],
+                ],
+            },
+            "properties": {},
+        }],
+    }
+    stops_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7240, 41.6520]},
+                "properties": {"stop_code": "BOARD", "stop_name": "Subida"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7237, 41.6524]},
+                "properties": {"stop_code": "NEXT1", "stop_name": "Primera parada"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7234, 41.6527]},
+                "properties": {"stop_code": "NEXT2", "stop_name": "Segunda parada"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7220, 41.6540]},
+                "properties": {"stop_code": "DEST", "stop_name": "Destino"},
+            },
+        ],
+    }
+
+    page.route(
+        "**/v2/geojson/**",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(stops_data if "/paradas/" in route.request.url else route_data),
+        ),
+    )
+
+    snapshot = page.evaluate(
+        """async () => {
+            const originalOpenMap = window.openTripMap;
+            const originalLoadBusStops = window.loadBusStops;
+            const originalWatchPosition = navigator.geolocation.watchPosition;
+            const originalClearWatch = navigator.geolocation.clearWatch;
+            let gpsCallback = null;
+            let gpsErrorCallback = null;
+
+            window.openTripMap = () => true;
+            document.querySelector('#busMapLastUpdate').innerHTML = 'Última ubicación <strong>aproximada</strong>. Actualizada hace 12s';
+            window.loadBusStops = async () => [{
+                parada: {numero: 'BOARD', nombre: 'Subida'},
+                ubicacion: {x: -4.7240, y: 41.6520}
+            }];
+            navigator.geolocation.watchPosition = (callback, errorCallback) => {
+                gpsCallback = callback;
+                gpsErrorCallback = errorCallback;
+                return 4321;
+            };
+            navigator.geolocation.clearWatch = () => {};
+
+            try {
+                await window.rideTracking.start({
+                    tripId: 'mvp-session',
+                    lineNumber: '2',
+                    stopNumber: 'BOARD',
+                    stopName: 'Subida',
+                    stopLatitud: 41.6520,
+                    stopLongitud: -4.7240,
+                    arrivalTime: new Date(Date.now() + 5 * 60000).toISOString()
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 150));
+                if (gpsErrorCallback) gpsErrorCallback({code: 1});
+                const waitingWithGpsError = {
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    lastUpdate: document.querySelector('#rideTrackingLastUpdate')?.textContent || '',
+                    hint: document.querySelector('#rideTrackingLocationHint')?.textContent || '',
+                    hintHidden: document.querySelector('#rideTrackingLocationHint')?.hidden
+                };
+                window.rideTracking.onBusPosition(null, {tripId: 'mvp-session'});
+                const waitingWithUnavailableBus = {
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    hint: document.querySelector('#rideTrackingLocationHint')?.textContent || '',
+                    hintHidden: document.querySelector('#rideTrackingLocationHint')?.hidden
+                };
+                window.rideTracking.onBusPosition({
+                    latitud: 41.6520,
+                    longitud: -4.7240,
+                    timestamp: Date.now()
+                }, {tripId: 'mvp-session'});
+                const manualWithoutGps = {
+                    phase: window.rideTracking.getState().phase,
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    metric: document.querySelector('#rideTrackingMetricValue')?.textContent || '',
+                    button: document.querySelector('#rideBoardButton')?.textContent || '',
+                    buttonHidden: document.querySelector('#rideBoardButton')?.hidden
+                };
+                window.rideTracking.onBusPosition(null, {tripId: 'mvp-session'});
+                if (gpsCallback) {
+                    gpsCallback({
+                        coords: {latitude: 41.6520, longitude: -4.7240, accuracy: 8, speed: 0},
+                        timestamp: Date.now()
+                    });
+                }
+                const userMarkerVisible = Boolean(document.querySelector('#busMap .ride-map-marker--user'));
+
+                await new Promise(resolve => setTimeout(resolve, 150));
+                const select = document.querySelector('#rideDestinationSelect');
+                select.value = 'DEST';
+                select.dispatchEvent(new Event('change', {bubbles: true}));
+                const destinationMarkerVisible = Boolean(document.querySelector('#busMap .ride-map-marker--destination'));
+                window.rideTracking.onBusPosition({
+                    latitud: 41.6520,
+                    longitud: -4.7240,
+                    timestamp: Date.now()
+                }, {tripId: 'mvp-session'});
+                const beforeBoarding = {
+                    phase: window.rideTracking.getState().phase,
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    button: document.querySelector('#rideBoardButton')?.textContent || '',
+                    buttonHidden: document.querySelector('#rideBoardButton')?.hidden
+                };
+                document.querySelector('#rideBoardButton').click();
+                const afterBoarding = {
+                    phase: window.rideTracking.getState().phase,
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    button: document.querySelector('#rideBoardButton')?.textContent || '',
+                    buttonHidden: document.querySelector('#rideBoardButton')?.hidden
+                };
+
+                window.rideTracking.onBusPosition({
+                    latitud: 41.6522,
+                    longitud: -4.7238,
+                    timestamp: Date.now()
+                }, {tripId: 'mvp-session'});
+
+                const onboard = {
+                    phase: window.rideTracking.getState().phase,
+                    destination: window.rideTracking.getState().destination?.name || '',
+                    hasNextStop: Boolean(window.rideTracking.getState().nextStop),
+                    panelVisible: !document.querySelector('#rideTrackingPanel').hidden,
+                    boardHidden: document.querySelector('#rideBoardButton').hidden,
+                    fullMap: document.querySelector('#mapContainer').classList.contains('ride-tracking-active'),
+                    userMarkerVisible,
+                    userMarkerVisibleAfterBoarding: Boolean(document.querySelector('#busMap .ride-map-marker--user')),
+                    destinationMarkerVisible,
+                    beforeBoarding,
+                    legacyTimelineCount: document.querySelectorAll('.ride-timeline').length,
+                    legacyAlertCount: document.querySelectorAll('#rideTrackingDestinationAlert, #rideTrackingAlertDetails').length,
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                    remaining: document.querySelector('#rideTrackingRemainingValue')?.textContent || '',
+                    metric: document.querySelector('#rideTrackingMetricValue')?.textContent || '',
+                    metricLabel: document.querySelector('#rideTrackingMetricLabel')?.textContent || '',
+                };
+
+                return {
+                    waitingWithGpsError,
+                    waitingWithUnavailableBus,
+                    manualWithoutGps,
+                    onboard,
+                    afterBoarding
+                };
+            } finally {
+                window.openTripMap = originalOpenMap;
+                window.loadBusStops = originalLoadBusStops;
+                navigator.geolocation.watchPosition = originalWatchPosition;
+                navigator.geolocation.clearWatch = originalClearWatch;
+            }
+        }"""
+    )
+    page.screenshot(
+        path=str(ROOT / "screenshots" / "playwright" / "ride-tracking-onboard.png"),
+        full_page=False,
+    )
+    follow_up = page.evaluate(
+        """() => {
+            window.rideTracking.onBusPosition({
+                latitud: 41.6530,
+                longitud: -4.7230,
+                timestamp: Date.now() + 1000
+            }, {tripId: 'mvp-session'});
+            const nearDestination = {
+                remaining: window.rideTracking.getState().remainingStops,
+                status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                metric: document.querySelector('#rideTrackingMetricValue')?.textContent || '',
+                legacyAlertCount: document.querySelectorAll('#rideTrackingDestinationAlert, #rideTrackingAlertDetails').length,
+            };
+            return nearDestination;
+        }"""
+    )
+    page.screenshot(
+        path=str(ROOT / "screenshots" / "playwright" / "ride-tracking-alert.png"),
+        full_page=False,
+    )
+    snapshot.update({"nearDestination": follow_up})
+    snapshot.update(page.evaluate(
+        """() => {
+            window.rideTracking.onBusPosition(null, {tripId: 'mvp-session'});
+            const unavailable = {
+                status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                summaryHidden: document.querySelector('.ride-tracking-metric')?.hidden
+            };
+            window.rideTracking.onBusPosition({
+                latitud: 41.6540,
+                longitud: -4.7220,
+                timestamp: Date.now() + 10000
+            }, {tripId: 'mvp-session'});
+            return {
+                unavailable,
+                arrived: {
+                    phase: window.rideTracking.getState().phase,
+                    nextStop: window.rideTracking.getState().nextStop,
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    destinationStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                    panelVisible: !document.querySelector('#rideTrackingPanel').hidden,
+                    destinationHidden: document.querySelector('.ride-destination-field')?.hidden
+                }
+            };
+        }"""
+    ))
+    page.evaluate("() => window.rideTracking.stop('test', {silent: true})")
+    assert snapshot["waitingWithGpsError"]["status"] == "Esperando al bus", json.dumps(snapshot["waitingWithGpsError"], ensure_ascii=False)
+    assert snapshot["waitingWithGpsError"]["lastUpdate"] == "Actualizada hace 12s"
+    assert snapshot["waitingWithGpsError"]["hint"] == "La ubicación ayuda a detectar el trayecto, pero puedes confirmarlo manualmente."
+    assert snapshot["waitingWithGpsError"]["hintHidden"] is False
+    assert snapshot["waitingWithUnavailableBus"]["status"] == "Esperando al bus", json.dumps(snapshot["waitingWithUnavailableBus"], ensure_ascii=False)
+    assert snapshot["waitingWithUnavailableBus"]["hint"] == "La ubicación ayuda a detectar el trayecto, pero puedes confirmarlo manualmente."
+    assert snapshot["waitingWithUnavailableBus"]["hintHidden"] is False
+    assert snapshot["manualWithoutGps"] == {
+        "phase": "waiting",
+        "status": "El bus está en tu parada",
+        "metric": "Ahora",
+        "button": "Ya estoy dentro",
+        "buttonHidden": False,
+    }
+    assert snapshot["afterBoarding"] == {
+        "phase": "onboard",
+        "status": "Próxima parada",
+        "button": "Sí, estoy dentro",
+        "buttonHidden": True,
+    }
+    onboard_snapshot = {
+        key: value for key, value in snapshot["onboard"].items()
+        if key not in {"metric", "metricLabel"}
+    }
+    assert onboard_snapshot == {
+            "phase": "onboard",
+            "destination": "Destino",
+            "hasNextStop": True,
+            "panelVisible": True,
+            "boardHidden": True,
+            "fullMap": True,
+            "userMarkerVisible": True,
+            "userMarkerVisibleAfterBoarding": True,
+            "destinationMarkerVisible": True,
+            "beforeBoarding": {
+                "phase": "waiting",
+                "status": "El bus está en tu parada",
+                "button": "Ya estoy dentro",
+                "buttonHidden": False,
+            },
+            "legacyTimelineCount": 0,
+            "legacyAlertCount": 0,
+            "status": "Próxima parada",
+            "nextStop": "Primera parada",
+            "remaining": "3",
+        }, json.dumps(snapshot["onboard"], ensure_ascii=False, indent=2)
+    assert re.fullmatch(r"~\d+", snapshot["onboard"]["metric"])
+    assert snapshot["onboard"]["metricLabel"] == "min"
+    assert snapshot["nearDestination"] == {
+            "remaining": 3,
+            "status": "Próxima parada",
+            "nextStop": "Primera parada",
+            "metric": "~1",
+            "legacyAlertCount": 0,
+    }
+    assert snapshot["unavailable"] == {
+            "status": "Próxima parada",
+            "summaryHidden": False,
+    }, json.dumps(snapshot["unavailable"], ensure_ascii=False)
+    assert snapshot["arrived"]["phase"] == "onboard"
+    assert snapshot["arrived"]["nextStop"]["name"] == "Primera parada"
+    assert snapshot["arrived"]["status"] == "Próxima parada"
+    assert snapshot["arrived"]["destinationStop"] == "Primera parada"
+    assert snapshot["arrived"]["panelVisible"] is True
+    assert snapshot["arrived"]["destinationHidden"] is False
+    assert_no_browser_errors(result)
+
+
+def test_ride_tracking_bus_already_passed(result: BrowserPage, timeout_ms: int) -> None:
+    """A bus past the boarding stop must not look like a one-minute wait."""
+    page = result.page
+    page.set_viewport_size({"width": 430, "height": 897})
+    route_data = {
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [-4.7240, 41.6520],
+                    [-4.7230, 41.6530],
+                    [-4.7215, 41.6545],
+                    [-4.7200, 41.6560],
+                ],
+            },
+            "properties": {},
+        }],
+    }
+    stops_data = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7240, 41.6520]},
+                "properties": {"stop_code": "BOARD", "stop_name": "Parada de subida"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7215, 41.6545]},
+                "properties": {"stop_code": "NEXT", "stop_name": "Siguiente parada real"},
+            },
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [-4.7200, 41.6560]},
+                "properties": {"stop_code": "DEST", "stop_name": "Destino final"},
+            },
+        ],
+    }
+
+    page.route(
+        "**/v2/geojson/**",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(stops_data if "/paradas/" in route.request.url else route_data),
+        ),
+    )
+
+    snapshot = page.evaluate(
+        """async () => {
+            const originalOpenMap = window.openTripMap;
+            const originalWatchPosition = navigator.geolocation.watchPosition;
+            const originalClearWatch = navigator.geolocation.clearWatch;
+            window.openTripMap = () => true;
+            navigator.geolocation.watchPosition = () => 7777;
+            navigator.geolocation.clearWatch = () => {};
+
+            try {
+                await window.rideTracking.start({
+                    tripId: 'passed-trip',
+                    lineNumber: '1',
+                    stopNumber: 'BOARD',
+                    stopName: 'Parada de subida',
+                    stopLatitud: 41.6520,
+                    stopLongitud: -4.7240,
+                    etaLabel: '1 min',
+                    arrivalTime: new Date(Date.now() + 60000).toISOString()
+                });
+                await new Promise(resolve => setTimeout(resolve, 150));
+
+                // El bus está más de 100 m después de la parada seleccionada.
+                window.rideTracking.onBusPosition({
+                    latitud: 41.6530,
+                    longitud: -4.7230,
+                    timestamp: Date.now()
+                }, {tripId: 'passed-trip'});
+
+                const beforeManualBoarding = {
+                    phase: window.rideTracking.getState().phase,
+                    phaseLabel: document.querySelector('#rideTrackingPhaseLabel')?.textContent || '',
+                    status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                    nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                    metricHidden: document.querySelector('.ride-tracking-metric')?.hidden,
+                    boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+                    boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
+                    hint: document.querySelector('#rideTrackingLocationHint')?.textContent || ''
+                };
+                document.querySelector('#rideBoardButton').click();
+                return {
+                    beforeManualBoarding,
+                    afterManualBoarding: {
+                        phase: window.rideTracking.getState().phase,
+                        status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                        boardHidden: document.querySelector('#rideBoardButton')?.hidden
+                    }
+                };
+            } finally {
+                window.rideTracking.stop('test', {silent: true});
+                window.openTripMap = originalOpenMap;
+                navigator.geolocation.watchPosition = originalWatchPosition;
+                navigator.geolocation.clearWatch = originalClearWatch;
+            }
+        }"""
+    )
+
+    assert snapshot == {
+        "beforeManualBoarding": {
+            "phase": "passed",
+            "phaseLabel": "en ruta",
+            "status": "Este bus ya ha pasado por tu parada",
+            "nextStop": "Siguiente parada real",
+            "metricHidden": True,
+            "boardHidden": False,
+            "boardLabel": "Sí, estoy dentro",
+            "hint": "La ubicación puede tener desfase. Si ya has subido, confírmalo para seguir el viaje.",
+        },
+        "afterManualBoarding": {
+            "phase": "onboard",
+            "status": "Próxima parada",
+            "boardHidden": True,
+        },
+    }, json.dumps(snapshot, ensure_ascii=False, indent=2)
+    assert_no_browser_errors(result)
+
+
+def test_ride_tracking_demo(result: BrowserPage, base_url: str, timeout_ms: int) -> None:
+    """The opt-in simulator exercises every critical travel state without live buses."""
+    page = result.page
+    page.set_viewport_size({"width": 430, "height": 897})
+    page.goto(base_url + "/index.html?rideDemo=1", wait_until="domcontentloaded")
+    page.wait_for_selector("#rideDemoToolbar:not([hidden])", timeout=timeout_ms)
+    page.wait_for_function("() => window.rideTracking?.getState().active === true", timeout=timeout_ms)
+
+    artifact_dir = ROOT / "screenshots" / "ride-demo"
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+
+    def capture(index: int, name: str) -> dict:
+        page.evaluate("index => window.rideTrackingDemo.setState(index)", index)
+        page.wait_for_timeout(120)
+        snapshot = page.evaluate(
+            """() => ({
+                phase: window.rideTracking.getState().phase,
+                status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                alert: document.querySelector('#rideTrackingUrgentAlert')?.textContent || '',
+                nextStop: document.querySelector('#rideTrackingNextStop')?.textContent || '',
+                remaining: document.querySelector('#rideTrackingRemainingValue')?.textContent || '',
+                eta: document.querySelector('#rideTrackingMetricValue')?.textContent || '',
+                arrivalTime: document.querySelector('#rideTrackingArrivalTime')?.textContent || '',
+                freshness: document.querySelector('#rideTrackingLastUpdate')?.textContent || '',
+                boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+                boardLabel: document.querySelector('#rideBoardButton')?.textContent || '',
+                destination: document.querySelector('#rideDestinationValue')?.textContent || '',
+                lineLabelColor: getComputedStyle(document.querySelector('#rideTrackingLineLabel')).color,
+                closeLabel: document.querySelector('#rideTrackingClose')?.textContent.trim() || '',
+                mapTouchAction: getComputedStyle(document.querySelector('#busMap')).touchAction,
+                busGlyph: Boolean(document.querySelector('#busMap .bus-icon-glyph')),
+                busGlyphColor: document.querySelector('#busMap .bus-icon-glyph')
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon-glyph')).fill
+                    : '',
+                busMarkerColor: document.querySelector('#busMap .bus-icon')
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon')).backgroundColor
+                    : '',
+                busMarkerWidth: document.querySelector('#busMap .bus-icon')?.getBoundingClientRect().width || 0,
+                busMarkerVisible: document.querySelector('#busMap .bus-icon')
+                    ? getComputedStyle(document.querySelector('#busMap .bus-icon')).display !== 'none'
+                    : false,
+                userMarkerVisible: Boolean(document.querySelector('#busMap .ride-map-marker--user')),
+                panelOverflow: document.querySelector('#rideTrackingPanel').scrollWidth > document.querySelector('#rideTrackingPanel').clientWidth
+            })"""
+        )
+        page.screenshot(path=str(artifact_dir / name), full_page=False)
+        assert snapshot["panelOverflow"] is False, json.dumps(snapshot, ensure_ascii=False)
+        return snapshot
+
+    waiting = capture(0, "01-esperando.png")
+
+    # La hora ISO es la fuente de la cuenta atrás, aunque la etiqueta de la
+    # ficha tuviera un redondeo distinto cuando se abrió el seguimiento.
+    eta_mismatch = page.evaluate(
+        """() => {
+            window.rideTracking.applyDemoState({
+                phase: 'waiting',
+                bus: null,
+                destinationKey: null,
+                etaLabel: '1 min',
+                arrivalTime: new Date(Date.now() + 185000).toISOString(),
+                lastUpdate: 'Última comprobación hace 1s'
+            });
+            return {
+                status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+                boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+                metric: document.querySelector('#rideTrackingMetricValue')?.textContent || ''
+            };
+        }"""
+    )
+    assert eta_mismatch["status"] == "Esperando al bus", json.dumps(eta_mismatch, ensure_ascii=False)
+    assert eta_mismatch["boardHidden"] is True, json.dumps(eta_mismatch, ensure_ascii=False)
+    assert eta_mismatch["metric"] == "3", json.dumps(eta_mismatch, ensure_ascii=False)
+
+    countdown = page.evaluate(
+        """async () => {
+            const nativeNow = Date.now;
+            let fakeNow = nativeNow();
+            Date.now = () => fakeNow;
+            try {
+                window.rideTracking.applyDemoState({
+                    phase: 'waiting',
+                    bus: null,
+                    destinationKey: null,
+                    etaLabel: '4 min',
+                    arrivalTime: new Date(fakeNow + 239000).toISOString(),
+                    lastUpdate: 'Última comprobación hace 1s'
+                });
+                const before = document.querySelector('#rideTrackingMetricValue')?.textContent || '';
+                fakeNow += 61000;
+                window.rideTracking.applyDemoState({phase: 'waiting'});
+                const after = document.querySelector('#rideTrackingMetricValue')?.textContent || '';
+                return {before, after};
+            } finally {
+                Date.now = nativeNow;
+            }
+        }"""
+    )
+    assert countdown == {"before": "3", "after": "2"}, json.dumps(countdown, ensure_ascii=False)
+
+    # El grabador se comporta como un gesto vertical, no como un botón
+    # ambiguo en el borde de la hoja.
+    handle_box = page.locator("#rideSheetToggle").bounding_box()
+    assert handle_box, "Falta el área táctil del grabador"
+    handle_x = handle_box["x"] + handle_box["width"] / 2
+    handle_y = handle_box["y"] + handle_box["height"] / 2
+    page.mouse.move(handle_x, handle_y)
+    page.mouse.down()
+    page.mouse.move(handle_x, handle_y + 72, steps=4)
+    page.mouse.up()
+    page.wait_for_timeout(120)
+    assert "is-collapsed" in page.locator("#rideTrackingPanel").get_attribute("class")
+
+    handle_box = page.locator("#rideSheetToggle").bounding_box()
+    handle_x = handle_box["x"] + handle_box["width"] / 2
+    handle_y = handle_box["y"] + handle_box["height"] / 2
+    page.mouse.move(handle_x, handle_y)
+    page.mouse.down()
+    page.mouse.move(handle_x, handle_y - 72, steps=4)
+    page.mouse.up()
+    page.wait_for_timeout(160)
+    assert "is-collapsed" not in page.locator("#rideTrackingPanel").get_attribute("class")
+
+    # Un desplazamiento manual no se pierde cuando llega una nueva posición
+    # del bus: el seguimiento actualiza el marcador, no la cámara.
+    center_before_drag = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    page.mouse.move(220, 150)
+    page.mouse.down()
+    page.mouse.move(175, 205, steps=5)
+    page.mouse.up()
+    # Leaflet conserva inercia después del gesto; esperamos a que la cámara
+    # se estabilice para comparar contra la siguiente actualización del bus.
+    page.wait_for_timeout(700)
+    center_after_drag = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    assert abs(center_after_drag["lat"] - center_before_drag["lat"]) > 0.00001 or abs(
+        center_after_drag["lng"] - center_before_drag["lng"]
+    ) > 0.00001
+    page.evaluate("() => window.rideTrackingDemo.setState(1)")
+    page.wait_for_timeout(180)
+    assert page.locator("#rideTrackingStatus").inner_text() == "El bus está llegando"
+    assert page.locator("#rideBoardButton").is_visible()
+    assert page.locator("#rideBoardButton").inner_text() == "Sí, estoy dentro"
+    center_after_update = page.evaluate(
+        """() => { const center = window.vallabusMap.getCenter(); return {lat: center.lat, lng: center.lng}; }"""
+    )
+    assert abs(center_after_update["lat"] - center_after_drag["lat"]) < 0.00002
+    assert abs(center_after_update["lng"] - center_after_drag["lng"]) < 0.00002
+
+    page.locator("#rideDestinationButton").click()
+    page.wait_for_timeout(80)
+    destination_options = page.locator("#rideDestinationOptions .ride-destination-option")
+    assert destination_options.count() == 4
+    assert "Paseo Zorrilla 203" not in page.locator("#rideDestinationOptions").inner_text()
+    assert destination_options.locator("small").all_text_contents() == [
+        "1 parada · ~2 min",
+        "2 paradas · ~4 min",
+        "3 paradas · ~6 min",
+        "4 paradas · ~8 min",
+    ]
+    assert page.locator("#rideDestinationSearch").evaluate("element => document.activeElement === element") is False
+    active_dialog_element = page.evaluate("() => document.activeElement?.id || document.activeElement?.tagName || ''")
+    assert active_dialog_element == "rideDestinationDialogClose", active_dialog_element
+    assert page.locator("#rideDestinationDialogClose").get_attribute("aria-label") == "Cerrar selector de destino"
+    close_box = page.locator("#rideDestinationDialogClose").bounding_box()
+    assert close_box and close_box["width"] >= 48 and close_box["height"] >= 48
+    page.screenshot(path=str(artifact_dir / "00-selector-destino.png"), full_page=False)
+    page.locator("#rideDestinationDialogClose").click()
+    boarding = capture(2, "02-bus-en-parada.png")
+    onboard = capture(4, "03-en-ruta.png")
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.add('is-collapsed')")
+    collapsed_onboard = page.evaluate(
+        """() => {
+            const nextStop = document.querySelector('#rideTrackingNextStop');
+            const metric = document.querySelector('.ride-tracking-metric');
+            const status = document.querySelector('#rideTrackingStatus');
+            return {
+                nextStopVisible: getComputedStyle(nextStop).display !== 'none',
+                nextStop: nextStop?.textContent || '',
+                metricVisible: getComputedStyle(metric).display !== 'none',
+                metric: metric?.textContent.replace(/\\s+/g, ' ').trim() || '',
+                statusVisible: getComputedStyle(status).display !== 'none'
+            };
+        }"""
+    )
+    page.screenshot(path=str(artifact_dir / "03b-en-ruta-plegado.png"), full_page=False)
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.remove('is-collapsed')")
+    get_off = capture(6, "04-bajate-proxima.png")
+    degraded = capture(7, "05-sin-senal-gps.png")
+    arrived = capture(8, "06-destino.png")
+
+    page.evaluate(
+        """() => window.rideTracking.applyDemoState({
+            phase: 'waiting',
+            bus: null,
+            destinationKey: null,
+            arrivalTime: new Date(Date.now() - 60000).toISOString(),
+            lastUpdate: 'Última comprobación hace 2s. No hay datos de ubicación en directo'
+        })"""
+    )
+    scheduled_only = page.evaluate(
+        """() => ({
+            status: document.querySelector('#rideTrackingStatus')?.textContent || '',
+            metricHidden: document.querySelector('.ride-tracking-metric')?.hidden,
+            boardHidden: document.querySelector('#rideBoardButton')?.hidden,
+            boardLabel: document.querySelector('#rideBoardButton')?.textContent || ''
+        })"""
+    )
+    assert waiting["status"] == "Esperando al bus"
+    assert waiting["eta"] in {"4", "5"}
+    assert waiting["mapTouchAction"] == "pan-x pan-y"
+    assert waiting["busGlyph"] is True
+    assert waiting["busGlyphColor"] == "rgb(255, 255, 255)"
+    assert waiting["busMarkerColor"] == "rgb(94, 189, 90)"
+    assert waiting["busMarkerWidth"] == 48
+    assert waiting["busMarkerVisible"] is True
+    assert waiting["userMarkerVisible"] is True
+    assert waiting["lineLabelColor"] == "rgb(94, 189, 90)"
+    assert waiting["closeLabel"] == "Parar seguimiento"
+    assert boarding["status"] == "El bus está en tu parada"
+    assert boarding["boardHidden"] is False
+    assert boarding["boardLabel"] == "Ya estoy dentro"
+    assert waiting["arrivalTime"] == ""
+    assert onboard["phase"] == "onboard"
+    assert onboard["busMarkerVisible"] is False
+    assert onboard["userMarkerVisible"] is True
+    assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", onboard["arrivalTime"])
+    assert onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
+    assert onboard["remaining"] == "3"
+    assert onboard["destination"] == "Paseo Zorrilla 101 LAVA"
+    assert collapsed_onboard["nextStopVisible"] is True
+    assert collapsed_onboard["nextStop"] == "Paseo Zorrilla 153 frente Centro Comercial"
+    assert collapsed_onboard["metricVisible"] is True
+    assert "3" in collapsed_onboard["metric"] and "min" in collapsed_onboard["metric"]
+    assert collapsed_onboard["statusVisible"] is False
+    assert get_off["status"] == "Bájate en la próxima parada"
+    assert re.fullmatch(r"Hora de llegada: \d{2}:\d{2}", get_off["arrivalTime"])
+    assert get_off["alert"] == "Bájate en la próxima parada"
+    assert get_off["remaining"] == "1"
+    assert "Posición del bus no disponible" in degraded["freshness"]
+    assert degraded["remaining"] == "1"
+    assert arrived["phase"] == "arrived"
+    assert arrived["status"] == "Esta es tu parada"
+    assert arrived["eta"] == "Baja aquí"
+    assert arrived["arrivalTime"] == ""
+    assert scheduled_only == {
+        "status": "El bus está llegando",
+        "metricHidden": True,
+        "boardHidden": False,
+        "boardLabel": "Sí, estoy dentro",
+    }
+    page.locator("#rideTrackingClose").click()
+    stopped_from_header = page.evaluate(
+        """() => ({
+            active: window.rideTracking.getState().active,
+            panelHidden: document.querySelector('#rideTrackingPanel')?.hidden,
+            mapVisible: document.querySelector('#mapContainer')?.classList.contains('show'),
+            followVisible: !document.querySelector('#mapFollowButton')?.hidden,
+            followAction: document.querySelector('#mapFollowButton .map-follow-action')?.textContent || ''
+        })"""
+    )
+    assert stopped_from_header == {
+        "active": False,
+        "panelHidden": True,
+        "mapVisible": False,
+        "followVisible": False,
+        "followAction": "Seguir",
+    }, json.dumps(stopped_from_header, ensure_ascii=False)
+
+    # El estado contraído es solo de esta entrada. Al iniciar de nuevo el
+    # seguimiento, la bandeja debe volver a abrirse para no ocultar contexto.
+    page.evaluate("() => window.rideTrackingDemo.start()")
+    page.wait_for_timeout(180)
+    page.locator("#rideTrackingPanel").evaluate("element => element.classList.add('is-collapsed')")
+    assert "is-collapsed" in page.locator("#rideTrackingPanel").get_attribute("class")
+    page.evaluate("() => window.rideTracking.stop('test', {silent: true})")
+    page.evaluate("() => window.rideTrackingDemo.start()")
+    page.wait_for_timeout(180)
+    assert "is-collapsed" not in page.locator("#rideTrackingPanel").get_attribute("class")
     assert_no_browser_errors(result)
 
 
@@ -686,6 +1725,36 @@ def test_nearby_stops(result: BrowserPage, timeout_ms: int) -> None:
     assert_no_browser_errors(result)
 
 
+def test_nearby_stops_without_geolocation(result: BrowserPage, timeout_ms: int) -> None:
+    page = result.page
+    page.evaluate(
+        """() => {
+            navigator.geolocation.getCurrentPosition = (_success, error) =>
+                error({code: 1, message: 'permission denied'});
+        }"""
+    )
+    page.locator("#viewCercanasButton a").click()
+    page.wait_for_function(
+        "() => document.querySelector('#nearestStopsResults').style.display === 'block'",
+        timeout=timeout_ms,
+    )
+    notice = page.locator("#nearestStopsResults .nearby-location-notice")
+    page.wait_for_selector(
+        "#nearestStopsResults .nearby-location-notice", state="visible", timeout=timeout_ms
+    )
+    notice_text = notice.inner_text()
+    assert "centro de Valladolid" in notice_text
+    assert page.locator("#nearby-location-retry").inner_text() == "Habilitar ubicación"
+    assert page.locator("#mapaParadasCercanas").count() == 1
+    page.wait_for_selector("#nearestStopsResults .stopResult", state="attached", timeout=timeout_ms)
+    assert page.locator("#nearestStopsResults .stopResult").count() > 0
+    assert page.locator("#mapaParadasCercanas .leaflet-overlay-pane path").count() == 0
+
+    page.locator("#close-nearest-stops").click()
+    page.wait_for_function("() => document.querySelector('#nearestStopsResults').style.display !== 'block'")
+    assert_no_browser_errors(result)
+
+
 def test_route_planner(result: BrowserPage, timeout_ms: int) -> None:
     page = result.page
 
@@ -914,8 +1983,9 @@ def test_pin_and_remove_followed_line(
     card = add_line_to_list(page, stop_number, line_number, timeout_ms)
     pin = page.locator("#pin-icon-%s" % stop_number)
     pin.click()
-    page.wait_for_function(
-        "() => document.querySelector('#pin-icon-%s').classList.contains('fixed')" % stop_number,
+    page.wait_for_selector(
+        "#pin-icon-%s.fixed" % stop_number,
+        state="attached",
         timeout=timeout_ms,
     )
     assert page.evaluate(
@@ -942,9 +2012,9 @@ def test_pin_and_remove_followed_line(
         )
 
     detail_panel.locator(".arrow-button").click()
-    page.wait_for_function(
-        "() => !document.querySelector('[id=\"%s-%s\"] .additional-info-panel').classList.contains('open')"
-        % (stop_number, line_number),
+    page.wait_for_selector(
+        '[id="%s-%s"] .additional-info-panel.open' % (stop_number, line_number),
+        state="hidden",
         timeout=timeout_ms,
     )
     detail_panel.locator(".arrow-button").click()
@@ -977,13 +2047,14 @@ def run_case(
         print("PASS  " + name)
         return None
     except Exception as error:  # noqa: BLE001 - report browser artifacts before failing
+        traceback.print_exc()
         artifact_dir.mkdir(parents=True, exist_ok=True)
         screenshot_path = artifact_dir / (name.replace(" ", "_") + ".png")
         try:
             result.page.screenshot(path=str(screenshot_path), full_page=True)
         except PlaywrightError:
             pass
-        return "%s: %s (captura: %s)" % (name, error, screenshot_path)
+        return "%s: %r (captura: %s)" % (name, error, screenshot_path)
 
 
 def main() -> int:
@@ -1021,6 +2092,11 @@ def main() -> int:
                     "arranque_y_contratos_de_stack",
                     lambda result: test_boot_contract(result, server.base_url, args.timeout),
                 ),
+                (
+                    "busqueda_de_paradas_tolerante",
+                    test_stop_search_tolerates_spacing_and_connectives,
+                ),
+                ("dialogo_inicial_seguimiento", test_tracking_first_entry_dialog),
                 ("menu_y_tema", test_menu_and_theme),
                 ("contador_avisos_generales", test_global_alert_count),
                 (
@@ -1032,6 +2108,20 @@ def main() -> int:
                     lambda result: test_live_search_line_and_map(
                         result, args.stop, args.line, args.timeout
                     ),
+                ),
+                ("puntos_de_entrada_del_seguimiento", test_ride_tracking_entry_points),
+                ("onboarding_del_seguimiento", test_ride_tracking_onboarding),
+                (
+                    "sesion_de_seguimiento_en_primer_plano",
+                    lambda result: test_ride_tracking_session(result, args.timeout),
+                ),
+                (
+                    "bus_que_ya_paso_la_parada",
+                    lambda result: test_ride_tracking_bus_already_passed(result, args.timeout),
+                ),
+                (
+                    "simulador_de_estados_del_viaje",
+                    lambda result: test_ride_tracking_demo(result, server.base_url, args.timeout),
                 ),
                 (
                     "horarios_programados_y_cambio_de_fecha",
@@ -1056,6 +2146,10 @@ def main() -> int:
                 (
                     "paradas_cercanas_con_geolocalizacion",
                     lambda result: test_nearby_stops(result, args.timeout),
+                ),
+                (
+                    "paradas_cercanas_sin_ubicacion",
+                    lambda result: test_nearby_stops_without_geolocation(result, args.timeout),
                 ),
                 (
                     "planificador_de_rutas",

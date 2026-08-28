@@ -52,17 +52,21 @@
 </head>
 
 <body>
-    <div id="overlay-guia-voz-2026" class="overlay">
+    <div id="overlay-ride-tracking-20260811" class="overlay">
         <div class="overlay-content">
             <div class="arrow"></div>
-            <h2>¡Nuevo Guía VallaBus!</h2>
+            <h2>¡Nuevo seguimiento en directo!</h2>
+            <img
+                class="ride-tracking-tip-image"
+                src="img/overlays/ride-tracking-follow.jpg"
+                alt="Ejemplo del botón Seguir dentro de una línea añadida">
             <ul>
-                <li>Busca paradas y líneas con tu voz</li>
-                <li>Consulta horarios sin escribir</li>
-                <li>Pulsa el <strong>micrófono inferior</strong></li>
-                <li>Pregunta por rutas y tiempos de llegada</li>
+                <li>Abre una línea y pulsa <strong>Seguir</strong></li>
+                <li>Mira por dónde va tu bus y cuál es la próxima parada</li>
+                <li>Consulta cuánto falta para llegar a tu destino</li>
+                <li>Elige dónde bajarte y recibe un aviso</li>
             </ul>
-            <button class="close-overlay">¡Probar ahora!</button>
+            <button class="close-overlay">Entendido</button>
         </div>
     </div>
 
@@ -169,9 +173,98 @@
         <div id="busMap"></div>
         <div id="mapFooter">
             <p id="busMapLastUpdate">Actualmente no hay datos de ubicación para esta línea</p>
+            <button id="mapFollowButton" class="ride-follow-button map-follow-button" type="button" hidden>
+                <span class="map-follow-copy">
+                    <strong id="mapFollowTitle">Línea</strong>
+                    <span id="mapFollowMeta">Consulta este recorrido</span>
+                    <span id="mapFollowFreshness" class="map-follow-freshness" hidden></span>
+                </span>
+                <span class="map-follow-action">Seguir</span>
+            </button>
+            <section id="rideTrackingPanel" class="ride-tracking-panel" role="region" aria-labelledby="rideTrackingTitle" hidden>
+                <button id="rideSheetToggle" class="ride-sheet-grabber" type="button" aria-label="Contraer panel" aria-expanded="true"></button>
+                <div class="ride-tracking-heading">
+                    <strong id="rideTrackingTitle">
+                        <span id="rideTrackingLineLabel">Seguimiento</span>
+                        <span class="ride-tracking-title-separator" aria-hidden="true">·</span>
+                        <span id="rideTrackingPhaseLabel">del bus</span>
+                    </strong>
+                    <button id="rideTrackingClose" class="ride-tracking-close" type="button" aria-label="Parar seguimiento">Parar seguimiento</button>
+                </div>
+                <p id="rideTrackingStatus" class="ride-tracking-status" role="status" aria-live="polite"></p>
+                <p id="rideTrackingUrgentAlert" class="ride-tracking-urgent-alert" role="alert" hidden></p>
+                <h2 id="rideTrackingNextStop" class="ride-tracking-next-stop"></h2>
+                <div class="ride-tracking-metric" aria-live="polite">
+                    <span id="rideTrackingRemainingMetric" class="ride-summary-metric">
+                        <strong id="rideTrackingRemainingValue"></strong>
+                        <span id="rideTrackingRemainingLabel"></span>
+                    </span>
+                    <span id="rideTrackingSummaryDivider" class="ride-summary-divider" aria-hidden="true">·</span>
+                    <span id="rideTrackingEtaMetric" class="ride-summary-metric">
+                        <strong id="rideTrackingMetricValue"></strong>
+                        <span id="rideTrackingMetricLabel"></span>
+                    </span>
+                </div>
+                <p id="rideTrackingLocationHint" class="ride-tracking-location-hint" hidden></p>
+                <p id="rideTrackingArrivalTime" class="ride-tracking-arrival-time" hidden></p>
+                <p id="rideTrackingLastUpdate" class="ride-tracking-last-update"></p>
+                <button id="rideDestinationButton" class="ride-destination-field" type="button" aria-haspopup="dialog">
+                    <span class="ride-destination-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M5 21V4"></path>
+                            <path d="M6 4h11l-2.2 3L17 10H6z"></path>
+                        </svg>
+                    </span>
+                    <span class="ride-destination-copy">
+                        <span>Destino</span>
+                        <strong id="rideDestinationValue">Elige una parada (opcional)</strong>
+                    </span>
+                    <span class="ride-destination-chevron" aria-hidden="true">›</span>
+                </button>
+                <select id="rideDestinationSelect" class="ride-destination-native" aria-label="Destino del viaje" tabindex="-1">
+                    <option value="">Elige una parada (opcional)</option>
+                </select>
+                <div class="ride-tracking-actions">
+                    <button id="rideBoardButton" class="ride-board-button" type="button">Estoy dentro</button>
+                    <button id="rideStopButton" class="ride-stop-button" type="button">
+                        <span class="ride-stop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg></span>
+                        <span>Parar seguimiento</span>
+                    </button>
+                </div>
+            </section>
             <button class="map-close">Cerrar mapa</button>
         </div>
     </div>
+
+    <div id="rideDestinationDialog" class="ride-destination-dialog" role="dialog" aria-modal="true"
+        aria-labelledby="rideDestinationDialogTitle" hidden>
+        <div class="ride-destination-dialog-sheet">
+            <div class="ride-destination-dialog-heading">
+                <div>
+                    <span>Destino</span>
+                    <h2 id="rideDestinationDialogTitle">¿Dónde te quieres bajar?</h2>
+                </div>
+                <button id="rideDestinationDialogClose" type="button" aria-label="Cerrar selector de destino" title="Cerrar">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7l10 10M17 7L7 17"></path></svg>
+                </button>
+            </div>
+            <label class="ride-destination-search">
+                <span class="sr-only">Buscar parada</span>
+                <input id="rideDestinationSearch" type="search" inputmode="search" placeholder="Buscar una parada">
+            </label>
+            <div id="rideDestinationOptions" class="ride-destination-options"></div>
+        </div>
+    </div>
+
+    <aside id="rideDemoToolbar" class="ride-demo-toolbar" aria-label="Simulador del seguimiento" hidden>
+        <div>
+            <strong>Demo del viaje</strong>
+            <span id="rideDemoStateLabel">Esperando</span>
+        </div>
+        <button id="rideDemoPrevious" type="button" aria-label="Estado anterior">‹</button>
+        <button id="rideDemoPlay" type="button">Reproducir</button>
+        <button id="rideDemoNext" type="button" aria-label="Estado siguiente">›</button>
+    </aside>
 
     <div id="nearestStopsResults"></div>
 
@@ -302,12 +395,15 @@
 
     <script src="js/leaflet/leaflet.js"></script>
     <script src="js/leaflet/Control.Geocoder.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="js/utils.js?v=20260811-2"></script>
     <script src="js/notifications.js"></script>
-    <script src="js/mapa.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/buscador.js"></script>
+    <script src="js/mapa.js?v=20260811-9"></script>
+    <script src="js/api.js?v=20260811-2"></script>
+    <script src="js/buscador.js?v=20260811-3"></script>
     <script src="js/favDestinations.js"></script>
+    <script src="js/ride-tracking.js?v=20260811-14"></script>
+    <script src="js/ride-tracking-demo.js?v=20260811-5"></script>
+    <script src="js/ride-tracking-onboarding.js?v=20260811-3"></script>
     <script type="module" src="js/script.js?v=20260827-5"></script>
 
     <script src="js/serviceworker-check.js"></script>

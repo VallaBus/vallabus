@@ -1,4 +1,7 @@
 let myMap = L.map('busMap').setView([41.64817, -4.72974], 15);
+// Exponemos la instancia para que el seguimiento de viaje pueda dibujar la
+// posición del usuario sobre el mismo mapa sin crear una segunda instancia.
+window.vallabusMap = myMap;
 let currentTileLayer;
 let centerControl;
 let paradaMarker;
@@ -11,6 +14,11 @@ if (document.readyState === 'loading') {
     mapEvents();
 }
 
+function crearClaseLinea(lineNumber) {
+    const normalized = String(lineNumber ?? '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    return normalized ? ` linea-${normalized}` : '';
+}
+
 function crearIconoBus(numeroBus) {
     const label = String(numeroBus ?? '');
     const labelClass = label.length >= 5
@@ -20,9 +28,28 @@ function crearIconoBus(numeroBus) {
             : '';
 
     return L.divIcon({
-        className: 'bus-icon' + (numeroBus ? ' linea-' + numeroBus : '') + labelClass,
-        html: `<div>${label}</div>`,
+        className: 'bus-icon' + crearClaseLinea(numeroBus) + labelClass,
+        html: `
+            <div>${label}</div>
+            <svg class="bus-icon-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill-rule="evenodd" d="M8 3.5h8A2.5 2.5 0 0 1 18.5 6v13h-2v1.5h-2V19h-5v1.5h-2V19h-2V6A2.5 2.5 0 0 1 8 3.5zm0 3v4h8v-4H8z"></path>
+            </svg>`,
         iconSize: [30, 30]
+    });
+}
+
+function crearIconoParadaSeguimiento(lineNumber) {
+    return L.divIcon({
+        className: 'ride-map-marker-icon',
+        html: `
+            <span class="ride-map-marker ride-map-marker--board${crearClaseLinea(lineNumber)}" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path fill-rule="evenodd" d="M12 21s-6-4.8-6-10a6 6 0 1 1 12 0c0 5.2-6 10-6 10zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"></path>
+                </svg>
+            </span>`,
+        iconSize: [40, 46],
+        iconAnchor: [20, 42],
+        popupAnchor: [0, -38]
     });
 }
 
@@ -89,19 +116,26 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 // Si no hay datos de ubicación, los dejamos como null
                 if (!response.ok) {
                     console.log('Error al consultar el API de ubicación');
+                    actualizarSinPosicion();
+                    if (typeof window.rideTracking?.onBusPosition === 'function') {
+                        window.rideTracking.onBusPosition(null, busData);
+                    }
                 }
                 else {
                     const data = await response.json();
 
                     if (!data || !data.length || !data[0].latitud || !data[0].longitud) {
                         // Si no hay datos simplemente centramos el mapa en la parada
-                        if (centerMap) {
+                        if (centerMap && !document.getElementById('mapContainer')?.classList.contains('ride-tracking-active')) {
                             myMap.panTo([paradaData.latitud, paradaData.longitud]);
                         }
-                        document.getElementById('busMapLastUpdate').innerHTML = "Actualmente no hay datos de ubicación para esta línea";
+                        actualizarSinPosicion();
                         if (marcadorAutobus) {
                             marcadorAutobus.remove();
                             marcadorAutobus = null;
+                        }
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(null, busData);
                         }
                     }
                     else {
@@ -109,9 +143,12 @@ async function updateBusMap(busData, paradaData, centerMap) {
                         lat = parseFloat(data[0].latitud);
                         lon = parseFloat(data[0].longitud);
                         actualizarBus(lat, lon, busData);
+                        if (typeof window.rideTracking?.onBusPosition === 'function') {
+                            window.rideTracking.onBusPosition(data[0], busData);
+                        }
                         actualizarControlCentro(myMap, lat, lon);
                         actualizarUltimaActualizacion(data[0].timestamp);
-                        if (centerMap) {
+                        if (centerMap && !document.getElementById('mapContainer')?.classList.contains('ride-tracking-active')) {
                             myMap.panTo([lat, lon], { animate: true, duration: 1 });
                         }
                     }
@@ -119,14 +156,22 @@ async function updateBusMap(busData, paradaData, centerMap) {
                 }
                 // La posición puede no estar disponible todavía, pero la
                 // geometría y las paradas del viaje sí deben mostrarse.
-                actualizarParada(paradaData);
+                actualizarParada(paradaData, busData.lineNumber);
                 addRouteShapesToMap(busData.tripId, busData.lineNumber);
                 addStopsToMap(busData.tripId, busData.lineNumber);
             } catch (error) {
                 console.error('Error al actualizar el mapa de buses:', error.message);
+                actualizarSinPosicion();
+                if (typeof window.rideTracking?.onBusPosition === 'function') {
+                    window.rideTracking.onBusPosition(null, busData);
+                }
             }
         } catch (error) {
             console.error('Error al actualizar el mapa de buses:', error.message);
+            actualizarSinPosicion();
+            if (typeof window.rideTracking?.onBusPosition === 'function') {
+                window.rideTracking.onBusPosition(null, busData);
+            }
         }
     });
 
@@ -190,16 +235,20 @@ let UbicacionUsuarioControl = L.Control.extend({
 
 myMap.addControl(new UbicacionUsuarioControl());
 
-function actualizarParada(paradaData) {
-    // Actualizar o crear el marcador de la parada
+function actualizarParada(paradaData, lineNumber) {
+    // La parada de subida se mantiene visible también durante el seguimiento:
+    // es la referencia espacial del viaje y usa un pin distinto del bus y de
+    // la persona. Así sigue siendo útil aunque el GPS no esté disponible.
     if (paradaMarker) {
         // Si ya existe, actualizamos su posición y su popup
         paradaMarker.setLatLng([paradaData.latitud, paradaData.longitud]);
+        paradaMarker.setIcon(crearIconoParadaSeguimiento(lineNumber));
         paradaMarker.getPopup().setContent(paradaData.nombre);
     } else {
         // Si no existe, creamos uno nuevo
         paradaMarker = L.marker([paradaData.latitud, paradaData.longitud], {
-            title: paradaData.nombre
+            title: `Tu parada: ${paradaData.nombre}`,
+            icon: crearIconoParadaSeguimiento(lineNumber)
         }).addTo(myMap).bindPopup(paradaData.nombre);
     }
 }
@@ -207,6 +256,7 @@ function actualizarParada(paradaData) {
 function actualizarBus(lat, lon, busData) {
     // Actualizar o crear el marcador del autobús
     const nuevoIconoBus = crearIconoBus(busData.lineNumber);
+    const trackingActive = document.getElementById('mapContainer')?.classList.contains('ride-tracking-active');
 
     // Mostramos solo los datos que realmente publica el API. LaRegional
     // puede enviar el número interno del vehículo sin matrícula.
@@ -239,8 +289,11 @@ function actualizarBus(lat, lon, busData) {
             marcadorAutobus.setLatLng([lat, lon]).setIcon(nuevoIconoBus);
             // Popup con info del bus
             marcadorAutobus.bindPopup(`${busInfo}`);
-            // Centramos la vista en la nueva ubicación
-            myMap.panTo([lat, lon], { animate: true, duration: 1 });
+            // En seguimiento el usuario puede haber desplazado el mapa; no
+            // devolvemos la vista al bus en cada refresco del API.
+            if (!trackingActive) {
+                myMap.panTo([lat, lon], { animate: true, duration: 1 });
+            }
         }
     } else {
         // Si no existe, creamos uno nuevo
@@ -258,6 +311,13 @@ function actualizarUltimaActualizacion(timestamp) {
     let lastUpdate = minutes < 1 ? `${seconds}s` : `${minutes} min ${seconds}s`;
     let updateHTML = `Última ubicación <strong>aproximada</strong>. Actualizada hace ${lastUpdate}`;
     document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
+}
+
+function actualizarSinPosicion() {
+    const updateHTML = 'Última comprobación <strong>hace 0s</strong>. No hay datos de ubicación en directo';
+    document.getElementById('busMapLastUpdate').innerHTML = updateHTML;
+    window.rideTracking?.setLastUpdate?.(updateHTML);
 }
 
 // Función para calcular el ángulo entre dos puntos
@@ -590,7 +650,8 @@ function prepararDatosParadas(paradas) {
 let biciGeoJSONLayer = null;
 
 // Mapa para paradas cercanas
-async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY) {
+async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY, options = {}) {
+    const isApproximate = options.isApproximate === true;
 
     // Check if the map container already has a map instance
     if (window.myMapParadasCercanas) {
@@ -689,13 +750,19 @@ async function mapaParadasCercanas(paradas, ubicacionUsuarioX, ubicacionUsuarioY
         window.myMapParadasCercanas.removeLayer(userLocationCircle);
     }
 
-    // Dibuja un círculo alrededor de la ubicación del usuario
-    userLocationCircle = L.circle([lat, lon], {
-        color: '#FFF',
-        fillColor: '#1da1f2',
-        fillOpacity: 0.7,
-        radius: 30
-    }).addTo(window.myMapParadasCercanas);
+    // Solo dibujamos la ubicación cuando procede del dispositivo. En el
+    // fallback del centro de Valladolid sería engañoso mostrarla como si
+    // fuera la posición real del usuario.
+    if (!isApproximate) {
+        userLocationCircle = L.circle([lat, lon], {
+            color: '#FFF',
+            fillColor: '#1da1f2',
+            fillOpacity: 0.7,
+            radius: 30
+        }).addTo(window.myMapParadasCercanas);
+    } else {
+        userLocationCircle = null;
+    }
 
     // Toogle de bicis
     // Definición del control personalizado

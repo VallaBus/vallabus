@@ -265,6 +265,14 @@
     transition: background-color 1s ease;
 }
 
+.line-info.no-data {
+    background-color: #F7F7F7;
+}
+
+.dark-mode .line-info.no-data {
+    background-color: #3B3D3D;
+}
+
 .dark-mode .highlight-update {
     background-color: #ffff994c;
 }
@@ -511,6 +519,17 @@ button.remove-stop {
     width: 1em;
 }
 
+.tiempo.sin-datos {
+    color: #666;
+    font-size: 0.85em;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.dark-mode .tiempo.sin-datos {
+    color: #BDBDBD;
+}
+
 .dark-mode .tiempo.loading::after {
     /* Heredar el color del texto padre */
 }
@@ -534,24 +553,6 @@ button.remove-stop {
     100% {
         content: '';
     }
-}
-
-.tiempo.error-state {
-    color: #FF9800;
-    font-size: 0.85em;
-    font-weight: normal;
-}
-
-.error-subtitle {
-    font-size: 0.7em;
-    color: #666;
-    margin-top: 3px;
-    opacity: 0.8;
-    font-style: italic;
-}
-
-.dark-mode .error-subtitle {
-    color: #999;
 }
 
 .loading-state {
@@ -802,6 +803,36 @@ button.remove-stop {
 
 #nearestStopsResults p {
     font-size: 0.8em;
+}
+
+#nearestStopsResults .nearby-location-notice {
+    background-color: #eef7f2;
+    border-left: 3px solid #2b806e;
+    border-radius: 4px;
+    color: #28443b;
+    line-height: 1.35;
+    padding: 10px 12px;
+}
+
+#nearestStopsResults .nearby-location-notice button {
+    background: transparent;
+    border: 0;
+    color: #176b59;
+    cursor: pointer;
+    font: inherit;
+    font-weight: bold;
+    padding: 4px 0 0;
+    text-decoration: underline;
+}
+
+.dark-mode #nearestStopsResults .nearby-location-notice {
+    background-color: #253a34;
+    border-left-color: #76c7b0;
+    color: #e4f3ed;
+}
+
+.dark-mode #nearestStopsResults .nearby-location-notice button {
+    color: #a8ead5;
 }
 
 #nearestStopsResults .stopResult h2 {
