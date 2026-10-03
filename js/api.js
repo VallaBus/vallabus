@@ -6,6 +6,19 @@ const apiEndPoint = 'https://gtfs.vallabus.com';
 // const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
 const fallbackApiEndPoint = 'https://api.vallabus.com';
 
+// Refresh discovery once after migration; saved favorites remain untouched.
+try {
+    if (localStorage.getItem('arroyoDiscoveryVersion') !== '20261003-2') {
+        localStorage.removeItem('busStops');
+        for (const key of Object.keys(localStorage)) {
+            if (/^busSchedule_.*(?:LR:|REGI:)/.test(key)) localStorage.removeItem(key);
+        }
+        localStorage.setItem('arroyoDiscoveryVersion', '20261003-2');
+    }
+} catch (error) {
+    console.warn('No se pudo refrescar la caché de descubrimiento', error);
+}
+
 // The fallback has not migrated Arroyo; do not silently mix two datasets.
 function canUseFallback(url) {
     const decoded = decodeURIComponent(url);
