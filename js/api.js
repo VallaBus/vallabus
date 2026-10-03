@@ -6,13 +6,20 @@ const apiEndPoint = 'https://gtfs.vallabus.com';
 // const fallbackApiEndPoint = 'https://gtfs2.vallabus.com';
 const fallbackApiEndPoint = 'https://api.vallabus.com';
 
+// The fallback has not migrated Arroyo; do not silently mix two datasets.
+function canUseFallback(url) {
+    const decoded = decodeURIComponent(url);
+    return !/^\/v2\/parada\/(?:LR:|REGI)/i.test(decoded) &&
+        !/^\/v2\/busPosition\/(?:LR:)?(?:A\d+|R\d+|B\d+|V1[IV])(?:$|[/?])/i.test(decoded);
+}
+
 // Function to handle API calls with fallback logic
 async function fetchApi(url) {
     try {
         const response = await fetch(apiEndPoint + url);
         // If the primary API fails, switch to fallback API
         if (!response.ok) {
-            if (fallbackApiEndPoint) {
+            if (fallbackApiEndPoint && canUseFallback(url)) {
                 return fetchApiFromFallback(fallbackApiEndPoint + url);
             } else {
                 throw new Error('Both primary and fallback APIs are down');
@@ -22,7 +29,7 @@ async function fetchApi(url) {
         return response;
     } catch (error) {
         // If primary API fails, switch to fallback API
-        if (fallbackApiEndPoint) {
+        if (fallbackApiEndPoint && canUseFallback(url)) {
             return fetchApiFromFallback(fallbackApiEndPoint + url);
         } else {
             throw new Error('Both primary and fallback APIs are down');
@@ -108,6 +115,27 @@ function groupByStops(busLines) {
     }, {});
 }
 
+// Old favorites remain valid even when discovery only lists canonical IDs.
+const stopMetadataPending = new Map();
+async function resolveStopMetadata(stopId) {
+    if (stopMetadataPending.has(stopId)) return stopMetadataPending.get(stopId);
+    const task = (async () => {
+        const stops = await loadBusStops();
+        const known = stops.find(stop => stop.parada.numero === stopId);
+        if (known) return known;
+        const response = await fetchApi(`/v2/parada/${encodeURIComponent(stopId)}`);
+        if (!response.ok) return null;
+        const data = await response.json();
+        const stop = data.parada?.[0];
+        if (!stop) return null;
+        return { parada: { numero: stopId, nombre: stop.parada },
+            ubicacion: { x: stop.longitud, y: stop.latitud },
+            lineas: { ordinarias: (data.lineas || []).map(line => line.linea) } };
+    })();
+    stopMetadataPending.set(stopId, task);
+    try { return await task; }
+    finally { stopMetadataPending.delete(stopId); }
+}
 // Función para obtener el nombre de la parada del JSON
 async function getStopName(stopId) {
     const cacheKey = `stopName_${stopId}`;
@@ -122,8 +150,7 @@ async function getStopName(stopId) {
 
     try {
         // Buscar la parada por su número
-        const busStops = await loadBusStops();
-        const stop = busStops.find(stop => stop.parada.numero === stopId);
+        const stop = await resolveStopMetadata(stopId);
 
         if (!stop) {
             throw new Error(`No se encontró la parada con el ID: ${stopId}`);
@@ -157,8 +184,7 @@ async function getStopGeo(stopId) {
 
     try {
         // Buscar la parada por su número
-        const busStops = await loadBusStops();
-        const stop = busStops.find(stop => stop.parada.numero === stopId);
+        const stop = await resolveStopMetadata(stopId);
 
         if (!stop) {
             throw new Error(`No se encontró la parada con el ID: ${stopId}`);
@@ -182,8 +208,7 @@ async function getStopGeo(stopId) {
 async function getStopLines(stopId) {
     try {
         // Buscar la parada por su número
-        const busStops = await loadBusStops();
-        const stop = busStops.find(stop => stop.parada.numero === stopId);
+        const stop = await resolveStopMetadata(stopId);
 
         if (!stop) {
             throw new Error(`No se encontró la parada con el ID: ${stopId}`);
